@@ -7,6 +7,7 @@
 #include "arachne.h"
 #include "internet.h" //because of background tasks...
 #include "gui.h"
+#include "html.h"//!!glennmcc: Feb 18, 2005 -- for 'Select test' in mouseon()
 #include "xanimgif.h"
 
 int TcpIdleFunc(void)
@@ -153,20 +154,37 @@ void xChLogoTICK(char Style) // animation of logo
    ikn=0;
   }
  }
-#endif 
+#endif
 }//end sub
 
 
 void mouseon(void)
 {
  if(!global_nomouse)
+//!!glennmcc: Feb 15, 2005 -- fix pointer colors and 'stuck pointer'
+ {
+//!!glennmcc: added 'Select test' Feb 18, 2005
+//calling onmouse(0) while in a <SELECT> tag causes a crash
+if(activeatom.data1!=SELECT)
+  {
+   if(onmouse(0))
+   x_yncurs(1,mousex,mousey,user_interface.brightmouse);
+   else
+   x_yncurs(1,mousex,mousey,user_interface.darkmouse);
+  }
+  else
+//the following original single line will still be used if <SELECT>
   x_yncurs(1,mousex,mousey,15);
+ }
+//!!glennmcc: end
 }
 
 void mouseoff(void)
 {
  if(!global_nomouse)
-  x_yncurs(0,mousex,mousey,15);
+//!!glennmcc: Feb 15, 2005 -- fix pointer colors
+  x_yncurs(0,mousex,mousey,user_interface.darkmouse);
+//  x_yncurs(0,mousex,mousey,15);//original line
 }
 
 
@@ -318,8 +336,40 @@ void MemInfo(char forced)
   moreinfo:
 
   MemInfoLine("Profile",configvariable(&ARACHNEcfg,"Profile",NULL),0,&y);
-  MemInfoLine("",configvariable(&ARACHNEcfg,"PersonalName",NULL),0,&y);
-  MemInfoLine("",configvariable(&ARACHNEcfg,"eMail",NULL),0,&y);
+//!!glennmcc: Jan 26, 2005 -- show status of https2Http status and IgnoreJS
+//instead of PersonalName and eMail
+  if (http_parameters.https2http>1)
+    {
+     if (http_parameters.https2http==3)
+     MemInfoLine("Https2Http","Toggled Yes",0,&y);//3==toggled Yes
+     else
+     MemInfoLine("Https2Http","Toggled No",0,&y);//2==toggled No
+    }
+    else
+    {
+     if (http_parameters.https2http)
+     MemInfoLine("Https2Http","Yes",0,&y);//1==default or Yes in CFG
+     else
+     MemInfoLine("Https2Http","No",0,&y);//0==No in CFG
+    }
+
+  if (http_parameters.ignorejs>1)
+    {
+     if (http_parameters.ignorejs==3)
+     MemInfoLine("IgnoreJS","Toggled Yes",0,&y);//3==toggled Yes
+     else
+     MemInfoLine("IgnoreJS","Toggled No",0,&y);//2==toggled No
+    }
+    else
+    {
+     if (http_parameters.ignorejs)
+     MemInfoLine("IgnoreJS","Yes",0,&y);//1==Yes in CFG
+     else
+     MemInfoLine("IgnoreJS","No",0,&y);//0==default or No in CFG
+    }
+//  MemInfoLine("",configvariable(&ARACHNEcfg,"PersonalName",NULL),0,&y);
+//  MemInfoLine("",configvariable(&ARACHNEcfg,"eMail",NULL),0,&y);
+//!!glennmcc: end
   y++;
   x_setcolor(8);
   x_line(x_maxx()-147,y,x_maxx()-4,y);

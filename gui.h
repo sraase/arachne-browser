@@ -8,7 +8,9 @@
 void onlinehelp(int b);
 int onbutton(int x,int y);
 void inputatom(char *msg1,char *msg2);
-int GUIEVENT(int key, int mys);
+//!!glennmcc: Jan 23, 2005 -- at Ray's suggestion, unsigned int
+unsigned int GUIEVENT(unsigned int key, unsigned int mys);
+//int GUIEVENT(int key, int mys);
 void getTXTprompt(char *str,int lim);
 void setTXTprompt(char *str);
 void ReadWriteTextarea(char sw);

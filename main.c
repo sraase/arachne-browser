@@ -492,8 +492,8 @@ IveGotNewUrl:
     {
      char buf[IE_MAXLEN+2];
      make_cmd(cmd,buf,
-              p->htmlframe[arachne.target].cacheitem.URL,
-              url.host, url.file, cmd, "NUL");
+	      p->htmlframe[arachne.target].cacheitem.URL,
+	      url.host, url.file, cmd, "NUL");
 
 #ifdef POSIX
      printf("Executing command:\n%s\n",buf);
@@ -506,8 +506,13 @@ IveGotNewUrl:
      goto end;
 #endif
     }
-
+//!!glennmcc: begin Jan 16, 2005 -- no error page when 'arachne:'
+if(!strstr(url.protocol,"arachne:"))
+   {
     sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_url.ah",sharepath,GUIPATH);
+   }
+//    sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_url.ah",sharepath,GUIPATH);
+//!!glennmcc: end
     arachne.target=0;
     error=1;
     p->forced_html=1;
@@ -657,7 +662,16 @@ IveGotNewUrl:
    closehttp(cacheitem);
    found=1;
    if(GLOBAL.backgr)
-    goto Wait4Orders;
+//!!glennmcc: begin Feb 06, 2005 -- fix 'dead links' on page after backgr dl
+   {
+//    goback();
+//    gotonextpage();
+//!!glennmcc: Feb 07, 2005 Ray's fix works better than mine.
+    strcpy(GLOBAL.location, ie_getline(&history, arachne.history));
+    GLOBAL.gotolocation=1;
+    goto Wait4Orders; //original single line
+   }
+//!!glennmcc: end
 
    if(GLOBAL.abort)
    {

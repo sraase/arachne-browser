@@ -5,6 +5,7 @@
 // ========================================================================
 
 #include "arachne.h"
+#include "internet.h"
 
 char *FONTERR=MSG_FNTERR;
 
@@ -65,14 +66,20 @@ void graphicsinit(char *svgamode)
 
 char *ptr,Grafmode[30];  //pozadovany graf.mod -
 int irc,gmode;
+
+//!!glennmcc: begin Feb 11, 2005
+//moved to config.c to make it configurable via CursorType in arachne.cfg
+//the next block  of data is the original cursor
+/*
 const short cur[32] =
-	 { 0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
+	 {
+	   0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
 	   0xF001, 0xF000, 0xF800, 0xF800, 0xF800, 0xFC00, 0xFC00, 0xFC00,
 	   0x0000, 0x6000, 0x7000, 0x3800, 0x1C00, 0x0E00, 0x0700, 0x0018,
 	   0x07EC, 0x07EE, 0x001E, 0x03EE, 0x03EE, 0x001E, 0x00EC, 0x0002 };
-
+*/
+//!!glennmcc:end
 //------------------------------------------------------
-
 
 //exit with invalid gr. mode?
 if(svgamode[0]=='\0')
@@ -217,7 +224,11 @@ setmode:
     goto GrError;
   }
 
-  x_defcurs( (short *)cur, (short *)&cur[16], 15); //myssii kursor
+//!!glennmcc: begin Feb 11, 2005
+//moved to config.c to make it configurable via CursorType in arachne.cfg
+//origianl sinle line follows
+//  x_defcurs( (short *)cur, (short *)&cur[16], 15); //myssii kursor
+//!!glennmcc: end
 
  if(!strcmpi(Grafmode,"EGA"))
   egamode=1;

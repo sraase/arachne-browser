@@ -279,7 +279,8 @@ void AnalyseURL(char *str,struct Url *url,int frame)
 {
  //!!glennmcc: Apr 22, 2004
  //added *su below to remove a space or a . from the start of the protocol
- char *strbuf,*su;
+ //glennmcc: Feb 06, 2005 -- *su no longer needed (see mods made below)
+ char *strbuf;//,*su;
  char *ptr,*strptr;
  struct Url *base;
  char isfile=0;
@@ -385,7 +386,9 @@ void AnalyseURL(char *str,struct Url *url,int frame)
 //!!glennmcc: begin Dec 09, 2001
 // added to fix "HTTPS verifying images" loop by trying HTTP instead
 //!!glennmcc: begin Dec 11,2001---- made it configurable y/n
-if(http_parameters.https2http)
+//!!glennmcc: Jan 24, 2005 -- 2==toggled off via togglehttps2http()
+if(http_parameters.https2http && http_parameters.https2http!=2)
+//if(http_parameters.https2http)
 {
   if(!strcmpi(url->protocol,"https"))
    strcpy(url->protocol,"http");
@@ -397,12 +400,30 @@ if(http_parameters.https2http)
 //fixes this..... <a href=" http://www.cisnet.com/glennmcc/">My page</a>
 //and this..... <a href=".http://www.cisnet.com/glennmcc/">My page</a>
 //I have only seen this on the web a few times.
-//But every time I have seen it....... It's a royal POS :((
+//But every time I have seen it....... It's a royal PITA :((
+/*
 su=strstr(url->protocol," ");if(su)su+=1;else su=url->protocol;
 if(su)strcpy(url->protocol,su);
 su=strstr(url->protocol,".");if(su)su+=1;else su=url->protocol;
 if(su)strcpy(url->protocol,su);
-//!glennmcc: end (POS fixed)<g>
+*/
+// { RAY: 05-02-06: Simplify Glenn's code?:
+/*
+if (url->protocol[0] == ' ' || url->protocol[0] == '.')
+strcpy(url->protocol, url->protocol + 1);
+*/
+// }
+//!!glennmcc: begin Feb 06, 2005 -- Thank you Ray, it works great.
+//and you instigated me to make it even better
+//this now removes multiple spaces and dots :)
+//(commented-out su above since it's no longer needed)
+if (url->protocol[0] == ' ' || url->protocol[0] == '.')
+do
+{
+strcpy(url->protocol, url->protocol + 1);
+}
+while (url->protocol[0] == ' ' || url->protocol[0] == '.');
+//!glennmcc: end (PITA fixed)<g>
 
   if(!strcmpi(url->protocol,"http"))
    url->port=80;
@@ -591,9 +612,37 @@ void url2str(struct Url *url,char *out)
 }
 
 void add2history(char *URL)
-{
+ {
+//!!glennmcc: Feb 25, 2005
+//Mail2Hist caused more problems than it's worth, it's time to trash it :(
+#ifndef NOKEY
+//!!glennmcc: Jan 29, 2005 -- made it configurable
+char *ptr=configvariable(&ARACHNEcfg,"Mail2Hist",NULL);
+   if(!ptr) ptr="Yes";
+   if(!strcmpi(ptr,"No"))
+     {
+//!!glennmcc: Jan 16, 2005 -- also don't add any of the mail files themselves
+      if(strstr(URL,".CNM") || strstr(URL,".TBS") ||
+	 strstr(URL,".MES") || strstr(URL,".SNT")
+	) return;
+     }
+#endif
+//!!glennmcc: end
 
-  if (!URL) return;
+//!!glennmcc: Jan 05, 2005 -- do not add smtp: or pop3: into history.lst
+  if(strstr(URL,"smtp:") || strstr(URL,"pop3:")) return;
+//!!glennmcc: end
+
+//!!glennmcc: Jan 13, 2005 -- also don't add the some of the mail .DGIs
+#ifndef NOKEY
+  if(strstr(URL,"//movemail") || strstr(URL,"//delmail") ||
+     strstr(URL,"emptytrash.dgi")
+    ) return;
+#endif
+//!!glennmcc: end
+
+   if(!URL) return;
+
 //  printf("adding to history? GLOBAL.nothot=%d, arachne.scriptline=%d\n",
 //   GLOBAL.nothot, arachne.scriptline);
   if(!GLOBAL.nothot && arachne.scriptline==0)

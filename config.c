@@ -353,6 +353,31 @@ void configure_user_interface(void)
 {
  char *value;
 
+//!!glennmcc: begin Feb 11, 2005 -- Arrow cursor courtesy of Andrej Cuckov
+// THANK YOU !!! Mr. Cuckov
+//moved to config.c to make it configurable via CursorType in arachne.cfg
+const short cur2[32] =
+	 {
+	   0x1FFF, 0x0FFF, 0x07FF, 0x03FF, 0x01FF, 0x00FF, 0x007F, 0x003F,
+	   0x001F, 0x01FF, 0x10FF, 0x30FF, 0x787F, 0xF87F, 0xFC7F, 0x0000,
+	   0x4000, 0x6000, 0x7000, 0x7800, 0x7C00, 0x7F00, 0x7F00, 0x7F80,
+	   0x7C00, 0x6C00, 0x4600, 0x0600, 0x0300, 0x0300, 0x0000, 0x0000 };
+//the next block  of data is the original cursor
+const short cur[32] =
+	 {
+	   0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
+	   0xF001, 0xF000, 0xF800, 0xF800, 0xF800, 0xFC00, 0xFC00, 0xFC00,
+	   0x0000, 0x6000, 0x7000, 0x3800, 0x1C00, 0x0E00, 0x0700, 0x0018,
+	   0x07EC, 0x07EE, 0x001E, 0x03EE, 0x03EE, 0x001E, 0x00EC, 0x0002 };
+
+value=configvariable(&ARACHNEcfg,"CursorType",NULL);
+if(!value || toupper(*value)=='H')
+x_defcurs( (short *)cur, (short *)&cur[16], 15); //original 'Hand' cursor
+else
+if(toupper(*value)=='A')
+x_defcurs( (short *)cur2, (short *)&cur2[16], 15); // new 'Arrow' cursor
+//!!glennmcc:end
+
  value=configvariable(&ARACHNEcfg,"SmallIcons",NULL);
 /*
  if(value && toupper(*value)=='N' && reg)
@@ -707,6 +732,7 @@ void configure_user_interface(void)
  else
   user_interface.css=1;
 
+
  // HTTP parameters --------------------------------------------------
 
  value=configvariable(&ARACHNEcfg,"HTTPreferer",NULL);
@@ -736,11 +762,12 @@ void configure_user_interface(void)
 //!!glennmcc: begin Dec 11, 2001
 // added to fix "HTTPS verifying images" loop by trying HTTP instead
 // (defaults to No if "HTTPS2HTTP Yes" line is not in Arachne.cfg)
+//!!glennmcc: Jan 24, 2005 -- changed defult to "Yes"
  value=configvariable(&ARACHNEcfg,"HTTPS2HTTP",NULL);
- if(value && toupper(*value=='Y'))
-  http_parameters.https2http=1;
- else
+ if(value && toupper(*value=='N'))
   http_parameters.https2http=0;
+ else
+  http_parameters.https2http=1;
 //!!glennmcc: end
 
 //!!glennmcc: begin May 03, 2002
@@ -774,5 +801,27 @@ void configure_user_interface(void)
 //!!glennmcc: end
 
 }
+
+//!!glennmcc: Begin Jan 24, 2005 -- per user requests
+int togglehttps2http(void)
+{
+if(http_parameters.https2http==1 || http_parameters.https2http==3) http_parameters.https2http=2;
+else
+if(!http_parameters.https2http || http_parameters.https2http==2) http_parameters.https2http=3;
+
+return 1;
+}
+
+int toggleignorejs(void)
+{
+if(http_parameters.ignorejs==1 || http_parameters.ignorejs==3) http_parameters.ignorejs=2;
+else
+if(!http_parameters.ignorejs || http_parameters.ignorejs==2) http_parameters.ignorejs=3;
+
+return 1;
+}
+//!!glennmcc: end
+
+
 #endif
 #endif

@@ -8,6 +8,13 @@
 unsigned char HTMLentity(char *name)
 {
  if(*name=='#')
+//!!glennmcc: begin Dec 29, 2004 -- 'fix' for punctuation in numeric code format
+ if(!strcmpi(name,"#146") || !strcmpi(name,"#8217")) return atoi("39"); else // 39== '
+ if(!strcmpi(name,"#8216")) return atoi("96"); else // 96== `
+ if(!strcmpi(name,"#8220") || !strcmpi(name,"#8221")) return atoi("34"); else // 34== "
+ if(!strcmpi(name,"#8211")) return atoi("45"); else // 45== -
+ if(atoi(&name[1])>255) return atoi("127"); else // 127==
+//!!glennmcc: end
   return atoi(&name[1]);
 
  if(!strcmpi(name,"lt"))
@@ -21,6 +28,11 @@ unsigned char HTMLentity(char *name)
  else
  if(!strcmpi(name,"quot"))
   return '\"';
+//!!glennmcc: Jan 04, 2005 -- 'bullet'
+ else
+ if(!strcmpi(name,"bul") || !strcmpi(name,"bull") || !strcmpi(name,"bullet"))
+  return atoi("127");
+//!!glennmcc: end
  else//------------------------- ISO Latin entities
  {
   int i=0,l=strlen(name);

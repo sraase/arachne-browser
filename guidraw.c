@@ -362,6 +362,9 @@ void RedrawALL()                       // redraw entire user interface
 void ChangeZoom(char style, char plus, char minus)
 {
  char *ptr=strchr(arachne.graphics,'.');
+//!!glennmcc: Feb 17, 2005 -- to prevent going over MaxRes
+char *maxres=configvariable(&ARACHNEcfg,"MaxRes",NULL);
+//!!glennmcc: end
 
  mouseoff();
  //1. 800x600 or more na vysku -> 2.
@@ -386,29 +389,30 @@ void ChangeZoom(char style, char plus, char minus)
   if(plus)
   {
    if(!strncmpi(arachne.graphics,"VESA.X",6))
-    ptr[1]='B';
-   else if(ptr[1]=='B')
-    ptr[1]='C';
-   else if(ptr[1]=='C')
-    ptr[1]='E';
+    ptr[1]='B';//B==640x480x256c
+   else if(ptr[1]=='B' && *maxres>'1')
+    ptr[1]='C';//C==800x600x256c
+   else if(ptr[1]=='C' && *maxres>'2')
+    ptr[1]='E';//E==1024x768x256c
 #ifdef HICOLOR
-   else if(ptr[1]=='I')
-    ptr[1]='J';
-   else if(ptr[1]=='J')
-    ptr[1]='K';
+	       //I==640x480xHiColor
+   else if(ptr[1]=='I' && *maxres>'1')
+    ptr[1]='J';//J==800x600xHiColor
+   else if(ptr[1]=='J' && *maxres>'2')
+    ptr[1]='K';//K==1024x768xHiColor
 #endif
   }
   else if(minus)
   {
-   if(ptr[1]=='E')
-    ptr[1]='C';
+   if(ptr[1]=='E')//E==1024x768x256c
+    ptr[1]='C';//C==800x600x256c
    else if(ptr[1]=='C')
-    ptr[1]='B';
+    ptr[1]='B';//B==640x480x256c
 #ifdef HICOLOR
-   else if(ptr[1]=='K')
-    ptr[1]='J';
+   else if(ptr[1]=='K')//K==1024x768xHiColor
+    ptr[1]='J';//J==800x600xHiColor
    else if(ptr[1]=='J')
-    ptr[1]='I';
+    ptr[1]='I';//I==640x480xHiColor
 #endif
    else if(!strncmpi(arachne.graphics,"VESA.B",6))
     ptr[1]='X';
@@ -852,8 +856,16 @@ void onlinehelp(int b)
   outs(MSG_ZOOM);
   break;
   case CLICK_ABOUT:
+//!!glennmcc: Feb 03, 2005 -- up one level if remote 'about:' if local
+if(!strstr(GLOBAL.location,"file:"))
+   {
+    outs("Up one level");
+    break;
+   }
+//!!glennmcc: end
   outs("about:");
   break;
+
   case CLICK_EXIT:
 #ifdef CUSTOMER
   outs("Start Windows"); //for Vadem/Infolio - InstOn/FirstLook/whatevver

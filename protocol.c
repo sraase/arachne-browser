@@ -65,6 +65,17 @@ int protocol_arachne(struct HTTPrecord *cacheitem,struct Url *url,int *returnval
   if(!strcmpi(url->file,"dialpage"))
   {
    value=configvariable(&ARACHNEcfg,"DialPage",NULL);
+
+//!!glennmcc: Begin Feb 06, 2005 -- default to ppp_init.htm
+//if 'DialPage' is missing from arachne.cfg
+if(!value) value="file:ppp_init.htm";
+//also use ppp_init.htm if DialPage does not begin with file:ppp
+//indicating that it has been changed from one of the 4 included dialpages
+//which are... ppp_init.htm, pppenhan.htm, pppframe.htm or ppp_fast.htm
+//value=strlwr(value);
+if(!strstr(value,"file:ppp")) value="file:ppp_init.htm";
+//!!glennmcc: end
+
    if(value)
    {
     strcpy(GLOBAL.location,value);
@@ -401,13 +412,28 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
    }
    else
    {
-    goback(); //return to mailto: page...
+//!!glennmcc: Feb 27, 2005
+// since 'smtp:' is not being saved into history, 2 goback()s when we hit
+// 'send mail now' on any of the mail compose screens ends-up taking us
+// back one step too far.
+// Therefore, we only goback once when it's not being sent 'on the spot'
+    if(!strstr(GLOBAL.location,"smtp:")) goback(); //return to mailto: page...
+//#ifdef NOKEY
+//    goback();
+//#endif
+//!!glennmcc: end
+
     goback(); //return to page with <A HREF=mailto:...> tag...
     GLOBAL.postdata=0;
-    if(!strcmp(GLOBAL.location,"file://outbox.dgi"))
-     GLOBAL.reload=RELOAD_CURRENT_LOCATION;
-    else
+
+// RAY: This is done automaticaly now for inbox and outbox,
+// see guivent.c
+//    if(!strcmp(GLOBAL.location,"file://outbox.dgi"))
+//     GLOBAL.reload=RELOAD_CURRENT_LOCATION;
+//    else
+//Ray: end
      GLOBAL.reload=NO_RELOAD;
+
    }
    return GOTO_IVEGOTNEWURL;
   }

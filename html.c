@@ -1054,6 +1054,7 @@ knowsize:
       if(getvar("HEIGHT",&tagarg))
       {
        int i=try2getnum(tagarg,frame->scroll.ysize);
+       if(i<2)i=2;//!!glennmcc: Feb 15, 2005 -- fixes 'sticky mouse'
        if((!znamrozmery || i!=img->size_y) && !egamode && !vga16mode)
        {
 	img->resize_y=i;
@@ -1069,6 +1070,7 @@ knowsize:
        int i;
        if(max<0) max=0;
        i=try2getnum(tagarg,max);
+       if(i<2)i=2;//!!glennmcc: Feb 15, 2005 -- fixes 'sticky mouse'
        if((!znamrozmerx || i!=img->size_x) && !egamode && !vga16mode)
        {
 	img->resize_x=i;
@@ -3139,7 +3141,9 @@ knowsize:
 //!!glennmcc: begin May 03, 2002
 // added to optionally "ignore" <script> tag
 // (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
-     if(http_parameters.ignorejs){insidetag=0;}else
+//!!glennmcc: Jan 24, 2005 -- 2==toggled off via toggleignorejs()
+if(http_parameters.ignorejs && http_parameters.ignorejs!=2){insidetag=0;}else
+//if(http_parameters.ignorejs){insidetag=0;}else
 //!!glennmcc: end
 
      insidetag=tag;

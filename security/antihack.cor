@@ -2,7 +2,6 @@
 #include "security\xchreg.h"
 #include "arachne.h"
 
-#ifndef NOKEY
 
 int rot31(int z);
 
@@ -125,4 +124,3 @@ int exeisok(char *exename)
  return rv;
 }
 
-#endif

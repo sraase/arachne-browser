@@ -26,7 +26,7 @@ int gotoloc(void)
 
 int gotohotlist(void)
 {
-  char *ptr; 
+  char *ptr;
   strcpy(GLOBAL.location,"file:");
   ptr=configvariable(&ARACHNEcfg,"Hotlist",NULL);
   if(ptr)
@@ -47,7 +47,16 @@ int gotohistory(void)
 
 int gotodialpage(void)
 {
- sprintf(GLOBAL.location,"arachne:dialpage");
+//!!glennmcc: Feb 06, 2005 -- grab 'DialPage' from arachne.cfg
+//and go directly to it instead of calling 'arachne:dialpage' in protocol.c
+//also default to ppp_init.htm if 'DialPage' is missing from arachne.cfg
+ char *value;
+ value=configvariable(&ARACHNEcfg,"DialPage",NULL);
+ if(!value) value="file:ppp_init.htm";
+ sprintf(GLOBAL.location,value);
+// sprintf(GLOBAL.location,"arachne:dialpage"); //original line
+//!!glennmcc: end
+
  arachne.target=0;
  return gotoloc();
 }
@@ -156,7 +165,7 @@ int gotonextpage(void)
   GLOBAL.nothot=1;
   return gotoloc();
  }
- 
+
  Piip();
  return 0;
 }
@@ -254,7 +263,7 @@ int scrollpageup(int scrollbarbutton)
 int scrollpagedown(int scrollbarbutton)
 {
  struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
- 
+
   if(frame->posY<frame->scroll.total_y-frame->scroll.ysize &&
      frame->scroll.total_y>frame->scroll.ysize)
   {
@@ -480,7 +489,9 @@ int gotonewspage(void)
 // GUIEVENT converts keyboard and mouse events to function calls
 //------------------------------------------------------------------------
 
-int GUIEVENT(int key, int mouse)
+//!!glennmcc: Jan 23, 2005 -- at Ray's suggestion, unsigned int
+unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
+//int GUIEVENT(int key, int mouse)
 {
  char asc=toupper(key & 0xFF);
  XSWAP formID=IE_NULL;
@@ -768,26 +779,26 @@ int GUIEVENT(int key, int mouse)
        if(ptr)
        {
 	makestr(line,ptr,IE_MAXLEN);
-        ptr=line;
+	ptr=line;
 
-        HideLink(ptr);
+	HideLink(ptr);
 
 	if(!strncmpi(ptr,"reload:",7))
-         ptr+=7;
+	 ptr+=7;
 
-        AnalyseURL(ptr,&url,arachne.target); //(plne zneni...)
-                                             // tr.: full length/text
+	AnalyseURL(ptr,&url,arachne.target); //(plne zneni...)
+					     // tr.: full length/text
 
 	if(!strcmpi(url.protocol,"file"))
 	{
 	 if(!strncmp(url.file,"//",2))
 	  ptr=&url.file[2];
 	 else
-          ptr=url.file;
+	  ptr=url.file;
 
 	 unlink(ptr);
 	 sprintf(str,MSG_REMOVE,ptr);
-         outs(str);
+	 outs(str);
 	}
        }//endif
        clipboard.y++;
@@ -800,7 +811,24 @@ int GUIEVENT(int key, int mouse)
     }
     else
      GLOBAL.del=1;
-    return 1;
+// { RAY: 05-01-16: After deleting message(s), reload the index to prevent
+// 'holes' in it since these holes will create an error message when the ">>"
+// button is used to go the next message if that message no longer exists
+// due to its having just been deleted.
+//       goto index;
+//!!glennmcc: Jan 17, 2005 -- reload instead of going to the inbox
+//!!glennmcc: Jan 18, 2005 -- found a problem....
+//hitting the delete key while viewing a remote page or image to delete
+//that file from the cache then reloads that page or image.
+//therfore we must only reload when it's a local dir listing
+//return reloadpage(); //new line inserted on Jan 17, 2005
+//return 1; //original line
+//!!glennmcc: Feb 14, 2005 -- made it configurable
+//RIAD == Reload Index After Delete
+ptr=strupr(configvariable(&ARACHNEcfg,"RIAD",NULL));
+if(*ptr=='Y' && strstr(GLOBAL.location,"file:")) return reloadpage(); //reload if local
+//if(strstr(GLOBAL.location,"file:")) return reloadpage(); //reload if local
+else return 1; //do not reload if not local
    }
    else if(asc=='/' || asc==17 || key==F7) // F7 || ^Q - search for string
     return searchevent();
@@ -844,6 +872,8 @@ unlink("textarea.tmp");
    }
    else if(asc=='I')
    {
+// RAY: 05-01-16: Label for line above.
+//index://!!glennmcc: Jan 17, 2005 -- reload instead (see above)
     sprintf(GLOBAL.location,"file://inbox.dgi",exepath);
     arachne.target=0;
     return gotoloc();
@@ -875,7 +905,9 @@ unlink("textarea.tmp");
     return gotoloc();
    }
 #ifndef CLEMTEST
-   else if(asc=='Q')
+//!!glennmcc: Feb 12, 2005 -- at the request of Michal H. Tyc
+//   else if(key==0x2004)//Ctrl+D
+ else if(asc=='Q')
    {
     if(!ProcessLinks(1))
     {
@@ -915,7 +947,9 @@ unlink("textarea.tmp");
     arachne.target=0;
     return gotoloc();
    }
-   else if(asc=='H' || key==0x2b1c || key==-32512) //Alt+0,Ctrl+backslash
+//!!glennmcc: no more "negative tests" ;-)
+   else if(asc=='H' || key==0x2b1c || key==0x8100) //Alt+0,Ctrl+backslash
+// else if(asc=='H' || key==0x2b1c || key==-32512) //Alt+0,Ctrl+backslash
     return gotohotlist();
    else if(asc=='P')
     return printtxt();
@@ -1040,9 +1074,9 @@ unlink("textarea.tmp");
       if(ptr)
       {
        if(ishttp)
-        strcpy(ptr,".fil");
+	strcpy(ptr,".fil");
        else
-        makestr(&ptr[1],p->htmlframe[p->activeframe].cacheitem.URL,3); //e.g. HTT, GOP ...
+	makestr(&ptr[1],p->htmlframe[p->activeframe].cacheitem.URL,3); //e.g. HTT, GOP ...
       }
      }
     }
@@ -1114,7 +1148,7 @@ unlink("textarea.tmp");
    if(key==ASCIICTRLP) //Ctrl+P
 #else
    if(key==0x1900) //Alt+P
-#endif   
+#endif
    {
     saveasps();
     sprintf(GLOBAL.location,"file:%s%sps.ah",sharepath,GUIPATH);
@@ -1240,6 +1274,25 @@ else if(key==11264)
      ImouseWait();
      return 0;
     }
+//!!glennmcc: end
+
+//!!glennmcc: begin Jan 24, 2005 -- per user requests
+    else
+     if(key==0x8200)
+     {
+      togglehttps2http();
+      gotopreviouspage();
+      gotonextpage();
+      return repaint();
+     }
+    else
+     if(key==0x8300)
+     {
+      toggleignorejs();
+      gotopreviouspage();
+      gotonextpage();
+      return repaint();
+     }
 //!!glennmcc: end
 
 #endif
@@ -1680,7 +1733,18 @@ submit:
      return gotoloc();
 
      case CLICK_ABOUT://click on "Arachne Vxx" label
+//!!glennmcc: Feb 03, 2005 -- up one level if remote 'about:' if local
+if(!strstr(GLOBAL.location,"file:"))
+     {
+      if((strchr(GLOBAL.location,0)-1)==strrchr(GLOBAL.location,'/'))
+	 strcat(GLOBAL.location,"../");
+	 else
+	 strcat(GLOBAL.location,"../../");
+     }
+else
+//!!glennmcc: end
      strcpy(GLOBAL.location,"about:");
+
      arachne.target=0;
      return gotoloc();
 
@@ -1809,7 +1873,7 @@ submit:
    {
    i=0;
    do if(!p->htmlframe[i].hidden && p->htmlframe[i].allowscrolling &&
-         (scrolledframe==-1 || scrolledframe==i))
+	 (scrolledframe==-1 || scrolledframe==i))
    {
     if(ScrollBarTICK(&(p->htmlframe[i].scroll),
        &(p->htmlframe[i].posX),&(p->htmlframe[i].posY)))

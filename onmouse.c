@@ -19,6 +19,12 @@ char *onmouse(int click)
  char ontoolbar=0;
  struct HTMLrecord *atomptr;
  int count=0;
+
+//!!glennmcc: Mar 02, 2005 -- trying Ray's fix
+//added to compensate for CSS linkhover in a frame
+//#define FRAME p->htmlframe[atomonmouse.frameID].scroll
+//!!glennmcc: end
+
 //!!glennmcc: Begin May 17, 2004
 // added to optionally goback or not on rightmouse click
 char *rmgb=0;
@@ -501,11 +507,44 @@ char *rmgb=0;
 	 atomonmouse.data2-=(atomonmouse.data2&sheet->hoverresetbits);
 	}
 
+
+//!!glennmcc: begin Jan 26, 2005 -- added to compensate for CSS linkhover in a frame
+//!!glennmcc: Mar 02, 2005 -- trying a combination of Ray's fix and mine
+	if(dx<p->htmlframe[atomonmouse.frameID].scroll.xtop)
+//	   dx -= FRAME.xtop;//RAY
+	 dx-=p->htmlframe[atomonmouse.frameID].scroll.xtop;//!!glennmcc
+//!!glennmcc: end
 	xx=atomonmouse.x-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
+//!!glennmcc: begin Feb 27, 2005 -- added to compensate for CSS linkhover in a frame
+	if(p->htmlframe[atomonmouse.frameID].scroll.ytop>p->htscrn_ytop &&
+	   dy<p->htmlframe[atomonmouse.frameID].scroll.ytop)
+//	   dy -= (FRAME.ytop - p->htscrn_ytop);//RAY
+	 dy-=(int)(p->htmlframe[atomonmouse.frameID].scroll.ytop-p->htscrn_ytop);//!!glennmcc
+//!!glennmcc: end
 	yy=(int)(atomonmouse.y-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
 	xxx=atomonmouse.xx-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
 	yyy=(int)(atomonmouse.yy-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
+//!!glennmcc: begin Jan 26, 2005 -- added to compensate for CSS linkhover in a frame
+	if(xx>p->htmlframe[atomonmouse.frameID].scroll.xtop)
+	   {
+//	    xx -= FRAME.xtop;//Ray
+//	    xxx = atomonmouse.xx + FRAME.xtop;//RAY
+	    xx-=p->htmlframe[atomonmouse.frameID].scroll.xtop;//!!glennmcc
+	    xxx=p->htmlframe[atomonmouse.frameID].scroll.xtop+atomonmouse.xx;//!!glennmcc
+	   }
+//!!glennmcc: end
 	if(xx<p->htscrn_xtop)xx=p->htscrn_xtop;
+//!!glennmcc: begin Feb 28, 2005 -- added to compensate for CSS linkhover in a frame
+	if(p->htmlframe[atomonmouse.frameID].scroll.ytop>p->htscrn_ytop &&
+	   yy>p->htmlframe[atomonmouse.frameID].scroll.ytop)
+	   {
+//	    yy = (int)(atomonmouse.y + FRAME.ytop);//RAY
+//	    yyy = (int)(atomonmouse.yy + FRAME.ytop);//RAY
+	    yy-=(int)(p->htmlframe[atomonmouse.frameID].scroll.ytop-p->htscrn_ytop);//!!glennmcc
+	    yyy=(int)(p->htmlframe[atomonmouse.frameID].scroll.ytop+atomonmouse.yy);//!!glennmcc
+	   }
+//!!glennmcc: end
+
 	if(yy<p->htscrn_ytop)yy=p->htscrn_ytop;
 	if(xxx>x_maxx())xxx=x_maxx();
 	if(yyy>x_maxy())yyy=x_maxy();
@@ -524,6 +563,7 @@ char *rmgb=0;
 	 p->restorehoverx=xx;
 	 p->restorehovery=yy;
 	 bigfonts_allowed();
+
 	 drawatom(&atomonmouse,dx,dy,
 		   p->htscrn_xsize+p->htscrn_xtop-p->htmlframe[activeatom.frameID].scroll.xtop,
 		   p->htscrn_ysize+p->htscrn_ytop-p->htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
@@ -710,19 +750,19 @@ XSWAP AnalyseCSIM(int x, int y,struct HTMLrecord *map)
        y2=array[i+3];
        if(x2<0 || y2<0) //automaticly close main polygon
        {
-        x2=array[0];
-        y2=array[1];
+	x2=array[0];
+	y2=array[1];
        }
 
        if(x1>x2)
        {
-        pom=x1;x1=x2;x2=pom;
-        pom=y1;y1=y2;y2=pom;
+	pom=x1;x1=x2;x2=pom;
+	pom=y1;y1=y2;y2=pom;
        }
 
        //is mouse pointer located in this sub-polygon ?
        if(x>=x1 && x<x2 && y-y1<(long)(x-x1)*(long)(y2-y1)/(x2-x1))
-        n++;
+	n++;
 
        //process next two coordinates:
        i+=2;

@@ -247,6 +247,7 @@ passwd \"%s\"\n",
 #endif
 
  value=configvariable(&ARACHNEcfg,"DialPage",NULL);
+if(!strstr(strlwr(value),".htm")) value="file:ppp_init.htm";
  if((!strcmpi(value,p->htmlframe[p->activeframe].cacheitem.URL) ||
      strstr(p->htmlframe[p->activeframe].cacheitem.URL,"err_")) &&
      arachne.scriptline==0)

@@ -312,6 +312,15 @@ if(argc>1)
  {
   sprintf(GLOBAL.location,"file:%s%snonfatal.ah",sharepath,GUIPATH);
  }
+
+//!!glennmcc: begin Jan 09, 2005
+// on email attachment errors, goto err_mail.ah instead of nonfatal.ah
+ else if(argv[1][2]=='m')
+ {
+  sprintf(GLOBAL.location,"file:%s%serr_mail.ah",sharepath,GUIPATH);
+ }
+//!!glennmcc: end
+
  else if(argv[1][1]=='?')
  {
 #ifdef POSIX

@@ -702,3 +702,7 @@ extern char *vgadetected;
 
 int renderHTML(struct Page *p);
 
+//!!glennmcc: begin Jan 24, 2005 -- per user requests
+int togglehttps2http(void);
+int toggleignorejs(void);
+//!!glennmcc: end

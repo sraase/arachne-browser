@@ -48,6 +48,10 @@ void ArachneTCPIP(void)
  if(!tcpip && dialer && !GLOBAL.location[0])
  {
   value=configvariable(&ARACHNEcfg,"DialPage",NULL);
+//!!glennmcc: Begin Feb 06, 2005 -- default to ppp_init.htm
+//if 'DialPage' is missing from arachne.cfg
+ if(!value) value="file:ppp_init.htm";
+//!!glennmcc: end
   if(value)
    strcpy(GLOBAL.location,value);
  }

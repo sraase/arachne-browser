@@ -216,12 +216,19 @@ void generateprt(void)
    strncpy(&radka[CONSOLEWIDTH-16],"...",3);
   }
   strncpy(radka,arachne.title,l);
-  sprintf(&radka[CONSOLEWIDTH-17],"Arachne %s",VER);
+//!!glennmcc: Jan 26, 2005 -- keep aligned regardless of changes to VER
+//also added lowercase 'v' in front of version number
+  sprintf(&radka[CONSOLEWIDTH-(9+strlen(VER))],"Arachne v%s",VER);
+//  sprintf(&radka[CONSOLEWIDTH-17],"Arachne %s",VER);
+//!!glennmcc: end
   ie_insline(&txt,0,radka);
  }
  {
   char ffeed[2]=" ";
-  ffeed[0]=12; //form feed?
+//!!glennmcc: Jan 26, 2005 -- removed due to 'non-universal' compatibility
+//  ffeed[0]=12; //form feed?
+//!!glennmcc: end
+
   ie_insline(&txt,txt.lines,ffeed);
  }
  ie_savef(&txt);

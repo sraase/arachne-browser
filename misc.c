@@ -24,9 +24,15 @@ void closebat(char *cmd, char nomode)
   strcat(cmd,"if errorlevel 128 arachne -");
 //#endif // CALDERA
   if(tcpip)
-   strcat(cmd,"re");
+//!!glennmcc: begin Jan 09, 2005
+// on email attachment errors, goto err_mail.ah instead of nonfatal.ah
+   strcat(cmd,"rm");
   else
-   strcat(cmd,"ce");
+   strcat(cmd,"cm");
+//   strcat(cmd,"re");
+//  else
+//   strcat(cmd,"ce");
+//!!glennmcc: end
  }
 
  strcat(cmd,"\narachne -");
