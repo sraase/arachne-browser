@@ -14,6 +14,8 @@ void setTXTprompt(char *str);
 void ReadWriteTextarea(char sw);
 void SearchInTextarea(char cont);
 int activeatomtick(int key, char textareacmd);
+int smothup(int rate);
+int smothdown(int rate);
 
 //values for "textareacmd" argument of activeatomtick
 #define TEXTAREA_NOPE      0
@@ -61,6 +63,10 @@ int activeatomtick(int key, char textareacmd);
 #define CLICK_IMAGES  907
 #define CLICK_DESKTOP 908
 #define CLICK_ABOUT   909
+#define CLICK_MAIL    910
+#define CLICK_SAVE    911
+
+#define ONMOUSE_TITLE 999
 
 #define CLICK_CUSTOMER 1000
 
@@ -69,8 +75,10 @@ int activeatomtick(int key, char textareacmd);
 #include "pckbrd.h"
 
 #ifndef XTVERSION
+extern int wheelqueue; //for wheel mice
 extern int thisx,thisy,thisxx,thisyy;
 
+int analysewheel(int mys);
 void pressthatbutton(int nowait);
 #endif
 

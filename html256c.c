@@ -44,7 +44,6 @@ void MixVisiblePaletes(char writepal)
  while(currentHTMLatom!=IE_NULL)
  {
   kbhit();
-//  imgatomptr=(struct HTMLrecord *)ie_getswap(HTMLdoc.lineadr[HTMLdoc.cur]);
   imgatomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!imgatomptr)
    MALLOCERR();
@@ -126,7 +125,6 @@ void MixVisiblePaletes(char writepal)
   {
 
    //zrychlena verze
-//   imgatomptr=(struct HTMLrecord *)ie_getswap(HTMLdoc.lineadr[idx[i]]);
    imgatomptr=(struct HTMLrecord *)ie_getswap(atomadr[i]);
    if(imgatomptr && (imgatomptr->type==IMG || imgatomptr->type==BACKGROUND || imgatomptr->type==TD_BACKGROUND))
    {

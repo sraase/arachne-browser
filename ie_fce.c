@@ -202,6 +202,42 @@ void ie_killcontext(int context)
 }
 
 
+void *getXSWAPlineptr(struct ib_editor *fajl)
+{
+ return ie_getswap(fajl->linearray);
+}
+
+XSWAP getXSWAPlineadr(struct ib_editor *fajl, int i)
+{
+ XSWAP *la;
+
+// if(fajl->arraycache==i)
+//  return fajl->arraycacheadr;
+
+ la=(XSWAP *)ie_getswap(fajl->linearray);
+ if(la && i<=fajl->maxlines)
+ {
+//  fajl->arraycache=i;
+//  fajl->arraycacheadr=la[i];
+  return la[i];
+ }
+ else
+  return IE_NULL;
+}
+
+void putXSWAPlineadr(struct ib_editor *fajl, int i,XSWAP adr)
+{
+ XSWAP *la=(XSWAP *)ie_getswap(fajl->linearray);
+ if(la && i<=fajl->maxlines)
+ {
+  la[i]=adr;
+//  fajl->arraycache=i;
+//  fajl->arraycacheadr=adr;
+  swapmod=1;
+ }
+}
+
+
 //funkce pro spravu radku...
 //==========================
 char *ie_getline(struct ib_editor *fajl, int i)
@@ -213,17 +249,17 @@ char *ie_getline(struct ib_editor *fajl, int i)
   ie_putline(fajl,fajl->aktrad,fajl->rad);
   fajl->modified=modified;
  }
- return ie_getswap(fajl->lineadr[i]);
+ return ie_getswap(getXSWAPlineadr(fajl,i));
 }//endsub
 
 int ie_putline(struct ib_editor *fajl, int i, char *str)
 {
  if (i>=fajl->lines || fajl==NULL) return 2;
  //firstswap=fajl->firstswap;
- if (fajl->lineadr[i]==IE_NULL) fajl->lineadr[i]=ie_putswap(str,strlen(str),fajl->swapcontext);
- else fajl->lineadr[i]=ie_chngswap(str,fajl->lineadr[i],fajl->swapcontext);
+ if (getXSWAPlineadr(fajl,i)==IE_NULL) putXSWAPlineadr(fajl,i,ie_putswap(str,strlen(str),fajl->swapcontext));
+ else putXSWAPlineadr(fajl,i,ie_chngswap(str,getXSWAPlineadr(fajl,i),fajl->swapcontext));
  fajl->modified=1;
- if (fajl->lineadr[i]==IE_NULL) return 2;
+ if (getXSWAPlineadr(fajl,i)==IE_NULL) return 2;
  if(fajl->aktrad==i)
  {
   makestr(fajl->rad,str,IE_MAXLEN);
@@ -239,8 +275,11 @@ int ie_insline(struct ib_editor *fajl, int i, char *str)
  if (i>fajl->lines || fajl==NULL || fajl->lines>=IE_MAXLINES) return 2;
  if (i<fajl->lines)
  {
-  memmove(&(fajl->lineadr[i+1]),&(fajl->lineadr[i]),sizeof(XSWAP)*(fajl->lines-i));
-  fajl->lineadr[i]=IE_NULL; //nedefinovana radka...
+  XSWAP *linearray=getXSWAPlineptr(fajl);
+  memmove(&linearray[i+1],&linearray[i],sizeof(XSWAP)*(fajl->lines-i));
+//  fajl->arraycache=-1; //invalidate cache
+  linearray[i]=IE_NULL; //nedefinovana radka...
+  swapmod=1;
  }//endif
  fajl->lines++;
  rc=ie_putline(fajl,i,str);
@@ -250,10 +289,16 @@ int ie_insline(struct ib_editor *fajl, int i, char *str)
 int ie_delline(struct ib_editor *fajl, int i)
 {
  if (i>=fajl->lines || fajl==NULL || i<0) return 2;
- if (ie_delswap(fajl->lineadr[i],-1)!=1) return 2;
- if (i<fajl->lines-1) memmove(&(fajl->lineadr[i]),&(fajl->lineadr[i+1]),sizeof(XSWAP)*(fajl->lines-i-1));
+ if (ie_delswap(getXSWAPlineadr(fajl,i),-1)!=1) return 2;
+ if (i<fajl->lines-1)
+ {
+  XSWAP *linearray=getXSWAPlineptr(fajl);
+  memmove(&linearray[i],&linearray[i+1],sizeof(XSWAP)*(fajl->lines-i-1));
+//  fajl->arraycache=-1; //invalidate cache
+  swapmod=1;
+ }
  fajl->lines--;
- fajl->lineadr[fajl->lines]=IE_NULL; //odkazuje to nikam...
+ putXSWAPlineadr(fajl,fajl->lines,IE_NULL); //odkazuje to nikam...
  fajl->modified=1;
  //fajl->x=0;
  if(fajl->aktrad==i)
@@ -319,18 +364,19 @@ void ie_clearf(struct ib_editor *fajl,char all) //kdyz je all 0, tak nemazat
 
   while(i<fajl->lines)
   {
-   ie_delswap(fajl->lineadr[i],-1);
+   ie_delswap(getXSWAPlineadr(fajl,i),-1);
    i++;
   }//loop
  }//endif
- ie_closef(fajl);
+// ie_closef(fajl);
 }//end sub
 
+/* not necessary:
 void ie_closef(struct ib_editor *fajl)
 {
  if(fajl->lineadr!=NULL)farfree(fajl->lineadr);fajl->lineadr=NULL;
 }
-
+*/
 
 //simple openf
 
@@ -344,6 +390,7 @@ int ie_openf(struct ib_editor *fajl,int context) //load, nebo open, 1. nebo 2.
 int ie_openf_lim(struct ib_editor *fajl,int context,int max) //load, nebo open, 1. nebo 2.
 {
  int i;
+ XSWAP *linearray;
 
  fajl->x=0;
  fajl->y=0;
@@ -365,14 +412,19 @@ int ie_openf_lim(struct ib_editor *fajl,int context,int max) //load, nebo open, 
 
  IE_MAXLINES=max;
 
- fajl->lineadr=farmalloc(sizeof(XSWAP)*(IE_MAXLINES+2));
+// fajl->lineadr=farmalloc(sizeof(XSWAP)*(IE_MAXLINES+2));
+// if(fajl->lineadr==NULL) return 2;
 
- if(fajl->lineadr==NULL) return 2;
+// fajl->arraycache=-1;
+// fajl->arraycacheadr=IE_NULL;
+ fajl->linearray=ie_putswap(NULL,(max+2)*sizeof(XSWAP),context);
+
+ linearray=getXSWAPlineptr(fajl);
 
  i=0;
  while (i<IE_MAXLINES)
  {
-  fajl->lineadr[i]=IE_NULL;
+  linearray[i]=IE_NULL;
   i++;
  }//loop
 
@@ -454,7 +506,7 @@ int ie_insblock(struct ib_editor *fajl,char *filename)
    while(i<precteno)
    {
     radka[rpos]=inbuf[i];
-    if(radka[rpos]=='\n' || (radka[rpos]==' ' && rpos>2*IE_MAXLEN/3) || rpos>=IE_MAXLEN-1)
+    if(radka[rpos]=='\n' || (radka[rpos]==' ' && rpos>9*IE_MAXLEN/10) || rpos>=IE_MAXLEN-1)
     {
      if(rpos>=IE_MAXLEN-1)
       {rpos=IE_MAXLEN;rv=3;}//zaokorouhleni radku
@@ -542,7 +594,7 @@ int ie_savef(struct ib_editor *fajl)
 #endif
  if ( f == -1 ) return 2; //chyba pri otevirani
 
- r=ie_getswap(fajl->lineadr[0]);
+ r=ie_getswap(getXSWAPlineadr(fajl,0));
  if (r!=NULL)
  {
   l=strlen(r);
@@ -550,7 +602,7 @@ int ie_savef(struct ib_editor *fajl)
  }//endif
  while(i<fajl->lines)
  {
-  r=ie_getswap(fajl->lineadr[i]);
+  r=ie_getswap(getXSWAPlineadr(fajl,i));
   if (r!=NULL)
   {
    radka[0]='\n';

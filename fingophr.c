@@ -116,6 +116,7 @@ int xfinger(struct Url *url, struct HTTPrecord *cache,char *selector)
 abort:
  sock_close( socket );
  closing[socknum]=1;
+ sock_keepalive[socknum][0]='\0';
 goto closed;
 // sock_wait_closed( socket, sock_delay, NULL, &status );
 

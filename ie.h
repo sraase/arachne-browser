@@ -4,7 +4,7 @@
 // (c)1995-99 Michael Polak, Arachne Labs (1995-1998: xChaos software)
 // ========================================================================
 
-#define IE_MAXLEN 512
+#define IE_MAXLEN 600  //to handle longer cookies
 #define IE_MAXLINES fajl->maxlines//!!10000 //32000
 #define IE_NULL 1023
 #define X_NULL IE_NULL
@@ -48,7 +48,11 @@ struct ib_editor
  int bby;
  int bex;
  int bey;
- XSWAP *lineadr; //[IE_MAXLINES+2];
+//old: XSWAP *lineadr; //[IE_MAXLINES+2];
+//new...
+ XSWAP linearray; //XSWAP adr of lineadr[IE_MAXLINES+2]
+// int arraycache;
+// XSWAP arraycacheadr;
  int swapcontext; //swapy, ktere neobsahuji spolene radky, se smazou hromadne
 
  //support variables
@@ -122,6 +126,7 @@ void ie_xblockbeginend(struct ib_editor *fajl);
 XSWAP ie_putswap(char *line, unsigned l, int context);
 char *ie_getswap(XSWAP adr);
 int ie_delswap(XSWAP adr, int l);
+XSWAP getXSWAPlineadr(struct ib_editor *fajl, int i);
 
 extern int swapmod;
 

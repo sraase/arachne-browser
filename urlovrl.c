@@ -218,9 +218,13 @@ void UpdateInCache(XSWAP cacheadr, struct HTTPrecord *store)
 {
  struct HTTPrecord *cacheptr;
 
+ if(cacheadr==IE_NULL)
+  return;
+
  cacheptr=(struct HTTPrecord *)ie_getswap(cacheadr);
  if(!cacheptr)
-  MALLOCERR();
+  return;   //nothing to update
+//  MALLOCERR();
 
  store->lastseen=time(NULL);
  memcpy(cacheptr,store,sizeof(struct HTTPrecord));
@@ -272,7 +276,7 @@ void DeleteFromCache(XSWAP cacheadr)
 // =====================================================================
 //char reload: FIND_MISSING_IMAGE | EXPIRE_ALL_IMAGES
 
-char NeedImage(char reload, XSWAP from)
+char NeedImage(char reload, XSWAP *from)
 {
  struct Url url;
  struct picinfo *img;
@@ -282,14 +286,21 @@ char NeedImage(char reload, XSWAP from)
  int found,converting=0,willconvert=0;
  int maxmem=1;//,frameID;
 // struct ffblk ff;
- char pushact;
+// char pushact;
  char command[120],ext[5];
  char type;
  struct HTMLrecord *atomptr;
  struct HTTPrecord HTTPdoc;
 
- if(from!=IE_NULL && !reload)
-  currentHTMLatom=from;
+/* if(arachne_will_download_images_now)
+ {
+  maybe later...
+
+ }*/
+
+
+ if(from && *from!=IE_NULL && reload==FIND_MISSING_IMAGE)
+  currentHTMLatom=*from;
 
  if(reload==EXPIRE_ALL_IMAGES)
   outs(MSG_DELAY0);
@@ -301,28 +312,27 @@ char NeedImage(char reload, XSWAP from)
   outs(MSG_VERIFY);
  }
 
-
-
- mouseoff();
-#ifdef POSIX
- p->buf[0]='\0';
-#else
- strcpy(p->buf,"@echo off\n");
-#endif
-
- pushact=p->activeframe;
+ //pushact=p->activeframe;
  while(currentHTMLatom!=IE_NULL)
  {
-  kbhit();
+// doesn't help anyway  kbhit();
 #ifndef NOTCPIP
   Backgroundhttp();
 #endif
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
-   MALLOCERR();
+  {
+   if(from)
+    return NeedImage(FIND_MISSING_IMAGE,NULL);
+   else
+    MALLOCERR();
+  }
 
   IMGatom=currentHTMLatom;
-  currentHTMLatom=atomptr->next;
+  if( currentHTMLatom==atomptr->next)
+   currentHTMLatom=IE_NULL; //avoid looping
+   else
+   currentHTMLatom=atomptr->next;
   type=atomptr->type;
   if(type==IMG || type==EMBED || type==BACKGROUND || type==TD_BACKGROUND)
   {
@@ -336,46 +346,72 @@ char NeedImage(char reload, XSWAP from)
 //   frameID=atomptr->frameID;
    uptr=atomptr->ptr;
    img=(struct picinfo *)ie_getswap(uptr);
-   if(img)
+   if(img && img->URL[0])
+   //not yet implemented && !(GLOBAL.needrender && from && *from!=IE_NULL && !img->unknownsize))
    {
-    if(img->URL[0])
+    AnalyseURL(img->URL,&url,IGNORE_PARENT_FRAME);
+    found=SearchInCache(&url,&HTTPdoc,&uptr,&status);
+
+    if(reload==EXPIRE_ALL_IMAGES && found && status!=LOCAL)
     {
-     AnalyseURL(img->URL,&url,IGNORE_PARENT_FRAME);
-     found=SearchInCache(&url,&HTTPdoc,&uptr,&status);
+     del:
+     if(!ie_getswap(uptr))
+      uptr=Write2Cache(&url,&HTTPdoc,1,0);
+     DeleteFromCache(uptr);
+    }
+    else
+    if(reload==FIND_MISSING_IMAGE)
+    {
+     if(!found && status==REMOTE && GLOBAL.nowimages!=IMAGES_SEEKCACHE)
+     {
+      strcpy(GLOBAL.location,HTTPdoc.URL);
+      GLOBAL.isimage=1;
+      mouseon();
+//       p->activeframe=pushact;
+      if(from)
+       *from=currentHTMLatom;
+      return 1;
 
-     if(reload==EXPIRE_ALL_IMAGES && found && status!=LOCAL)
-     {
-      del:
-      if(!ie_getswap(uptr))
-       uptr=Write2Cache(&url,&HTTPdoc,1,0);
-      DeleteFromCache(uptr);
-     }
-     else
-     if(reload==FIND_MISSING_IMAGE)
-     {
-      if(!found && status==REMOTE && GLOBAL.nowimages!=IMAGES_SEEKCACHE)
+      /* maybe later ...
+      arachne_will_download_images_now++;
+      if(arachne_will_download_images_now>LIM_DOWNLOAD)
       {
-       strcpy(GLOBAL.location,HTTPdoc.URL);
-       GLOBAL.isimage=1;
-       mouseon();
-       p->activeframe=pushact;
-       from=currentHTMLatom;
-       return 1;
+       return NeedImage(FIND_MISSING_IMAGE,NULL);
       }
-      else//conversion only
-      if(GLOBAL.nowimages!=IMAGES_SEEKCACHE &&
-          (search_mime_cfg(HTTPdoc.mime, ext,command)==1 ||
-           type==EMBED && search_mime_cfg(HTTPdoc.mime, ext, command)==2) &&
-          willconvert<MAXCONV)
-       imageptr[willconvert++]=IMGatom;
-     }
+      */
 
-    }//endif obrazek ma URL
+     }
+     else//conversion only
+     if(GLOBAL.nowimages!=IMAGES_SEEKCACHE &&
+         (search_mime_cfg(HTTPdoc.mime, ext,command)==1 ||
+          type==EMBED && search_mime_cfg(HTTPdoc.mime, ext, command)==2) &&
+         willconvert<MAXCONV)
+      imageptr[willconvert++]=IMGatom;
+    }
+
    }//endif
    else
     MALLOCERR();
   }
  }//loop
+
+
+ if(from && *from!=IE_NULL) //we have to verify if we don't need to convert images...
+  return NeedImage(FIND_MISSING_IMAGE,NULL);
+
+/*
+ maybe later
+ if(arachne_will_download_images_now)
+  return NeedImage(FIND_MISSING_IMAGE,NULL);
+*/
+
+ mouseoff();
+#ifdef POSIX
+ p->buf[0]='\0';
+#else
+ strcpy(p->buf,"@echo off\n");
+#endif
+
 
  if(willconvert) //prepare for conversion
  {
@@ -424,7 +460,7 @@ char NeedImage(char reload, XSWAP from)
        if (!strcmp (command, "djpeg $j -outfile $2 $1")) {
           jpeg2bmp (HTTPdoc.rawname, HTTPdoc.locname);
        }
-       else {       
+       else {
 #endif
           //we will try to convert image, if there is enough space
           //in $roura$.bat (means "pipe"), and if the image is already not
@@ -533,7 +569,7 @@ char NeedImage(char reload, XSWAP from)
  }
 
  mouseon();
- p->activeframe=pushact;
+ //p->activeframe=pushact;
  return 0; //nic nepotrebuju...
 }
 

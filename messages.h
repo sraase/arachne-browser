@@ -53,6 +53,7 @@ Notes for translators:
 #define MSG_ERRCON "Cannot connect to %s - please check your setup !"
 #define MSG_CON    "Connecting to %s, port %u ..."
 #define MSG_REQ    "Connected to %s - requesting object '%s' ..."
+#define MSG_ALIVE  "Alive to %s, requesting object %s ..."
 #define MSG_POST   "Posting data..."
 #define MSG_READ   "%d bytes read.\n"
 #define MSG_HTTP   "HTTP header of"
@@ -67,6 +68,7 @@ Notes for translators:
 #define MSG_ADJUST "Adjusting frames, images and tables"
 #define MSG_DLPERC "Downloading page (%ld of %ld bytes) ..."
 #define MSG_DLBYTE "Downloading page (%ld bytes read) ..."
+#define MSG_PARALL "Waiting for parallel image download to finish ..."
 #define MSG_REDRAW "Refreshing screen..."
 #define MSG_RENDER "Generating virtual screen..."
 #define MSG_FORM   "Processing form..."
@@ -76,7 +78,7 @@ Notes for translators:
 #define MSG_CFGERR "Error reading %s:\nFile not found, file is longer than %d lines or out of memory\n"
 #define MSG_KILL   "Killing disk cache..."
 #define MSG_DEAD   "Cache is now dead."
-#define MSG_URL    "Enter the URL you want to surf and press <Enter> ..."
+#define MSG_URL    "Enter the URL (internet address) or search phrase and press <Enter> ..."
 #define MSG_TCPERR "ERROR: %s\n"
 #define MSG_TCPILL "Illegal TCP/IP status: %d\n"
 #define MSG_NOIP   "Undefined IP adress !"
@@ -177,8 +179,10 @@ Notes for translators:
 //                 >-------|----|-----<
 #define MSG_INFMSG " device free  used"
 
+#define MSG_SAVE   "Save to disk, send by e-mail, FTP upload"
+#define MSG_MAIL   "Your e-mail"
+
 //(aproximately)   >-------------<
-#define MSG_SAVE   "Save/upload"
 #define MSG_OPEN   "Load/open URL"
 #define MSG_PRINT  "Print/export"
 #define MSG_SEARCH "Search in page"
@@ -186,7 +190,6 @@ Notes for translators:
 #define MSG_SOURCE "Page source"
 #define MSG_INFO   "Page information"
 #define MSG_IMAGES "Load images"
-#define MSG_MAIL   "Your eMail"
 #define MSG_HOME   "Desktop"
 #define MSG_WRITEF "Write file"
 #define MSG_READF  "Read file"

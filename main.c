@@ -120,14 +120,19 @@ IveGotNewUrl:
    }
   }
   else
-  if(!strncmpi(GLOBAL.location,"find:",5))
+  if(!strncmpi(GLOBAL.location,"find:",5) ||
+     (!strchr(GLOBAL.location,':') || strchr(GLOBAL.location,' '))
+      && !strchr(GLOBAL.location,'.') )
   {
+   int i=0;
    char *ptr=configvariable(&ARACHNEcfg,"SearchEngine",NULL);
+   if(!strncmpi(GLOBAL.location,"find:",5))
+    i=5;
    if(!ptr)
-    ptr="http://www.altavista.com/cgi-bin/query?q=";
-   cgiquery((unsigned char *)&GLOBAL.location[5],(unsigned char *)p->buf,1);
+    ptr="http://www.google.com/search?q=";
+   cgiquery((unsigned char *)&GLOBAL.location[i],(unsigned char *)p->buf,1);
    strcpy(GLOBAL.location,ptr);
-   makestr(GLOBAL.location,p->buf,URLSIZE-strlen(GLOBAL.location)-2);
+   makestr(&GLOBAL.location[strlen(ptr)],p->buf,URLSIZE-strlen(ptr)-2);
   }
   else
   if(!strcmpi(GLOBAL.location,"arachne:addressbook"))
@@ -162,6 +167,11 @@ IveGotNewUrl:
   GLOBAL.timeout=0;
   GLOBAL.backgroundimages=BACKGROUND_EMPTY;
   GLOBAL.clipdel=0;
+  //reset keepalive for this session
+#ifndef NOTCPIP
+  sock_keepalive[0][0]='\0';
+  sock_keepalive[1][0]='\0';
+#endif
 
   if(!arachne.target)
   {
@@ -435,10 +445,12 @@ IveGotNewUrl:
    }
    else
    {
+
     errimage:
 
     outs(MSG_ERRIMG);
     strcpy(inlineimage.locname,"NUL");
+    strcpy(inlineimage.mime,"???");
     inlineimage.rawname[0]='\0';
     UpdateInCache(inlineimage_writeadr,&inlineimage);
 
@@ -507,7 +519,7 @@ IveGotNewUrl:
    goto IveGotNewUrl;
   }
 
-  if(!GLOBAL.imagevisible)
+  if(!GLOBAL.imagevisible && !needredraw)
    goto Search4Image;
   else
   {
@@ -530,6 +542,9 @@ IveGotNewUrl:
 
   //we are rendering HTML again, but we read it from disk:
   p->html_source=LOCAL_HTML;
+  //we have invalidate table in this case
+  GLOBAL.validtables=TABLES_UNKNOWN;
+
  }//endif is image
 #endif
 
@@ -736,6 +751,7 @@ Render:
 //--------------------------------------------------------------------------
 
  GLOBAL.allowdealloc=0;         // Prevent GUIEVENT from doing some risky things
+ GLOBAL.needrender=0;           // maybe we will not need to render again ?
  GLOBAL.reload=NO_RELOAD;
  if(url.kotva[0]) // jump to anchor (#xyz) ?
   GLOBAL.norefresh=1;
@@ -818,7 +834,7 @@ Render:
 //adjusting tables BEFORE loading images - good idea on faster PCs!
 //-------------------------------------------------------------------------
 
- if(!GLOBAL.isimage &&
+ if(/*!GLOBAL.isimage &&*/
     !error &&
     !user_interface.quickanddirty &&
     !GLOBAL.needrender &&
@@ -881,7 +897,7 @@ Search4Image:
     !ignoreimages &&
     !error &&
     !ivegotallimages)
-   imageismissing=NeedImage(FIND_MISSING_IMAGE,currentimage);
+   imageismissing=NeedImage(FIND_MISSING_IMAGE,&currentimage);
  else
  {
   imageismissing=0;
@@ -905,7 +921,7 @@ Search4Image:
  {
 #ifndef NOTCPIP
   //just to be sure...
-  FinishBackground(BG_FINISH);
+  FinishBackground(BG_FINISH_ALL);
 #endif
 
   //now let's handle special situations if they occured....
@@ -1078,11 +1094,13 @@ ReadScriptLine:
   {
    if(closing[0])
    {
+    sock_keepalive[0][0]='\0';
     closesock=0;
     sock_tick( sock[0], &status ); //TCP/IP close ?
    }
    if(closing[1])
    {
+    sock_keepalive[1][0]='\0';
     closesock=1;
     sock_tick( sock[1], &status ); //TCP/IP close ?
    }
@@ -1173,12 +1191,12 @@ ReadScriptLine:
   else
   if(GLOBAL.nowimages)
   {
-   if(!NeedImage(FIND_MISSING_IMAGE,IE_NULL) || ignoreimages)
+   if(!NeedImage(FIND_MISSING_IMAGE,NULL) || ignoreimages)
    {
     if(*cacheitem_status==REMOTE)      //nejde o lok. soubor
     {
-     NeedImage(EXPIRE_ALL_IMAGES,IE_NULL);         //potrebuju reloadovat obrazky ?
-     if(NeedImage(FIND_MISSING_IMAGE,IE_NULL))
+     NeedImage(EXPIRE_ALL_IMAGES,NULL);         //potrebuju reloadovat obrazky ?
+     if(NeedImage(FIND_MISSING_IMAGE,NULL))
      {
       ignoreimages=0;
       GLOBAL.needrender=1;

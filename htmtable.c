@@ -620,12 +620,12 @@ void fixrowspan(struct HTMLtable *tab,int closetable, XSWAP *closeptrs)
  closeptrs[closecount]=IE_NULL;
 }
 
-void fixrowspan_y(XSWAP *closeptrs,long y)
+void fixrowspan_y(XSWAP *closeptrs,long y,int padding)
 {
  int i=0;
 
  while(i<MAXROWSPANTD && closeptrs[i]!=IE_NULL)
-  closeatom_y(closeptrs[i++],y);
+  closeatom_y(closeptrs[i++],y,padding);
 }
 
 

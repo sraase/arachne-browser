@@ -27,15 +27,33 @@ void outs( char far *s)        /* print a ASCIIZ string to stdio */
   l=x_charmax((unsigned char *)s,x_maxx()-200);
   if(l>100)
    l=100;
+
+
+ x_setfill(0,7);
 #ifndef AGB
+
 #ifdef CUSTOMER
-  Box3D(0,x_maxy()-15,x_maxx(),x_maxy());
+  x_setcolor(15);
+  x_line(2,x_maxy()-14,x_maxx()-2,x_maxy()-14);
+  x_setcolor(8);
+  x_line(2,x_maxy()-1,x_maxx()-2,x_maxy()-1);
+  x_bar(2,x_maxy()-13,x_maxx()-2,x_maxy()-2);
 #else
-  Box3D(0,x_maxy()-15,x_maxx()-152,x_maxy());
+  x_setcolor(15);
+  x_line(2,x_maxy()-14,x_maxx()-154,x_maxy()-14);
+  x_setcolor(8);
+  x_line(2,x_maxy()-1,x_maxx()-154,x_maxy()-1);
+  x_bar(2,x_maxy()-13,x_maxx()-154,x_maxy()-2);
 #endif // CUSTOMER
+
 #else
-  Box3D(0,x_maxy()-15,x_maxx(),x_maxy());
+  x_setcolor(15);
+  x_line(2,x_maxy()-14,x_maxx()-2,x_maxy()-14);
+  x_setcolor(8);
+  x_line(2,x_maxy()-1,x_maxx()-2,x_maxy()-1);
+  x_bar(2,x_maxy()-13,x_maxx()-2,x_maxy()-2);
 #endif // AGB
+
   if(strlen(s)>l && l>3)
   {
    l-=3;

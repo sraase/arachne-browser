@@ -10,7 +10,7 @@
 
 #define URLSIZE 256
 #define PROTOCOLSIZE 11
-#define STRINGSIZE 40
+#define STRINGSIZE 48
 #define PASSWORDSIZE 16
 
 struct Url

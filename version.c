@@ -1,7 +1,7 @@
 #include "arachne.h"
 
 #ifndef CUSTOMER
-char *VER="1.67";
+char *VER="1.69";
 #ifdef MSDOS
 char *beta="";          //MS-DOS version is stabe
 #else

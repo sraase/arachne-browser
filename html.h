@@ -43,7 +43,7 @@ int findtarget(int basetarget);
 
 //HMTL table related..
 void verticalalign(XSWAP adr,XSWAP tbladr,char valign,long yshift);
-void tablerow(long y,long yy,XSWAP tbladr);
+void tablerow(long y,long yy,XSWAP tbladr,int padding);
 char calcnestedtables(int idx);
 void ExpandTables(void);
 
@@ -272,9 +272,11 @@ p->xsum=0;
 #define TAG_EMBED          58
 #define TAG_BUTTON         59
 #define TAG_SLASH_BUTTON   1059
-#define TAG_ARACHNE_BONUS  888
 #define TAG_NOSCRIPT       60
 #define TAG_SLASH_NOSCRIPT 1060
+#define TAG_BLOCKQUOTE       61
+#define TAG_SLASH_BLOCKQUOTE 1061
+#define TAG_ARACHNE_BONUS  888
 
 //AREA shapes:
 

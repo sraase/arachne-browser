@@ -28,29 +28,28 @@ void v_getimg(int x1, int y1, int x2, int y2, char *bitmap)
 void mosaic_background(struct picinfo *gif,char *obuf,int yz,int imgx)
 {
  int pomx=0;
- int pomy=yz+gif->size_y;
+ int pomy=yz;
  char notskipped=0;
+ char pombuf[4096];
 
- while(pomx+imgx<=gif->stop_x)
+ while(pomy<gif->screen_y+gif->draw_y)
  {
-  while(pomy<gif->screen_y+gif->draw_y)
+  while(pomx+imgx<=gif->stop_x)
   {
    v_putimg(gif->screen_x+pomx,pomy,obuf);
-   pomy+=gif->size_y;
+   pomx+=gif->size_x;
   }
-  pomy=yz;
-  pomx+=gif->size_x;
+
+  pomx=gif->draw_x%gif->size_x;
+  if(!(pomx == gif->draw_x && notskipped || !pomx))
+  {
+   v_getimg(gif->screen_x ,pomy,gif->screen_x +pomx,pomy,pombuf);
+   v_putimg(gif->screen_x +gif->draw_x-pomx,pomy,pombuf);
+  }
+
+  pomx=0;
+  pomy+=gif->size_y;
   notskipped=1;
  }
 
- pomx=gif->draw_x%gif->size_x;
- if(pomx == gif->draw_x && notskipped || !pomx) return;
-
- pomy=yz;
- v_getimg(gif->screen_x ,pomy,gif->screen_x +pomx,pomy,obuf);
- while(pomy<gif->screen_y+gif->draw_y)
- {
-  v_putimg(gif->screen_x +gif->draw_x-pomx,pomy,obuf);
-  pomy+=gif->size_y;
- }
 }//end if pozadi

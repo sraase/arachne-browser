@@ -84,7 +84,9 @@ tcp_Socket *socket;
 tcp_Socket *sock[2];
 //tcp_Socket *websocket;
 char closing[2]={0,0};
+int sock_datalen[2]={0,0};
 #endif
+char sock_keepalive[2][STRINGSIZE]={"\0","\0"};
 int socknum;
 #endif
 

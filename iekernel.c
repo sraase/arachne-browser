@@ -220,7 +220,8 @@ XSWAP ie_putswap(char *line, unsigned l, int context)
 
  swapidx[ladr]=IE_SWAPSTART+swapsize[swapnum];
  swapsize[swapnum]+=(l+1);
- memcpy(&swapstr[swapidx[ladr]],line,l);
+ if(line) //line=NULL ... just allocate, do not copy
+  memcpy(&swapstr[swapidx[ladr]],line,l);
  swapstr[swapidx[ladr]+l]='\0';
  swapcontext[swapnum]=context;
  swapmod=1;

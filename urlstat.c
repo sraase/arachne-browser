@@ -524,6 +524,13 @@ void url2str(struct Url *url,char *out)
  }
  else
  {
+  // do not descend beyond root directory !
+  while(!strncmp(url->file,"/..",3))
+  {
+   memmove(url->file,&(url->file[3]),strlen(url->file)-3);
+   url->file[strlen(url->file)-3]='\0';
+  }
+
   if(url->user[0])
   {
    if(url->password[0])

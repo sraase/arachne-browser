@@ -470,6 +470,9 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
     case 'G':
     pom=configvariable(&ARACHNEcfg,"Gateway",NULL);
     goto cont;
+    case '!':
+    pom=configvariable(&ARACHNEcfg,"Editor",NULL);
+    goto cont;
     case 'X':
     pom=configvariable(&ARACHNEcfg,"Netmask",NULL);
     goto cont;

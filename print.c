@@ -87,7 +87,7 @@ void generateprt(void)
 
  while(currentHTMLatom!=IE_NULL)
  {
-  kbhit();
+//  kbhit();
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
    MALLOCERR();
@@ -227,7 +227,7 @@ void generateprt(void)
  ie_savef(&txt);
 
  ie_killcontext(CONTEXT_TMP); //clear temporary file
- ie_closef(&txt);
+// ie_closef(&txt);
 
 }
 

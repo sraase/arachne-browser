@@ -361,6 +361,7 @@ quit:
      rv=0;
     sock_close( socket );
     closing[socknum]=1;
+    sock_keepalive[socknum][0]='\0';
 
 sock_err:
     switch (status) {

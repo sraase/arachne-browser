@@ -321,6 +321,7 @@ int renderHTML(struct Page *p)
             frame->scroll.ytop,
             frame->scroll.xsize,0);//total x,y
  ScrollButtons(&frame->scroll);
+
  if(!GLOBAL.isimage && GLOBAL.validtables==TABLES_UNKNOWN && p->html_source==HTTP_HTML)
   redrawHTML(REDRAW_WITH_MESSAGE,REDRAW_SCREEN);
 
@@ -819,6 +820,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        {
         AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
         url2str(&url,text);
+        if(strstr(text,"&amp;"))
+         entity2str(text);
         tagarg=text;
        }
       
@@ -1638,7 +1641,6 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       }
       else
       {
-       //tmptable=(struct HTMLtable *)ie_getswap(Tablelist.lineadr[Tablelist.cur]);
        tmptable=(struct HTMLtable *)ie_getswap(p->nextHTMLtable);
        if(tmptable)
        {
@@ -1789,6 +1791,15 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        p->thistable->rowbg[0]='\0';
       }
 
+      img->URL[0]='\0';
+      if(getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode && strcmp(tagarg,"0")) //???
+      {
+       AnalyseURL(tagarg,&url,p->currentframe);
+       url2str(&url,img->URL);
+       init_picinfo(img);
+       img->URL[URLSIZE-1]='\0';
+      }
+
       HTMLatom.y=y;
       HTMLatom.yy=y+2*border;
       listdepthstack[tabledepth]=listdepth;
@@ -1836,7 +1847,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        MALLOCERR();
 
       //vyrobim si pointer na tabulku:
-      addatom(&HTMLatom,"",0,TABLE,TOP,border,tabalign,thistableadr,1);
+      if(img->URL[0])
+       addatom(&HTMLatom,img,sizeof(struct picinfo),TD_BACKGROUND,TOP,border,tabalign,thistableadr,1);
+      else
+       addatom(&HTMLatom,"",0,TABLE,TOP,border,tabalign,thistableadr,1);
       currenttable[tabledepth]=p->lastHTMLatom;
 
       //a v seznamu je na rade dalsi tabulka...
@@ -1879,11 +1893,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          if(thistableadr==parenttableadr)
           tmptable=p->thistable;
          else
-          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr); 
+          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
 
          if(tmptable)
          {
-
           // fix desired table cell width data:
           // tabledepth>1 == we are wrapped in another table cell...
           if(p->xsum>p->maxsum)
@@ -1903,7 +1916,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           if(thistableadr!=parenttableadr)
            swapmod=1;
 
-          if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN ||               RENDER.willadjusttables==0) //acceleration
+          if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
            closeatom(currentcell[tabledepth],cellx,y);
          }
          else
@@ -1923,6 +1936,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         {
          XSWAP closeptrs[MAXROWSPANTD+1];
          long start=tmptable->tdstart,end;
+         int padding=tmptable->cellpadding;
 
          fixrowspan(tmptable,1,closeptrs);
          end=tmptable->tdend;
@@ -1993,8 +2007,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          }
 
          //zarovnam posledni radek tabulky
-         fixrowspan_y(closeptrs,end);
-         tablerow(start,end,parenttableadr);
+         fixrowspan_y(closeptrs,end,padding);
+         tablerow(start,end,parenttableadr,padding);
         }
         else
          MALLOCERR();
@@ -2209,7 +2223,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           end=tmptable->tdend;
           tmptable->y++;
           tmptable->x=0;
-          tmptable->tdstart=tmptable->tdend+tmptable->cellspacing;
+          tmptable->tdstart=end+tmptable->cellspacing;
           tmptable->tdend=tmptable->tdstart;
 
           if(tmptable->tdend<tmptable->nexttdend)
@@ -2219,9 +2233,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           if(thistableadr!=parenttableadr)
            swapmod=1;//<-ulozit zmeny!
 
-          fixrowspan_y(closeptrs,end);
-          tablerow(start,end,parenttableadr);
-
+          fixrowspan_y(closeptrs,end,tmptable->cellpadding);
+          tablerow(start,end,parenttableadr,tmptable->cellpadding);
          }
         }
         else
@@ -2343,7 +2356,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
        if(getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode)
        {
-        AnalyseURL(tagarg,&url,p->currentframe); 
+        AnalyseURL(tagarg,&url,p->currentframe);
         url2str(&url,img->URL);
         init_picinfo(img);
         img->URL[URLSIZE-1]='\0';
@@ -2492,7 +2505,6 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          else
           addatom(&HTMLatom,"",0,TD,valign,border,bgcolor,parenttableadr,1);
 
-//         currentcell[tabledepth]=HTMLdoc.lineadr[HTMLdoc.len-1];
          currentcell[tabledepth]=p->lastHTMLatom;
          //!rowspan fix!
          if(yspan>1)
@@ -2626,6 +2638,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      orderedlist[listdepth+1]=1; //ordered list, item no.=1
      goto list;
 
+     case TAG_BLOCKQUOTE: //<BLOCKQUTE>
      case TAG_UL: //<UL>
 
      if(orderedlist[listdepth]!=-2)
@@ -2650,12 +2663,16 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 //       printf("[listedge=%d,left=%d]",listedge[listdepth-1],p->docLeft);
       }
 
+      if(tag==TAG_BLOCKQUOTE)
+       y+=fonty(font,style)/2;
+
       if(flag)
        goto br;
      }
      break;
 
      case TAG_SLASH_UL:
+     case TAG_SLASH_BLOCKQUOTE:
      case TAG_SLASH_OL:
 
      if(listdepth)
@@ -2952,8 +2969,13 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(getvar("ACTION",&tagarg))
       {
        //vlozit link:
-       AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
-       url2str(&url,text);
+       if(tagarg[0]=='#' && method==-1)
+        makestr(text,tagarg,URLSIZE);
+       else
+       {
+        AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+        url2str(&url,text);
+       }
 
        //vyrobim si pointr na link, a od ted je vsechno link:
        addatom(&HTMLatom,text,strlen(text),FORM,align,target,method,IE_NULL,1);
@@ -3164,9 +3186,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 #ifdef POSIX
      lines=10000;
 #else
-     lines=(int)(farcoreleft()/16); //160000 -> 10000, 80000->5000
-     if(lines>8000)lines=8000;
-     if(lines<256)lines=256;
+//     lines=(int)(farcoreleft()/16); //160000 -> 10000, 80000->5000
+//     if(lines>8000)lines=8000;
+//     if(lines<256)lines=256;
+     lines=8000;
 #endif
 
      HTMLatom.x=x;
@@ -3781,7 +3804,7 @@ exitloop:
      )
     )
   {
-   if(GLOBAL.needrender && !user_interface.quickanddirty)
+   if(RENDER.willadjusttables && !user_interface.quickanddirty)
     redrawHTML(REDRAW_NO_MESSAGE,REDRAW_SCREEN);
    else
     redrawHTML(REDRAW_NO_MESSAGE,REDRAW_CREATE_VIRTUAL);

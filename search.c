@@ -54,7 +54,7 @@ void SearchString(void)
 
  while(currentHTMLatom!=IE_NULL)
  {
-  kbhit();
+//  kbhit();
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
    MALLOCERR();

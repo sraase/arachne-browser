@@ -12,7 +12,6 @@
 //real events, called from GUIEVENT
 //------------------------------------------------------------------------
 
-
 int gotoloc(void)
 {
   if(GLOBAL.location[0])
@@ -77,7 +76,7 @@ int add2hotlist(void)
     titleptr=line;
    }
   }
-  ie_closef(&clipboard);
+// ie_closef(&clipboard);
   ie_killcontext(CONTEXT_TMP);
   if(!urlptr)
    return 0;
@@ -339,13 +338,13 @@ int smothright(void)
  return 0;
 }
 
-int smothup(void)
+int smothup(int rate)
 {
  struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
 
  if(frame->posY>0)
  {
-  frame->posY-=fonty(8,BOLD|ITALIC);
+  frame->posY-=rate*fonty(8,BOLD|ITALIC);
   if(frame->posY<0)
    frame->posY=0;
   redraw=2;
@@ -353,14 +352,14 @@ int smothup(void)
  return 0;
 }
 
-int smothdown(void)
+int smothdown(int rate)
 {
  struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
 
  if(frame->posY<frame->scroll.total_y-frame->scroll.ysize &&
     frame->scroll.total_y>frame->scroll.ysize)
  {
-  frame->posY+=fonty(8,BOLD|ITALIC);
+  frame->posY+=rate*fonty(8,BOLD|ITALIC);
   if(frame->posY>frame->scroll.total_y-frame->scroll.ysize)
    frame->posY=frame->scroll.total_y-frame->scroll.ysize;
   redraw=2;
@@ -448,6 +447,17 @@ int gotolochome(void)
  sprintf(GLOBAL.location,"gui:home.ah",exepath);
 #else
  sprintf(GLOBAL.location,"file:%shome.htm",exepath);
+#endif
+ arachne.target=0;
+ return gotoloc();
+}
+
+int gotomailpage(void)
+{
+#ifdef POSIX
+ strcpy(GLOBAL.location,"gui:mail.ah");
+#else
+ sprintf(GLOBAL.location,"file:%smail.htm",exepath);
 #endif
  arachne.target=0;
  return gotoloc();
@@ -656,7 +666,7 @@ int GUIEVENT(int key, int mouse)
    if(scrolllock())
     return mouse2previouslink(mouse,asc);
    else if(user_interface.smooth && !shift())
-    return smothup();
+    return smothup(1);
    else
    {
     if(mousey>MOUSESTEP)
@@ -676,7 +686,7 @@ int GUIEVENT(int key, int mouse)
    if(scrolllock())
     return mouse2nextlink(mouse,asc);
    else if(user_interface.smooth && !shift())
-    return smothdown();
+    return smothdown(1);
    else
    {
    if(mousey<x_maxy()-MOUSESTEP)
@@ -764,7 +774,7 @@ int GUIEVENT(int key, int mouse)
       }//loop
       redrawHTML(REDRAW_WITH_MESSAGE,REDRAW_SCREEN);
      }
-     ie_closef(&clipboard);
+//     ie_closef(&clipboard);
      ie_killcontext(CONTEXT_TMP);
      GLOBAL.del=2; //delete document from cache - HREF was REMOVED
     }
@@ -785,15 +795,7 @@ int GUIEVENT(int key, int mouse)
    else if(asc=='D')
     return gotodialpage();
    else if(asc=='M')
-   {
-#ifdef POSIX
-    strcpy(GLOBAL.location,"gui:mail.ah");
-#else
-    sprintf(GLOBAL.location,"file:%smail.htm",exepath);
-#endif
-    arachne.target=0;
-    return gotoloc();
-   }
+    return gotomailpage();
    else if(asc=='C')
    {
     sprintf(GLOBAL.location,"mailto:",exepath);
@@ -1104,6 +1106,7 @@ int GUIEVENT(int key, int mouse)
 
    if(key==0x3c00)//F2
    {
+    savesend:
     link=gotoactiveatom(asc,&formID);
     if(link)
      goto submit;
@@ -1119,6 +1122,12 @@ int GUIEVENT(int key, int mouse)
 
    if(key==0x3e00)//F4
    {
+    ptr=configvariable(&ARACHNEcfg,"Editor",NULL);
+    if(ptr && strcmpi(ptr,"NUL"))
+    {
+     sprintf(GLOBAL.location,"edit:%s",p->htmlframe[p->activeframe].cacheitem.locname);
+     return gotoloc();
+    }
     GLOBAL.source=0;
     GLOBAL.validtables=0;
     strcpy(LASTlocname,p->htmlframe[p->activeframe].cacheitem.locname);
@@ -1603,6 +1612,12 @@ submit:
      case CLICK_DESKTOP:
      return gotolochome();
 
+     case CLICK_MAIL:
+     return gotomailpage();
+
+     case CLICK_SAVE:
+     goto savesend;
+
      case CLICK_NETHOME://net home
      strcpy(GLOBAL.location,homepage);
      arachne.target=0;
@@ -1823,8 +1838,8 @@ submit:
       mouseon();
       switch(scrollbarbutton)
       {
-       case 1: return smothup();
-       case 2: return smothdown();
+       case 1: return smothup(1);
+       case 2: return smothdown(1);
        case 3: return smothleft();
        case 4: return smothright();
       }//end switch
@@ -1843,4 +1858,5 @@ submit:
  return 0;
 
 }
+
 

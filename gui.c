@@ -6,12 +6,11 @@
 
 #include "arachne.h"
 #include "gui.h"
+#include "html.h"
 #include "internet.h" //because of background tasks...
 #include "alttab.h"
 
 #define MOUSESTEP 10
-
-#include "pckbrd.h"
 
 int GUITICK(void)
 {
@@ -51,6 +50,7 @@ int GUITICK(void)
  }
  //end if kbhit
 
+
  //reading mouse...
  mys=ImouseRead( &mousex, &mousey );
  if(mys && lmouse==-1) //special init state
@@ -58,6 +58,9 @@ int GUITICK(void)
   mys=-1;
   return 0;
  }
+ //wheel movement detection
+ if(mys & 0xf00) //mouse wheel is in higher byte of button
+  mys=analysewheel(mys);
 
 mammys:
 

@@ -245,7 +245,7 @@ int FastTagDetect(char *tagname)
   if(!strcmp(ptr,"ASEFONT"))
    return TAG_BASEFONT;
   if(!strcmp(ptr,"LOCKQUOTE"))
-   return TAG_UL;
+   return TAG_BLOCKQUOTE;
   if(!strcmp(ptr,"UTTON"))
    return TAG_BUTTON;
   break;

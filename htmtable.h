@@ -50,8 +50,8 @@ void newcell(struct HTMLtable *tab,int xspan,int yspan,int *tdx,long *tdy,int *w
 char calcwidth(struct HTMLtable *tab);
 void expand(struct HTMLtable *tab);
 void fixrowspan(struct HTMLtable *tab,int closetable, XSWAP *closeptrs);
-void fixrowspan_y(XSWAP *closeptrs,long y);
-void closeatom_y(XSWAP adr,long absy);
+void fixrowspan_y(XSWAP *closeptrs,long y,int padding);
+void closeatom_y(XSWAP adr,long absy,int padding);
 int determine_new_x(struct HTMLtable *tab);
 int determine_new_width(struct HTMLtable *tab,int xspan);
 

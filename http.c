@@ -21,6 +21,22 @@ extern int posixErrNo;
 #define HTTP_ASLEEP        60  //timeout for "empty documents" (esp. via proxy)
                                //...for images, timeouts are divided by 2
 
+struct Http_parameters http_parameters;
+
+void find_keepalive_socket(char *hostname)
+{
+ if(GLOBAL.backgroundimages==BACKGROUND_EMPTY)
+ {
+  if(!strcmpi(hostname,sock_keepalive[1-socknum]) && !closing[1-socknum])
+  {
+   socknum=1-socknum;
+   socket=sock[socknum];
+   status=0;
+  }
+ }
+}
+
+
 char exestr[40]="\0";
 void makeexestr(char *exestr);
                                
@@ -36,7 +52,7 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  char contentlength[80]="";
  char authorization[128]="";
  char acceptcharset[80]="";
- char cookiestr[IE_MAXLEN+2]="";
+ char cookiestr[2*IE_MAXLEN]="";
  char *nocache="Cache-Control: no-cache\r\nPragma: no-cache\r\n";
  char *httpcommand="GET";
  int line;
@@ -45,13 +61,15 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  char referstr[URLSIZE+16]="";
  char portstr[10]="";
  int port,i;
- char ftp=0;
+ char ftp=0,alive=0;
  int delay=HTTP_QUICK_CONNECT, attempt=1;
 #ifdef POSIX
  struct sockaddr_in sin;
  fd_set rfds,  efds;
  struct timeval tv;
 #endif
+ char willkeepalive=0;
+ char *keepalive="\0";
 
  if(!tcpip && !httpstub)return 0;
 #ifdef MSDOS
@@ -63,8 +81,7 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  if(!*exestr)
   makeexestr(exestr);
 
- ptr=configvariable(&ARACHNEcfg,"HTTPreferer",NULL);
- if(!ptr || *ptr=='y' || *ptr=='Y')
+ if(http_parameters.referer)
   sprintf(referstr,"Referer: %s\r\n",Referer);
 
  if(!GLOBAL.isimage)
@@ -81,12 +98,13 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  strcpy(pocitac,url->host);
  port=url->port;
  uri=url->file;
+ while(!strncmp(uri,"/..",3)) // do not descend beyond root directory !
+  uri+=3;
 
  //use proxy server ?
  ftp=(toupper(url->protocol[0])=='F');
 
- ptr=configvariable(&ARACHNEcfg,"UseProxy",NULL);
- if(ftp || (ptr && toupper(*ptr)!='N'))
+ if(ftp || http_parameters.useproxy)
  {
   char *no4all=NULL;
 
@@ -125,14 +143,15 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  if(url->port!=80)
   sprintf(portstr,":%d",url->port);
 
- if(tcpip && !httpstub)
+ find_keepalive_socket(pocitac);
+ if(tcpip && !httpstub && strcmpi(sock_keepalive[socknum],pocitac))
  {
   GlobalLogoStyle=0;		//SDL set resolve animation
 
 /*
 #ifdef POSIX
-{ //blocking version - not necessary, if non-blocking reslove_fn() implemented in asockets.h works 
- struct hostent *phe;		 // host information entry 
+{ //blocking version - not necessary, if non-blocking reslove_fn() implemented in asockets.h works
+ struct hostent *phe;		 // host information entry
 
  if((phe = gethostbyname(pocitac)) == NULL)
  {
@@ -166,11 +185,12 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
   {
    if(getvar("path",&ptr) && strstr(url->file,ptr))
    {
-    if(strlen(cookiestr)+strlen(str)+10<IE_MAXLEN)
+    if(strlen(cookiestr)+strlen(str)+10<2*IE_MAXLEN)
     {
      if(cookiestr[0])
       strcat(cookiestr,";\r\n ");
      else
+//      strcat(cookiestr,"Cookie: $Version=\"1\";\r\n ");
       strcat(cookiestr,"Cookie: ");
      strcat(cookiestr,str);
     }
@@ -180,7 +200,10 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
   i++;
  }
  if(cookiestr[0])
+ {
   strcat(cookiestr,"\r\n");
+//  puts(cookiestr);
+ }
 
  out:
 
@@ -213,7 +236,11 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
  }
  //end experiment
 
- if(tcpip && !httpstub)
+// bad idea ?
+// if(sock_keepalive[socknum][0] && !tcp_tick(socket)) //connection was lost ?
+//  sock_keepalive[socknum][0]='\0';
+
+ if(tcpip && !httpstub && strcmpi(sock_keepalive[socknum],pocitac))
  {
   retry:
 
@@ -224,7 +251,7 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
   sin.sin_family = AF_INET;
   sin.sin_port = htons(port);
   bzero(&(sin.sin_zero), 8);     /* zero the rest of the struct */
-		  
+
   sprintf(str,msg_con,pocitac,port);
   outs(str);
 
@@ -247,7 +274,7 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
     return 0;
   }
 
-  /* 
+  /*
   //old style, synchrounous (blocking) connect. Not good for Arachne.
   if(connect(socknum, (struct sockaddr *)&sin, sizeof(sin)) < 0)
   {
@@ -286,14 +313,29 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
    }
   }//wait for connection
 #endif
- }//end if not TCP/IP open
+ }//end if not TCP/IP open (or connection is alive)
+ else
+  alive=1;
 
- GlobalLogoStyle=1;		//SDL set data animation
+ //initialize keepalive mechanism:
+ if(http_parameters.keepalive)
+  makestr(sock_keepalive[socknum],pocitac,STRINGSIZE);
+ sock_datalen[socknum]=0;
 
+ //SDL set data animation
+ GlobalLogoStyle=1;
+
+ //echo cookie string
  if(cookiestr[0])
   outs(cookiestr);
  else if(authorization[0])
   outs(authorization);
+ else if(alive)
+ {
+  sprintf(str,MSG_ALIVE,pocitac,uri);
+  outs(str);
+  //printf("[%s]",str);
+ }
  else
  {
   sprintf(str,MSG_REQ,pocitac,uri);
@@ -332,14 +374,24 @@ Content-length: %d\r\n",ql);
   }
 #endif
 
+ if(http_parameters.keepalive)
+  keepalive="Connection: Keep-Alive\n";
+
  sprintf(p->buf,"\
 %s %s HTTP/1.0\r\n\
 User-agent: xChaos_Arachne/4.%s%s (%s; %dx%d,%s; www.arachne.cz)\r\n\
 Accept: */*\r\n\
 Host: %s%s\r\n\
-%s%s%s%s%s%s\r\n",
+%s%s%s%s%s%s%s\r\n",
  httpcommand,uri,VER,beta,exestr,x_maxx()+1,x_maxy()+1,c,
- url->host,portstr,cachecontrol,contentlength,cookiestr,authorization,referstr,acceptcharset);
+ url->host,portstr,
+ keepalive,
+ cachecontrol,
+ contentlength,
+ cookiestr,
+ authorization,
+ referstr,
+ acceptcharset);
  }
 
  if(tcpip && !httpstub)    //if TCP/IP is enabled
@@ -646,9 +698,16 @@ analyse:
      cache->dynamic=0;
     }
 
+    // ----------------------------------------------- Connection:
+
+    else if(!strcmpi(str,"Connection") && !strncmpi(&ptr[2],"Keep-Alive",10))
+    {
+     willkeepalive=1;
+    }
+
     // ----------------------------------------------- Set-Cookie:
 
-    else if(!strcmpi(str,"Set-Cookie") && user_interface.acceptcookies)
+    else if(!strcmpi(str,"Set-Cookie") && http_parameters.acceptcookies)
     {
      char *pom1=NULL,*pom2=NULL,*p,*newcookie=NULL;
      char domain[80],path[80];
@@ -794,10 +853,26 @@ analyse:
   count++;
  }//loop
 
+
  if(GLOBAL.redirection || AUTHENTICATION->flag==AUTH_REQUIRED)
   goto abort;
 
 write2cache:
+
+ //HTTP/1.0 Connection: Keep-Alive rules acording to RFC2068:
+ //
+ if(!cache->knowsize || !willkeepalive)
+ {
+  sock_keepalive[socknum][0]='\0';
+ // printf("[keepalive disabled]");
+ }
+ else
+ {
+  closing[socknum]=0;
+ // printf("[keepalive enabled]");
+ }
+
+
  ptr=strrchr(cache->locname,'.');
  if(ptr)
  {
@@ -877,6 +952,7 @@ write2cache:
  sock_close( socket );
  closing[socknum]=1;
 #endif
+ sock_keepalive[socknum][0]='\0';
  return 0;
 }
 
@@ -905,18 +981,20 @@ int openhttp(struct Url *url,struct HTTPrecord *cache)
 }
 
 
-
 void closehttp(struct HTTPrecord *cache)
 {
  if(cache->handle==-1)
   return;
 
+ if(!sock_keepalive[socknum][0])
+ {
 #ifdef POSIX
- close(socknum);
+  close(socknum);
 #else
- sock_close( socket );
- closing[socknum]=1;
+  sock_close( socket );
+  closing[socknum]=1;
 #endif
+ }
 
  if(cache->handle!=-1)
  {
@@ -924,6 +1002,7 @@ void closehttp(struct HTTPrecord *cache)
   cache->handle=-1;
  }
 }
+
 
 #ifndef POSIX
 void free_socket(void)
@@ -938,7 +1017,9 @@ void free_socket(void)
 
  if(closing[socknum])
  {
+  //printf("[aborting]");
   sock_abort(socket);
+  sock_keepalive[socknum][0]='\0';
   memset(socket,0,sizeof(tcp_Socket));
  }
 
@@ -978,15 +1059,17 @@ void Download(struct HTTPrecord *cache)
   strcpy(dl,MSG_DOWNLD);
 
 #ifndef POSIX
-  if (!sock_dataready( socket ))
+  if (!sock_dataready( socket ) || rd==0)
   {
-#endif  
+#endif
    if (cache->knowsize && cache->size>0)
    {
     prc=(int)(100*fpos/cache->size);
     sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);
     outs(str);
     percentbar(prc);
+    if(fpos>=cache->size)
+     rd=0; //force connection close
    }
    else
    {
@@ -995,7 +1078,7 @@ void Download(struct HTTPrecord *cache)
    }
 #ifndef POSIX
   }//endif
-#endif  
+#endif
  }//loop
 }//end sub
 
@@ -1010,6 +1093,7 @@ char GoBackground(struct HTTPrecord *cache)
  {
   if(cache->handle!=-1)
    write(cache->handle,p->buf,p->httplen);
+  sock_datalen[socknum]+=p->httplen;
   p->httplen=0;
  }
 
@@ -1026,21 +1110,13 @@ char GoBackground(struct HTTPrecord *cache)
  return 1;
 }
 
-void FinishBackground(char abort)
+void FinishBackground(char mode)
 {
+ Backgroundhttp();
+
  if(GLOBAL.backgroundimages==BACKGROUND_EMPTY)
   return;
 
- /*
- if(GLOBAL.backgroundimages==BACKGROUND_ZOMBIE)
- {
-  if(GLOBAL.back_handle!=-1)
-   close(GLOBAL.back_handle);
-  GLOBAL.back_handle=-1;
-  GLOBAL.backgroundimages==BACKGROUND_EMPTY;
-  return;
- }
- */
 
  {
   struct HTTPrecord cacheitem;
@@ -1056,13 +1132,27 @@ void FinishBackground(char abort)
   status=GLOBAL.back_status;
 #endif
 
-  if(!abort)
+  if(mode!=BG_ABORT)
+  {
+   if(cacheitem.knowsize)
+   {
+    char str[256];
+    sprintf(str,"%s (%d of %d)",MSG_PARALL,sock_datalen[socknum],cacheitem.size);
+    outs(str);
+   }
+   else
+    outs(MSG_PARALL);
    Download(&cacheitem);
+  }
   else
   {
    a_lseek(cacheitem.handle,0l,SEEK_SET);
    write(cacheitem.handle,"??",2);
   }
+
+  if(mode!=BG_FINISH) //BG_ABORT || BG_FINISH_ALL
+   sock_keepalive[socknum][0]='\0';
+
   closehttp(&cacheitem);
  }
 }
@@ -1092,7 +1182,10 @@ void sockmsg(int status,int snum)
    sprintf(str,MSG_TCPILL, status);
    outs(str);
   }
+
   closing[snum]=0;
+  sock_keepalive[snum][0]='\0';
+
 }
 #endif
 #endif

@@ -20,7 +20,7 @@ void adrfield(char *str)
   else
   if(*str==')')z=0;
   else
-  if(!u && !z && (*str==';' || *str==':' || *str=='+'))
+  if(!u && !z && (*str==';' || *str==':'))
    *str=',';
 
   str++;
@@ -69,7 +69,7 @@ void process_form(char cgi, XSWAP formID)
 
   while(currentHTMLatom!=IE_NULL)
   {
-   kbhit();
+//   kbhit();
    atomtmpptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
    if(!atomtmpptr)
      MALLOCERR();
@@ -243,6 +243,12 @@ void process_form(char cgi, XSWAP formID)
         {
          adrfield(value);
          sprintf(str,"CC: %s\n",value);
+         write(mailmsg,str,strlen(str));
+        }
+        else if (!strcmpi(cmd,"BCC") && mailmsg>=0 && value[0])
+        {
+         adrfield(value);
+         sprintf(str,"Bcc: %s\n",value);
          write(mailmsg,str,strlen(str));
         }
         else if (!strcmpi(cmd,"SUBJ") && mailmsg>=0)

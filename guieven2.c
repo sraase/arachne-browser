@@ -129,7 +129,7 @@ int onbutton(int x,int y)
  }
 
  //Click on history button
- if(x>URLprompt.xx && x<x_maxx()-152 && y>URLprompt.y+p->htscrn_ytop && y<p->htscrn_ytop)
+ if(x>URLprompt.xx && x<URLprompt.xx+user_interface.scrollbarsize && y>URLprompt.y+p->htscrn_ytop && y<p->htscrn_ytop)
  {
 #ifdef OVRL
 #ifndef XTVERSION
@@ -189,72 +189,79 @@ int onbutton(int x,int y)
  }
 #endif
 
+ //------------------------------------------------------------------------
  else if(arachne.GUIstyle==STYLE_FULLSCREEN)
  {
-  if(y>50 || x<x_maxx()-150)
-  return 0;
-  if(x>x_maxx()-50)
+  if(y>p->htscrn_ytop)
+   return 0;
+
+  if(x>x_maxx()-190 && x<x_maxx()-170)
   {
 #ifdef OVRL
 #ifndef XTVERSION
-   thisx=x_maxx()-50;
-   thisxx=x_maxx();
+   thisxx=0;
 #endif
 #endif
-   if(y<25)
-   {
-#ifdef OVRL
-#ifndef XTVERSION
-    thisy=0;
-    thisyy=25;
-#endif
-#endif
-    return CLICK_NETHOME;
-   }
-   else
-   {
-#ifdef OVRL
-#ifndef XTVERSION
-    thisy=25;
-    thisyy=50;
-#endif
-#endif
-    return CLICK_DESKTOP; //Desktop
-   }
-  }
-#ifdef OVRL
-#ifndef XTVERSION
- thisxx=0;
-#endif
-#endif
-  x=x_maxx()-x;
-  if(y<25)
-  {
-   if(x>130)
-    return 1;
-   else if(x>110)
-    return 2;
-   else if(x>90)
-    return 3;
-   else if(x>70)
-    return 4;
-   else
-    return 7;
+   return CLICK_ZOOM;
   }
   else
+  if(x>x_maxx()-170 && x<x_maxx()-152)
   {
-   if(x>130)
-    return 5;
-   else if(x>110)
-    return 6;
-   else if(x>90)
-    return 8;  //search
-   else if(x>70)
-    return 9;  //help
+#ifdef OVRL
+#ifndef XTVERSION
+   thisxx=0;
+#endif
+#endif
+   return CLICK_EXIT;
+  }
+
+  if(x>150 && x<(x_maxx()/2-(x_maxx()-300)/6))
+   return ONMOUSE_TITLE;
+
+  if(x<147)
+  {
+   int i=(x-2)/21;
+   thisx=2+21*i;
+   thisxx=thisx+22;
+   thisy=3;
+   thisyy=23;
+   if(i==4)
+    return CLICK_ABORT; //abort
    else
-    return CLICK_IMAGES; //images
+   if(i==5)
+    return CLICK_ADDHOTLIST; //add to hotlist
+   else
+   if(i==6)
+    return CLICK_HOTLIST; //hotlist
+   else
+    return i+1;
+  }
+  else if(x>x_maxx()-148)
+  {
+   int i=(x-x_maxx()+148)/21;
+   thisx=x_maxx()-148+21*i;
+   thisxx=thisx+22;
+   thisy=3;
+   thisyy=23;
+   if(i==6)
+    return CLICK_NETHOME;
+   else
+   if(i==2)
+    return CLICK_IMAGES;
+   else
+   if(i==3)
+    return CLICK_SAVE;
+   else
+   if(i==4)
+    return CLICK_MAIL;
+   else
+   if(i==5)
+    return CLICK_DESKTOP;
+   else
+    return i+8;
   }
  }
+ //------------------------------------------------------------------------
  else
  if(arachne.GUIstyle || x_maxx()<640)
  {

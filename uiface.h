@@ -21,7 +21,6 @@ struct uiface
  char mailisdesktop;
  char esc;
  int logoiddle;
- char acceptcookies;
  unsigned char printerwidth;
  char fontshift;
 // char buttons[9];

@@ -444,7 +444,7 @@ char *onmouse(int click)
     char removable=0;
 //?    arachne.target=0;
 
-    if(click)
+    if(click && click!=MOUSE_RELEASE)
     {
      arachne.target=atomptr->data1;
      if(atomptr->type==FORM)
@@ -488,7 +488,7 @@ char *onmouse(int click)
      return NULL;
     }
 
-    if(*ptr=='#' && click ) //kliknuti na A NAME
+    if(*ptr=='#' && click && click!=MOUSE_RELEASE) //kliknuti na A NAME
     {
      Goto_A_NAME(&ptr[1]);
      goto nolink;

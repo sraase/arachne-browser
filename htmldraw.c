@@ -437,6 +437,7 @@ void drawatom(struct HTMLrecord *atom,
       scroll=&tmpscroll;
 
 
+//?     ActivateWidget(&tmpeditor,
      memcpy(&tmpeditor,editorptr,sizeof(struct ib_editor));
 
      ie_redrawwin(&tmpeditor,(int)(screen_x+x1+2),(int)(screen_y+y1+2),
@@ -556,7 +557,7 @@ void drawatom(struct HTMLrecord *atom,
       strncpy(txtptr,&editorptr->rad[zoomx],width);
      else
      {
-      ptr=ie_getswap(editorptr->lineadr[0]);
+      ptr=ie_getswap(getXSWAPlineadr(editorptr,0));
       if(ptr)
        strncpy(txtptr,&ptr[zoomx],width);
       else
@@ -668,7 +669,7 @@ void redrawatoms(char frame,
 
  while(currentHTMLatom!=IE_NULL)
  {
-  kbhit();
+//  kbhit();
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
    MALLOCERR();
@@ -768,7 +769,7 @@ void redrawHTML(char nomsg, char virt)
   while(p->htmlframe[i].hidden && i<MAXFRAMES-1 && i!=-1)
   {
    i=p->htmlframe[i].next;
-   kbhit();
+//   kbhit();
   }
 
   if(i>=MAXFRAMES-1 || i==-1)
@@ -885,7 +886,7 @@ void redrawHTML(char nomsg, char virt)
    htmldata->usevirtualscreen=0;
    allvirtual=0;
   }
-  kbhit();
+//  kbhit();
   i=p->htmlframe[i].next;
  }//loop
 
@@ -925,7 +926,7 @@ void redrawHTML(char nomsg, char virt)
  {
   while(p->htmlframe[i].hidden && i<MAXFRAMES-1 && i!=-1)
   {
-   kbhit();
+//   kbhit();
    i=p->htmlframe[i].next;
   }
 
@@ -1002,7 +1003,7 @@ void redrawHTML(char nomsg, char virt)
      if(n%200==0 || !(imgcount%4))
      {
       int tyc=(int)(100l*n/p->HTMLatomcounter);
-      kbhit();
+//      kbhit();
       if(tyc>=0 && tyc!=lasttyc)
       {
        x_video_XMS(0, 0);
@@ -1089,7 +1090,7 @@ void redrawHTML(char nomsg, char virt)
   }
   drawframeborder(i);
 
-  kbhit();
+//  kbhit();
   i=p->htmlframe[i].next;
  }//loop
  p->currentframe=pushcurrent;
@@ -1142,7 +1143,10 @@ void html_background(char whichframe,
  {
   struct picinfo *background,*imgptr;
   struct HTTPrecord HTTPdoc;
-  struct HTMLrecord *atomptr=(struct HTMLrecord *)ie_getswap(p->tmpframedata[whichframe].backgroundptr);
+  struct HTMLrecord *atomptr=NULL;
+
+  if(p->tmpframedata[whichframe].backgroundptr!=IE_NULL)
+   atomptr=(struct HTMLrecord *)ie_getswap(p->tmpframedata[whichframe].backgroundptr);
   if(atomptr)
   {
 //   int frameID=atomptr->frameID;

@@ -280,7 +280,7 @@ int drawanyimage(struct picinfo *image);
 int RGB(unsigned char r,unsigned char g,unsigned char b);
 void resetcolorcache(void);
 void initpalette(void);
-char NeedImage(char reload, XSWAP from);
+char NeedImage(char reload, XSWAP *from);
 unsigned char HTMLentity(char *name);
 void entity2str(char *str);
 
@@ -552,6 +552,8 @@ extern char LASTlocname[80];
 extern char *Referer;
 
 extern char closing[2];
+extern char sock_keepalive[2][STRINGSIZE];
+extern int sock_datalen[2];
 extern int socknum;
 extern int status;
 //extern struct bin_file Tablelist; //indexed binarni structure

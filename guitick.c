@@ -60,19 +60,29 @@ void draw_time_online(void)
 
 void xChLogo(char n)
 {
- if(fullscreen || arachne.GUIstyle==STYLE_FULLSCREEN || customerscreen)
- {
-  //printf("gr=%d fs=%d gui=%d cust=%d\n",graphics,fullscreen,arachne.GUIstyle,customerscreen);
+ char logo[10]="XCHLOGO_";
+ int x=x_maxx()-150,y=0;
+
+ if(fullscreen || customerscreen)
   return;
- } 
 
 #ifndef TEXTONLY
-{
- char logo[10]="XCHLOGO0";
+ if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ {
+  if(n=='0')
+  {
+   DrawIconNow( "ALTICON2",x_maxx()-147,3 );
+   return;
+  }
+  sprintf(logo,"SMALOGO_");
+  x=x_maxx()-20;
+  y=5;
+  if(n>'4')n-=4;
+
+ }
 
  logo[7]=n;
-
- DrawIconNow(  logo, x_maxx()-150,0);
+ DrawIconNow(  logo, x,y);
 
  if(ppplogtime && tcpip)
  {
@@ -82,7 +92,6 @@ void xChLogo(char n)
   strcpy(lasttime,cas);
   draw_time_online();
  }
-}
 #endif
 
 }//end sub

@@ -493,7 +493,7 @@ void verticalalign(XSWAP adr,XSWAP tbladr,char valign,long yshift)
 }
 
 //!rowspan fix!
-void closeatom_y(XSWAP adr,long absy)
+void closeatom_y(XSWAP adr,long absy,int padding)
 {
  if(adr!=IE_NULL)
  {
@@ -506,7 +506,7 @@ void closeatom_y(XSWAP adr,long absy)
     atomptr->yy=absy;
     swapmod=1;
     if(atomptr->type==TD || atomptr->type==TD_BACKGROUND)
-     verticalalign(atomptr->next,atomptr->linkptr,atomptr->align,absy-oldyy);
+     verticalalign(atomptr->next,atomptr->linkptr,atomptr->align,absy-padding-oldyy);
    }
   }
   else
@@ -534,14 +534,14 @@ int atom2nextline(int x, long y, XSWAP adr)
 }
 
 
-void tablerow(long y,long yy,XSWAP tbladr)
+void tablerow(long y,long yy,XSWAP tbladr,int padding)
 {
  XSWAP currentHTMLatom=p->lastHTMLatom;
  struct HTMLrecord *atomptr;
 
  do
  {
-  kbhit();
+//  kbhit();
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
    MALLOCERR();
@@ -554,7 +554,7 @@ void tablerow(long y,long yy,XSWAP tbladr)
     long oldyy=atomptr->yy;
     atomptr->yy=yy;
     swapmod=1;
-    verticalalign(atomptr->next,atomptr->linkptr,atomptr->align,yy-oldyy);
+    verticalalign(atomptr->next,atomptr->linkptr,atomptr->align,yy-padding-oldyy);
    }
   }
   if(currentHTMLatom==tbladr) //cells can't be located before TABLE!
@@ -593,7 +593,7 @@ void Deallocmem(void)
 
  while(currentHTMLatom!=IE_NULL)
  {
-  kbhit();
+//  kbhit();
 
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(atomptr)
@@ -617,8 +617,8 @@ void Deallocmem(void)
       ie_savef(&tmpeditor); //modifying xswap, editorptr is no longer valid
       editorptr=&tmpeditor;
      }
-     if(editorptr->lineadr)
-      farfree(editorptr->lineadr);
+//old:     if(editorptr->lineadr)
+//      farfree(editorptr->lineadr);
     }
    }
   }

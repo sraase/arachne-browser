@@ -61,6 +61,7 @@ void Initialize_Arachne(int argc,char **argv,struct Url *url)
    detectgraphics();
    unlink("arachne.pck");
    tcpip=-1; //setup mode
+   arachne.GUIstyle|=4;
   }
   else
   if(argv[1][1]=='o' || argv[1][1]=='r')
@@ -264,9 +265,9 @@ if(tcpip==-1 || grsetup) //setup only
   else
    sprintf(GLOBAL.location,"file:%sega_cga.htm",exepath);
   arachne.GUIstyle|=4;
-  tcpip=0;
-  goto FirstDraw;
  }
+ tcpip=0;
+ goto FirstDraw;
 }
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -541,7 +542,7 @@ void init_bin(void)
  //---
 
 #ifndef NOTCPIP
-#ifndef POSIX
+#ifdef WATTCP
  sock[0]=farmalloc(sizeof(tcp_Socket)+1);
  sock[1]=farmalloc(sizeof(tcp_Socket)+1);
  socket=sock[0];

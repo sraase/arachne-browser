@@ -360,7 +360,7 @@ int xsendmail(struct Url *url,char helo, char logfile)
      if(expandlist.filename[0])
      {
       ie_killcontext(CONTEXT_TMP); //clear temporary file
-      ie_closef(&expandlist);
+//      ie_closef(&expandlist);
      }
     }//end temp variables
 
@@ -513,6 +513,7 @@ quit:
     sock_puts(socket,(unsigned char *)"QUIT");
     sock_close( socket );
     closing[socknum]=1;
+    sock_keepalive[socknum][0]='\0';
 
 sock_err:
     switch (status) {

@@ -29,7 +29,6 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
  int count = 0;
  char closed=0;
  int iddle=0;
- long dllength;
 #ifdef POSIX
  fd_set rfds, efds;
  struct timeval tv;
@@ -38,6 +37,7 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
  if(p->httplen) //flush rest of header...
  {
   count=p->httplen;
+  sock_datalen[socknum]+=count;
   p->httplen=0;
   if(cache->handle!=-1)
    write(cache->handle,buf,count);
@@ -48,11 +48,8 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
  if(cache->knowsize)
  {
   if (cache->size<=0) return 0;
-  if (cache->handle!=-1)
-  {
-   dllength=a_filelength(cache->handle);
-   if(dllength==cache->size) return 0;
-  }
+  if(sock_datalen[socknum]>=cache->size)
+   return 0;
  }
  else if (cache->handle==-1)
   return 0;
@@ -94,9 +91,9 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
 #endif
    if(count>0)
    {
+    sock_datalen[socknum]+=count;
     if(cache->handle!=-1)
      write(cache->handle,buf,count);
-    dllength=a_filelength(cache->handle);
     Backgroundhttp();
     return count;
    }
@@ -104,16 +101,17 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
   }
   else
   {
-   xChLogoTICK(1); // animace loga
-   iddle++;
-   if(iddle>TCP_IDDLE)
+   xChLogoTICK(1); // animace loga + Backgroundhttp();
+   if(iddle%TCP_IDDLE==0)
    {
     if(!tcp_tick(socket))
     {
+     sock_keepalive[socknum][0]='\0';
      sockmsg(1,socknum);
      closed=1;
     }
    }
+   iddle++;
   }//endif
 #else
   xChLogoTICK(10); // animace loga
@@ -166,6 +164,7 @@ void Backgroundhttp(void)
 #endif
    if(count>0)
    {
+    sock_datalen[GLOBAL.back_socknum]+=count;
     if(GLOBAL.back_handle!=-1)
     {
      char str[80];
@@ -216,6 +215,8 @@ void Backgroundhttp(void)
   //ukonceni
   GLOBAL.back_status=status;
   status=pushstatus;
+  sock_keepalive[GLOBAL.back_socknum][0]='\0';
+
 #endif
 
   if(GLOBAL.back_handle!=-1)

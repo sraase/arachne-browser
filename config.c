@@ -1,5 +1,6 @@
 
 #include "arachne.h"
+#include "internet.h"
 #include "alttab.h"
 
 #ifdef CALDERA
@@ -477,12 +478,6 @@ void configure_user_interface(void)
  atexit(ReleasePrtScr);
 #endif
 
- value=configvariable(&ARACHNEcfg,"Cookies",NULL);
- if(value && toupper(*value)=='N')
-  user_interface.acceptcookies=0;
- else
-  user_interface.acceptcookies=1;
-
  value=configvariable(&ARACHNEcfg,"MailIsDesktop",NULL);
  if(value && toupper(*value)=='N')
   user_interface.mailisdesktop=0;
@@ -695,15 +690,31 @@ void configure_user_interface(void)
  else
   user_interface.refresh=20;
 
-#ifdef CALDERA
-#ifdef CALDERA_LAUNCHER
- user_interface.scrollbarstyle=NO_SCROLL_BARS;
- user_interface.hotkeys=0;
-#endif // CALDERA_LAUNCHER
+ // HTTP parameters --------------------------------------------------
 
- if(user_interface.scrollbarstyle==NO_SCROLL_BARS)
-   user_interface.scrollbarsize=0;
-#endif // CALDERA
+ value=configvariable(&ARACHNEcfg,"HTTPreferer",NULL);
+ if(value && toupper(*value=='N'))
+  http_parameters.referer=0;
+ else
+  http_parameters.referer=1;
+
+ value=configvariable(&ARACHNEcfg,"HTTPKeepAlive",NULL);
+ if(value && toupper(*value=='N'))
+  http_parameters.keepalive=0;
+ else
+  http_parameters.keepalive=1;
+
+ value=configvariable(&ARACHNEcfg,"UseProxy",NULL);
+ if(value && toupper(*value)!='N')
+  http_parameters.useproxy=1;
+ else
+  http_parameters.useproxy=0;
+
+ value=configvariable(&ARACHNEcfg,"Cookies",NULL);
+ if(value && toupper(*value)=='N')
+  http_parameters.acceptcookies=0;
+ else
+  http_parameters.acceptcookies=1;
 
 }
 #endif

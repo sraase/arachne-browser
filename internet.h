@@ -17,7 +17,7 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile);
 void Download(struct HTTPrecord *cache);
 void Backgroundhttp(void);
 char GoBackground(struct HTTPrecord *cache);
-void FinishBackground(char abort);
+void FinishBackground(char mode);
 #ifdef POSIX
 int tickhttp(struct HTTPrecord *cache, char *buf, int sockfd);
 #else
@@ -40,6 +40,17 @@ extern tcp_Socket *socket;
 extern tcp_Socket *sock[2];
 extern int socknum;
 #endif
+
+struct Http_parameters
+{
+ char referer;
+ char useproxy;
+ char keepalive;
+ char acceptcookies;
+};
+
+extern struct Http_parameters http_parameters;
+
 
 // TcpIdleFunc should be called from all waiting loops
 

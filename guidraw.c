@@ -186,7 +186,10 @@ void buttons(void)
 #ifndef CUSTOMER
  if(arachne.GUIstyle==STYLE_FULLSCREEN)
  {
-  DrawIconLater( "ALTICONS",x_maxx()-150,0 );
+  DrawIconLater( "ALTICON1",3,3 );
+  DrawIconLater( "ALTICON2",x_maxx()-147,3 );
+  Box3Dh(0,p->htscrn_ytop-25,150,p->htscrn_ytop-2);
+  Box3Dh(x_maxx()-150,p->htscrn_ytop-25,x_maxx()-1,p->htscrn_ytop-2);
  }
  else
  if(arachne.GUIstyle || x_maxx()<640)
@@ -250,13 +253,23 @@ char *gettitle(char *buf)
 void PaintTitle(void)    // vykresleni nazvu stranky
 {
 #ifndef CUSTOMER
- if(!fullscreen && !customerscreen)
+ if(fullscreen || customerscreen)
+  return;
+ mouseoff();
+ if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ {
+  Box3Dh(152,p->htscrn_ytop-25,x_maxx()-152,p->htscrn_ytop-2);
+  DrawIconLater( "SMALL_WM",x_maxx()-187,p->htscrn_ytop-22);
+  URLprompt.xx=x_maxx()-192-user_interface.scrollbarsize;
+  if(user_interface.scrollbarsize>3)
+   Scratch3D(URLprompt.xx+3,p->htscrn_ytop-14,URLprompt.xx+user_interface.scrollbarsize-2);
+ }
+ else
  {
   int colormap[5]={8,-1,-1,15,7};
   char buf[64];
   char *title;
 
-  mouseoff();
   Box3D(0,p->htscrn_ytop-50,x_maxx()-152,p->htscrn_ytop-27);
   DrawIconLater( "SMALL_WM",x_maxx()-187,p->htscrn_ytop-46);
   if(fonty(SYSFONT,0)<=16)
@@ -284,6 +297,22 @@ void PaintTitle(void)    // vykresleni nazvu stranky
 #endif //CUSTOMER
 }
 
+void PaintStatus(void)
+{
+#ifndef AGB
+
+#ifdef CUSTOMER
+  Box3D(0,x_maxy()-15,x_maxx(),x_maxy());
+#else
+  Box3D(0,x_maxy()-15,x_maxx()-152,x_maxy());
+#endif // CUSTOMER
+
+#else
+  Box3D(0,x_maxy()-15,x_maxx(),x_maxy());
+#endif // AGB
+
+}
+
 void RedrawALL()                       // redraw entire user interface
 {
  char oldshift=user_interface.fontshift;
@@ -302,13 +331,16 @@ void RedrawALL()                       // redraw entire user interface
  }
  else
  {
+  if(arachne.GUIstyle==STYLE_FULLSCREEN)
+   URLprompt.xx=x_maxx()-192-user_interface.scrollbarsize;
+  else
   if(fonty(SYSFONT,0)<=16)
    URLprompt.xx=x_maxx()-152-user_interface.scrollbarsize;
   else
-   URLprompt.xx=x_maxx()-152;
-
+   URLprompt.xx=x_maxx()-192-user_interface.scrollbarsize;
  }
  user_interface.fontshift=oldshift;
+ PaintStatus();
  defaultmsg();
  statusmsg();
  MemInfo(NORMAL);
@@ -475,7 +507,7 @@ void ie_redrawline(struct ib_editor *fajl,int x1,int y1, int zoomx, int width,in
   }
   else
   {
-   ptr=ie_getswap(fajl->lineadr[i]);
+   ptr=ie_getswap(getXSWAPlineadr(fajl,i));
    l=strlen(ptr)-zoomx;
    if(ptr && l>0)
    {
@@ -564,12 +596,17 @@ int ie_redrawwin(struct ib_editor *fajl,int x1,int y1, int x2, int y2,char allow
   ie_redrawline(fajl,x1,y,fajl->zoomx,width,i+fajl->zoomy);
   i++;
   y+=fonty(SYSFONT,0);
-  if(bioskey(1)&& allowkey)
+  if(allowkey)
   {
-   ie_redrawline(fajl,x1,y1+(fajl->y-fajl->zoomy)*fonty(SYSFONT,0),fajl->zoomx,width,fajl->y);
-   atomneedredraw=1;
-   return 1; //nedokoncene prekreslovani !!!
-  }//endif
+   int dummy;
+   wheelqueue=ImouseRead(&dummy,&dummy)>>8; //gui.h variable
+   if(wheelqueue || bioskey(1)) //key pressed or mouse wheel moved
+   {
+    ie_redrawline(fajl,x1,y1+(fajl->y-fajl->zoomy)*fonty(SYSFONT,0),fajl->zoomx,width,fajl->y);
+    atomneedredraw=1;
+    return 1; //nedokoncene prekreslovani !!!
+   }//endif
+  }
  }//loop
 
  return 0;
@@ -603,7 +640,6 @@ void putoptionline(int x,int y,int limit,struct ib_editor *fajl,int line,char mu
  if(on)
  {
   if(multi)
-
    Cross(x+2,y+4,space(SYSFONT)-2);
   else
   {
@@ -617,6 +653,9 @@ void putoptionline(int x,int y,int limit,struct ib_editor *fajl,int line,char mu
 void DrawTitle(char force)    // vykresleni nazvu stranky
 {
  int l;
+ char str[256];
+ char *titleptr;
+
  if(fullscreen || customerscreen)
   return;
 
@@ -636,20 +675,38 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
   char buf[64];
   gettitle(buf);
  }
- x_bar(50,p->htscrn_ytop-47,x_maxx()-196-bannerwidth,p->htscrn_ytop-29);
+
 
  htmlfont(3,0);
 
- l=x_charmax((unsigned char *)arachne.title,x_maxx()-266-bannerwidth);
+ if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ {
+  x_bar(156,p->htscrn_ytop-22,x_maxx()/2-(x_maxx()-300)/6-1,p->htscrn_ytop-5);
+  l=x_charmax((unsigned char *)arachne.title,(x_maxx()-300)/3-12);
+ }
+ else
+ {
+  x_bar(50,p->htscrn_ytop-47,x_maxx()-196-bannerwidth,p->htscrn_ytop-29);
+  l=x_charmax((unsigned char *)arachne.title,x_maxx()-266-bannerwidth);
+ }
+
 
  if(l<strlen(arachne.title))
  {
-  arachne.title[l]='\0';
-  strcat(arachne.title,"...");
+  titleptr=str;
+  makestr(titleptr,arachne.title,l);
+  strcat(titleptr,"...");
  }
+ else
+  titleptr=arachne.title;
+
 
  x_settextjusty(0,1);        // na stred!
- x_text_ib(50,p->htscrn_ytop-37,(unsigned char *)arachne.title);
+
+ if(arachne.GUIstyle==STYLE_FULLSCREEN)
+  x_text_ib(156,p->htscrn_ytop-12,(unsigned char *)titleptr);
+ else
+  x_text_ib(50,p->htscrn_ytop-37,(unsigned char *)titleptr);
  x_settextjusty(0,2);        // vzdycky psat pismo od leveho horniho rohu
 
  mouseon();
@@ -667,7 +724,8 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
 // Only for overlay, when the mouse on a button, it pops up a little to indicate that it is active
 void hidehighlight(void)
 {
- if((lastonbutton>9 && lastonbutton<CLICK_SPECIAL || htmlpulldown) && lasthisx>=0)
+ if((lastonbutton>9 && lastonbutton<CLICK_SPECIAL || htmlpulldown || arachne.GUIstyle==STYLE_FULLSCREEN)
+    && lasthisx>=0)
  {
   mouseoff();
   x_setcolor(7);
@@ -697,7 +755,7 @@ void showhighlight(void)
  mouseon();
 #ifdef GGI
  Forced_ggiFlush();
-#endif 
+#endif
 }
 
 void onlinehelp(int b)
@@ -738,6 +796,11 @@ void onlinehelp(int b)
   b=0;
  }
 
+ if(arachne.GUIstyle==STYLE_FULLSCREEN &&
+    (b>0 && b<10 ||
+     b==CLICK_NETHOME || b==CLICK_IMAGES || b==CLICK_MAIL || b==CLICK_SAVE || b==CLICK_DESKTOP))
+  showhighlight();
+
  switch(b)
  {
   case 1:
@@ -766,6 +829,12 @@ void onlinehelp(int b)
   break;
   case 9:
   outs(MSG_ICON9);
+  break;
+  case CLICK_MAIL:
+  outs(MSG_MAIL);
+  break;
+  case CLICK_SAVE:
+  outs(MSG_SAVE);
   break;
   case CLICK_NETHOME:
   outs(homepage);
@@ -868,12 +937,18 @@ void onlinehelp(int b)
   showhighlight();
   outs(MSG_SRCH4);
   break;
+
   /* not yet implemented in 1.60, sorry ;-)
   case 100:
   showhighlight();
   outs(MSG_PRT);
   break;
   */
+
+  case ONMOUSE_TITLE:
+  outs(arachne.title);
+  break;
+
 #endif
   default:
 
@@ -954,8 +1029,9 @@ void zoom(void)
  else if(arachne.GUIstyle==STYLE_FULLSCREEN)
  {
   p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
-  p->htscrn_ysize=x_maxy()-67;
-  p->htscrn_ytop=50;
+  p->htscrn_ysize=x_maxy()-42;
+  p->htscrn_ytop=25;
+
  }
 #ifdef CUSTOMER_MODULE
  else if(customerscreen)
@@ -996,6 +1072,18 @@ void zoom(void)
  TXTprompt.xx=p->htscrn_xsize-64;
  TXTprompt.y=p->htscrn_ysize/2;
  TXTprompt.yy=p->htscrn_ysize/2+fonty(SYSFONT,0)+4;
+
+
+ if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ {
+  URLprompt.xx=x_maxx()-192-user_interface.scrollbarsize;
+  URLprompt.x=x_maxx()/2-(x_maxx()-300)/6;
+ }
+ else
+ {
+  URLprompt.xx=p->htscrn_xsize;
+  URLprompt.x=50;
+ }
 }
 
 void gohome(void)

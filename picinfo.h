@@ -28,6 +28,7 @@ struct picinfo
  unsigned char bgindex;   //pro background GIFy
  int draw_x,draw_y,screen_x,screen_y; //pozor - plati pro virt. obrazovku!
  int html_x;
+// int unknownsize;   //size of this image is unknown
  long html_y;
  char picinfo_frameID;
  long filesize;

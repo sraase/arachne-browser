@@ -446,6 +446,7 @@ quit:
   sock_puts(socket,(unsigned char *)"QUIT");
   sock_close( socket );
   closing[socknum]=1;
+  sock_keepalive[socknum][0]='\0';
 
 //    sock_wait_closed( socket, sock_delay, NULL, &status );
 

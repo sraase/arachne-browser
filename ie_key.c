@@ -150,7 +150,7 @@ void ie_copyblock(struct ib_editor *fajl)
    }
   }
   ie_savef(&clipboard);
-  ie_closef(&clipboard);
+//  ie_closef(&clipboard);
   ie_killcontext(CONTEXT_TMP);
  }
 }
@@ -274,7 +274,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
  {
   if(fajl->aktrad>=0 && fajl->modrad) ie_putline(fajl,fajl->aktrad,fajl->rad);
   fajl->modrad=0;
-  if(fajl->y<fajl->lines)strcpy(fajl->rad,ie_getswap(fajl->lineadr[fajl->y]));
+  if(fajl->y<fajl->lines)strcpy(fajl->rad,ie_getswap(getXSWAPlineadr(fajl,fajl->y)));
   else fajl->rad[0]='\0';
   fajl->aktrad=fajl->y;
  }//endif

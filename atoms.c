@@ -109,7 +109,7 @@ char *activeislastinput(void)
 
   while(currentHTMLatom!=IE_NULL)
   {
-   kbhit();
+//   kbhit();
    atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
    if(!atomptr)
     MALLOCERR();
@@ -472,7 +472,7 @@ void RadioSwitch(int fromx, long fromy,XSWAP current,XSWAP formptr)
  mouseoff();
  while(currentHTMLatom!=IE_NULL)
  {
-  kbhit();
+//  kbhit();
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
    MALLOCERR();
@@ -515,7 +515,7 @@ void HideLink(char *hideURL)
  mouseoff();
  while(currentHTMLatom!=IE_NULL)
  {
-  kbhit();
+//  kbhit();
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
    MALLOCERR();
@@ -565,7 +565,7 @@ int ProcessLinks(char generateASF)
 
  while(currentHTMLatom!=IE_NULL)
  {
-  kbhit();
+//  kbhit();
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
    MALLOCERR();

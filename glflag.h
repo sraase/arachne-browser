@@ -157,8 +157,9 @@ struct GLOBAL_FLAG
 
 //FinishBackground(BG_FINISH|BG_ABORT)
 
-#define BG_FINISH 0
-#define BG_ABORT  1
+#define BG_FINISH      0
+#define BG_ABORT       1
+#define BG_FINISH_ALL  2
 
 //user_interface.multitasking
 
