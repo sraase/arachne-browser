@@ -221,6 +221,7 @@ void removedotsfrompath(char *url)
   su=strstr(url,"//");if(su)su+=2;else su=url;
   if(strncmp(su,"./",2)==0)memmove(su,su+2,strlen(su+1));
   if(strncmp(su,".\\",2)==0)memmove(su,su+2,strlen(su+1));
+  url=su;
   do{s=strstr(url,"/./");if(!s)break;
      memmove(s,s+2,strlen(s+1));
     }while(s);

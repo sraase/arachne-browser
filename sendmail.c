@@ -324,7 +324,7 @@ int xsendmail(struct Url *url,char helo, char logfile)
       else
       {
        ptr=ie_getline(&expandlist,expandlist.y++);
-       if(expandlist.y==expandlist.lines)
+       if(expandlist.y>=expandlist.lines)
        {
         rcpt=0;
         field=0;

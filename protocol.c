@@ -174,9 +174,9 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
  //------------------------------------------------------------------------
  {
   char *selector;
-  char text[IE_MAXLEN];
+  char dummy[IE_MAXLEN+1];
 
-  int plugin=externalprotocol(url->protocol,text);
+  int plugin=externalprotocol(url->protocol,dummy);
   if(plugin)
    return GOTO_EXTERNAL;
 
@@ -217,9 +217,8 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
  //------------------------------------------------------------------------
  {
   char *ptr;
-  char text[IE_MAXLEN];
-  int plugin=externalprotocol(url->protocol,text);
-
+  char dummy[IE_MAXLEN+1];
+  int plugin=externalprotocol(url->protocol,dummy);
   if(plugin)
    return GOTO_EXTERNAL;
 

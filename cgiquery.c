@@ -179,6 +179,8 @@ void process_form(char cgi, XSWAP formID)
            strcat(arachne.graphics,value);
           else
            strcpy(arachne.graphics,value);
+
+          arachne.GUIstyle=8; //undefined.
          }
         }
         else if (!strcmpi(cmd,"HTUSER"))

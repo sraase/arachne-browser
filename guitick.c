@@ -67,18 +67,23 @@ void xChLogo(char n)
   return;
 
 #ifndef TEXTONLY
- if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ if(arachne.GUIstyle==STYLE_SMALL1 || arachne.GUIstyle==STYLE_SMALL2)
  {
   if(n=='0')
   {
-   DrawIconNow( "ALTICON2",x_maxx()-147,3 );
+   int y=3;
+   if(arachne.GUIstyle==STYLE_SMALL2)
+    y=4;
+   DrawIconNow( "ALTICON2",x_maxx()-146,y );
    return;
   }
   sprintf(logo,"SMALOGO_");
-  x=x_maxx()-20;
-  y=5;
-  if(n>'4')n-=4;
-
+  x=x_maxx()-19;
+  if(arachne.GUIstyle==STYLE_SMALL1)
+   y=5;
+  else
+   y=6;
+  if(n>'4' && n<'A')n-=4;
  }
 
  logo[7]=n;

@@ -522,3 +522,4 @@ void makeexestr(char *exestr)
   sprintf(exestr,"Clementine%s",exetype);
 #endif
 }
+

@@ -21,7 +21,8 @@ void toolbar(char newtoolbarmode,char forced)
   return;
  mouseoff();
  toolbarmode=newtoolbarmode;
- if(arachne.GUIstyle!=STYLE_FULLSCREEN && !fullscreen && !customerscreen)
+ if(arachne.GUIstyle!=STYLE_SMALL1 && arachne.GUIstyle!=STYLE_SMALL2
+    && !fullscreen && !customerscreen)
  {
   if(arachne.GUIstyle || x_maxx()<640)
   {
@@ -184,12 +185,19 @@ void buttons(void)
  }
 
 #ifndef CUSTOMER
- if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ if(arachne.GUIstyle==STYLE_SMALL1)
  {
-  DrawIconLater( "ALTICON1",3,3 );
-  DrawIconLater( "ALTICON2",x_maxx()-147,3 );
+  DrawIconLater( "alticon1",4,3 );
+  DrawIconLater( "alticon2",x_maxx()-146,3 );
   Box3Dh(0,p->htscrn_ytop-25,150,p->htscrn_ytop-2);
-  Box3Dh(x_maxx()-150,p->htscrn_ytop-25,x_maxx()-1,p->htscrn_ytop-2);
+  Box3Dh(x_maxx()-150,p->htscrn_ytop-25,x_maxx(),p->htscrn_ytop-2);
+ }
+ else
+ if(arachne.GUIstyle==STYLE_SMALL2)
+ {
+  DrawIconLater( "alticon2",x_maxx()-146,4 );
+  DrawIconLater( "alticon1",x_maxx()-146,27 );
+  Box3Dh(x_maxx()-150,p->htscrn_ytop-50,x_maxx(),p->htscrn_ytop-2);
  }
  else
  if(arachne.GUIstyle || x_maxx()<640)
@@ -256,7 +264,7 @@ void PaintTitle(void)    // vykresleni nazvu stranky
  if(fullscreen || customerscreen)
   return;
  mouseoff();
- if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ if(arachne.GUIstyle==STYLE_SMALL1)
  {
   Box3Dh(152,p->htscrn_ytop-25,x_maxx()-152,p->htscrn_ytop-2);
   DrawIconLater( "SMALL_WM",x_maxx()-187,p->htscrn_ytop-22);
@@ -331,7 +339,7 @@ void RedrawALL()                       // redraw entire user interface
  }
  else
  {
-  if(arachne.GUIstyle==STYLE_FULLSCREEN)
+  if(arachne.GUIstyle==STYLE_SMALL1)
    URLprompt.xx=x_maxx()-192-user_interface.scrollbarsize;
   else
   if(fonty(SYSFONT,0)<=16)
@@ -362,12 +370,12 @@ void ChangeZoom(char style, char plus, char minus)
  if(style)
  {
   arachne.GUIstyle++;
-  if(arachne.GUIstyle>STYLE_FULLSCREEN)
+  if(arachne.GUIstyle>STYLE_SMALL2)
+  {
    arachne.GUIstyle=STYLE_ARACHNE;
-  else
-  if(!ptr || arachne.GUIstyle==STYLE_MOZILLA
-     && ptr[1]!='A' && ptr[1]!='C' && ptr[1]!='E' && ptr[1]!='J' && ptr[1]!='K')
-   arachne.GUIstyle=STYLE_FULLSCREEN;
+   if(!ptr || ptr[1]!='A' && ptr[1]!='C' && ptr[1]!='E' && ptr[1]!='J' && ptr[1]!='K')
+    arachne.GUIstyle++;
+  }
 
   x_cleardev();
  }
@@ -436,15 +444,12 @@ void statusmsg(void)
   return;
 
  mouseoff();
-// x_settextjusty(1,2);        // center text
 
-// Box3D(x_maxx()-150,x_maxy()-15,x_maxx()-60,x_maxy());
- Box3D(x_maxx()-150,x_maxy()-15,x_maxx()-1,x_maxy());
+ Box3D(x_maxx()-150,x_maxy()-15,x_maxx(),x_maxy());
  x_setcolor(0);
  htmlfont(1,0);
  x_text_ib(x_maxx()-146,x_maxy()-15,(unsigned char *)regkey);
 
-// Box3D(x_maxx()-58,x_maxy()-15,x_maxx()-1,x_maxy());
  if(httpstub)
  {
   x_setcolor(1); //blue
@@ -679,7 +684,7 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
 
  htmlfont(3,0);
 
- if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ if(arachne.GUIstyle==STYLE_SMALL1)
  {
   x_bar(156,p->htscrn_ytop-22,x_maxx()/2-(x_maxx()-300)/6-1,p->htscrn_ytop-5);
   l=x_charmax((unsigned char *)arachne.title,(x_maxx()-300)/3-12);
@@ -703,7 +708,7 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
 
  x_settextjusty(0,1);        // na stred!
 
- if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ if(arachne.GUIstyle==STYLE_SMALL1)
   x_text_ib(156,p->htscrn_ytop-12,(unsigned char *)titleptr);
  else
   x_text_ib(50,p->htscrn_ytop-37,(unsigned char *)titleptr);
@@ -724,7 +729,8 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
 // Only for overlay, when the mouse on a button, it pops up a little to indicate that it is active
 void hidehighlight(void)
 {
- if((lastonbutton>9 && lastonbutton<CLICK_SPECIAL || htmlpulldown || arachne.GUIstyle==STYLE_FULLSCREEN)
+ if((lastonbutton>9 && lastonbutton<CLICK_SPECIAL || htmlpulldown ||
+     arachne.GUIstyle==STYLE_SMALL1 || arachne.GUIstyle==STYLE_SMALL2)
     && lasthisx>=0)
  {
   mouseoff();
@@ -796,7 +802,7 @@ void onlinehelp(int b)
   b=0;
  }
 
- if(arachne.GUIstyle==STYLE_FULLSCREEN &&
+ if((arachne.GUIstyle==STYLE_SMALL1 || arachne.GUIstyle==STYLE_SMALL2) &&
     (b>0 && b<10 ||
      b==CLICK_NETHOME || b==CLICK_IMAGES || b==CLICK_MAIL || b==CLICK_SAVE || b==CLICK_DESKTOP))
   showhighlight();
@@ -1016,22 +1022,26 @@ int geticoninfo(char *name,char *icon,char *method,char *methodarg,char *desc1,c
 
 void zoom(void)
 {
+ //default for most modes:
+ p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize;
 #ifdef CUSTOMER_MODULE
  if(fullscreen)
 #else
  if(fullscreen || customerscreen)
 #endif
  {
-  p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
   p->htscrn_ysize=x_maxy();
   p->htscrn_ytop=0;
  }
- else if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ else if(arachne.GUIstyle==STYLE_SMALL1)
  {
-  p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
   p->htscrn_ysize=x_maxy()-42;
   p->htscrn_ytop=25;
-
+ }
+ else if(arachne.GUIstyle==STYLE_SMALL2)
+ {
+  p->htscrn_ysize=x_maxy()-67;
+  p->htscrn_ytop=50;
  }
 #ifdef CUSTOMER_MODULE
  else if(customerscreen)
@@ -1041,13 +1051,11 @@ void zoom(void)
 #endif
  else if( x_maxx()<640)
  {
-  p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
   p->htscrn_ysize=x_maxy()-117;
   p->htscrn_ytop=100;
  }
  else if(arachne.GUIstyle==STYLE_MOZILLA)
  {
-  p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
   p->htscrn_ysize=x_maxy()-117;
   p->htscrn_ytop=100;
  }
@@ -1058,6 +1066,7 @@ void zoom(void)
   p->htscrn_ytop=50;
  }
 
+ //common for all:
  p->htscrn_xtop=0;
  p->htmlframe[0].scroll.xvisible=0;
  p->htmlframe[0].scroll.yvisible=1;
@@ -1074,7 +1083,7 @@ void zoom(void)
  TXTprompt.yy=p->htscrn_ysize/2+fonty(SYSFONT,0)+4;
 
 
- if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ if(arachne.GUIstyle==STYLE_SMALL1)
  {
   URLprompt.xx=x_maxx()-192-user_interface.scrollbarsize;
   URLprompt.x=x_maxx()/2-(x_maxx()-300)/6;

@@ -16,6 +16,7 @@ void SearchInTextarea(char cont);
 int activeatomtick(int key, char textareacmd);
 int smothup(int rate);
 int smothdown(int rate);
+void hidehover(void);
 
 //values for "textareacmd" argument of activeatomtick
 #define TEXTAREA_NOPE      0
@@ -106,3 +107,6 @@ extern char kbmouse;
 #ifndef XTVERSION
 extern int lasthisx,lasthisy,lasthisxx,lasthisyy;
 #endif
+
+#define MAXBUTT 200004l  //max allowed animated button size
+#define MAXHOVER (long)(IE_MAXSWAPLEN-4000l)  //max allowed hover size

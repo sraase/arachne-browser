@@ -56,7 +56,7 @@ Notes for translators:
 #define MSG_ALIVE  "Alive to %s, requesting object %s ..."
 #define MSG_POST   "Posting data..."
 #define MSG_READ   "%d bytes read.\n"
-#define MSG_HTTP   "HTTP header of"
+#define MSG_HTTP   "Page information for"
 #define MSG_REDIR  "Redirection..."
 #define MSG_CLOSE  "Closing connection..."
 #define MSG_CLOSED "Connection closed."

@@ -186,10 +186,12 @@ int loadpick( char *exename) //nahrat konfiguraci
   memerr0();
 
  a_close(f);
+
  return rv;
 
 }
 
+/*
 
 void defaultGUIstyle(void)
 {
@@ -205,10 +207,15 @@ void defaultGUIstyle(void)
   arachne.GUIstyle = STYLE_MOZILLA;
 #endif
 
-  if(egamode || cgamode)
-   arachne.GUIstyle = STYLE_FULLSCREEN;
+  if(x_maxx()<640)
+   arachne.GUIstyle = STYLE_SMALL2;
+  else
+  if(x_maxx()<800)
+   arachne.GUIstyle = STYLE_SMALL1;
+
 }
 
+*/
 #ifndef POSIX
 void meminit(char arg)
 {
@@ -690,6 +697,12 @@ void configure_user_interface(void)
  else
   user_interface.refresh=20;
 
+ value=configvariable(&ARACHNEcfg,"CSS",NULL);
+ if(value && toupper(*value)=='N')
+  user_interface.css=0;
+ else
+  user_interface.css=1;
+
  // HTTP parameters --------------------------------------------------
 
  value=configvariable(&ARACHNEcfg,"HTTPreferer",NULL);
@@ -715,6 +728,7 @@ void configure_user_interface(void)
   http_parameters.acceptcookies=0;
  else
   http_parameters.acceptcookies=1;
+
 
 }
 #endif

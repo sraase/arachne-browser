@@ -11,6 +11,7 @@ struct uiface
  unsigned char scrollbarsize;
  char scrollbarstyle; //A...Arachne, W...Windows, N...NextStep, X...xChaos
  char frames;
+ char css; //enable cascading style sheets ?
  char logo;
  int ink;
  int paper;

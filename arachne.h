@@ -65,15 +65,18 @@ void outs(char *str); //change browser status message
 //----------------------------------------------------------------------------
 
 #define TABLES            //link HTML tables
+#define FUZZYPIX      4   //constant for fuzzy logic in HTML rendering
+
 #define MODE_NORMAL   0   //TCP/IP configured in ARACHNE.CFG
 #define MODE_WATTCP   1   //TCP/IP configured in WATTCP.CFG
 #define MODE_BOOTP    2   //TCP/IP configured through BOOTP
 #define MODE_PPP      3   //TCP/IP configured through PPP.LOG+TCPconfig file
-#define LOCAL_HTML    0   //values for "source" in renderHTEML(source,....)
+
+#define LOCAL_HTML    0 //values for "source" in renderHTEML(source,....)
 #define HTTP_HTML     1
 #define HISTORY_HTML  2
-#define IRC_HTML      3
-#define FUZZYPIX      4   //constant for fuzzy logic in HTML rendering
+#define IRC_HTML      3 //not yet implemented
+#define ICQ_HTML      4 //not yet implemented
 
 //----------------------------------------------------------------------------
 #ifdef POSIX //POSIX-compliant systems - linear access to memory, etc.
@@ -90,12 +93,12 @@ void outs(char *str); //change browser status message
 //----------------------------------------------------------------------------
 
 #ifdef NOTCPIP
-#define MIN_MEMORY 80000l //minimal free dos memory to run
+#define MIN_MEMORY 75000l //minimal free dos memory to run
 #else
 #ifdef XTVERSION
-#define MIN_MEMORY 80000l //minimal free dos memory to run (???)
+#define MIN_MEMORY 75000l //minimal free dos memory to run (???)
 #else
-#define MIN_MEMORY 80000l //minimal free dos memory to run
+#define MIN_MEMORY 75000l //minimal free dos memory to run
 #endif
 #endif
 
@@ -210,16 +213,34 @@ struct HTMLframe
 //HTML frame related data, which are not saved to disk
 struct TMPframedata
 {
-
  //frame colors:
  unsigned char backR,backG,backB;
  unsigned char textR,textG,textB;
  unsigned char linkR,linkG,linkB;
-#ifdef VLINK
  unsigned char vlinkR,vlinkG,vlinkB;
-#endif
+ unsigned char hoverR,hoverG,hoverB;
+
+ int usetdcolor,usetdbgcolor;
+ unsigned char tdR,tdG,tdB;
+ unsigned char tdbgR,tdbgG,tdbgB;
+
+// int usetablecolor,usetablebgcolor;
+// unsigned char tableR,tableG,tableB;
+// unsigned char tablebgR,tablebgG,tablebgB;
+
  int bgindex;
  int cgatext;
+
+ int basefontsize;
+ int tdfontsize;
+ int ahreffontsize;
+ char basefontstyle;
+ char tdfontstyle;
+ char ahrefsetbits;
+ char ahrefresetbits;
+ char hoversetbits;
+ char hoverresetbits;
+ int usehover;
 
  //XSWAP handle of background image:
  XSWAP backgroundptr; //xSwap pointer
@@ -231,6 +252,10 @@ struct TMPframedata
  char usevirtualscreen;
  int whichvirtual;
  char bgproperties;
+
+ char name[STRINGSIZE];
+ XSWAP nextsheet;
+ XSWAP myadr;
 };
 
 //----------------------------------------------------------------------------
@@ -470,15 +495,8 @@ struct Page
  char rendering_target; //1=true or 0
  int currentframe;      //frame Arachne currently writes to:
  int activeframe,oldactive;
- char *buf;
  int httplen;
  char memory_overflow;        //document is too long!
- char *text;                  //temporary text buffer
- struct picinfo *img;         //temporary image memory - allocated only once for all images
- struct HTMLtable *thistable; //pointer to temporary table - in DOS, it just always points to newtable
-#ifdef POSIX
- struct HTMLtable *newtable;  //temporary table - new table to create...
-#endif
  int docLeft,docRight,docLeftEdge,docRightEdge;
  long docClearLeft,docClearRight;
  int sizeRow,sizeTextRow;
@@ -486,9 +504,13 @@ struct Page
  XSWAP firstHTMLatom,lastHTMLatom;
  XSWAP firstHTMLtable,nextHTMLtable,prevHTMLtable;
  XSWAP firstonscr,lastonscr;
+ XSWAP restorehoveradr;
+ int restorehoverx;
+ int restorehovery;
  long HTMLatomcounter;
  struct HTMLframe *htmlframe;
  struct TMPframedata *tmpframedata;
+ char *buf;
 };
 
 // ========================================================================

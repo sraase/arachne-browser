@@ -61,7 +61,7 @@ void addframeset(char xflag, int *emptyframe, char framewantborder, char *startp
   if(endptr)
    *endptr='\0';
 
-  if(*startptr=='*')
+  if(strchr(startptr,'*'))
   {
    velikost[newframecount]=-1;
    starcount++;
@@ -293,6 +293,7 @@ void METAtag(void)
  if(getvar("HTTP-EQUIV",&tagarg))
  {
   struct Url url;
+  char text[URLSIZE+1];
   if(!strcmpi(tagarg,"REFRESH"))
   {
    if(getvar("CONTENT",&tagarg))
@@ -310,8 +311,8 @@ void METAtag(void)
       if(ptr[0]!='#')
       {
        AnalyseURL(ptr,&url,p->currentframe); //(plne zneni...)
-       url2str(&url,p->text);
-       ptr=p->text;
+       url2str(&url,text);
+       ptr=text;
       }
       makestr(GLOBAL.location,ptr,URLSIZE);
       GLOBAL.timeout=1;
@@ -334,6 +335,153 @@ void METAtag(void)
   }
  }
 }
+
+
+void LINKtag(XSWAP *stylesheetadr)
+{
+ char *tagarg;
+ struct HTMLrecord HTMLatom;
+
+ if(user_interface.css && getvar("REL",&tagarg) && !strcmpi(tagarg,"STYLESHEET"))
+ {
+  if(getvar("HREF",&tagarg))
+  {
+   unsigned status;
+   XSWAP dummy;
+   struct HTTPrecord HTTPdoc;
+   struct Url url;
+   char text[URLSIZE];
+
+   AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+   url2str(&url,text);
+   if(strstr(text,"&amp;"))
+    entity2str(text);
+   HTMLatom.x=0;
+   HTMLatom.y=0;
+   HTMLatom.xx=0;
+   HTMLatom.yy=0;
+   addatom(&HTMLatom,text,strlen(text),STYLESHEET,BOTTOM,0,0,IE_NULL,1);
+
+   if(QuickSearchInCache(&url,&HTTPdoc,&dummy,&status) && HTTPdoc.locname[0])
+   {
+    // not yet handled now: if(styleshhetadr!=IE_NULL) ...
+    strcpy(tmpeditor.filename,HTTPdoc.locname);
+    if(ie_openf_lim(&tmpeditor,CONTEXT_TMP,8000)==1)
+     *stylesheetadr=ie_putswap((char *)&tmpeditor,sizeof(struct ib_editor),CONTEXT_HTML);
+   }
+   else
+    GLOBAL.needrender=1; //CSS not in cache
+  }
+ }
+}
+
+void FRAMEtag(int *emptyframeset,int *previousframe)
+{
+ char newframe_target;
+ struct HTMLframe *frame;
+ struct Url url;
+ char text[URLSIZE];
+ char *tagarg;
+
+ if(!getvar("SRC",&tagarg))
+  tagarg="NUL";
+ AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+ url2str(&url,text);
+
+ newframe_target=*emptyframeset;
+ frame=&(p->htmlframe[newframe_target]);
+
+ *emptyframeset=frame->next;
+ frame->next=p->htmlframe[*previousframe].next;
+ p->htmlframe[*previousframe].next=newframe_target;
+ *previousframe=newframe_target;
+
+
+ if(newframe_target<MAXFRAMES-1 && newframe_target>arachne.framescount)
+  arachne.framescount=newframe_target;
+
+ text[URLSIZE-1]='\0';
+ strcpy(frame->cacheitem.URL,text);
+ if(getvar("NAME",&tagarg))
+ {
+  makestr(text,tagarg,FRAMENAMESIZE-1);
+  strcpy(frame->framename,text);
+ }
+
+ if(! (frame->frameborder & I_WANT_FRAMEBORDER))
+   frame->frameborder=DONT_WANT_FRAMEBORDER;
+  else
+   frame->frameborder=FRAMEBORDER_IS_ON;
+
+ if(getvar("FRAMEBORDER",&tagarg) || getvar("BORDER",&tagarg))
+ {
+  if(tagarg[0]=='0' || toupper(tagarg[0])=='N' || toupper(tagarg[0])=='F')
+   frame->frameborder=DONT_WANT_FRAMEBORDER;
+  else
+   frame->frameborder=FRAMEBORDER_IS_ON;
+ }
+
+ if(frame->frameborder==DONT_WANT_FRAMEBORDER)
+ {
+  frame->scroll.xsize+=2;
+  frame->scroll.ymax+=2;
+  frame->scroll.xtop-=1;
+  frame->scroll.ytop-=1;
+ }
+
+ //else
+ // if(frame->frameborder==0)
+ // resetframeborder(frame,2);
+
+ //MSIE (& Mozilla ?) extension are implemented here: ...........
+
+ //frame BGCOLOR, etc. ?
+
+ if(getvar("SCROLLING",&tagarg) && toupper(tagarg[0])=='N')
+  frame->allowscrolling=0;
+ else
+ {
+  frame->allowscrolling=1;
+  frame->scroll.xsize-=user_interface.scrollbarsize;
+ }
+
+ if(getvar("MARGINWIDTH",&tagarg)) //Netscape 4.0 emulation
+ {
+  frame->marginheight=atoi(tagarg);
+  frame->marginwidth=atoi(tagarg);
+ }
+ else
+ {
+  frame->marginwidth=HTMLBORDER;
+  frame->marginheight=HTMLBORDER;
+ }
+
+ if(getvar("MARGINHEIGHT",&tagarg))
+  frame->marginheight=atoi(tagarg);
+
+ if(getvar("BORDER",&tagarg) || getvar("FRAMESPACING",&tagarg))
+ {
+  frame->marginheight=atoi(tagarg);
+  frame->marginwidth=atoi(tagarg);
+ }
+ //............................... end of extensions ............
+
+ frame->scroll.xvisible=0;
+ frame->scroll.yvisible=0;
+ ScrollInit(&frame->scroll,
+            frame->scroll.xsize,
+            frame->scroll.ymax,   //visible y
+            frame->scroll.ymax,   //max y
+            frame->scroll.xtop,
+            frame->scroll.ytop,
+            frame->scroll.xsize,0);//total x,y
+ ResetHtmlPage(&(p->tmpframedata[newframe_target]),TEXT_HTML,1);
+
+ frame->posX=0;
+ frame->posY=0l;
+}
+
+
 
 void ResetHtmlPage(struct TMPframedata *html,char ishtml,char allowuser)
 {
@@ -360,6 +508,16 @@ void ResetHtmlPage(struct TMPframedata *html,char ishtml,char allowuser)
    html->textG=0;
    html->textB=0;
   }
+  if(allowuser)
+   ptr=configvariable(&ARACHNEcfg,"HTMLlink",NULL);
+  if(ptr)
+   try2readHTMLcolor(ptr,&html->linkR,&html->linkG,&html->linkB);
+  else
+  {
+   html->linkR=0;
+   html->linkG=0;
+   html->linkB=196;
+  }
  }
  else
  {
@@ -373,22 +531,27 @@ void ResetHtmlPage(struct TMPframedata *html,char ishtml,char allowuser)
   html->textG=16*sw+(Iipal[3*user_interface.ink+1]<<2);
   html->textB=16*sw+(Iipal[3*user_interface.ink+2]<<2);
  }
- if(allowuser)
-  ptr=configvariable(&ARACHNEcfg,"HTMLlink",NULL);
- if(ptr)
-  try2readHTMLcolor(ptr,&html->linkR,&html->linkG,&html->linkB);
- else
- {
-  html->linkR=0;
-  html->linkG=0;
-  html->linkB=196;
- }
-//  html->vlinkR=10;
-//  html->vlinkG=10;
-//  html->vlinkB=130;
+
  html->backgroundptr=IE_NULL;
-// html->scroll.xvisible=0;
  html->bgproperties=BGPROPERTIES_SCROLL;
+
+ html->basefontsize=3;    //default font size is 3
+ html->tdfontsize=-1;     //do not apply !
+ html->ahreffontsize=-1;  //do not apply !
+ html->basefontstyle=0;   //default style
+ html->tdfontstyle=-1;    //do not apply !
+ html->ahrefsetbits=UNDERLINE;
+ html->ahrefresetbits=0;
+ html->hoversetbits=0;
+ html->hoverresetbits=0;
+ html->usetdcolor=0;      //do not use any special table font color
+ html->usetdbgcolor=0;    //do not use any special table background color
+// html->usetablecolor=0;      //do not use any special table font color
+// html->usetablebgcolor=0;    //do not use any special table background color
+ html->usehover=0;        //do not apply !
+ html->name[0]='\0';
+ html->nextsheet=IE_NULL;
+ html->myadr=IE_NULL;
 }
 
 //.  <BODY ARACHNE>
@@ -407,8 +570,10 @@ void BodyArachne(struct TMPframedata *html)
  ptr=configvariable(&ARACHNEcfg,"Background",NULL);
  if(ptr && strcmpi(ptr,"NUL")) // ... ptr!="NUL"
  {
-  struct picinfo *img=p->img;
- 
+  struct picinfo *img=farmalloc(sizeof(struct picinfo));
+  if(!img)
+   memerr();
+
 #ifdef POSIX
   makestr(img->URL,ptr,79);
 #else
@@ -425,6 +590,7 @@ void BodyArachne(struct TMPframedata *html)
    addatom(&HTMLatom,img,sizeof(struct picinfo),BACKGROUND,BOTTOM,0,0,IE_NULL,0);
    html->backgroundptr=p->lastHTMLatom;
   }
+  farfree(img);
  }
 
 }
@@ -643,6 +809,9 @@ void DummyFrame(struct Page *p,int *x, long *y)
  struct HTMLrecord HTMLatom;
  struct Url url;
  char str[URLSIZE+1];
+ struct picinfo *img=farmalloc(sizeof(struct picinfo));
+ if(!img)
+  memerr();
 
  if(getvar("SRC",&tagarg))
  {
@@ -667,21 +836,21 @@ void DummyFrame(struct Page *p,int *x, long *y)
   HTMLatom.R=p->tmpframedata[p->currentframe].linkR;
   HTMLatom.G=p->tmpframedata[p->currentframe].linkG;
   HTMLatom.B=p->tmpframedata[p->currentframe].linkB;
-  p->img->size_y=60;
-  p->img->size_x=60;
-  strcpy(p->img->filename,"HTM.IKN");
-  p->img->URL[0]='\0';
+  img->size_y=60;
+  img->size_x=60;
+  strcpy(img->filename,"HTM.IKN");
+  img->URL[0]='\0';
   HTMLatom.x=*x;
   HTMLatom.y=*y;
-  *x+=p->img->size_x;
+  *x+=img->size_x;
   HTMLatom.xx=*x;
-  HTMLatom.yy=*y+p->img->size_y;
-  addatom(&HTMLatom,p->img,sizeof(struct picinfo),IMG,BOTTOM,0,0,currentlink,0);
+  HTMLatom.yy=*y+img->size_y;
+  addatom(&HTMLatom,img,sizeof(struct picinfo),IMG,BOTTOM,0,0,currentlink,0);
   HTMLatom.x=*x+FUZZYPIX;
   HTMLatom.xx=p->docRight;
   HTMLatom.yy=*y+fonty(3,UNDERLINE);
   addatom(&HTMLatom,str,strlen(str),TEXT,BOTTOM,3,UNDERLINE,currentlink,0);
-  *y+=p->img->size_y;
+  *y+=img->size_y;
 //  if(!popfont(&font,&style,&HTMLatom,&fontstack))
 //  {
    HTMLatom.R=p->tmpframedata[p->currentframe].textR;
@@ -690,6 +859,7 @@ void DummyFrame(struct Page *p,int *x, long *y)
 //  }
  }
 
+ farfree(img);
 }
 
 
@@ -785,3 +955,53 @@ void CheckArachneFormExtensions(struct HTTPrecord *cache,char *value, int *check
    value[0]='\0';
  }
 }//end unsecure extensions.......................................
+
+
+struct TMPframedata *locatesheet_ovrl(struct TMPframedata *rootsheet, struct TMPframedata *tmpsheet,XSWAP stylesheetadr)
+{
+ XSWAP sheetadr=IE_NULL,newsheetadr;
+ struct TMPframedata *thissheet;
+ char *tagarg;
+
+ if(stylesheetadr!=IE_NULL && getvar("CLASS",&tagarg))
+ {
+  thissheet=rootsheet;
+  while(thissheet->nextsheet!=IE_NULL)
+  {
+   sheetadr=thissheet->nextsheet;
+   thissheet=(struct TMPframedata *)ie_getswap(sheetadr);
+   if(thissheet)
+   {
+    if(!strcmpi(thissheet->name,tagarg))
+    {
+     memcpy(tmpsheet,thissheet,sizeof(struct TMPframedata));
+     tmpsheet->myadr=sheetadr;
+     return tmpsheet;
+    }
+   }
+   else
+    return rootsheet;
+  }
+
+  memcpy(tmpsheet,rootsheet,sizeof(struct TMPframedata));
+  ParseCSS(tmpsheet,stylesheetadr,tagarg);
+  tmpsheet->nextsheet=IE_NULL;
+  makestr(tmpsheet->name,tagarg,STRINGSIZE);
+  newsheetadr=ie_putswap((char *)tmpsheet,sizeof(struct TMPframedata),CONTEXT_HTML);
+  tmpsheet->myadr=newsheetadr;
+  if(sheetadr==IE_NULL)
+   rootsheet->nextsheet=newsheetadr;
+  else
+  {
+   thissheet=(struct TMPframedata *)ie_getswap(sheetadr);
+   if(thissheet)
+   {
+    thissheet->nextsheet=newsheetadr;
+    swapmod=1;
+   }
+  }
+  return tmpsheet;
+ }
+ else
+  return rootsheet;
+}

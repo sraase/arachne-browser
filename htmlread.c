@@ -34,7 +34,7 @@ int openHTML(struct HTTPrecord *cache,char source)
  {
  //------------------------------------------------------------- local open
   char *fnameptr;
-  
+
   if(p->htmlframe[p->currentframe].status==MAIL && GLOBAL.source)
    fnameptr=cache->rawname;
   else
@@ -110,5 +110,6 @@ void closeHTML(struct HTTPrecord *cache,char source)
 #endif
  if(cache->handle>=0 && source==LOCAL_HTML)
   a_close(cache->handle);
+
 }
 

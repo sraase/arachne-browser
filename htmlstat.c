@@ -324,6 +324,8 @@ int FastTagDetect(char *tagname)
   strupr(ptr);
   if(!strcmp(ptr,"I"))
    return TAG_LI;
+  if(!strcmp(ptr,"INK"))
+   return TAG_LINK;
   break;
 
   case 'M':
@@ -377,7 +379,7 @@ int FastTagDetect(char *tagname)
   if(!strcmp(ptr,"CRIPT"))
    return TAG_SCRIPT;
   if(!strcmp(ptr,"TYLE"))
-   return TAG_SCRIPT;
+   return TAG_STYLE;
   if(!strcmp(ptr,"TRONG"))
    return TAG_B;
   break;
@@ -739,4 +741,12 @@ int InitInput(struct ib_editor *fajl,char *name,char *str,int lines,int context)
   ie_insline(fajl,0,str);
 
  return rc;
+}
+
+struct TMPframedata *locatesheet(struct TMPframedata *rootsheet, struct TMPframedata *tmpsheet,XSWAP stylesheetadr)
+{
+ if(stylesheetadr==IE_NULL)
+  return rootsheet;
+ else
+  return locatesheet_ovrl(rootsheet,tmpsheet,stylesheetadr);
 }

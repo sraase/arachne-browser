@@ -39,7 +39,7 @@ void find_keepalive_socket(char *hostname)
 
 char exestr[40]="\0";
 void makeexestr(char *exestr);
-                               
+
 int authenticated_http(struct Url *url,struct HTTPrecord *cache)
 {
  longword host=0;
@@ -178,27 +178,29 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
  while(i<cookies.lines)
  {
   ptr=ie_getline(&cookies,i);
-  strcpy(str,ptr);
-  decompose_inetstr(str);
-
-  if(getvar("domain",&ptr) && strstr(url->host,ptr))
+  if(ptr)
   {
-   if(getvar("path",&ptr) && strstr(url->file,ptr))
+   strcpy(str,ptr);
+   decompose_inetstr(str);
+
+   if(getvar("domain",&ptr) && strstr(url->host,ptr))
    {
-    if(strlen(cookiestr)+strlen(str)+10<2*IE_MAXLEN)
+    if(getvar("path",&ptr) && strstr(url->file,ptr))
     {
-     if(cookiestr[0])
-      strcat(cookiestr,";\r\n ");
-     else
-//      strcat(cookiestr,"Cookie: $Version=\"1\";\r\n ");
-      strcat(cookiestr,"Cookie: ");
-     strcat(cookiestr,str);
+     if(strlen(cookiestr)+strlen(str)+10<2*IE_MAXLEN)
+     {
+      if(cookiestr[0])
+       strcat(cookiestr,"; ");
+      else
+       strcat(cookiestr,"Cookie: ");
+      strcat(cookiestr,str);
+     }
     }
    }
   }
-
   i++;
- }
+ }//loop
+
  if(cookiestr[0])
  {
   strcat(cookiestr,"\r\n");
@@ -599,7 +601,7 @@ Host: %s%s\r\n\
    
    p->httplen+=count;
    p->buf[p->httplen]='\0';
-   if(strstr(p->buf,"\r\n\r\n") || strstr(p->buf,"\r\r") || strstr(p->buf,"\n\n") || p->httplen>=BUF)
+   if(strstr(p->buf,"\r\n\r\n") || strstr(p->buf,"\r\r") || strstr(p->buf,"\n\n") || p->httplen>=p->buf)
     header_done=1;
 #else
    if (sock_dataready( socket ))
@@ -700,7 +702,8 @@ analyse:
 
     // ----------------------------------------------- Connection:
 
-    else if(!strcmpi(str,"Connection") && !strncmpi(&ptr[2],"Keep-Alive",10))
+    else if((!strcmpi(str,"Connection") || !strcmpi(str,"Proxy-Connection"))
+             && !strncmpi(&ptr[2],"Keep-Alive",10))
     {
      willkeepalive=1;
     }
@@ -721,14 +724,13 @@ analyse:
       memerr();
 
      makestr(pom1,&ptr[2],IE_MAXLEN-1);
-     makestr(newcookie,&ptr[2],IE_MAXLEN-1);
+     strcpy(newcookie,pom1); //its safe to call strcpy
      decompose_inetstr(pom1);
 
      if(!getvar("path",&p))
      {
-      p=url->file;
-      strcat(newcookie,"; path=");
-      strcat(newcookie,p);
+      //p=url->file;
+      strcat(newcookie,"; path=/");
      }
 
      makestr(path,p,79);
@@ -907,8 +909,11 @@ write2cache:
      ptr++;
     else
      ptr=cache->locname;
-    sprintf(pom,"</PRE><HR>URL:<A HREF=\"%s\">%s</A><BR>Local:<A HREF=\"file:%s\">%s</A><HR>",
-            cache->URL,cache->URL,ptr,cache->locname);
+    sprintf(pom,"\
+</PRE>\n<HR>URL: <A HREF=\"%s\">%s</A><BR>\n\
+Local: <A HREF=\"file:%s\">%s</A><HR>\n\
+",cache->URL,cache->URL,ptr,cache->locname);
+
     write(htt,pom,strlen(pom));
 
     farfree(pom);

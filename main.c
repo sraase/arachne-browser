@@ -28,9 +28,9 @@ int main(int argc, char **argv )
  struct Url url;
  struct HTTPrecord inlineimage;
  struct HTTPrecord *cacheitem;
- XSWAP update_redirection=IE_NULL,inlineimage_writeadr=IE_NULL;
+ XSWAP update_redirection[2]={IE_NULL,IE_NULL},inlineimage_writeadr=IE_NULL;
  unsigned inlineimage_status;
- XSWAP currentimage;
+ XSWAP currentimage=IE_NULL;
  XSWAP *cacheitem_writeadr;
  unsigned *cacheitem_status;
  char found;
@@ -47,6 +47,7 @@ int main(int argc, char **argv )
 #ifndef NOTCPIP
  char isframe=0;
 #endif
+ int addobjectsnow=0;  //append embeded objects to .htt file now ?
 
 #ifndef POSIX
 if(argc==1 || argv[1][0]=='-' && argv[1][1]=='s')
@@ -97,9 +98,24 @@ IveGotNewUrl:
   cacheitem=&inlineimage;
   cacheitem_status=&inlineimage_status;     //status of inline image
   cacheitem_writeadr=&inlineimage_writeadr; //update adr of inline image
+
+  if(addobjectsnow && !user_interface.nohtt)
+  {
+   char httfile[2*URLSIZE+80];
+   int htt;
+   makehttfilename(p->htmlframe[arachne.target].cacheitem.rawname,httfile);
+   htt=a_fast_open(httfile,O_BINARY|O_WRONLY|O_APPEND,S_IREAD|S_IWRITE);
+   if(htt>=0)
+   {
+    sprintf(httfile,"<LI><A HREF=\"%s\">%s</A>\n",GLOBAL.location,GLOBAL.location);
+    write(htt,httfile,strlen(httfile));
+    close(htt);
+   }
+  }
  }
  else                 // do this for other objects
  {
+  addobjectsnow=0;
   //pseudoprotocols - reload, find
   if(!strncmpi(GLOBAL.location,"reload:",7))
   {
@@ -126,13 +142,14 @@ IveGotNewUrl:
   {
    int i=0;
    char *ptr=configvariable(&ARACHNEcfg,"SearchEngine",NULL);
+   char buf[4*URLSIZE];
    if(!strncmpi(GLOBAL.location,"find:",5))
     i=5;
    if(!ptr)
     ptr="http://www.google.com/search?q=";
-   cgiquery((unsigned char *)&GLOBAL.location[i],(unsigned char *)p->buf,1);
+   cgiquery((unsigned char *)&GLOBAL.location[i],(unsigned char *)buf,1);
    strcpy(GLOBAL.location,ptr);
-   makestr(&GLOBAL.location[strlen(ptr)],p->buf,URLSIZE-strlen(ptr)-2);
+   makestr(&GLOBAL.location[strlen(ptr)],buf,URLSIZE-strlen(ptr)-2);
   }
   else
   if(!strcmpi(GLOBAL.location,"arachne:addressbook"))
@@ -219,13 +236,13 @@ IveGotNewUrl:
  //---------------------------------------------------------- arachne:history
  if(!strcmpi(url.protocol,"arachne") && !strcmpi(url.file,"history"))
  {
-  url2str(&url,cacheitem->URL);
-  p->html_source=HISTORY_HTML;
-  p->forced_html=1;
-  GLOBAL.nothot=1;
-  *cacheitem_status=VIRTUAL;
-  strcpy(url.kotva,"current");
-  goto Render;
+   url2str(&url,cacheitem->URL);
+   strcpy(url.kotva,"current");
+   p->html_source=HISTORY_HTML;
+   p->forced_html=1;
+   GLOBAL.nothot=1;
+   *cacheitem_status=VIRTUAL;
+   goto Render;
  }
 
  p->html_source=LOCAL_HTML;
@@ -252,25 +269,26 @@ IveGotNewUrl:
   if(!strcmpi(url.protocol,"telnet"))
   //------------------------------------------------------------------------
   {
-   plugin=externalprotocol(url.protocol,p->text);
+   char text[IE_MAXLEN+2];
+   char buf[IE_MAXLEN+2];
+   plugin=externalprotocol(url.protocol,text);
 
    if(plugin)
    {
-    external:
-    make_cmd(p->text,p->buf,
+    make_cmd(text,buf,
              p->htmlframe[arachne.target].cacheitem.URL,
-             url.host, url.file, p->text, "NUL");
+             url.host, url.file, text, "NUL");
    }
    else
-    sprintf(p->buf,"telnet %s\n",url.host);
+    sprintf(buf,"telnet %s\n",url.host);
 
 #ifdef POSIX
-   printf("Executing command:\n%s\n",p->buf);
-   system(p->buf);
+   printf("Executing command:\n%s\n",buf);
+   system(buf);
    goto Wait4Orders;
 #else
-   closebat(p->buf,RESTART_REDRAW);
-   returnvalue=willexecute(p->buf);
+   closebat(buf,RESTART_REDRAW);
+   returnvalue=willexecute(buf);
    x_grf_mod(3);
    goto end;
 #endif
@@ -292,6 +310,7 @@ IveGotNewUrl:
    else
    {
     char str[80];
+    char text[IE_MAXLEN+2];
 
 #ifndef NOTCPIP
     if(user_interface.autodial && !httpstub && !GLOBAL_justrestarted)
@@ -303,9 +322,25 @@ IveGotNewUrl:
 #endif
 
     sprintf(str,"external/%s",url.protocol);
-    plugin=externalprotocol(url.protocol,p->text);
+    plugin=externalprotocol(url.protocol,text);
     if(plugin)
-     goto external;
+    {
+     char buf[IE_MAXLEN+2];
+     make_cmd(text,buf,
+              p->htmlframe[arachne.target].cacheitem.URL,
+              url.host, url.file, text, "NUL");
+
+#ifdef POSIX
+     printf("Executing command:\n%s\n",buf);
+     system(buf);
+     goto Wait4Orders;
+#else
+     closebat(buf,RESTART_REDRAW);
+     returnvalue=willexecute(buf);
+     x_grf_mod(3);
+     goto end;
+#endif
+    }
     else
      sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_net.ah",sharepath,GUIPATH);
 
@@ -342,14 +377,17 @@ IveGotNewUrl:
    //http 2 cache
    if(openhttp(&url,cacheitem))
    {
-
     if(GLOBAL.abort)
      goto Abort;
+
+    if(!GLOBAL.isimage)  //add other downloaded objects to .htt file
+     addobjectsnow=1;
+
     UpdateInCache(*cacheitem_writeadr,cacheitem);
-    if(update_redirection!=IE_NULL)
+    if(update_redirection[socknum]!=IE_NULL)
     {
-     UpdateFilenameInCache(update_redirection, cacheitem);
-     update_redirection=IE_NULL;
+     UpdateFilenameInCache(update_redirection[socknum], cacheitem);
+     update_redirection[socknum]=IE_NULL;
     }
     *cacheitem_status=REMOTE;
    }
@@ -359,13 +397,13 @@ IveGotNewUrl:
 
     if(GLOBAL.redirection)
     {
-     if((GLOBAL.isimage || arachne.target) && update_redirection==IE_NULL)
+     if((GLOBAL.isimage || arachne.target) && update_redirection[socknum]==IE_NULL)
      {
       strcpy(cacheitem->locname,"NUL");
       cacheitem->rawname[0]='\0';
       UpdateInCache(*cacheitem_writeadr,cacheitem);
-      update_redirection=*cacheitem_writeadr;
-//      printf("[image redirection, update=%u]",update_redirection);
+      update_redirection[socknum]=*cacheitem_writeadr;
+//      printf("[image redirection, update=%u]",update_redirection[socknum]);
 
      }
      else //....because guys from Microsoft will redirect us back to this URL!
@@ -416,7 +454,6 @@ IveGotNewUrl:
    case GOTO_PROXY:        goto proxy;
    case GOTO_ABORT:        goto Abort;
    case GOTO_READSCRIPT:   goto ReadScriptLine;
-   case GOTO_EXTERNAL:     goto external;
    case GOTO_TRYPLUGIN:    goto tryplugin;
 
    case GOTO_ERROR:
@@ -430,12 +467,30 @@ IveGotNewUrl:
    p->forced_html=1;
    goto Render;
 
+   case GOTO_EXTERNAL:
    case UNKNOWN_PROTOCOL:
    if (!GLOBAL.isimage)
    {
-    plugin=externalprotocol(url.protocol,p->text);
+    char cmd[IE_MAXLEN+2];
+    plugin=externalprotocol(url.protocol,cmd);
     if(plugin)
-     goto external;
+    {
+     char buf[IE_MAXLEN+2];
+     make_cmd(cmd,buf,
+              p->htmlframe[arachne.target].cacheitem.URL,
+              url.host, url.file, cmd, "NUL");
+
+#ifdef POSIX
+     printf("Executing command:\n%s\n",buf);
+     system(buf);
+     goto Wait4Orders;
+#else
+     closebat(buf,RESTART_REDRAW);
+     returnvalue=willexecute(buf);
+     x_grf_mod(3);
+     goto end;
+#endif
+    }
 
     sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_url.ah",sharepath,GUIPATH);
     arachne.target=0;
@@ -484,10 +539,10 @@ IveGotNewUrl:
 
  if(GLOBAL.isimage && p->html_source==HTTP_HTML)
  {
-  if(update_redirection!=IE_NULL)
+  if(update_redirection[socknum]!=IE_NULL)
   {
-   UpdateFilenameInCache(update_redirection, &inlineimage);
-   update_redirection=IE_NULL;
+   UpdateFilenameInCache(update_redirection[socknum], &inlineimage);
+   update_redirection[socknum]=IE_NULL;
   }
 
   if(!httpstub)
@@ -574,7 +629,7 @@ IveGotNewUrl:
       goto ReadScriptLine;
      }
    }//end if script
-   weird=(strstr("HTM TXT",ext)==NULL);
+   weird=(strstr("HTM TXT CSS",ext)==NULL);
   }
 
   plugin=search_mime_cfg(cacheitem->mime, ext, command);
@@ -624,6 +679,7 @@ IveGotNewUrl:
 #ifndef POSIX
    char mman[80]="\0";
 #endif
+   char buf[IE_MAXLEN+1];
 
    strcpy(oldmime,cacheitem->mime);
    //------------------------------------------------------------------------
@@ -641,7 +697,7 @@ IveGotNewUrl:
     sprintf(cacheitem->mime,"file/.%s",ext);
     cacheitem->dynamic=1;
 
-    mode=make_cmd(command,p->buf,cacheitem->URL,
+    mode=make_cmd(command,buf,cacheitem->URL,
                   url.host, url.file, str,cacheitem->locname);
     unlink(cacheitem->locname);
     UpdateInCache(*cacheitem_writeadr,cacheitem);
@@ -664,17 +720,17 @@ IveGotNewUrl:
      //ie_savebin(&HTTPcache);
 
 #ifndef POSIX
-     if(strstr(strlwr(p->buf),"insight"))
+     if(strstr(strlwr(buf),"insight"))
      {
       tempinit(mman);
       strcat(mman,"$roura2.bat");
       unlink(mman);
      }
-#endif     
+#endif
 //     printf("Executing command: %s\n",p->buf);
-     system(p->buf);
+     system(buf);
 #ifndef POSIX
-     if(mman[0] && file_exists(mman))    
+     if(mman[0] && file_exists(mman))
       system(mman);
 #endif
      p->html_source=LOCAL_HTML;
@@ -697,10 +753,10 @@ IveGotNewUrl:
    {
     sprintf(str,MSG_PLUGIN,cacheitem->mime,ctrlbreak);
     outs(str);
-    mode=make_cmd(command,p->buf , cacheitem->URL,
+    mode=make_cmd(command,buf , cacheitem->URL,
                   url.host, url.file,cacheitem->locname, "NUL");
 #ifdef POSIX
-    system(p->buf);
+    system(buf);
     goto Wait4Orders;
 #endif
    }
@@ -717,16 +773,16 @@ IveGotNewUrl:
    //------------------------------------------------------------------------
    sprintf(str,MSG_CONV,oldmime,ext,MSG_DELAY1,ctrlbreak);
    outs(str);
-   if(strstr(strlwr(p->buf),"insight"))
+   if(strstr(strlwr(buf),"insight"))
    {
     tempinit(mman);
     strcat(mman,"$roura2.bat");
     unlink(mman);
     sprintf(str,"\nif exist %s call %s",mman,mman);
-    strcat(p->buf,str);
+    strcat(buf,str);
    }
-   closebat(p->buf,(mode!=-1));
-   returnvalue=willexecute(p->buf);
+   closebat(buf,(mode!=-1));
+   returnvalue=willexecute(buf);
    if(mode==-1)
    {
     x_grf_mod(3);
@@ -761,15 +817,19 @@ Render:
 //--------------------------------------------------------------------------
 //process all frames, write cacheitem to p->htmlframe[arachne.target]
 
+ currentimage=IE_NULL;  //memory atoms will be deallocated
  p->rendering_target=RENDER_SCREEN;
  if(!renderHTML(p))
 //--------------------------------------------------------------------------
  {
+  char loc[URLSIZE+1];
   //send error message/reload page to currently processed frame:
   cacheitem=&(p->htmlframe[p->currentframe].cacheitem);
 
   //failed to load remote document - try again
-  if(!error && *cacheitem_status!=LOCAL && p->html_source!=HISTORY_HTML && !(GLOBAL_justrestarted))
+  if(!error && *cacheitem_status!=LOCAL &&
+     p->html_source!=HISTORY_HTML &&
+     !(GLOBAL_justrestarted))
   {
    *cacheitem_writeadr=Write2Cache(&url,cacheitem,0,0);
    DeleteFromCache(*cacheitem_writeadr);
@@ -778,8 +838,8 @@ Render:
   }
 
   //failed to load local document:
-  sprintf(p->buf,"%s%serr_load.ah",sharepath,GUIPATH);
-  if(!strcmp(p->buf,p->htmlframe[p->currentframe].cacheitem.locname) || error)
+  sprintf(loc,"%s%serr_load.ah",sharepath,GUIPATH);
+  if(!strcmp(loc,p->htmlframe[p->currentframe].cacheitem.locname) || error)
   {
    error=1;
    MakeTitle(MSG_ERROR);
@@ -787,7 +847,7 @@ Render:
   }
   else
   {
-   strcpy(p->htmlframe[p->currentframe].cacheitem.locname,p->buf);
+   strcpy(p->htmlframe[p->currentframe].cacheitem.locname,loc);
    p->forced_html=1;
    p->html_source=LOCAL_HTML;
    error=1;
@@ -854,10 +914,10 @@ Search4Image:
 //-------------------------------------------------------------------------
 
 
- if(update_redirection!=IE_NULL)
+ if(update_redirection[socknum]!=IE_NULL)
  {
-  UpdateFilenameInCache(update_redirection, cacheitem);
-  update_redirection=IE_NULL;
+  UpdateFilenameInCache(update_redirection[socknum], cacheitem);
+  update_redirection[socknum]=IE_NULL;
  }
 
  //load missing frames
@@ -1012,6 +1072,7 @@ Wait4Orders:
  isframe=0;
 #endif
  lastseconds=-1;
+ addobjectsnow=0; //HTT file is complete ?
  arachne.target=0;             //A HREF by default goes to main frame!
  if(tcpip && !strcmpi(url.protocol,"http"))
   ie_savebin(&HTTPcache);
@@ -1052,7 +1113,7 @@ ReadScriptLine:
  while(GLOBAL.abort!=ABORT_PROGRAM)
  {
 #ifdef XANIMGIF
-  if(!redraw && !htmlpulldown && g_NumAnim > 0)  // something to animate
+  if(!redraw && !activeistextwindow && !htmlpulldown && g_NumAnim > 0)  // something to animate
    XAnimateGifs();
 #endif
 

@@ -28,7 +28,9 @@ struct HTMLtable
  long nexttdend;
  char fixedmax;  //PERCENTS_FIXED_TABLE || PIXELS_FIXED_TABLE
  int x,y,xspan;
- char tablebg[SHORTSTR+1],rowbg[SHORTSTR+1];
+ int usetablebg,userowbg;
+ unsigned char tablebgR,tablebgG,tablebgB;
+ unsigned char rowbgR,rowbgG,rowbgB;
  long totalxsum;
  char valignrow;
  char depth;

@@ -106,7 +106,6 @@ void drawatom(struct HTMLrecord *atom,
    struct picinfo *image;
    unsigned image_xswapadr;
    int back=-1,border=0,bordercolor,frameID,txlen;
-   struct Url url;
    XSWAP dummy1;
    unsigned dummy2;
    char atype=atom->type;
@@ -114,7 +113,6 @@ void drawatom(struct HTMLrecord *atom,
    int atomx;
    long atomy;
    unsigned char r,g,b;
-   struct HTTPrecord HTTPdoc;
 
    if(atype==TD_BACKGROUND && atom->data2)
    {
@@ -142,6 +140,9 @@ void drawatom(struct HTMLrecord *atom,
    {
     if(!image->filename[0])
     {
+     struct HTTPrecord HTTPdoc;
+     struct Url url;
+
      AnalyseURL(image->URL,&url,IGNORE_PARENT_FRAME);
      if(SearchInCache(&url,&HTTPdoc,&dummy1,&dummy2))
      {
@@ -1111,6 +1112,8 @@ void redrawHTML(char nomsg, char virt)
 
  activeatomptr=NULL; //pod mysi neni nic
  htmlpulldown=0;
+ p->restorehoveradr=IE_NULL;
+ ie_killcontext(CONTEXT_TMPIMG);
  ie_clipstatus=0;
  activeistextwindow=0;
  meminfovisible=0;

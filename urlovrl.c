@@ -289,6 +289,7 @@ char NeedImage(char reload, XSWAP *from)
 // char pushact;
  char command[120],ext[5];
  char type;
+ char *URLptr;
  struct HTMLrecord *atomptr;
  struct HTTPrecord HTTPdoc;
 
@@ -334,7 +335,8 @@ char NeedImage(char reload, XSWAP *from)
    else
    currentHTMLatom=atomptr->next;
   type=atomptr->type;
-  if(type==IMG || type==EMBED || type==BACKGROUND || type==TD_BACKGROUND)
+  if(type==IMG || type==EMBED || type==BACKGROUND ||
+     type==TD_BACKGROUND || type==STYLESHEET)
   {
    if(atomptr->yy>p->htmlframe[atomptr->frameID].posY &&
       atomptr->xx>p->htmlframe[atomptr->frameID].posX &&
@@ -344,54 +346,68 @@ char NeedImage(char reload, XSWAP *from)
    else
     GLOBAL.imagevisible=0;
 //   frameID=atomptr->frameID;
-   uptr=atomptr->ptr;
-   img=(struct picinfo *)ie_getswap(uptr);
-   if(img && img->URL[0])
-   //not yet implemented && !(GLOBAL.needrender && from && *from!=IE_NULL && !img->unknownsize))
+
+   if(type==STYLESHEET)
    {
-    AnalyseURL(img->URL,&url,IGNORE_PARENT_FRAME);
-    found=SearchInCache(&url,&HTTPdoc,&uptr,&status);
-
-    if(reload==EXPIRE_ALL_IMAGES && found && status!=LOCAL)
-    {
-     del:
-     if(!ie_getswap(uptr))
-      uptr=Write2Cache(&url,&HTTPdoc,1,0);
-     DeleteFromCache(uptr);
-    }
-    else
-    if(reload==FIND_MISSING_IMAGE)
-    {
-     if(!found && status==REMOTE && GLOBAL.nowimages!=IMAGES_SEEKCACHE)
-     {
-      strcpy(GLOBAL.location,HTTPdoc.URL);
-      GLOBAL.isimage=1;
-      mouseon();
-//       p->activeframe=pushact;
-      if(from)
-       *from=currentHTMLatom;
-      return 1;
-
-      /* maybe later ...
-      arachne_will_download_images_now++;
-      if(arachne_will_download_images_now>LIM_DOWNLOAD)
-      {
-       return NeedImage(FIND_MISSING_IMAGE,NULL);
-      }
-      */
-
-     }
-     else//conversion only
-     if(GLOBAL.nowimages!=IMAGES_SEEKCACHE &&
-         (search_mime_cfg(HTTPdoc.mime, ext,command)==1 ||
-          type==EMBED && search_mime_cfg(HTTPdoc.mime, ext, command)==2) &&
-         willconvert<MAXCONV)
-      imageptr[willconvert++]=IMGatom;
-    }
-
-   }//endif
+    URLptr=ie_getswap(atomptr->ptr);
+    if(!URLptr)
+     MALLOCERR();
+   }
    else
-    MALLOCERR();
+   {
+    img=(struct picinfo *)ie_getswap(atomptr->ptr);
+    if(img)
+     URLptr=img->URL;
+    else
+     MALLOCERR();
+   }
+
+   if(!URLptr[0])
+   {
+//    printf("[object URL is void]");
+    continue; //continue with loop
+   }
+
+   AnalyseURL(URLptr,&url,IGNORE_PARENT_FRAME);
+   found=SearchInCache(&url,&HTTPdoc,&uptr,&status);
+
+   if(reload==EXPIRE_ALL_IMAGES && found && status!=LOCAL)
+   {
+    del:
+    if(!ie_getswap(uptr))
+     uptr=Write2Cache(&url,&HTTPdoc,1,0);
+    DeleteFromCache(uptr);
+   }
+   else
+   if(reload==FIND_MISSING_IMAGE)
+   {
+    if(!found && status==REMOTE && GLOBAL.nowimages!=IMAGES_SEEKCACHE)
+    {
+     strcpy(GLOBAL.location,HTTPdoc.URL);
+     GLOBAL.isimage=1;
+     mouseon();
+//       p->activeframe=pushact;
+     if(from && currentHTMLatom!=IE_NULL)
+      *from=currentHTMLatom;
+     return 1;
+
+     /* maybe later ...
+     arachne_will_download_images_now++;
+     if(arachne_will_download_images_now>LIM_DOWNLOAD)
+     {
+      return NeedImage(FIND_MISSING_IMAGE,NULL);
+     }
+     */
+
+    }
+    else//conversion only
+    if(GLOBAL.nowimages!=IMAGES_SEEKCACHE && type!=STYLESHEET &&
+        (search_mime_cfg(HTTPdoc.mime, ext,command)==1 ||
+         type==EMBED && search_mime_cfg(HTTPdoc.mime, ext, command)==2) &&
+        willconvert<MAXCONV)
+     imageptr[willconvert++]=IMGatom;
+   }//endif
+
   }
  }//loop
 

@@ -312,7 +312,8 @@ char *onmouse(int click)
        activeatomcursor(0);
        editorptr=(struct ib_editor *)ie_getswap(activeatom.ptr);
        if(!editorptr)
-        MALLOCERR();
+          goto exit_cursor; //non fatal error
+//        MALLOCERR();
 
        newx=editorptr->zoomx+(x-realatomx)/fontx(SYSFONT,0,' ');
 
@@ -442,7 +443,8 @@ char *onmouse(int click)
      (atomonmouse.data1==SUBMIT || atomonmouse.type==IMG && atomonmouse.data1==4))
    {
     char removable=0;
-//?    arachne.target=0;
+    XSWAP sheetadr=atomptr->linkptr;
+    unsigned char usehover=atomptr->R; //hack to determine of CSS - hover is used
 
     if(click && click!=MOUSE_RELEASE)
     {
@@ -458,10 +460,80 @@ char *onmouse(int click)
     }
 
     ptr=(char *)ie_getswap(atomptr->ptr);
+    if(!ptr)
+     return NULL;
+
     if(linkonmouse!=lastonmouse)
     {
      outs(ptr);
      mouseoff();
+
+     if(atomonmouse.type==TEXT && usehover)
+     {
+      int xx,yy,xxx,yyy;
+      long sz;
+
+      hidehover();
+
+      atomptr=(struct HTMLrecord *)ie_getswap(atomonmouse.next);
+      if(atomptr->linkptr!=linkonmouse)
+      {
+       atomptr=(struct HTMLrecord *)ie_getswap(atomonmouse.prev);
+       if(atomptr->linkptr!=linkonmouse)
+       {
+        struct TMPframedata *sheet;
+
+        if(sheetadr==IE_NULL)
+         sheet=&(p->tmpframedata[p->activeframe]);
+        else
+         sheet=(struct TMPframedata *)ie_getswap(sheetadr);
+
+        if(sheet)
+        {
+         atomonmouse.R=sheet->hoverR;
+         atomonmouse.G=sheet->hoverG;
+         atomonmouse.B=sheet->hoverB;
+         atomonmouse.data2|=sheet->hoversetbits;
+         atomonmouse.data2-=(atomonmouse.data2&sheet->hoverresetbits);
+        }
+
+        xx=atomonmouse.x-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
+        yy=(int)(atomonmouse.y-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
+        xxx=atomonmouse.xx-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
+        yyy=(int)(atomonmouse.yy-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
+        if(xx<p->htscrn_xtop)xx=p->htscrn_xtop;
+        if(yy<p->htscrn_ytop)yy=p->htscrn_ytop;
+        if(xxx>x_maxx())xxx=x_maxx();
+        if(yyy>x_maxy())yyy=x_maxy();
+        sz=(long)((long)(xxx-xx+1)*(long)(yyy-yy+1))+4*sizeof(int);
+        p->restorehoveradr=IE_NULL;
+        if(sz>0 && 2*sz<MAXHOVER)
+        {
+         char *buf=farmalloc((unsigned long)2*sz);
+         if(buf)
+         {
+          x_getimg(xx,yy,xxx,yyy,buf);
+          p->restorehoveradr=ie_putswap(buf,(unsigned)((long)(2l*sz)),CONTEXT_TMPIMG);
+          farfree(buf);
+         }
+
+         p->restorehoverx=xx;
+         p->restorehovery=yy;
+         bigfonts_allowed();
+         drawatom(&atomonmouse,dx,dy,
+                   p->htscrn_xsize+p->htscrn_xtop-p->htmlframe[activeatom.frameID].scroll.xtop,
+                   p->htscrn_ysize+p->htscrn_ytop-p->htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
+                   p->htmlframe[activeatom.frameID].scroll.xtop,
+                   p->htmlframe[activeatom.frameID].scroll.ytop);  //frames...
+         bigfonts_forbidden();
+        }
+       }
+      }
+      atomptr=(struct HTMLrecord *)ie_getswap(linkonmouse);
+      ptr=(char *)ie_getswap(atomptr->ptr);
+      if(!atomptr || !ptr)
+       return NULL;
+     }
      x_yncurs(1,mousex,mousey,(int)user_interface.brightmouse);
     }
 
@@ -529,16 +601,28 @@ char *onmouse(int click)
   defaultmsg();
  }
  else
- if(lastonmouse!=IE_NULL)
+ if(lastonmouse!=IE_NULL && click!=MOUSE_RELEASE)
  {
   defaultmsg();
   mouseoff();
+  hidehover();
   x_yncurs(1,mousex,mousey,(int)user_interface.darkmouse);
  }
  lastonmouse=IE_NULL;
  return NULL;
 }
 
+void hidehover(void)
+{
+ if(p->restorehoveradr!=IE_NULL)
+ {
+  char *ptr=ie_getswap(p->restorehoveradr);
+  if(ptr)
+   x_putimg(p->restorehoverx,p->restorehovery,ptr,0);
+  p->restorehoveradr=IE_NULL;
+  ie_killcontext(CONTEXT_TMPIMG);
+ }
+}
 
 // Copy active atom to xswap
 void activeatomsave(struct HTMLrecord *atom)

@@ -135,7 +135,7 @@ meminit(arachne.xSwap);         //0 - try to use XMS
 
 graphicsinit(arachne.graphics); //XLOPIF SVGA GRAPHICS
 
-defaultGUIstyle();
+//defaultGUIstyle();
 if(!noGUIredraw && !strcmpi(arachne.graphics,"VGA"))
  x_cleardev();
 
@@ -162,7 +162,7 @@ init_bin();                     //inicializace pameti, konf. souboru, apod.
 
 graphicsinit(arachne.graphics); //XLOPIF SVGA GRAPHICS
 
-defaultGUIstyle();
+//defaultGUIstyle();
 finfoload();                    //load font information
 configure_user_interface();     //icons, hotkeys, scrollbuttons, font...
 
@@ -171,6 +171,18 @@ x_fnt_initxms(50);              //initialize font table...
 bioskey_init();//switch terminal to raw mode
 #endif
 #endif
+
+
+
+if(arachne.GUIstyle==8) //first start ?
+{
+ if(x_maxx()<640)
+  arachne.GUIstyle = STYLE_SMALL2;
+ else if(x_maxx()<800)
+  arachne.GUIstyle = STYLE_SMALL1;
+ else
+  arachne.GUIstyle = STYLE_ARACHNE;
+}
 
 
  InitInput(&tmpeditor,"","",1,CONTEXT_SYSTEM);//URL input prompt
@@ -200,6 +212,7 @@ GLOBAL.backgr=0;
 GLOBAL.willexecute=0;
 GLOBAL.location[0]='\0';
 GLOBAL.currentcharset[0]='\0';
+p->restorehoveradr=IE_NULL;
 reset_tmpframedata();
 reset_frameset();
 AUTHENTICATION->proxy=0;
@@ -553,25 +566,18 @@ void init_bin(void)
 
  //printf("allocating...\n");
 
- p->buf=farmalloc(BUF+8);//I
- p->text=farmalloc(BUF+8);//I
  argnamestr=farmalloc(MAXARGNAMES);
  argvaluestr=farmalloc(BUF/4);
- p->img=farmalloc(sizeof(struct picinfo)+2);//I
- p->thistable=farmalloc(sizeof(struct HTMLtable)+2);
-#ifdef POSIX
- p->newtable=p->thistable;
-#endif 
+ p->buf=farmalloc(BUF+8);
  GLOBAL.location=farmalloc(URLSIZE);
  Referer=farmalloc(URLSIZE);
- //allocated in loadpick() !  
+ //allocated in loadpick() !
  //p->htmlframe=(struct HTMLframe*)farmalloc(MAXFRAMES*(1+sizeof(struct HTMLframe)));
  p->tmpframedata=(struct TMPframedata*)farmalloc(MAXFRAMES*(2+sizeof(struct TMPframedata)));
 
- if(!p->buf || !p->text || !p->img || !p->thistable || !GLOBAL.location || !p->htmlframe ||
+ if(!p->buf || !GLOBAL.location || !p->htmlframe ||
     !argnamestr || !argvaluestr || !Referer || !p->tmpframedata)
   memerr0();
-
 }
 
 #ifndef POSIX

@@ -12,7 +12,7 @@ int renderHTML(struct Page *p)
 {
  //not specific to frames:
  char search4maps=0;
- unsigned char in; //in=p->buf[i]...
+ unsigned char in; //in=buf[i]...
  //specific to frames:
  int i,bflen;
  long fpos;
@@ -26,7 +26,7 @@ int renderHTML(struct Page *p)
  int x;
  long y,currentbuttony;
  long tdheight=0;
- int font,basefont;
+ int font;
  char style,align,basealign[17],valign=MIDDLE;
  struct Fontstack fontstack;
  int xsize,lastspcpos,lastspcx,maxoption;
@@ -39,7 +39,8 @@ int renderHTML(struct Page *p)
  int nobr_x_anchor,currentbuttonx;
  struct Url url;
  struct HTMLrecord HTMLatom;
- char plaintext,istextarea,isselect,istitle,isscript,input_image,ext[5];
+ char plaintext,input_image,ext[5];
+ int insidetag; // ==TAG_TITLE, ==TAG_SCRIPT... etc.
  int stackLeftEdge[MAXTABLEDEPTH+2],stackRightEdge[MAXTABLEDEPTH+2];
  int stackLeft[MAXTABLEDEPTH+2],stackRight[MAXTABLEDEPTH+2];
  long clearstackLeft[MAXTABLEDEPTH+2],clearstackRight[MAXTABLEDEPTH+2];
@@ -47,6 +48,7 @@ int renderHTML(struct Page *p)
  unsigned tableptrstack[MAXTABLEDEPTH+2];
  int fontstackdepth[MAXTABLEDEPTH+2];
  int centerdepth[MAXTABLEDEPTH+2];
+ int alignstack[MAXTABLEDEPTH+2];
  int tdwidth[MAXTABLEDEPTH+2];
  int emptyframeset;
  int previousframe;
@@ -58,16 +60,19 @@ int renderHTML(struct Page *p)
  int pre_RightEdge, pre_Right;
  struct HTTPrecord *cache;
  struct HTMLframe *frame;
- struct TMPframedata *htmldata;
+ struct TMPframedata *htmldata,tmpsheet,*sheet;
  struct HTMLrecord *atomptr;
  //xSwap pointers:
- XSWAP currentlink,currentform,currentbutton,
+ XSWAP currentlink,currentform,currentbutton,stylesheetadr,
        currenttextarea,thistableadr,
        currenttable[MAXTABLEDEPTH+2],currentcell[MAXTABLEDEPTH+2];
- struct HTMLtable *tmptable;
- struct picinfo *img=p->img; //allocated for Page structure
- char *text=p->text;
+ struct HTMLtable *tmptable,*thistable;
+//#ifdef POSIX ??
+// struct HTMLtable  *newtable;
+//#endif
+ struct picinfo *img;
  long percflag;
+ char *text;
 
 // --------------------------------------------------------------------------
 /* This function is called in following modes:
@@ -120,6 +125,18 @@ int renderHTML(struct Page *p)
  p->nextHTMLtable=p->firstHTMLtable;
  p->prevHTMLtable=IE_NULL;
 
+ tagargptr=farmalloc(BUF/2);
+ img=farmalloc(sizeof(struct picinfo));
+ thistable=farmalloc(sizeof(struct HTMLtable));
+ text=farmalloc(BUF+8);
+ text[0]='\0';
+//#ifdef POSIX
+// newtable=thistable;
+//#endif
+
+ if(!text || !thistable || !img || !tagargptr)
+  memerr();
+
  //show some info to user
  MemInfo(NORMAL);
 
@@ -138,7 +155,6 @@ int renderHTML(struct Page *p)
  fpos=0;
  tagname[0]='\0';
  entityname[0]='\0';
- tagargptr=&(text[BUF/2]);
  taglen=0;
  tag=0;
  lasttag=0;
@@ -157,9 +173,6 @@ int renderHTML(struct Page *p)
  argspc=0;
  x=0;
  y=0;
- font=3;
- basefont=3;
- style=0;
  align=BOTTOM;
  basealign[0]=BOTTOM;
  lastspcpos=0;
@@ -176,10 +189,7 @@ int renderHTML(struct Page *p)
  tabledepth=0;
  istd=0;
  plaintext=1;
- istextarea=0;
- isselect=0;
- istitle=0;
- isscript=0;
+ insidetag=0;
  emptyframeset=-1;
  noresize=0;
  timer=time(NULL);
@@ -190,6 +200,7 @@ int renderHTML(struct Page *p)
  currenttextarea=IE_NULL;
  currentbutton=IE_NULL;
  thistableadr=IE_NULL;
+ stylesheetadr=IE_NULL;
 
  currenttable[0]=IE_NULL;
  currentcell[0]=IE_NULL;
@@ -213,8 +224,10 @@ int renderHTML(struct Page *p)
  cache=&frame->cacheitem;
 
  //define pointer to current temporary frame data
- htmldata=&(p->tmpframedata[p->currentframe]);
+ sheet=htmldata=&(p->tmpframedata[p->currentframe]);
 
+ htmldata->basefontsize=3;
+ htmldata->basefontstyle=0;
  p->docLeft=p->docLeftEdge=0;
  pre_Right=pre_RightEdge=p->docRight=p->docRightEdge=frame->scroll.xsize;
 
@@ -294,6 +307,8 @@ int renderHTML(struct Page *p)
  clearstackLeft[0]=clearstackRight[0]=0;
  maxsumstack[0]=0;
  tableptrstack[0]=IE_NULL;
+ font=htmldata->basefontsize;
+ style=htmldata->basefontstyle;
 
  pre=plaintext;
  if(plaintext)font=SYSFONT;
@@ -396,11 +411,16 @@ int renderHTML(struct Page *p)
  if(!openHTML(cache,p->html_source))
  {
   if(arachne.target==p->currentframe)
-   return 0;
+  {
+   farfree(tagargptr);
+   farfree(text);
+   farfree(thistable);
+   farfree(img);
+   return 0; //error!
+  }
   else
    goto exitloop;
  }
-
 
 loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
   if((percflag & 0x1ff) == 0x1ff ) //kazdych 512
@@ -418,7 +438,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         !(GLOBAL.validtables==TABLES_UNKNOWN && RENDER.willadjusttables)))
    {
     if(y>frame->posY+frame->scroll.ysize &&
-       lastredrawy+fonty(basefont,0)<frame->posY+frame->scroll.ysize &&
+       lastredrawy+fonty(htmldata->basefontsize,0)<frame->posY+frame->scroll.ysize &&
        y!=lastredrawy &&
        GLOBAL.validtables==TABLES_UNKNOWN && !noresize)
     {
@@ -525,7 +545,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
   //text/html ignoruje konce radku, uvnitr <PRE> nebo text/plain ne:
   if(in<' ')
   {
-   if(istextarea && (in=='\n' || in=='\r'))
+   if((insidetag==TAG_TEXTAREA || insidetag==TAG_STYLE) &&
+      (in=='\n' || in=='\r'))
    {
     if(txtlen>IE_MAXLEN)txtlen=IE_MAXLEN;
     text[txtlen]='\0';
@@ -535,7 +556,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     goto loop;
    }
    else
-   if(!pre || (in!='\n' /*&& in!='\r'*/) || tag || isselect)
+   if(!pre || (in!='\n' /*&& in!='\r'*/) || tag ||
+      insidetag==TAG_OPTION || insidetag==TAG_SELECT)
    {
     if(tag && param && uvozovky || endoftag)
      goto loop;
@@ -564,21 +586,24 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     HTMLatom.xx=x;
      HTMLatom.y=y;
     HTMLatom.yy=y+fonty(font,style);
-    text[txtlen]='\0';
     if(txtlen)
     {
      fixrowsize(font,style);
      if(!invisibletag)
+     {
+      text[txtlen]='\0';
       addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
+     }
      if(lasttag==TAG_BODY)
       lasttag=TAG_P;
-     if(istitle && !arachne.title[0] && !p->currentframe)
+     if(insidetag==TAG_TITLE && !arachne.title[0] && !p->currentframe)
      {
+      text[txtlen]='\0';
       MakeTitle(text);
       if(!p->rendering_target)
        DrawTitle(0);
       invisibletag=0;
-      istitle=0;
+      insidetag=0;
      }
     }
     tag=1;
@@ -749,22 +774,24 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      }
     }//endif
 
-    tagname[taglen]='\0';
-    comment=0;
-    nolt=0;
-
     //analyza HTML TAGu -------------------------------------- HTML level 0/1
+    tagname[taglen]='\0';
     tag=FastTagDetect(tagname);
 
     if(tag<TAG_SLASH || tag==TAG_SLASH_TABLE)
      endoftag=1;
 
-    if((istextarea && tag!=TAG_SLASH_TEXTAREA) ||
-       (istitle && tag!=TAG_SLASH_TITLE) ||
-       (isselect && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
-       (isscript && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT && 
-        tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS))
-     tag=0;
+    if(insidetag)
+    {
+     if((insidetag==TAG_TEXTAREA && tag!=TAG_SLASH_TEXTAREA) ||
+        (insidetag==TAG_TITLE && tag!=TAG_SLASH_TITLE) ||
+        (insidetag==TAG_STYLE && tag!=TAG_SLASH_STYLE) ||
+        (insidetag==TAG_SELECT && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
+        (insidetag==TAG_OPTION && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
+        (insidetag==TAG_SCRIPT && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT &&
+         tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS))
+      tag=0;
+    }
 
     switch(tag)
     {
@@ -776,6 +803,20 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      p->sizeTextRow=p->sizeRow=0; //fonty(font,style); //?p->sizeRow?
      invisibletag=0; //paragraf ukonci chybny option, title, apod.
      //align=basealign[tabledepth];
+     {
+      int reset=0;
+      if(sheet!=htmldata)
+       reset=1;
+      sheet=locatesheet(htmldata,&tmpsheet,stylesheetadr);
+      if(sheet!=htmldata || reset)
+      {
+       style=sheet->basefontstyle;
+       font=sheet->basefontsize;
+       HTMLatom.R=sheet->textR;
+       HTMLatom.G=sheet->textG;
+       HTMLatom.B=sheet->textB;
+      }
+     }
 
      alignset:
      x=p->docLeft;
@@ -783,13 +824,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(getvar("ALIGN",&tagarg))
      {
 //       basealign[tabledepth]=align;
+      if(align & CENTER) align-=CENTER;
+      if(align & RIGHT) align-=RIGHT;
       if(!strcmpi(tagarg,"CENTER"))    align=align | CENTER;
-      else if(!strcmpi(tagarg,"RIGHT"))align=align | RIGHT;
-      else if(!strcmpi(tagarg,"LEFT"))
-      {
-       if(align & CENTER) align-=CENTER;
-       if(align & RIGHT) align-=RIGHT;
-      }
+      else if(!strcmpi(tagarg,"RIGHT")) align=align | RIGHT;
      }
      break;
 
@@ -824,17 +862,25 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          entity2str(text);
         tagarg=text;
        }
-      
-       //vyrobim si pointr na link, a od ted je vsechno link:
-       addatom(&HTMLatom,tagarg,strlen(tagarg),HREF,align,target,removable,IE_NULL,1);
-       currentlink=p->lastHTMLatom;
-       pushfont(font,style,&HTMLatom,&fontstack);
 
-       contlink:
-       style=style | UNDERLINE;
-       HTMLatom.R=htmldata->linkR;
-       HTMLatom.G=htmldata->linkG;
-       HTMLatom.B=htmldata->linkB;
+       pushfont(font,style,&HTMLatom,&fontstack);
+       sheet=locatesheet(htmldata,&tmpsheet,stylesheetadr);
+       if(sheet->usehover)
+        HTMLatom.R=1;
+       else
+        HTMLatom.R=0;
+
+       //vyrobim si pointr na link, a od ted je vsechno link:
+       addatom(&HTMLatom,tagarg,strlen(tagarg),HREF,align,target,removable,sheet->myadr,1);
+       currentlink=p->lastHTMLatom;
+
+       style|=sheet->ahrefsetbits;
+       style-=(style&sheet->ahrefresetbits);
+       if(sheet->ahreffontsize!=-1)
+        font=sheet->ahreffontsize;
+       HTMLatom.R=sheet->linkR;
+       HTMLatom.G=sheet->linkG;
+       HTMLatom.B=sheet->linkB;
        fixrowsize(font,style);
       }
 
@@ -852,11 +898,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      currentlink=IE_NULL;
 
-     nolink:
      if(!popfont(&font,&style,&HTMLatom,&fontstack))
      {
-      if(style & UNDERLINE)
-       style -= UNDERLINE;
+      style=htmldata->basefontstyle;
       HTMLatom.R=htmldata->textR;
       HTMLatom.G=htmldata->textG;
       HTMLatom.B=htmldata->textB;
@@ -896,7 +940,6 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       {
        unsigned status;
        XSWAP dummy;
-       
        struct HTTPrecord HTTPdoc;
 
        AnalyseURL(tagarg,&url,p->currentframe);
@@ -1214,7 +1257,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(align & SUP)
      {
       align=align - SUP;
-      font=basefont;
+      font=htmldata->basefontsize;
      }
      break;
 
@@ -1231,7 +1274,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(align & SUB)
      {
       align=align - SUB;
-      font=basefont;
+      font=htmldata->basefontsize;
      }
      break;
 
@@ -1298,7 +1341,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      pushfont(font,style,&HTMLatom,&fontstack);
      font=6;
      header:
-     style=1;
+     style=BOLD;
      PARAGRAPH;
      p->sizeTextRow=p->sizeRow=fonty(font,style);
      goto alignset;
@@ -1343,8 +1386,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      if(!popfont(&font,&style,&HTMLatom,&fontstack))
      {
-      font=basefont;
-      style=0;
+      font=htmldata->basefontsize;
+      style=htmldata->basefontstyle;
      }
      align=basealign[tabledepth];
      goto p;
@@ -1364,7 +1407,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      case TAG_PRE: //<PRE>
 
-     font=basefont;
+     font=htmldata->basefontsize;
      style=FIXED;
      pre=1;
      if(!tabledepth)
@@ -1377,8 +1420,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      case TAG_SLASH_PRE:
 
-     font=basefont;
-     style=0;
+     font=htmldata->basefontsize;
+     style=htmldata->basefontstyle;
      pre=0;
      if(!tabledepth)
      {
@@ -1391,7 +1434,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      goto br;
 
      case TAG_FONT:     //<FONT>
-     case TAG_BASEFONT: //<BASEFONT>
+     case TAG_BASEFONT: //<basefont>
 
      pushfont(font,style,&HTMLatom,&fontstack);
      if(getvar("SIZE",&tagarg))
@@ -1433,33 +1476,27 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      }
      */
 
-
-     if(tag==TAG_BASEFONT) // <BASEFONT>
-      basefont=font;
+     if(tag==TAG_BASEFONT) // <basefont>
+      htmldata->basefontsize=font;
 
      fixrowsize(font,style);
      break;
 
-     case TAG_SLASH_BASEFONT: // </BASEFONT>
+     case TAG_SLASH_BASEFONT: // </basefont>
 
-     basefont=3; //normalni velikost
+     htmldata->basefontsize=3; //normalni velikost
      // continue...
 
      case TAG_SLASH_FONT:
 
      if(!popfont(&font,&style,&HTMLatom,&fontstack))
      {
-      font=basefont;
+      font=htmldata->basefontsize;
       HTMLatom.R=htmldata->textR;
       HTMLatom.G=htmldata->textG;
       HTMLatom.B=htmldata->textB;
       if(style & TEXT3D)
        style -= TEXT3D;
-
-      if(currentlink==IE_NULL)
-       goto nolink;
-      else
-       goto contlink;
      }
      break;
 
@@ -1481,7 +1518,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      case TAG_SLASH_BIG:
      case TAG_SLASH_SMALL:
 
-     font=basefont;
+     font=htmldata->basefontsize;
      break;
 
      case TAG_HR: //<HR>
@@ -1521,7 +1558,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       alignrow(x,y,orderedlist[listdepth]);
       if(x>p->docLeft)y+=p->sizeRow;
-      p->sizeRow=fonty(basefont,0);
+      p->sizeRow=fonty(htmldata->basefontsize,0);
       if(size+4>p->sizeRow)p->sizeRow=size+4;
       x=p->docLeft;
       HTMLatom.x=x;
@@ -1593,13 +1630,15 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(tabledepth>MAXTABLEDEPTH)
        goto p;
 
+      sheet=locatesheet(htmldata,&tmpsheet,stylesheetadr);
+
       //backup-of temporary table structure - 16bit DOS only, XSWAP pointers are persistent in POSIX
       if(thistableadr!=IE_NULL)
       {
        tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
        if(tmptable)
        {
-        memcpy(tmptable,p->thistable,sizeof(struct HTMLtable));
+        memcpy(tmptable,thistable,sizeof(struct HTMLtable));
         swapmod=1;
         tableptrstack[tabledepth]=thistableadr;
         thistableadr=IE_NULL;
@@ -1618,7 +1657,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(p->nextHTMLtable==IE_NULL)
       {
        newtab=1;
-       thistableadr=ie_putswap((char *)p->thistable,sizeof(struct HTMLtable),CONTEXT_TABLES);
+       thistableadr=ie_putswap((char *)thistable,sizeof(struct HTMLtable),CONTEXT_TABLES);
        if(thistableadr==IE_NULL)
         goto p;
 
@@ -1644,7 +1683,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        tmptable=(struct HTMLtable *)ie_getswap(p->nextHTMLtable);
        if(tmptable)
        {
-        memcpy(p->thistable,tmptable,sizeof(struct HTMLtable));
+        memcpy(thistable,tmptable,sizeof(struct HTMLtable));
         thistableadr=p->prevHTMLtable=p->nextHTMLtable;
         p->nextHTMLtable=tmptable->nextHTMLtable;
        }
@@ -1669,26 +1708,26 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       //let's do this only for NEW tables:
       if(GLOBAL.validtables==TABLES_UNKNOWN || newtab)
       {
-       inittable(p->thistable);
+       inittable(thistable);
        if(newtab)
-        p->thistable->nextHTMLtable=IE_NULL;
+        thistable->nextHTMLtable=IE_NULL;
 
        if(fixedfont)
        {
-        p->thistable->cellspacing=FIXEDFONTY;
-        p->thistable->cellpadding=0;
+        thistable->cellspacing=FIXEDFONTY;
+        thistable->cellpadding=0;
        }
        else
        {
         if(getvar("CELLSPACING",&tagarg))
-         p->thistable->cellspacing=atoi(tagarg);
+         thistable->cellspacing=atoi(tagarg);
         else
-         p->thistable->cellspacing=2;
+         thistable->cellspacing=2;
 
         if(getvar("CELLPADDING",&tagarg))
-         p->thistable->cellpadding=atoi(tagarg);
+         thistable->cellpadding=atoi(tagarg);
         else
-         p->thistable->cellpadding=2;
+         thistable->cellpadding=2;
        }
       }
 
@@ -1697,39 +1736,39 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       //table border is not included in table->maxwidth (?)
       //final width of HTMLatom should be equal to table->realwidth (?)
 
-      p->thistable->maxwidth=p->docRight-p->docLeft-2*border;
+      thistable->maxwidth=p->docRight-p->docLeft-2*border;
       if(getvar("WIDTH",&tagarg))
       {
        char *perc=strchr(tagarg,'%');
-       p->thistable->maxwidth=try2getnum(tagarg,p->thistable->maxwidth);
+       thistable->maxwidth=try2getnum(tagarg,thistable->maxwidth);
        if(perc)
-        p->thistable->fixedmax=PERCENTS_FIXED_TABLE;
+        thistable->fixedmax=PERCENTS_FIXED_TABLE;
        else
        {
-        p->thistable->fixedmax=PIXELS_FIXED_TABLE;
-        p->thistable->maxwidth-=2*border;
+        thistable->fixedmax=PIXELS_FIXED_TABLE;
+        thistable->maxwidth-=2*border;
        }
       }
 
-      if(p->thistable->maxwidth<0)
-       p->thistable->maxwidth=0;
+      if(thistable->maxwidth<0)
+       thistable->maxwidth=0;
 
       //expand
       if(GLOBAL.validtables==TABLES_EXPAND)
-       expand(p->thistable);
+       expand(thistable);
 
       //twidth is width of table, which is valid for current pass
       if(GLOBAL.validtables/* &&
-         (p->thistable->realwidth>p->thistable->maxwidth/2 || !tabledepth)*/)
-       twidth=p->thistable->realwidth;
+         (thistable->realwidth>thistable->maxwidth/2 || !tabledepth)*/)
+       twidth=thistable->realwidth;
       else
-       twidth=p->thistable->maxwidth;
+       twidth=thistable->maxwidth;
 
       HTMLatom.x=p->docLeft;
       HTMLatom.xx=HTMLatom.x+twidth;
 
-       if(HTMLatom.xx>p->docRight && 
-          (GLOBAL.validtables!=TABLES_UNKNOWN || p->thistable->fixedmax==PIXELS_FIXED_TABLE))
+       if(HTMLatom.xx>p->docRight &&
+          (GLOBAL.validtables!=TABLES_UNKNOWN || thistable->fixedmax==PIXELS_FIXED_TABLE))
         clearall(&y);
     
 // we dont really want this....    
@@ -1743,9 +1782,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         RENDER.willadjusttables=1;
        if(!strcmpi(tagarg,"LEFT"))
        {
-        if(GLOBAL.validtables==TABLES_UNKNOWN && p->thistable->fixedmax==0)
+        if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
         {
-         p->thistable->maxwidth/=2;
+         thistable->maxwidth/=2;
          twidth/=2;
         }
         tabalign=LEFT;
@@ -1753,9 +1792,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        else
        if(!strcmpi(tagarg,"RIGHT") || !alignarg && (align & RIGHT))
        {
-        if(GLOBAL.validtables==TABLES_UNKNOWN && p->thistable->fixedmax==0)
+        if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
         {
-         p->thistable->maxwidth/=2;
+         thistable->maxwidth/=2;
          twidth/=2;
         }
         HTMLatom.x=p->docRight-FUZZYPIX-twidth;
@@ -1780,15 +1819,29 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        }
       }
 
+      if(!alignarg) //in this case, table won't behave like aligned image
+       tabalign=0;
+
       if(getvar("BGCOLOR",&tagarg))
       {
-       makestr(p->thistable->tablebg,tagarg,SHORTSTR);
-       makestr(p->thistable->rowbg,tagarg,SHORTSTR);
+       try2readHTMLcolor(tagarg,&(thistable->tablebgR),&(thistable->tablebgG),&(thistable->tablebgB));
+       thistable->usetablebg=1;
       }
       else
+      if (sheet->usetdbgcolor)
       {
-       p->thistable->tablebg[0]='\0';
-       p->thistable->rowbg[0]='\0';
+       thistable->usetablebg=1;
+       thistable->tablebgR=sheet->tdbgR;
+       thistable->tablebgG=sheet->tdbgG;
+       thistable->tablebgB=sheet->tdbgB;
+      }
+
+      if(thistable->usetablebg)
+      {
+       thistable->userowbg=1;
+       thistable->rowbgR=thistable->tablebgR;
+       thistable->rowbgG=thistable->tablebgG;
+       thistable->rowbgB=thistable->tablebgB;
       }
 
       img->URL[0]='\0';
@@ -1816,31 +1869,32 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       p->maxsum=0l;
       pushfont(font,style,&HTMLatom,&fontstack);
       fontstackdepth[tabledepth]=fontstack.depth;
+      alignstack[tabledepth]=align;
       tabledepth++;
       currentcell[tabledepth]=IE_NULL;
       basealign[tabledepth]=align;
 
-      p->thistable->depth=tabledepth; //for resizing optimization
+      thistable->depth=tabledepth; //for resizing optimization
       if(tabledepth>GLOBAL.tabledepth)
        GLOBAL.tabledepth=tabledepth;
 
       //initizalizations for both rendering passes:
       if(GLOBAL.validtables)
-       p->thistable->maxwidth=p->thistable->realwidth;
+       thistable->maxwidth=thistable->realwidth;
 
-      p->thistable->x=0;
-      p->thistable->y=0;
-      p->thistable->tdstart=HTMLatom.y+border+p->thistable->cellspacing;
-      p->thistable->nexttdend=p->thistable->tdend=p->thistable->maxtdend=p->thistable->tdstart;
-      memset(p->thistable->rowspan,0,sizeof(char)*MAXTD);
+      thistable->x=0;
+      thistable->y=0;
+      thistable->tdstart=HTMLatom.y+border+thistable->cellspacing;
+      thistable->nexttdend=thistable->tdend=thistable->maxtdend=thistable->tdstart;
+      memset(thistable->rowspan,0,sizeof(char)*MAXTD);
 
-      p->thistable->valignrow=MIDDLE;
+      thistable->valignrow=MIDDLE;
 
       //ulozim tabulku do seznamu tabulek
       tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
       if(tmptable)
       {
-       memcpy(tmptable,p->thistable,sizeof(struct HTMLtable));
+       memcpy(tmptable,thistable,sizeof(struct HTMLtable));
        swapmod=1;
       }
       else
@@ -1861,6 +1915,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      case TAG_SLASH_TABLE: //</TABLE>
 
+     tag_slash_table:
      {
       int cellx;
       long celly;
@@ -1891,7 +1946,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         if(currentcell[tabledepth]!=IE_NULL) //uzavrit posledni ctverecek na radce
         {
          if(thistableadr==parenttableadr)
-          tmptable=p->thistable;
+          tmptable=thistable;
          else
           tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
 
@@ -1925,7 +1980,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
         //spocitam sirku a zjistim posledni udaje
         if(thistableadr==parenttableadr)
-         tmptable=p->thistable;
+         tmptable=thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -1986,7 +2041,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
           if(tmptable)
           {
-           memcpy(tmptable,p->thistable,sizeof(struct HTMLtable));
+           memcpy(tmptable,thistable,sizeof(struct HTMLtable));
           }
          }
          swapmod=1;
@@ -2031,7 +2086,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         thistableadr=tableptrstack[tabledepth];
         tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
         if(tmptable)
-         memcpy(p->thistable,tmptable,sizeof(struct HTMLtable));
+         memcpy(thistable,tmptable,sizeof(struct HTMLtable));
         else
          MALLOCERR();
        }
@@ -2043,12 +2098,12 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         p->docRightEdge=p->docRight=p->docLeft+cellx;
        }
 
-       align=basealign[tabledepth];
+       align=alignstack[tabledepth];
        currentlink=IE_NULL;
        if(!popfont(&font,&style,&HTMLatom,&fontstack))
        {
-        font=basefont;
-        style=0;
+        font=htmldata->basefontsize;
+        style=htmldata->basefontstyle;
         HTMLatom.R=htmldata->textR;
         HTMLatom.G=htmldata->textG;
         HTMLatom.B=htmldata->textB;
@@ -2162,7 +2217,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
         //getswap musim delat pokazde, protoze tabulka je dynamicky ulozena
         if(thistableadr==parenttableadr)
-          tmptable=p->thistable;
+          tmptable=thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2170,10 +2225,23 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         }
         if(tmptable)
         {
-         if(!bgcolor[0])
-          strcpy(tmptable->rowbg,tmptable->tablebg);
+         if(bgcolor[0])
+         {
+          try2readHTMLcolor(bgcolor,&(tmptable->rowbgR),&(tmptable->rowbgG),&(tmptable->rowbgB));
+          thistable->userowbg=1;
+         }
          else
-          makestr(tmptable->rowbg,bgcolor,SHORTSTR);
+         {
+          if(tmptable->usetablebg)
+          {
+           thistable->userowbg=1;
+           tmptable->rowbgR=tmptable->tablebgR;
+           tmptable->rowbgG=tmptable->tablebgG;
+           tmptable->rowbgB=tmptable->tablebgB;
+          }
+          else
+           thistable->userowbg=0;
+         }
 
          tmptable->valignrow=valignrow;
          if(thistableadr!=parenttableadr)
@@ -2206,7 +2274,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          MALLOCERR();
 
         if(thistableadr==parenttableadr)
-         tmptable=p->thistable;
+         tmptable=thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2264,9 +2332,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       long newtdheight=0;
 
       invisibletag=0;
-
       noalign=1;
       align=BOTTOM;
+      sheet=locatesheet(htmldata,&tmpsheet,stylesheetadr);
 
       if(tag!=TAG_TABLE && getvar("ALIGN",&tagarg))
       {
@@ -2288,6 +2356,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       basealign[tabledepth]=align;
 
+      if(sheet->tdfontstyle!=-1) //-1 ... nothing special
+       style=sheet->tdfontstyle;
+      else
       if(tag==TAG_TH)
       {
        style=BOLD;
@@ -2307,9 +2378,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         invisibletag=1;
       }
       else
-      {
-       style=0;
-      }
+       style=sheet->basefontstyle;
 
       clearall(&y);
       if(x>p->docLeft)
@@ -2362,7 +2431,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         img->URL[URLSIZE-1]='\0';
        }
 
-      if(getvar("HEIGHT",&tagarg))
+      if(getvar("HEIGHT",&tagarg) && yspan==1)
        newtdheight=try2getnum(tagarg,0);
 
        if(getvar("WIDTH",&tagarg))
@@ -2383,7 +2452,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         XSWAP parenttableadr=atomptr->linkptr;
 
         if(thistableadr==parenttableadr)
-         tmptable=p->thistable;
+         tmptable=thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2391,9 +2460,19 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         }
         if(tmptable)
         {
-         if(!bgcolor && tmptable->rowbg[0])
+         if(sheet->usetdbgcolor)
          {
-          try2readHTMLcolor(tmptable->rowbg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
+          HTMLatom.R=sheet->tdbgR;
+          HTMLatom.G=sheet->tdbgG;
+          HTMLatom.B=sheet->tdbgB;
+          bgcolor=1;
+         }
+         else
+         if(!bgcolor && tmptable->userowbg)
+         {
+          HTMLatom.R=tmptable->rowbgR;
+          HTMLatom.G=tmptable->rowbgG;
+          HTMLatom.B=tmptable->rowbgB;
           bgcolor=1;
          }
 
@@ -2467,7 +2546,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          tdwidth[tabledepth]=0; //undefined maximum TD width - can expand
 
         if(thistableadr==parenttableadr)
-         tmptable=p->thistable;
+         tmptable=thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2510,7 +2589,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          if(yspan>1)
          {
           if(thistableadr==parenttableadr)
-           tmptable=p->thistable;
+           tmptable=thistable;
           else
           {
            tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2538,11 +2617,23 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        fontstack.depth=fontstackdepth[tabledepth-1];
       } //endif uvnitr table
 
-      HTMLatom.R=htmldata->textR;
-      HTMLatom.G=htmldata->textG;
-      HTMLatom.B=htmldata->textB;
+      if(sheet->usetdcolor)
+      {
+       HTMLatom.R=sheet->tdR;
+       HTMLatom.G=sheet->tdG;
+       HTMLatom.B=sheet->tdB;
+      }
+      else
+      {
+       HTMLatom.R=sheet->textR;
+       HTMLatom.G=sheet->textG;
+       HTMLatom.B=sheet->textB;
+      }
       currentlink=IE_NULL;
-      font=basefont;
+      if(sheet->tdfontsize!=-1)
+       font=sheet->tdfontsize;
+      else
+       font=sheet->basefontsize;
       p->sizeTextRow=p->sizeRow=0;
       p->xsum=0l;
       p->maxsum=0l;
@@ -2558,23 +2649,23 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      case TAG_SLASH_CAPTION:
      case TAG_TR:
 
-     style=0;
+     style=htmldata->basefontstyle;
      currentlink=IE_NULL;
      HTMLatom.R=htmldata->textR;
      HTMLatom.G=htmldata->textG;
      HTMLatom.B=htmldata->textB;
-     font=basefont;
+     font=htmldata->basefontsize;
      goto br;
 
      case TAG_TD:
      case TAG_TH:
 
-     style=0;
+     style=htmldata->basefontstyle;
      currentlink=IE_NULL;
      HTMLatom.R=htmldata->textR;
      HTMLatom.G=htmldata->textG;
      HTMLatom.B=htmldata->textB;
-     font=basefont;
+     font=htmldata->basefontsize;
      break;
 #endif
 
@@ -2675,7 +2766,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      case TAG_SLASH_BLOCKQUOTE:
      case TAG_SLASH_OL:
 
-     if(listdepth)
+     if(listdepth && orderedlist[listdepth])
      {
       listdepth--;
       p->docLeft=listedge[listdepth];
@@ -2995,33 +3086,33 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      case TAG_NOFRAMES://<NOFRAMES>
      if(!alreadyframe && user_interface.frames)
      {
-      isscript=1;
+      insidetag=TAG_SCRIPT;
       invisibletag=1;
      }
      break;
 
      case TAG_SCRIPT://<SCRIPT>
-     isscript=1;
+     insidetag=tag;
 //     case TAG_HEAD: //<HEAD>
      invisibletag=1;
      break;
 
      case TAG_TITLE: //<TITLE>
      invisibletag=1;
-     istitle=1;
+     insidetag=tag;
      break;
 
      case TAG_SLASH_SCRIPT:
      case TAG_SLASH_NOSCRIPT:
      case TAG_SLASH_NOFRAMES:
-     isscript=0;
+     insidetag=0;
 //     case TAG_SLASH_HEAD:
      invisibletag=0;
      break;
 
      case TAG_SLASH_TITLE:
      //accept title only for the main frame...
-     if(istitle && !arachne.title[0] && !p->currentframe)
+     if(insidetag==TAG_TITLE && !arachne.title[0] && !p->currentframe)
      {
       text[txtlen]='\0';
       MakeTitle(text);
@@ -3029,7 +3120,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        DrawTitle(0);
      }
      invisibletag=0;
-     istitle=0;
+     insidetag=0;
      break;
 
      case TAG_SELECT: //SELECT
@@ -3065,7 +3156,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        atomptr=(struct HTMLrecord *)ie_getswap(p->lastHTMLatom);
        currenttextarea=atomptr->ptr;
       }
-      isselect=1; //flag: read contens of <SELECT>... </SELECT>!
+      insidetag=tag; //flag: read contens of <SELECT>... </SELECT>!
       invisibletag=1;
       alreadyselected=0;
      }
@@ -3076,7 +3167,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      case TAG_OPTION:       //<OPTION>
 
      text[txtlen]='\0';
-     if(isselect==2)         // <(last)OPTION> text <(this)OPTION|/SELECT>
+     if(insidetag==TAG_OPTION)         // <(last)OPTION> text <(this)OPTION|/SELECT>
      {
       int txtx;
 
@@ -3090,14 +3181,13 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(txtx>maxoption)maxoption=txtx;
      }
 
-     if (isselect==1 ) //after first <OPTION> or after </SELECT>
-      isselect++;
+     insidetag=tag; //flag: inside <OPTION> ?
 
      if(tag==TAG_SLASH_SELECT) //</SELECT> - end of select tag
      {
       int dx=maxoption+space(SYSFONT)+user_interface.scrollbarsize+11;
       int oldright=p->docRight;
-      isselect=0;
+      insidetag=0;
       invisibletag=0;
       if(x+dx>p->docRight)
       {
@@ -3132,7 +3222,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      }
      else
      if(tag==TAG_SLASH_OPTION) //</OPTION> - end of option tag
-      isselect=1;
+      insidetag=TAG_SELECT;
      else
      if(tag==TAG_OPTION)       //<OPTION>
      {
@@ -3158,7 +3248,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      {
      char name[80]="\0",active=0;
      int rows=5,cols=20;
-     int lines,rowspix,rv;
+     int rowspix,rv;
 
      if(getvar("ROWS",&tagarg))
      {
@@ -3183,15 +3273,6 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(getvar("NAME",&tagarg))
       makestr(name,tagarg,79);
 
-#ifdef POSIX
-     lines=10000;
-#else
-//     lines=(int)(farcoreleft()/16); //160000 -> 10000, 80000->5000
-//     if(lines>8000)lines=8000;
-//     if(lines<256)lines=256;
-     lines=8000;
-#endif
-
      HTMLatom.x=x;
      HTMLatom.y=y;
      x+=user_interface.scrollbarsize+5+space(SYSFONT)*cols;
@@ -3209,14 +3290,14 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        strcpy(tmpeditor.filename,tagarg);
       else
        strcpy(tmpeditor.filename,LASTlocname);
-      rv=ie_openf_lim(&tmpeditor,CONTEXT_HTML,lines);
+      rv=ie_openf_lim(&tmpeditor,CONTEXT_HTML,8000);
       if(name[0])
        strcpy(tmpeditor.filename,name);
      }
      else
      {
-      rv=InitInput(&tmpeditor,name,NULL,lines,CONTEXT_HTML);
-      istextarea=1; //flag: read contens of <TEXTAREA>... </TEXTAREA>!
+      rv=InitInput(&tmpeditor,name,NULL,8000,CONTEXT_HTML);
+      insidetag=tag; //flag: read contens of <TEXTAREA>... </TEXTAREA>!
      }
 
      if(getvar("WRAP",&tagarg) && toupper(tagarg[0])!='N')
@@ -3236,12 +3317,31 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      break;
 
      case TAG_SLASH_TEXTAREA:
+     case TAG_SLASH_STYLE:
 
      invisibletag=0;
      text[txtlen]='\0';
-     if(istextarea)
+     if(insidetag==tag-TAG_SLASH)
+     {
       appendline(currenttextarea,text,0);
-     istextarea=0;
+      if(insidetag==TAG_STYLE && user_interface.css)
+       stylesheetadr=currenttextarea;
+     }
+     insidetag=0;
+     break;
+
+     case TAG_STYLE:
+
+     if(InitInput(&tmpeditor,"",NULL,1000,CONTEXT_HTML)==1)
+     {
+      if(stylesheetadr==IE_NULL)
+       currenttextarea=ie_putswap((char *)&tmpeditor,sizeof(struct ib_editor),CONTEXT_HTML);
+      else
+       currenttextarea=stylesheetadr;
+      insidetag=tag; //flag: read contens of <TEXTAREA>... </TEXTAREA>!
+      invisibletag=1;
+     }
+
      break;
 
      case TAG_BODY: //<BODY>
@@ -3325,9 +3425,14 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       htmldata->bgproperties=BGPROPERTIES_FIXED;
 
      invisibletag=0;
+     if(stylesheetadr!=IE_NULL)
+      ParseCSS(htmldata,stylesheetadr,"");
+     style=htmldata->basefontstyle;
+     font=htmldata->basefontsize;
      HTMLatom.R=htmldata->textR;
      HTMLatom.G=htmldata->textG;
      HTMLatom.B=htmldata->textB;
+
      break;
 
      case TAG_BASE: //<BASE>
@@ -3373,6 +3478,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      fixrowsize(font,style);
      break;
 
+     case TAG_LINK: //<LINK REL=...>
+
+     LINKtag(&stylesheetadr);
+     break;
 
      case TAG_FRAMESET: //<FRAMESET>
 
@@ -3392,13 +3501,13 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       if(getvar("ROWS",&tagarg) && strchr(tagarg,','))
       {
-       makestr(text,tagarg,BUF);
+       makestr(text,tagarg,STRINGSIZE);
        addframeset(0,&emptyframeset,framewantborder,text);
       }
       else
       if(getvar("COLS",&tagarg))
       {
-       makestr(text,tagarg,BUF);
+       makestr(text,tagarg,STRINGSIZE);
        addframeset(1,&emptyframeset,framewantborder,text);
       }
      }
@@ -3422,108 +3531,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      case TAG_FRAME: //<FRAME>
      if(user_interface.frames && emptyframeset!=-1)
-     {
-      char newframe_target;
-      struct HTMLframe *frame;
-
-      if(!getvar("SRC",&tagarg))
-       tagarg="NUL";
-      AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
-      url2str(&url,text);
-
-      newframe_target=emptyframeset;
-      frame=&(p->htmlframe[newframe_target]);
-
-      emptyframeset=frame->next;
-      frame->next=p->htmlframe[previousframe].next;
-      p->htmlframe[previousframe].next=newframe_target;
-      previousframe=newframe_target;
-
-
-      if(newframe_target<MAXFRAMES-1 && newframe_target>arachne.framescount)
-       arachne.framescount=newframe_target;
-
-      text[URLSIZE-1]='\0';
-      strcpy(frame->cacheitem.URL,text);
-      if(getvar("NAME",&tagarg))
-      {
-       strcpy(text,tagarg);
-       text[FRAMENAMESIZE-1]='\0';
-       strcpy(frame->framename,text);
-      }
-
-      if(! (frame->frameborder & I_WANT_FRAMEBORDER))
-        frame->frameborder=DONT_WANT_FRAMEBORDER;
-       else
-        frame->frameborder=FRAMEBORDER_IS_ON;
-
-      if(getvar("FRAMEBORDER",&tagarg) || getvar("BORDER",&tagarg))
-      {
-       if(tagarg[0]=='0' || toupper(tagarg[0])=='N' || toupper(tagarg[0])=='F')
-        frame->frameborder=DONT_WANT_FRAMEBORDER;
-       else
-        frame->frameborder=FRAMEBORDER_IS_ON;
-      }
-
-      if(frame->frameborder==DONT_WANT_FRAMEBORDER)
-      {
-       frame->scroll.xsize+=2;
-       frame->scroll.ymax+=2;
-       frame->scroll.xtop-=1;
-       frame->scroll.ytop-=1;
-      }
-
-      //else
-      // if(frame->frameborder==0)
-      // resetframeborder(frame,2);
-
-      //MSIE (& Mozilla ?) extension are implemented here: ...........
-
-      //frame BGCOLOR, etc. ?
-
-      if(getvar("SCROLLING",&tagarg) && toupper(tagarg[0])=='N')
-       frame->allowscrolling=0;
-      else
-      {
-       frame->allowscrolling=1;
-       frame->scroll.xsize-=user_interface.scrollbarsize;
-      }
-
-      if(getvar("MARGINWIDTH",&tagarg)) //Netscape 4.0 emulation
-      {
-       frame->marginheight=atoi(tagarg);
-       frame->marginwidth=atoi(tagarg);
-      }
-      else
-      {
-       frame->marginwidth=HTMLBORDER;
-       frame->marginheight=HTMLBORDER;
-      }
-
-      if(getvar("MARGINHEIGHT",&tagarg))
-       frame->marginheight=atoi(tagarg);
-
-      if(getvar("BORDER",&tagarg) || getvar("FRAMESPACING",&tagarg))
-      {
-       frame->marginheight=atoi(tagarg);
-       frame->marginwidth=atoi(tagarg);
-      }
-      //............................... end of extensions ............
-
-      frame->scroll.xvisible=0;
-      frame->scroll.yvisible=0;
-      ScrollInit(&frame->scroll,
-                 frame->scroll.xsize,
-                 frame->scroll.ymax,   //visible y
-                 frame->scroll.ymax,   //max y
-                 frame->scroll.xtop,
-                 frame->scroll.ytop,
-                 frame->scroll.xsize,0);//total x,y
-      ResetHtmlPage(&(p->tmpframedata[newframe_target]),TEXT_HTML,1);
-
-      frame->posX=0;
-      frame->posY=0l;
-     }
+      FRAMEtag(&emptyframeset,&previousframe);
      else
      {
       DummyFrame(p,&x,&y);
@@ -3587,12 +3595,12 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      {
       if(toupper(*tagarg)=='N')
       {
-       isscript=1;
+       insidetag=TAG_SCRIPT;
        invisibletag=1;
       }
       else
       {
-       isscript=0;
+       insidetag=0;
        invisibletag=0;
       }
      }
@@ -3603,7 +3611,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     tag=0; //current tag=0
     HTMLatom.x=x;
     HTMLatom.y=y;
-    txtlen=0;
+    if(!comment || !insidetag ||
+       insidetag!=TAG_STYLE && insidetag!=TAG_TEXTAREA && insidetag!=TAG_SCRIPT)
+     txtlen=0;
+    comment=0;
+    nolt=0;
     lastspcpos=0;
     lastspcx=x;
    }
@@ -3617,6 +3629,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     {
      tagname[taglen++]=in;
      if(taglen==3 && !strncmp(tagname,"!--",3))
+//        insidetag!=TAG_TEXTAREA && insidetag!=TAG_STYLE && insidetag!=TAG_SCRIPT)
      {
       comment=1;
       nolt=1;
@@ -3676,6 +3689,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     pom[0]=in;
     if(in=='<')
      nolt=0;
+
+    if(txtlen<BUF && insidetag)
+     text[txtlen++]=in;
    }
 
   if(p->memory_overflow)
@@ -3704,6 +3720,9 @@ exitloop:
   addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
  }
  alignrow(x,y,orderedlist[listdepth]);
+
+ if(tabledepth && currenttable[tabledepth]!=IE_NULL)
+  goto tag_slash_table;
 
  //Arachne formatted document?
  if(noresize)
@@ -3857,6 +3876,10 @@ exitloop:
  else
   GLOBAL.validtables=TABLES_FINISHED;
 
+ farfree(tagargptr);
+ farfree(text);
+ farfree(thistable);
+ farfree(img);
  return 1;
 }
 

@@ -68,10 +68,17 @@ int space(char font);
 
 //external treatment of certain tags outside renderHTML:
 void METAtag(void);
+void LINKtag(XSWAP *stylesheetadr);
 void USEMAParea(struct HTMLrecord *atom,char basetarget);
+void FRAMEtag(int *emptyframeset,int *previousframe);
 void BodyArachne(struct TMPframedata *html);
 void DummyFrame(struct Page *p,int *x, long *y);
 void CheckArachneFormExtensions(struct HTTPrecord *cache,char *value, int *checked);
+
+//CSS processor binding:
+int ParseCSS(struct TMPframedata *html, XSWAP editoradr, char *classfilter);
+struct TMPframedata *locatesheet(struct TMPframedata *rootsheet, struct TMPframedata *tmpsheet,XSWAP stylesheetadr);
+struct TMPframedata *locatesheet_ovrl(struct TMPframedata *rootsheet, struct TMPframedata *tmpsheet,XSWAP stylesheetadr);
 
 #define CONSOLEWIDTH user_interface.printerwidth
 #define OPTIONFONT (2+user_interface.fontshift)
@@ -108,9 +115,9 @@ if(x>p->docLeft && lasttag!=TAG_BODY || lasttag==TAG_SLASH_TABLE || \
 {\
  y+=p->sizeRow;\
  if(fixedfont)\
-  y+=fonty(basefont,0);\
+  y+=fonty(htmldata->basefontsize,0);\
  else\
-  y+=fonty(basefont,0)/2;\
+  y+=fonty(htmldata->basefontsize,0)/2;\
 }\
 if(p->xsum>p->maxsum)\
  p->maxsum=p->xsum;\
@@ -143,6 +150,7 @@ p->xsum=0;
 #define EMBED  13
 
 //special HTML atoms:
+#define STYLESHEET    97
 #define DECORATION    98
 #define BACKGROUND    99
 #define TD_BACKGROUND 100
@@ -171,9 +179,10 @@ p->xsum=0;
 #define SUP    64
 #define SUB    128
 
-
 //HTML tags
 #define TAG_SLASH          1000
+#define TAG_LAST           100
+
 #define TAG_P              1
 #define TAG_SLASH_P        1001
 #define TAG_A              2
@@ -276,7 +285,12 @@ p->xsum=0;
 #define TAG_SLASH_NOSCRIPT 1060
 #define TAG_BLOCKQUOTE       61
 #define TAG_SLASH_BLOCKQUOTE 1061
-#define TAG_ARACHNE_BONUS  888
+#define TAG_LINK           62
+#define TAG_STYLE          63
+#define TAG_SLASH_STYLE    1063
+
+#define TAG_SPECIAL_A_HOVER 98
+#define TAG_ARACHNE_BONUS   99
 
 //AREA shapes:
 

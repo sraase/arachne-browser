@@ -13,13 +13,11 @@
 #ifndef XTVERSION
 int thisx,thisy,thisxx,thisyy;
 
-#define MAXBUTT 16004l
-
 void pressthatbutton(int nowait)
 {
  char *hideiknbuf;
  char *pressiknbuf;
- long sz=(long)((long)(thisxx-thisx+1)*(long)(thisyy-thisy+1))+4l;
+ long sz=(long)((long)(thisxx-thisx+1)*(long)(thisyy-thisy+1))+4*sizeof(int);
 
  if(thisxx && sz<MAXBUTT)
  {
@@ -115,7 +113,9 @@ int onbutton(int x,int y)
 #ifndef CUSTOMER
 
  //Click on logo
- if(arachne.GUIstyle!=STYLE_FULLSCREEN && x>x_maxx()-150 && y<100)
+ if(arachne.GUIstyle!=STYLE_SMALL1 &&
+    arachne.GUIstyle!=STYLE_SMALL2 &&
+    x>x_maxx()-150 && y<100)
  {
 #ifdef OVRL
 #ifndef XTVERSION
@@ -190,7 +190,7 @@ int onbutton(int x,int y)
 #endif
 
  //------------------------------------------------------------------------
- else if(arachne.GUIstyle==STYLE_FULLSCREEN)
+ else if(arachne.GUIstyle==STYLE_SMALL1)
  {
   if(y>p->htscrn_ytop)
    return 0;
@@ -221,10 +221,10 @@ int onbutton(int x,int y)
   if(x<147)
   {
    int i=(x-2)/21;
-   thisx=2+21*i;
-   thisxx=thisx+22;
+   thisx=3+21*i;
+   thisxx=thisx+21;
    thisy=3;
-   thisyy=23;
+   thisyy=22;
    if(i==4)
     return CLICK_ABORT; //abort
    else
@@ -239,10 +239,10 @@ int onbutton(int x,int y)
   else if(x>x_maxx()-148)
   {
    int i=(x-x_maxx()+148)/21;
-   thisx=x_maxx()-148+21*i;
-   thisxx=thisx+22;
+   thisx=x_maxx()-147+21*i;
+   thisxx=thisx+21;
    thisy=3;
-   thisyy=23;
+   thisyy=22;
    if(i==6)
     return CLICK_NETHOME;
    else
@@ -259,6 +259,58 @@ int onbutton(int x,int y)
     return CLICK_DESKTOP;
    else
     return i+8;
+  }
+ }
+ //------------------------------------------------------------------------
+ else if(arachne.GUIstyle==STYLE_SMALL2)
+ {
+  if(y>p->htscrn_ytop)
+   return 0;
+
+  if(x>x_maxx()-148)
+  {
+   if(y<p->htscrn_ytop-25)
+   {
+    int i=(x-x_maxx()+148)/21;
+    thisx=x_maxx()-147+21*i;
+    thisxx=thisx+21;
+    thisy=4;
+    thisyy=25;
+    if(i==6)
+     return CLICK_NETHOME;
+    else
+    if(i==2)
+     return CLICK_IMAGES;
+    else
+    if(i==3)
+     return CLICK_SAVE;
+    else
+    if(i==4)
+     return CLICK_MAIL;
+    else
+    if(i==5)
+     return CLICK_DESKTOP;
+    else
+     return i+8;
+   }
+   else
+   {
+    int i=(x-x_maxx()+148)/21;
+    thisx=x_maxx()-147+21*i;
+    thisxx=thisx+21;
+    thisy=26;
+    thisyy=47;
+    if(i==4)
+     return CLICK_ABORT; //abort
+    else
+    if(i==5)
+     return CLICK_ADDHOTLIST; //add to hotlist
+    else
+    if(i==6)
+     return CLICK_HOTLIST; //hotlist
+    else
+     return i+1;
+   }
   }
  }
  //------------------------------------------------------------------------

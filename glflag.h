@@ -115,7 +115,8 @@ struct GLOBAL_FLAG
 
 #define STYLE_ARACHNE    0
 #define STYLE_MOZILLA    1
-#define STYLE_FULLSCREEN 2  //rename to SMALLICON !!!
+#define STYLE_SMALL1     2
+#define STYLE_SMALL2     3
 //#define STYLE_FULLSCREEN 4  //this is real fullscreen mode
 #define STYLE_CUSTOMER   8  //custom mode
 
@@ -189,6 +190,7 @@ struct GLOBAL_FLAG
 #define CONTEXT_TABLES 2
 #define CONTEXT_ICONS  3
 #define CONTEXT_TMP    4
+#define CONTEXT_TMPIMG 5
 
 //return values of protocol_arachne() and protocols_nonhttp()
 

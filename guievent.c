@@ -1146,7 +1146,8 @@ int GUIEVENT(int key, int mouse)
      Piip();
      return 0;
     }
-    if(fullscreen || x_maxx()<640 && (arachne.GUIstyle==STYLE_FULLSCREEN || customerscreen))
+    if(fullscreen || x_maxx()<640 &&
+     (arachne.GUIstyle==STYLE_SMALL2 || customerscreen))
      return togglefullscreen();
     Deallocmem();
     ChangeZoom(1,0,0);
