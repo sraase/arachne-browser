@@ -101,15 +101,6 @@ void ProcessSingleCSSItem(char *variable,char *value, char *objmap,struct TMPfra
   sheet->hoversetbits|=(setbits&(UNDERLINE|ITALIC));
   sheet->hoverresetbits|=(resetbits&(UNDERLINE|ITALIC));
   if(text){sheet->hoverR=textR;sheet->hoverG=textG;sheet->hoverB=textB;}
-//!!glennmcc: Mar 05, 2005
-//default to a contast from both link color & background color
-  else
-      {
-       sheet->hoverR=(sheet->backR + sheet->linkR) / 2;
-       sheet->hoverG=(sheet->backG + sheet->linkG) / 2;
-       sheet->hoverB=(sheet->backB + sheet->linkB) / 2;
-       }
-//!!glennmcc: end
  }
 
 // if(objmap[TAG_TABLE])

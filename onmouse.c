@@ -20,11 +20,6 @@ char *onmouse(int click)
  struct HTMLrecord *atomptr;
  int count=0;
 
-//!!glennmcc: Mar 02, 2005 -- trying Ray's fix
-//added to compensate for CSS linkhover in a frame
-//#define FRAME p->htmlframe[atomonmouse.frameID].scroll
-//!!glennmcc: end
-
 //!!glennmcc: Begin May 17, 2004
 // added to optionally goback or not on rightmouse click
 char *rmgb=0;
@@ -480,8 +475,12 @@ char *rmgb=0;
 
      if(atomonmouse.type==TEXT && usehover)
      {
-      int xx,yy,xxx,yyy;
-      long sz;
+
+//!!glennmcc: Mar 05, 2005
+//see below, no longer need here due to using Ray's new code
+//      int xx,yy,xxx,yyy;
+//      long sz;
+//!!glennmcc: end
 
       hidehover();
 
@@ -507,18 +506,17 @@ char *rmgb=0;
 	 atomonmouse.data2-=(atomonmouse.data2&sheet->hoverresetbits);
 	}
 
-
+//!!glennmcc: Mar 05, 2005 -- This entire block can now be removed
+//Ray fixed this bug the right way :)
+/*
 //!!glennmcc: begin Jan 26, 2005 -- added to compensate for CSS linkhover in a frame
-//!!glennmcc: Mar 02, 2005 -- trying a combination of Ray's fix and mine
 	if(dx<p->htmlframe[atomonmouse.frameID].scroll.xtop)
-//	   dx -= FRAME.xtop;//RAY
 	 dx-=p->htmlframe[atomonmouse.frameID].scroll.xtop;//!!glennmcc
 //!!glennmcc: end
 	xx=atomonmouse.x-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
 //!!glennmcc: begin Feb 27, 2005 -- added to compensate for CSS linkhover in a frame
 	if(p->htmlframe[atomonmouse.frameID].scroll.ytop>p->htscrn_ytop &&
 	   dy<p->htmlframe[atomonmouse.frameID].scroll.ytop)
-//	   dy -= (FRAME.ytop - p->htscrn_ytop);//RAY
 	 dy-=(int)(p->htmlframe[atomonmouse.frameID].scroll.ytop-p->htscrn_ytop);//!!glennmcc
 //!!glennmcc: end
 	yy=(int)(atomonmouse.y-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
@@ -527,8 +525,6 @@ char *rmgb=0;
 //!!glennmcc: begin Jan 26, 2005 -- added to compensate for CSS linkhover in a frame
 	if(xx>p->htmlframe[atomonmouse.frameID].scroll.xtop)
 	   {
-//	    xx -= FRAME.xtop;//Ray
-//	    xxx = atomonmouse.xx + FRAME.xtop;//RAY
 	    xx-=p->htmlframe[atomonmouse.frameID].scroll.xtop;//!!glennmcc
 	    xxx=p->htmlframe[atomonmouse.frameID].scroll.xtop+atomonmouse.xx;//!!glennmcc
 	   }
@@ -538,8 +534,6 @@ char *rmgb=0;
 	if(p->htmlframe[atomonmouse.frameID].scroll.ytop>p->htscrn_ytop &&
 	   yy>p->htmlframe[atomonmouse.frameID].scroll.ytop)
 	   {
-//	    yy = (int)(atomonmouse.y + FRAME.ytop);//RAY
-//	    yyy = (int)(atomonmouse.yy + FRAME.ytop);//RAY
 	    yy-=(int)(p->htmlframe[atomonmouse.frameID].scroll.ytop-p->htscrn_ytop);//!!glennmcc
 	    yyy=(int)(p->htmlframe[atomonmouse.frameID].scroll.ytop+atomonmouse.yy);//!!glennmcc
 	   }
@@ -580,6 +574,105 @@ char *rmgb=0;
      }
      x_yncurs(1,mousex,mousey,(int)user_interface.brightmouse);
     }
+*/
+//--------------- begin paste-in from Ray's version of onmouse.c --------
+
+#define FRAME p->htmlframe[atomonmouse.frameID].scroll
+		{
+//!!glennmcc/RAY: 05-03-03: Fix CSS (frames) hover bug:
+// new/modified code outdented.
+/*
+The screen originates at the top left corner.
+
+p->htscrn_ytop
+is the current 'Y' coordinate of the top of the HTML window,
+which varies with screen style, but not with resolution:
+0   when in fullscreen layout
+25  when the small Ikons, URL/title bar are across the top
+50  when the small Ikons, URL bar, Title bar are across the top
+50  when the buttons are on right side, URL bar, Title bar across the top
+100 when the large buttons, URL bar, Title bar are across the top
+
+FRAME.ytop
+is the offset of the current frame within the HTML window.
+
+p->htmlframe[atomptr->frameID].posY
+is the measure of the amount of vertical scrolling that has taken place
+within the active frame (if any).
+
+atomonmouse.y / atomonmouse.yy
+The top / bottom of the atom relative to its absolute position ('dy' below).
+*/
+int x1, x2, y1, y2; 	// Atom horizontal start, stop; vertical start, stop.
+long sz;					// Size of the atom in bytes.
+// Asignments for 'dx' and 'dy' made above are:
+// dx = p->htmlframe[atomptr->frameID].posX;
+// dy = p->htmlframe[atomptr->frameID].posY;
+
+// Absolute coordinates of atom are: scrolling XY - frame XY + HTML window XY
+// because scrolling right moves absolute positions on the screen left.
+// Changing dx or dy offsets message, but doesn't 'clip' it.
+// Bigger numbers move to the left and up repectively because dx/dy work
+// subtractively.
+dx -= FRAME.xtop; // - p->htscrn_xtop // Always 0 with HTML window hard left.
+dy -= FRAME.ytop - p->htscrn_ytop;
+
+// If atom's left end moves past frame boundary due to scrolling, we want the
+//  whole atom to pop into view when hot anyway , so don't trim hot
+//  atom on the left unless it is right off the screen (0). NB this will only
+//  work when the HTML window is always hard on the left margin of the screen!
+x1 = 0;
+x2 = atomonmouse.xx + FRAME.xtop;
+
+y1 = (int)(atomonmouse.y  + FRAME.ytop - p->htmlframe[atomptr->frameID].posY);
+y2 = (int)(atomonmouse.yy + FRAME.ytop - p->htmlframe[atomptr->frameID].posY);
+
+// Guard against intrusion into the status line.
+if (y2 > p->htscrn_ysize + p->htscrn_ytop)
+	 y2 = p->htscrn_ysize + p->htscrn_ytop;
+
+		sz = (long)((x2 - x1 + 1) * (y2 - y1 + 1) + 4 * sizeof(int));
+		if (sz > 0 && 2 * sz < MAXHOVER)
+		{              			// RAY: typecast made same form as one below.
+			char *buf = malloc((unsigned)((long)(2L * sz)));
+			if (buf)
+			{
+				x_getimg(x1, y1, x2, y2, buf);
+//				p->restorehoveradr = IE_NULL; // Moved from a few lines up.
+				p->restorehoveradr =
+					ie_putswap(buf, (unsigned)((long)(2L * sz)), CONTEXT_TMPIMG);
+				free(buf);
+			}
+			p->restorehoverx = x1;
+			p->restorehovery = y1;
+			bigfonts_allowed();
+
+// hidehover(); // This prevents hover going off!
+// drawatom() Draws highlighted atom, but not unhighlighted atom!
+
+	drawatom(&atomonmouse, dx, dy, // (See drawatom() L80)
+		p->htscrn_xsize + p->htscrn_xtop -
+		p->htmlframe[activeatom.frameID].scroll.xtop,
+		// select window can overwrite other
+		p->htscrn_ysize + p->htscrn_ytop -
+		p->htmlframe[activeatom.frameID].scroll.ytop,
+		p->htmlframe[activeatom.frameID].scroll.xtop,
+		p->htmlframe[activeatom.frameID].scroll.ytop);  // frames...
+
+			bigfonts_forbidden();
+		} // End: if (sz > 0 && 2 * sz < MAXHOVER)
+	   } // End: block
+	} // End: if (atomptr->linkptr != linkonmouse)
+      }
+      atomptr=(struct HTMLrecord *)ie_getswap(linkonmouse);
+      ptr=(char *)ie_getswap(atomptr->ptr);
+      if(!atomptr || !ptr)
+       return NULL;
+     }
+     x_yncurs(1,mousex,mousey,(int)user_interface.brightmouse);
+    }
+//____end paste-in from Ray's version of onmouse.c __________
+
 
     if(click==2) //copy link to clipboard
     {
