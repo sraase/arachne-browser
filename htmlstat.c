@@ -98,7 +98,7 @@ char hexdigit(char c)
  return 0;
 }
 
-//try2readHTMLcolor reads RGB color in HTML format "#RRGGBB" - supports also 
+//try2readHTMLcolor reads RGB color in HTML format "#RRGGBB" - supports also
 //16 basic color names acording to HTML/4.0 specification.
 
 void try2readHTMLcolor(char *str,unsigned char *r,unsigned char *g,unsigned char *b)
@@ -163,9 +163,22 @@ void try2readHTMLcolor(char *str,unsigned char *r,unsigned char *g,unsigned char
  {
   strncpy(string,str,6);
   resolve:
+
+//!!glennmcc: begin Mar 29, 2002
+//added to include RGB format in addition to RRGGBB
+if((string[3])<'0')
+{
+  *r=16*hexdigit(string[0]);
+  *g=16*hexdigit(string[1]);
+  *b=16*hexdigit(string[2]);
+}
+else
+//!!glennmcc: end
+{
   *r=16*hexdigit(string[0])+hexdigit(string[1]);
   *g=16*hexdigit(string[2])+hexdigit(string[3]);
   *b=16*hexdigit(string[4])+hexdigit(string[5]);
+}
  }
 }
 

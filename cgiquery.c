@@ -107,29 +107,29 @@ void process_form(char cgi, XSWAP formID)
 
      //----------------------------------------------------------
      if((subtype==RADIO || subtype==CHECKBOX || subtype==SUBMIT && name[0])
-        && (checked & 1) || subtype==TEXT || subtype==PASSWORD || subtype==HIDDEN)
+	&& (checked & 1) || subtype==TEXT || subtype==PASSWORD || subtype==HIDDEN)
      {
       if(cgi)
       {
        if(qlen<MAXQUERY-80-IE_MAXLEN)
        {
-        querystring=ie_getswap(GLOBAL.postdataptr);
-        if(!querystring)
-     	  MALLOCERR();
-        if(qlen>0)
-        {
-         strcat(querystring,"&");
-         qlen++;
-        }
-        if(name[0])
-        {
-         strcat(querystring,name);
-         strcat(querystring,"=");
-         qlen+=strlen(name)+1;
-        }
+	querystring=ie_getswap(GLOBAL.postdataptr);
+	if(!querystring)
+	  MALLOCERR();
+	if(qlen>0)
+	{
+	 strcat(querystring,"&");
+	 qlen++;
+	}
+	if(name[0])
+	{
+	 strcat(querystring,name);
+	 strcat(querystring,"=");
+	 qlen+=strlen(name)+1;
+	}
 
-        qlen+=cgiquery((unsigned char *)value,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
-        swapmod=1; //novy platny querystring:
+	qlen+=cgiquery((unsigned char *)value,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
+	swapmod=1; //novy platny querystring:
        }
       }
       else //<form action=arachne:internal....>
@@ -137,142 +137,159 @@ void process_form(char cgi, XSWAP formID)
        //action ------------------------------------------------------------
        if(name[0]=='$')
        {
-        char *cmd=&name[1];
-
-        if(!strcmpi(cmd,"MOVE") || !strcmpi(cmd,"COPY")) //copy,move
-        {
+	char *cmd=&name[1];
+	if(!strcmpi(cmd,"MOVE") || !strcmpi(cmd,"COPY")) //copy,move
+	{
 //         struct ffblk ff;
-         char *src;
+	 char *src;
 
-         if(p->htmlframe[p->activeframe].cacheitem.rawname[0] 
-            && file_exists(p->htmlframe[p->activeframe].cacheitem.rawname))
-          //rawname is not virtual - .JPG,.CNM
-          src=p->htmlframe[p->activeframe].cacheitem.rawname;
-         else
-          //rawname is not filename - .DGI
-          src=LASTlocname;
-         copy(src,value);
-         if(toupper(name[1])=='M' && file_exists(value))
-          unlink(src);
-        }
-        else if (!strcmpi(cmd,"PROFILE"))
-        {
-         configvariable(&ARACHNEcfg,"Profile",value);
-         ie_savef(&ARACHNEcfg);
-         copy(ARACHNEcfg.filename,value);
-        }
-        else if (!strcmpi(cmd,"SCRNSVR"))
-        {
-         strcpy(lasttime,"**"); //screensaver activated + redraw level 4
-         SecondsSleeping=32000l;
-         sprintf(GLOBAL.location,"arachne:internal-config?file:%s%sopt_misc.ah#scr",sharepath,GUIPATH);
-        }
-        else if (!strcmpi(cmd,"VGA"))
-        {
-         strcpy(arachne.graphics,value);
-        }
-        else if (!strcmpi(cmd,"MODE"))
-        {
-         if(strcmpi(arachne.graphics,"VGA") && strcmpi(arachne.graphics,"VGAMONO"))
-         {
-          if(value[0]=='.')
-           strcat(arachne.graphics,value);
-          else
-           strcpy(arachne.graphics,value);
+	 if(p->htmlframe[p->activeframe].cacheitem.rawname[0]
+	    && file_exists(p->htmlframe[p->activeframe].cacheitem.rawname))
+	  //rawname is not virtual - .JPG,.CNM
+	  src=p->htmlframe[p->activeframe].cacheitem.rawname;
+	 else
+	  //rawname is not filename - .DGI
+	  src=LASTlocname;
+	 copy(src,value);
+	 if(toupper(name[1])=='M' && file_exists(value))
+	  unlink(src);
+	}
+	else if (!strcmpi(cmd,"PROFILE"))
+	{
+	 configvariable(&ARACHNEcfg,"Profile",value);
+	 ie_savef(&ARACHNEcfg);
+	 copy(ARACHNEcfg.filename,value);
+	}
+	else if (!strcmpi(cmd,"SCRNSVR"))
+	{
+	 strcpy(lasttime,"**"); //screensaver activated + redraw level 4
+	 SecondsSleeping=32000l;
+	 sprintf(GLOBAL.location,"arachne:internal-config?file:%s%sopt_misc.ah#scr",sharepath,GUIPATH);
+	}
+	else if (!strcmpi(cmd,"VGA"))
+	{
+	 strcpy(arachne.graphics,value);
+	}
+	else if (!strcmpi(cmd,"MODE"))
+	{
+	 if(strcmpi(arachne.graphics,"VGA") && strcmpi(arachne.graphics,"VGAMONO"))
+	 {
+	  if(value[0]=='.')
+	   strcat(arachne.graphics,value);
+	  else
+	   strcpy(arachne.graphics,value);
 
-          arachne.GUIstyle=8; //undefined.
-         }
-        }
-        else if (!strcmpi(cmd,"HTUSER"))
-        {
-         strcpy(AUTHENTICATION->user,value);
-        }
-        else if (!strcmpi(cmd,"HTPASS"))
-        {
-         strcpy(AUTHENTICATION->password,value);
-        }
-        else if (!strcmpi(cmd,"MSG")) //start mail msg
-        {
-         char str[12];
+	  arachne.GUIstyle=8; //undefined.
+	 }
+	}
+	else if (!strcmpi(cmd,"HTUSER"))
+	{
+	 strcpy(AUTHENTICATION->user,value);
+	}
+	else if (!strcmpi(cmd,"HTPASS"))
+	{
+	 strcpy(AUTHENTICATION->password,value);
+	}
+	else if (!strcmpi(cmd,"MSG")) //start mail msg
+	{
+	 char str[12];
 
-         sprintf(str,"%ld",time(NULL));
-         ptr=configvariable(&ARACHNEcfg,"KillSent",NULL);
-         if(ptr && toupper(*ptr)=='Y')
-          str[1]='!';
+	 sprintf(str,"%ld",time(NULL));
+	 ptr=configvariable(&ARACHNEcfg,"KillSent",NULL);
+	 if(ptr && toupper(*ptr)=='Y')
+	  str[1]='!';
 
-         ptr=configvariable(&ARACHNEcfg,"MailPath",NULL);
-         if(!ptr)
-          ptr="MAIL\\";
-         sprintf(mailname,"%s%s.TBS",ptr,&str[1]);
+	 ptr=configvariable(&ARACHNEcfg,"MailPath",NULL);
+	 if(!ptr)
+	  ptr="MAIL\\";
+	 sprintf(mailname,"%s%s.TBS",ptr,&str[1]);
 	 mailmsg=a_open(mailname,O_CREAT|O_TEXT|O_WRONLY|O_TRUNC,S_IREAD|S_IWRITE);
-         if(mailmsg>=0)
-         {
-          char tm[30];
-          char *o,org[IE_MAXLEN+30]="\0";
+	 if(mailmsg>=0)
+	 {
+	  char tm[30];
+	  char *o,org[IE_MAXLEN+30]="\0";
 
-          inettime(tm);
-          o=configvariable(&ARACHNEcfg,"Organization",NULL);
-          if(o)
-           sprintf(org,"Organization: %s\n",o);
-          sprintf(str,"From: \"%s\" <%s>\n%sDate: %s %s\nX-Mailer: Arachne V%s%s\n",
-                      configvariable(&ARACHNEcfg,"PersonalName",NULL),
-                      configvariable(&ARACHNEcfg,"eMail",NULL),
-                      org,
-                      tm,configvariable(&ARACHNEcfg,"TimeZone",NULL),VER,beta);
-          write(mailmsg,str,strlen(str));
-         }
-        }
-        else if (!strcmpi(cmd,"DELORIG"))
-        {
-         delorig=1;
-         GLOBAL.mailaction|=MAIL_OUTBOXNOW;
-        }
-        else if (!strcmpi(cmd,"ORIGMSG") && delorig)
-        {
-         unlink(value);
-        }
-        else if (!strcmpi(cmd,"NOSIGN"))
-        {
-         nosign=1;
-        }
-        else if (!strcmpi(cmd,"TO") && mailmsg>=0)
-        {
-         adrfield(value);
-         sprintf(str,"To: %s\n",value);
-         write(mailmsg,str,strlen(str));
-        }
-        else if (!strcmpi(cmd,"CC") && mailmsg>=0 && value[0])
-        {
-         adrfield(value);
-         sprintf(str,"CC: %s\n",value);
-         write(mailmsg,str,strlen(str));
-        }
-        else if (!strcmpi(cmd,"BCC") && mailmsg>=0 && value[0])
-        {
-         adrfield(value);
-         sprintf(str,"Bcc: %s\n",value);
-         write(mailmsg,str,strlen(str));
-        }
-        else if (!strcmpi(cmd,"SUBJ") && mailmsg>=0)
-        {
-         sprintf(str,"Subject: %s\n",value);
-         write(mailmsg,str,strlen(str));
-        }
-        else if (!strcmpi(cmd,"ATTACH") && mailmsg>=0 && value[0])
-        {
-         sprintf(str,"X-Attachment: %s\n",value);
-         write(mailmsg,str,strlen(str));
-         attach=1;
-        }
-        else if (!strcmpi(cmd,"SMTP") && mailmsg>=0)
-         GLOBAL.mailaction|=MAIL_SMTPNOW;
-        else if (!strcmpi(cmd,"FILENAME"))
-         strcpy(LASTlocname,value);
+	  inettime(tm);
+	  o=configvariable(&ARACHNEcfg,"Organization",NULL);
+	  if(o)
+	   sprintf(org,"Organization: %s\n",o);
+	  sprintf(str,"From: \"%s\" <%s>\n%sDate: %s %s\nX-Mailer: Arachne V%s%s\n",
+		      configvariable(&ARACHNEcfg,"PersonalName",NULL),
+		      configvariable(&ARACHNEcfg,"eMail",NULL),
+		      org,
+		      tm,configvariable(&ARACHNEcfg,"TimeZone",NULL),VER,beta);
+	  write(mailmsg,str,strlen(str));
+	 }
+	}
+	else if (!strcmpi(cmd,"DELORIG"))
+	{
+	 delorig=1;
+	 GLOBAL.mailaction|=MAIL_OUTBOXNOW;
+	}
+	else if (!strcmpi(cmd,"ORIGMSG") && delorig)
+	{
+	 unlink(value);
+	}
+	else if (!strcmpi(cmd,"NOSIGN"))
+	{
+	 nosign=1;
+	}
+	else if (!strcmpi(cmd,"TO") && mailmsg>=0)
+	{
+	 adrfield(value);
+	 sprintf(str,"To: %s\n",value);
+	 write(mailmsg,str,strlen(str));
+	}
+	else if (!strcmpi(cmd,"CC") && mailmsg>=0 && value[0])
+	{
+	 configvariable(&ARACHNEcfg,cmd,value);
+	 adrfield(value);
+	 sprintf(str,"CC: %s\n",value);
+	 write(mailmsg,str,strlen(str));
+	}
+	else if (!strcmpi(cmd,"BCC") && mailmsg>=0 && value[0])
+	{
+	 configvariable(&ARACHNEcfg,cmd,value);
+	 adrfield(value);
+	 sprintf(str,"Bcc: %s\n",value);
+	 write(mailmsg,str,strlen(str));
+	}
+//!!glennmcc: begin Oct 19, 2001
+//added to create "reply-to" field in composed massages
+//!!glennmcc: June 09, 2002
+//changed so that replyto only gets added when "UseReplyto == Yes"
+       else if (!strcmpi(cmd,"RT") && mailmsg>=0 && value[0])
+       {
+	ptr=configvariable(&ARACHNEcfg,"UseReplyto",NULL);
+	if(ptr && toupper(*ptr)=='Y')
+       {
+	configvariable(&ARACHNEcfg,cmd,value);
+	adrfield(value);
+	sprintf(str,"Reply-To: %s\n",value);
+	write(mailmsg,str,strlen(str));
+	}
+       }
+//!!glennmcc: end
+	else if (!strcmpi(cmd,"SUBJ") && mailmsg>=0)
+	{
+	 sprintf(str,"Subject: %s\n",value);
+	 write(mailmsg,str,strlen(str));
+	}
+	else if (!strcmpi(cmd,"ATTACH") && mailmsg>=0 && value[0])
+	{
+	 sprintf(str,"X-Attachment: %s\n",value);
+	 write(mailmsg,str,strlen(str));
+	 attach=1;
+	}
+	else if (!strcmpi(cmd,"SMTP") && mailmsg>=0)
+	 GLOBAL.mailaction|=MAIL_SMTPNOW;
+	else if (!strcmpi(cmd,"FILENAME"))
+	 strcpy(LASTlocname,value);
        }
        else
        {
-        // update arachne.cfg ----------------------------------------------
-        configvariable(&ARACHNEcfg,name,value);
+	// update arachne.cfg ----------------------------------------------
+	configvariable(&ARACHNEcfg,name,value);
        }
 
        modified=1;
@@ -290,25 +307,25 @@ void process_form(char cgi, XSWAP formID)
 
        if(attach)
        {
-        sprintf(str,"X-Encoding: %s\n",configvariable(&ARACHNEcfg,"MailEncoding",NULL));
-        ptr=configvariable(&ARACHNEcfg,"UseCID",NULL);
-        if(ptr && toupper(*ptr)=='Y')
-         strcat(str,"X-cid: 1\n");
-        ptr=configvariable(&ARACHNEcfg,"UseCDescr",NULL);
-        if(ptr && toupper(*ptr)=='Y')
-         strcat(str,"X-cdescr: 1\n");
-        write(mailmsg,str,strlen(str));
+	sprintf(str,"X-Encoding: %s\n",configvariable(&ARACHNEcfg,"MailEncoding",NULL));
+	ptr=configvariable(&ARACHNEcfg,"UseCID",NULL);
+	if(ptr && toupper(*ptr)=='Y')
+	 strcat(str,"X-cid: 1\n");
+	ptr=configvariable(&ARACHNEcfg,"UseCDescr",NULL);
+	if(ptr && toupper(*ptr)=='Y')
+	 strcat(str,"X-cdescr: 1\n");
+	write(mailmsg,str,strlen(str));
        }
 
        charset=configvariable(&ARACHNEcfg,"MyCharset",NULL);
        if(!charset)
-        charset="US-ASCII";
+	charset="US-ASCII";
 
        ptr=configvariable(&ARACHNEcfg,"MailBodyEncoding",NULL);
        if(ptr)
-        makestr(encoding,ptr,STRINGSIZE-1);
+	makestr(encoding,ptr,STRINGSIZE-1);
        else
-        strcpy(encoding,"7bit");
+	strcpy(encoding,"7bit");
 
        sprintf(str,"MIME-Version: 1.0\nContent-type: text/plain; charset=%s\nContent-transfer-encoding: %s\n",charset,encoding);
        write(mailmsg,str,strlen(str));
@@ -317,71 +334,92 @@ void process_form(char cgi, XSWAP formID)
        i=0;
        while(i<tmpeditor.lines)
        {
-        ptr=ie_getline(&tmpeditor,i);
-        len=strlen(ptr);
+	ptr=ie_getline(&tmpeditor,i);
+	len=strlen(ptr);
 
-        //quoted-printable:
-        if(toupper(encoding[0])=='Q')
-        {
-         int j=0,k=0;
-         while(j<len)
-         {
-          if(ptr[j]<32 || ptr[j]=='=')
-          {
-           sprintf(&(p->buf[k]),"=%02X",(unsigned char)ptr[j]);
-           k+=3;
-          }
-          else
-           p->buf[k++]=ptr[j];
-          j++;
-         }//loop
-         ptr=p->buf;
-         len=k;
-        }//endif quoted-printable
+	//quoted-printable:
+	if(toupper(encoding[0])=='Q')
+	{
+	 int j=0,k=0;
+	 while(j<len)
+	 {
+	  if(ptr[j]<32 || ptr[j]=='=')
+	  {
+	   sprintf(&(p->buf[k]),"=%02X",(unsigned char)ptr[j]);
+	   k+=3;
+	  }
+	  else
+	   p->buf[k++]=ptr[j];
+	  j++;
+	 }//loop
+	 ptr=p->buf;
+	 len=k;
+	}//endif quoted-printable
 
-        write(mailmsg,"\n",1);
-        write(mailmsg,ptr,len);
-        i++;
+	write(mailmsg,"\n",1);
+	write(mailmsg,ptr,len);
+	i++;
        }
        if(!nosign)
        {
-        ptr=configvariable(&ARACHNEcfg,"UseSignature",NULL);
-        if(ptr && toupper(*ptr)=='Y')
-        {
-         ptr=configvariable(&ARACHNEcfg,"SignatureFile",NULL);
-         if(ptr)
-         {
+	ptr=configvariable(&ARACHNEcfg,"UseSignature",NULL);
+	if(ptr && toupper(*ptr)=='Y')
+	{
+	 ptr=configvariable(&ARACHNEcfg,"SignatureFile",NULL);
+	 if(ptr)
+	 {
 	  f=a_open(ptr,O_RDONLY|O_TEXT,0);
-          if(f>=0)
-          {
+	  if(f>=0)
+	  {
 	   i=a_read(f,&(p->buf[1]),BUF-1);
-           if(i>0)
-           {
-            p->buf[0]='\n';
-            write(mailmsg,p->buf,i+1);
-           }
+	   if(i>0)
+	   {
+	    p->buf[0]='\n';
+	    write(mailmsg,p->buf,i+1);
+	   }
 	   a_close(f);
-          }//endif
-         }//endif
-        }//endif
-        if(!reg)
-        {
-         sprintf(p->buf,"\n-- Arachne V%s%s, NON-COMMERCIAL copy, %s\n",VER,beta,homepage);
-         write(mailmsg,p->buf,strlen(p->buf));
-        }
+//!!glennmcc: begin July 8, 7 2002
+//remove contents of textarea.tmp
+//	tmpeditor.maxlines=-1;
+//	strcpy(tmpeditor.filename,"textarea.tmp");
+//	ie_savef(&tmpeditor);
+//!!glennmcc: end
+
+	  }//endif
+	 }//endif
+	}//endif
+	if(!reg)
+	{
+	 sprintf(p->buf,"\n-- Arachne V%s%s, NON-COMMERCIAL copy, %s\n",VER,beta,homepage);
+	 write(mailmsg,p->buf,strlen(p->buf));
+	}
+
        }//end if modify/resend
-      }
-      else
+
+//!!glennmcc: begin July 8, 7 2002
+//remove contents of textarea.tmp
+//!!glennmcc: July 18, 2002... moved to here
+//the first try up-above did not work if modify/resend
+//      tmpeditor.maxlines=-1;
+//	strcpy(tmpeditor.filename,"textarea.tmp");
+//	ie_savef(&tmpeditor);
+//!!glennmcc: Aug 25, 2002...
+// Michael says that just one line will do the same as my 3 lines.
+//let's see if he knows his program better than I do ;-)
+unlink("textarea.tmp");
+//!!glennmcc: end
+       }
+     else
       {
        //save textarea to temporary file
        if(cgi)
 #ifdef POSIX
        {
-        strcpy(tmpeditor.filename,dotarachne);
-        strcat(tmpeditor.filename,"textarea.tmp");
+	strcpy(tmpeditor.filename,dotarachne);
+	strcat(tmpeditor.filename,"textarea.tmp");
        }
 #else
-        strcpy(tmpeditor.filename,"textarea.tmp");
+	strcpy(tmpeditor.filename,"textarea.tmp");
 #endif
        ie_savef(&tmpeditor);
       }
@@ -391,11 +429,11 @@ void process_form(char cgi, XSWAP formID)
        //read it to query string
        querystring=ie_getswap(GLOBAL.postdataptr);
        if(!querystring)
-     	 MALLOCERR();
+	 MALLOCERR();
        if(qlen>0)
        {
-        strcat(querystring,"&");
-        qlen++;
+	strcat(querystring,"&");
+	qlen++;
        }
 
        strcat(querystring,name);
@@ -406,8 +444,8 @@ void process_form(char cgi, XSWAP formID)
        i=0;
        while(i<tmpeditor.lines && qlen<MAXQUERY-80-IE_MAXLEN)
        {
-        ptr=ie_getline(&tmpeditor,i);
-        if(ptr)
+	ptr=ie_getline(&tmpeditor,i);
+	if(ptr)
         {
          strcpy(p->buf,ptr);
          strcat(p->buf,"\r\n");
@@ -415,9 +453,9 @@ void process_form(char cgi, XSWAP formID)
          if(!querystring)
      	  MALLOCERR();
          qlen+=cgiquery((unsigned char *)p->buf,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
-         swapmod=1; //novy platny querystring:
+	 swapmod=1; //novy platny querystring:
         }
-        i++;
+	i++;
        }//loop
       }//end if cgi
      }//end if textarea
@@ -441,12 +479,12 @@ void process_form(char cgi, XSWAP formID)
          else
           makestr(p->buf,ie_getline(&tmpeditor,i+1),BUF);
 
-         querystring=ie_getswap(GLOBAL.postdataptr);
+	 querystring=ie_getswap(GLOBAL.postdataptr);
          if(!querystring)
-     	  MALLOCERR();
+	  MALLOCERR();
          if(qlen>0)
-         {
-          strcat(querystring,"&");
+	 {
+	  strcat(querystring,"&");
           qlen++;
          }
          strcat(querystring,name);
@@ -454,7 +492,7 @@ void process_form(char cgi, XSWAP formID)
          qlen+=strlen(name)+1;
          qlen+=cgiquery((unsigned char *)p->buf,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
          swapmod=1; //novy platny querystring:
-        }
+	}
        }
        i+=2;
       }//loop

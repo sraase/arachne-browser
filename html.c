@@ -15,6 +15,12 @@ int renderHTML(struct Page *p)
  unsigned char in; //in=buf[i]...
  //specific to frames:
  int i,bflen;
+
+//!!glennmcc: begin Feb 24, 2002
+// (added 'bflenold' and 'retry' for use by Quick-n-dirty Fix for RDLC bug)
+ int bflenold=0,retry=0;
+//!!glennmcc: end
+
  long fpos;
  char tagname[16],entityname[10],pom[2],*tagarg,*tagargptr;
  int taglen,tag,lasttag,endoftag;
@@ -334,7 +340,7 @@ int renderHTML(struct Page *p)
             frame->scroll.ymax,   //max y
             frame->scroll.xtop,
             frame->scroll.ytop,
-            frame->scroll.xsize,0);//total x,y
+	    frame->scroll.xsize,0);//total x,y
  ScrollButtons(&frame->scroll);
 
  if(!GLOBAL.isimage && GLOBAL.validtables==TABLES_UNKNOWN && p->html_source==HTTP_HTML)
@@ -464,9 +470,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
                 frame->scroll.ymax,     //visible y
                 frame->scroll.ymax,     //max y
                 frame->scroll.xtop,
-                frame->scroll.ytop,
+		frame->scroll.ytop,
                 frame->scroll.total_x,  //total x
-                frame->scroll.total_y); //total y
+		frame->scroll.total_y); //total y
 
      if(frame->allowscrolling)
      {
@@ -523,19 +529,43 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      percflag=loadrefresh;
      outs(str);
     }
-   }//endif 
+   }//endif
   }//endif somethign to output
   percflag--;
 
   if(i==bflen)
   {
+
+//!!glennmcc: begin Feb 24, 2002 (Quick-n-dirty Fix for RDLC bug)
+   bflenold=bflen;
+//!!glennmcc: end
+
    bflen=readHTML(cache,p->html_source);
+
 
    if(bflen<=0 || p->memory_overflow) //end of page, or out of memory
     goto exitloop;
    else
     i=0;
   }
+
+//!!glennmcc: begin Feb 24, 2002 (Quick-n-dirty Fix for RDLC bug)
+if (cache->knowsize)goto knowsize;
+   if (bflenold==bflen)
+   {
+    retry++;
+   }
+   else
+   {
+    retry=0;
+   }
+   if(retry>24000)
+   {
+    retry=0;
+    goto exitloop;
+   }
+knowsize:
+//!!glennmcc: end
 
   if(RENDER.translatecharset)
    in=GLOBAL.codepage[(unsigned char)p->buf[i]];
@@ -787,7 +817,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         (insidetag==TAG_TITLE && tag!=TAG_SLASH_TITLE) ||
         (insidetag==TAG_STYLE && tag!=TAG_SLASH_STYLE) ||
         (insidetag==TAG_SELECT && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
-        (insidetag==TAG_OPTION && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
+	(insidetag==TAG_OPTION && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
         (insidetag==TAG_SCRIPT && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT &&
          tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS))
       tag=0;
@@ -970,7 +1000,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           img->size_y=60;
           img->size_x=60;
           znamrozmerx=znamrozmery=1;
-         }
+	 }
         }//endif nasel jsem neco
        }
       }
@@ -2091,22 +2121,22 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          MALLOCERR();
        }
        else
-        thistableadr=IE_NULL;
+	thistableadr=IE_NULL;
 
        if(cellx>=p->docRight-p->docLeft && tabledepth>0)
        {
-        p->docRightEdge=p->docRight=p->docLeft+cellx;
+	p->docRightEdge=p->docRight=p->docLeft+cellx;
        }
 
        align=alignstack[tabledepth];
        currentlink=IE_NULL;
        if(!popfont(&font,&style,&HTMLatom,&fontstack))
        {
-        font=htmldata->basefontsize;
-        style=htmldata->basefontstyle;
-        HTMLatom.R=htmldata->textR;
-        HTMLatom.G=htmldata->textG;
-        HTMLatom.B=htmldata->textB;
+	font=htmldata->basefontsize;
+	style=htmldata->basefontstyle;
+	HTMLatom.R=htmldata->textR;
+	HTMLatom.G=htmldata->textG;
+	HTMLatom.B=htmldata->textB;
        }
        y=celly;
 
@@ -2121,7 +2151,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        {
         if(tabalign==LEFT && cellx+FUZZYPIX<frame->scroll.total_x)
         {
-         p->docLeft=tblstart+cellx+FUZZYPIX;
+	 p->docLeft=tblstart+cellx+FUZZYPIX;
          if(p->docRight>p->docLeft)
          {
           if(celly>p->docClearLeft)
@@ -2134,7 +2164,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         }
         else
         if(tabalign==RIGHT && cellx+FUZZYPIX<frame->scroll.total_x)
-        {
+	{
          p->docRight=tblstart-FUZZYPIX;
          if(p->docRight>p->docLeft)
          {
@@ -2212,7 +2242,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        atomptr=(struct HTMLrecord *)ie_getswap(currenttable[tabledepth]);
        if(atomptr)
        {
-        XSWAP parenttableadr=atomptr->linkptr;
+	XSWAP parenttableadr=atomptr->linkptr;
         int cellx;
 
         //getswap musim delat pokazde, protoze tabulka je dynamicky ulozena
@@ -2225,7 +2255,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         }
         if(tmptable)
         {
-         if(bgcolor[0])
+	 if(bgcolor[0])
          {
           try2readHTMLcolor(bgcolor,&(tmptable->rowbgR),&(tmptable->rowbgG),&(tmptable->rowbgB));
           thistable->userowbg=1;
@@ -2238,7 +2268,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
            tmptable->rowbgR=tmptable->tablebgR;
            tmptable->rowbgG=tmptable->tablebgG;
            tmptable->rowbgB=tmptable->tablebgB;
-          }
+	  }
           else
            thistable->userowbg=0;
          }
@@ -2251,7 +2281,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          {
 
           // fix desired table cell width data:
-          if(p->xsum>p->maxsum)
+	  if(p->xsum>p->maxsum)
            p->maxsum=p->xsum;
           if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
            p->maxsum=tdwidth[tabledepth];
@@ -2264,7 +2294,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           if(thistableadr!=parenttableadr)
            swapmod=1;
 
-          if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
+	  if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
            closeatom(currentcell[tabledepth],cellx,y);
           currentcell[tabledepth]=IE_NULL;
           invisibletag=1;
@@ -2277,7 +2307,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          tmptable=thistable;
         else
         {
-         tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
+	 tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
            //printf("tables out of sync");
         }
         if(tmptable)
@@ -2290,7 +2320,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           fixrowspan(tmptable,0,closeptrs);
           end=tmptable->tdend;
           tmptable->y++;
-          tmptable->x=0;
+	  tmptable->x=0;
           tmptable->tdstart=end+tmptable->cellspacing;
           tmptable->tdend=tmptable->tdstart;
 
@@ -2303,7 +2333,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
           fixrowspan_y(closeptrs,end,tmptable->cellpadding);
           tablerow(start,end,parenttableadr,tmptable->cellpadding);
-         }
+	 }
         }
         else
          MALLOCERR();
@@ -2394,7 +2424,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        if(getvar("VALIGN",&tagarg))
        {
         if(!strcmpi(tagarg,"TOP"))
-         valign=TOP;
+	 valign=TOP;
         else
         if(!strcmpi(tagarg,"BOTTOM"))
          valign=BOTTOM;
@@ -2420,7 +2450,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        if(getvar("BGCOLOR",&tagarg))
        {
         try2readHTMLcolor(tagarg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
-        bgcolor=1;
+	bgcolor=1;
        }
 
        if(getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode)
@@ -2459,7 +2489,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
            //printf("tables out of sync");
         }
         if(tmptable)
-        {
+	{
          if(sheet->usetdbgcolor)
          {
           HTMLatom.R=sheet->tdbgR;
@@ -2472,7 +2502,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          {
           HTMLatom.R=tmptable->rowbgR;
           HTMLatom.G=tmptable->rowbgG;
-          HTMLatom.B=tmptable->rowbgB;
+	  HTMLatom.B=tmptable->rowbgB;
           bgcolor=1;
          }
 
@@ -2485,7 +2515,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           if(percstr && !noresize) //noresize is hack for <BODY NORESIZE>
           {
            *percstr='\0';
-           perc=atoi(widthstr);
+	   perc=atoi(widthstr);
           }
           else //special case, <BODY NORESIZE> onlye...
           {
@@ -2498,7 +2528,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          }
 
          if(width<=0 || perc)
-         {
+	 {
           if(GLOBAL.validtables)
           {
            width=determine_new_width(tmptable,xspan);
@@ -2511,7 +2541,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
            if(xspan>1 && !GLOBAL.validtables)
             RENDER.willadjusttables=1;
-          }
+	  }
          }
 
          //we are closing cell opened by previous <TD> tag: -----------
@@ -2524,7 +2554,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
            p->maxsum=tdwidth[tabledepth];
 
-          if(y<tdheight)
+	  if(y<tdheight)
            y=tdheight;
 
           if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
@@ -2537,7 +2567,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          }
          //ok, cell closed. -------------------------------------------
         }
-        else
+	else
          MALLOCERR();
 
         if(widthstr[0] && !perc)
@@ -2550,7 +2580,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-           //printf("tables out of sync");
+	   //printf("tables out of sync");
         }
         if(tmptable)
         {
@@ -2563,7 +2593,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
          newcell(tmptable,xspan,yspan,&HTMLatom.x,&HTMLatom.y,&width,perc,tdwidth[tabledepth]);
          if(thistableadr!=parenttableadr)
-          swapmod=1;
+	  swapmod=1;
          HTMLatom.x+=tblx+border;
          HTMLatom.xx=HTMLatom.x+width;
          x=p->docLeftEdge=p->docLeft=HTMLatom.x+tmptable->cellpadding;
@@ -2576,7 +2606,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          if(caption) //nadpis
           border=0;
 
-         if(p->docRight-p->docLeft<FUZZYPIX) //v uzkych sloupcich nedelat bordel!
+	 if(p->docRight-p->docLeft<FUZZYPIX) //v uzkych sloupcich nedelat bordel!
           align=BOTTOM;
 
          if(img->URL[0])
@@ -2589,7 +2619,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          if(yspan>1)
          {
           if(thistableadr==parenttableadr)
-           tmptable=thistable;
+	   tmptable=thistable;
           else
           {
            tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2602,7 +2632,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
             tmptable->closerowspan[tmptable->x-xspan+1]=p->lastHTMLatom;
             if(thistableadr!=parenttableadr)
              swapmod=1;
-           }
+	   }
           }
           else
            MALLOCERR();
@@ -2862,14 +2892,14 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        {
         type=CHECKBOX;
         size=1;
-        if(!value[0])
+	if(!value[0])
          strcpy(value,"on");
        }
        else
        if(!strcmpi(tagarg,"IMAGE"))
        {
         input_image=1;
-        goto process_input_image;
+	goto process_input_image;
        }
       }
 
@@ -2882,9 +2912,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       //unsecure arachne extensions to <INPUT> tag.....................
       //allowed only for local or forced-html documents
       if(searchvar("ARACHNE") &&
-         (!strncmpi(cache->URL,"file",4) || !strncmpi(cache->URL,"mailto",4)
+	 (!strncmpi(cache->URL,"file",4) || !strncmpi(cache->URL,"mailto",4)
           || !strncmpi(cache->URL,"about",4) || !strncmpi(cache->URL,"gui",3)
-          || p->forced_html))
+	  || p->forced_html))
        CheckArachneFormExtensions(cache,value, &checked);
 
       if(type==SUBMIT || type==RESET /*|| type==BUTTON*/)
@@ -2897,24 +2927,24 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        while(i<l)
        {
         if(value[i]==' ' && spccount>2)
-        {
+	{
          spc=1;
          spccount++;
         }
-        else
+	else
          spc=0;
 
         if(spc)
          size+=space(BUTTONFONT);
-        else
+	else
          size+=fontx(BUTTONFONT,0,'a');
-        i++;
+	i++;
        }
 
        htmlfont(BUTTONFONT,0);
        maxsize=x_txwidth(value)+2*space(0);
        if(maxsize>size)
-        size=maxsize;
+	size=maxsize;
       }
       else if(type==OUTPUT)
       {
@@ -2940,12 +2970,12 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        {
         checked=2; //to indicate that it's button, not input ! No text shown
 
-        //checked & 1 ...checked/pressed
+	//checked & 1 ...checked/pressed
         //checked & 2 ...it is BUTTON
 
         currentbuttonx=x;
         nobr=1;
-        nownobr=0;
+	nownobr=0;
        }
        HTMLatom.xx=x;
        HTMLatom.y=y;
@@ -2953,7 +2983,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        if(type==CHECKBOX)
         HTMLatom.yy=y+11+space(SYSFONT);
        else if(type==RADIO)
-        HTMLatom.yy=y+10+space(SYSFONT);
+	HTMLatom.yy=y+10+space(SYSFONT);
        else if(type==SUBMIT || type==RESET || type==BUTTON)
         HTMLatom.yy=y+4+fonty(BUTTONFONT,0);
        else if(tag==TAG_BUTTON)
@@ -2966,7 +2996,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         int ygap=(int)(HTMLatom.yy-HTMLatom.y)+2;
         if(p->sizeRow<ygap)
          p->sizeRow=ygap;
-        if(p->sizeTextRow<ygap)
+	if(p->sizeTextRow<ygap)
          p->sizeTextRow=ygap;
        }
       }
@@ -2988,7 +3018,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       {
        int ygap=fonty(font,style);
        if(p->sizeRow<ygap)
-        p->sizeRow=ygap;
+	p->sizeRow=ygap;
        if(p->sizeTextRow<ygap)
         p->sizeTextRow=ygap;
        currentbutton=p->lastHTMLatom;
@@ -3052,26 +3082,38 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(getvar("METHOD",&tagarg))
       {
        if(!strcmpi(tagarg,"POST"))
-        method=1;
+	method=1;
        else
        if(!strcmpi(tagarg,"HREF"))
-        method=-1;
+	method=-1;
       }
       if(getvar("ACTION",&tagarg))
       {
        //vlozit link:
        if(tagarg[0]=='#' && method==-1)
-        makestr(text,tagarg,URLSIZE);
+	makestr(text,tagarg,URLSIZE);
        else
        {
-        AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
-        url2str(&url,text);
+	AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+	url2str(&url,text);
        }
-
        //vyrobim si pointr na link, a od ted je vsechno link:
        addatom(&HTMLatom,text,strlen(text),FORM,align,target,method,IE_NULL,1);
        currentform=p->lastHTMLatom;
       }
+
+//!!glennmcc: begin: Aug 12, 2002 - use current URL if 'action' is missing from form
+       else
+       *tagarg=p->currentframe;
+       {
+	AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+	url2str(&url,text);
+       //vyrobim si pointr na link, a od ted je vsechno link:
+       addatom(&HTMLatom,text,strlen(text),FORM,align,target,method,IE_NULL,1);
+       currentform=p->lastHTMLatom;
+       }
+//!!glennmcc: end
+
      }
      if(!nownobr)
       goto p;
@@ -3092,6 +3134,13 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      break;
 
      case TAG_SCRIPT://<SCRIPT>
+
+//!!glennmcc: begin May 03, 2002
+// added to optionally "ignore" <script> tag
+// (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
+     if(http_parameters.ignorejs){insidetag=0;}else
+//!!glennmcc: end
+
      insidetag=tag;
 //     case TAG_HEAD: //<HEAD>
      invisibletag=1;
@@ -3206,10 +3255,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        {
         char *ptr;
         memcpy(&tmpeditor,editorptr,sizeof(struct ib_editor));
-        ptr=ie_getline(&tmpeditor,0);
+	ptr=ie_getline(&tmpeditor,0);
         if(ptr)
         {
-         ptr[0]='1';
+	 ptr[0]='1';
          swapmod=1;
         }
        }
@@ -3370,7 +3419,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       try2readHTMLcolor(tagarg,&htmldata->textR,&htmldata->textG,&htmldata->textB);
      }
      else if (htmldata->backR<8 && htmldata->backG<8 && htmldata->backB<8 &&
-              htmldata->backgroundptr==IE_NULL )
+	      htmldata->backgroundptr==IE_NULL )
      {
       htmldata->textR=255;
       htmldata->textG=255;
@@ -3496,7 +3545,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        if(tagarg[0]=='0' || toupper(tagarg[0])=='N' || toupper(tagarg[0])=='F')
         framewantborder=DONT_WANT_FRAMEBORDER;
        else
-        framewantborder=I_WANT_FRAMEBORDER;
+	framewantborder=I_WANT_FRAMEBORDER;
       }
 
       if(getvar("ROWS",&tagarg) && strchr(tagarg,','))
@@ -3563,8 +3612,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      // * * * * * * * * * * * * * * * * * * * * * * * * * * * * end of CSIM
 
      case TAG_EMBED:
-
-     if(getvar("SRC",&tagarg) && !strncmpi(cache->URL,"file",4))
+     if(getvar("SRC",&tagarg) || getvar("FILENAME",&tagarg))// && !strncmpi(cache->URL,"file",4))
+//!!glennmcc: Oct 30, 2002... re-enabled embed for remote pages
+//by commenting out " && !strncmpi(cache->URL,"file",4))" on line above
+//Nov 12, 2002 ... now also will recognize <embed filename=".....>
      {
       AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
       url2str(&url,img->URL);
@@ -3741,11 +3792,11 @@ exitloop:
   frame->scroll.xvisible=1;
 
   ScrollInit(&frame->scroll,
-             frame->scroll.xsize,
+	     frame->scroll.xsize,
              frame->scroll.ymax-user_interface.scrollbarsize, //visible y
              frame->scroll.ymax, //max y
              frame->scroll.xtop,
-             frame->scroll.ytop,
+	     frame->scroll.ytop,
              frame->scroll.total_x, //total x
              frame->scroll.total_y);//total y
  }
@@ -3758,7 +3809,7 @@ exitloop:
   ScrollInit(&frame->scroll,
              frame->scroll.xsize,
              frame->scroll.ymax, //visible y
-             frame->scroll.ymax, //max y
+	     frame->scroll.ymax, //max y
              frame->scroll.xtop,
              frame->scroll.ytop,
              frame->scroll.total_x, //total x

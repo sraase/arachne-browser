@@ -10,7 +10,7 @@
 #include "internet.h" //because of background tasks...
 #include "alttab.h"
 
-#define MOUSESTEP 10
+#define MOUSESTEP 8   //caverge adjustment
 
 int GUITICK(void)
 {
@@ -127,6 +127,16 @@ mammys:
   else if(g_PrtScr)
   {
    g_PrtScr = 0;
+//!!glennmcc: begin Dec 12, 2002
+//goto prtbmp.ah instead of viewing the screencap (same as Ctrl+P)
+    if(PrintScreen2BMP(0))
+    {
+     sprintf(GLOBAL.location,"file:%s%sprtbmp.ah",sharepath,GUIPATH);
+     arachne.target=0;
+     return gotoloc();
+    }
+    else
+//!!glennmcc: end
    return PrintScreen2BMP(0);
   }
 #endif

@@ -1,13 +1,13 @@
 #include "arachne.h"
 
 #ifndef CUSTOMER
-char *VER="1.70";
+char *VER="1.71;UE01";
 #ifdef MSDOS
-char *beta=";rev.3";          //MS-DOS version is stable
+char *beta="";          //MS-DOS version is stable
 #else
 char *beta=";beta";    //for other platforms, not even beta....
 #endif
-char *copyright="Copyright (c)1996-2001 Michael Polak, Arachne Labs";
+char *copyright="Copyright (c)1996-2002 Michael Polak, Arachne Labs";
 char *homepage="http://arachne.cz/";
 #endif
 

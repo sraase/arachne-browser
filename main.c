@@ -166,6 +166,13 @@ IveGotNewUrl:
   GLOBAL.validtables=TABLES_UNKNOWN;
   GLOBAL.tabledepth=0;
   ie_killcontext(CONTEXT_TABLES);
+
+//!!Bernie: begin, July 4, 2002
+// inserted to save to textarea.tmp whenever a page containing
+// <textarea> is aborted without submitting the form.
+  Deallocmem();
+//!!Bernie: end
+
   p->firstHTMLtable=IE_NULL;
   p->firstHTMLatom=p->lastHTMLatom=IE_NULL;
   p->firstonscr=p->lastonscr=IE_NULL;

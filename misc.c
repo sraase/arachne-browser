@@ -310,6 +310,12 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
  int rv=0;
  char *pom;
 
+//!!glennmcc: begin Apr 23, 2002
+//needed for $K
+ char *cfgkw="_";
+ int kcnt=0;
+//!!glennmcc: end
+
  if(*in=='@')
  {
   in++;
@@ -354,7 +360,7 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
     out+=paranoid_strncpy(out,infile,80)-1;
     break;
     case '2':
-    
+
     out+=paranoid_strncpy(out,outfile,80)-1;
     break;
     case 'C':
@@ -405,7 +411,7 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
        f=a_fast_open(q,O_BINARY|O_CREAT|O_TRUNC|O_WRONLY,S_IREAD|S_IWRITE);
        if(f>=0)
        {
-        write(f,pom,strlen(pom));
+	write(f,pom,strlen(pom));
 	a_close(f);
        }
        strcpy(out,q);
@@ -452,6 +458,40 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
     if(!pom)
      pom="-bmp ";
     goto cont;
+
+//!!glennmcc: begin Apr 23, 2002
+    case 'K':  //pass arguments to dgi from any arachne.cfg keyword
+kcnt++;
+in++;
+if (kcnt==1) //process the first $K
+{
+strncpy(cfgkw, in, 1);
+while (*in && *in!=' ')
+{
+in++;
+strncat(cfgkw, in, 1);
+}
+    pom=configvariable(&ARACHNEcfg,strupr(cfgkw),NULL);
+    if(!pom)
+    {
+    pom=" ";
+    }
+   else
+   {
+   strcat(pom," ");
+   }
+}
+else
+
+{
+ pom=" "; //space goes into the command line instead of any additional $Ks
+ while (*in && *in!=' ')
+ {                      //move to next command line option
+ in++;                 //past any more than 1 $K in the same DGI line
+ }
+}
+    goto cont;
+//!!glennmcc: end
 
     case 'F':  //file browser WWWMANE.EXE mode
     pom=configvariable(&ARACHNEcfg,"FILEargs",NULL);

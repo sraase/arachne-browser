@@ -145,7 +145,7 @@ int gotopreviouspage(void)
 int gotonextpage(void)
 {
  char *link;
-  
+
  if(arachne.history<history.lines-1) //historie [->]
   link=ie_getline(&history,++arachne.history);
  else
@@ -254,7 +254,7 @@ int scrollpagedown(int scrollbarbutton)
 {
  struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
  
-  if(frame->posY<frame->scroll.total_y-frame->scroll.ysize && 
+  if(frame->posY<frame->scroll.total_y-frame->scroll.ysize &&
      frame->scroll.total_y>frame->scroll.ysize)
   {
 #ifdef VIRT_SCR
@@ -280,8 +280,10 @@ int scrollleft(void)
 
  if(frame->scroll.total_x>frame->scroll.xsize)
  {
-  if(frame->posX>frame->scroll.xsize/2)
-   frame->posX-=frame->scroll.xsize/2;
+//!!glennmcc: June 22, 2002 ... changed scroll.xsize from 2 to 8
+//this makes it much easier to scroll very wide pages
+  if(frame->posX>frame->scroll.xsize/8)
+   frame->posX-=frame->scroll.xsize/8;
   else
    frame->posX=0;
   redraw=2;
@@ -297,8 +299,10 @@ int scrollright(void)
 
  if(frame->scroll.total_x>frame->scroll.xsize)
  {
-  if(frame->posX+frame->scroll.xsize/2<frame->scroll.total_x-frame->scroll.xsize)
-   frame->posX+=frame->scroll.xsize/2;
+//!!glennmcc: June 22, 2002 ... changed scroll.xsize from 2 to 8
+//this makes it much easier to scroll very wide pages
+  if(frame->posX+frame->scroll.xsize/8<frame->scroll.total_x-frame->scroll.xsize)
+   frame->posX+=frame->scroll.xsize/8;
   else
    frame->posX=frame->scroll.total_x-frame->scroll.xsize;
   redraw=2;
@@ -615,8 +619,8 @@ int GUIEVENT(int key, int mouse)
    if(shift()) //shift+end
     return scrollright();
    else if(p->htmlframe[p->activeframe].posY<p->htmlframe[p->activeframe].scroll.total_y-
-           p->htmlframe[p->activeframe].scroll.ysize &&
-           p->htmlframe[p->activeframe].scroll.total_y>p->htmlframe[p->activeframe].scroll.ysize)
+	   p->htmlframe[p->activeframe].scroll.ysize &&
+	   p->htmlframe[p->activeframe].scroll.total_y>p->htmlframe[p->activeframe].scroll.ysize)
    {
     p->htmlframe[p->activeframe].posY=
      p->htmlframe[p->activeframe].scroll.total_y-p->htmlframe[p->activeframe].scroll.ysize;
@@ -748,27 +752,27 @@ int GUIEVENT(int key, int mouse)
        ptr=ie_getline(&clipboard,clipboard.y);
        if(ptr)
        {
-        makestr(line,ptr,IE_MAXLEN);
+	makestr(line,ptr,IE_MAXLEN);
         ptr=line;
 
         HideLink(ptr);
 
-        if(!strncmpi(ptr,"reload:",7))
+	if(!strncmpi(ptr,"reload:",7))
          ptr+=7;
 
         AnalyseURL(ptr,&url,arachne.target); //(plne zneni...)
 
-        if(!strcmpi(url.protocol,"file"))
-        {
-         if(!strncmp(url.file,"//",2))
-          ptr=&url.file[2];
+	if(!strcmpi(url.protocol,"file"))
+	{
+	 if(!strncmp(url.file,"//",2))
+	  ptr=&url.file[2];
          else
           ptr=url.file;
 
-         unlink(ptr);
-         sprintf(str,MSG_REMOVE,ptr);
+	 unlink(ptr);
+	 sprintf(str,MSG_REMOVE,ptr);
          outs(str);
-        }
+	}
        }//endif
        clipboard.y++;
       }//loop
@@ -800,6 +804,20 @@ int GUIEVENT(int key, int mouse)
    {
     sprintf(GLOBAL.location,"mailto:",exepath);
     arachne.target=0;
+
+
+//!!glennmcc: begin Aug 22, 2002
+//remove contents of textarea.tmp when "C" hotkey is pessed
+//	tmpeditor.maxlines=-1;
+//	strcpy(tmpeditor.filename,"textarea.tmp");
+//	ie_savef(&tmpeditor);
+//!!glennmcc: Aug 25, 2002...
+// Michael says that just one line will do the same as my 3 lines.
+//let's see if he knows his program better than I do ;-)
+unlink("textarea.tmp");
+//!!glennmcc: end
+
+
     return gotoloc();
    }
    else if(asc=='I')
@@ -1187,8 +1205,21 @@ int GUIEVENT(int key, int mouse)
    else if(key==REDRAW_KEY)//F5 or F9
     return repaint();
 #ifndef AGB
+
    else if(key==F10)//F10 - local home
     return gotolochome();
+
+//!!glennmcc: begin Sep 01, 2002
+//activate screensaver with Alt+Z
+else if(key==11264)
+    {
+     strcpy(lasttime,"*"); //screensaver activated
+     SecondsSleeping=32000l;
+     ImouseWait();
+     return 0;
+    }
+//!!glennmcc: end
+
 #endif
    else if(key>=0x5400 && key<=0x5d00 /* &&reg*/)
    {
@@ -1203,7 +1234,7 @@ int GUIEVENT(int key, int mouse)
      return gotoloc();
     }
    }//end of keys
-  } 
+  }
   return 0;
  }//endif key
 
@@ -1303,11 +1334,11 @@ submit:
       else if(mail)
       {
        if(!(GLOBAL.mailaction & MAIL_SMTPNOW) &&
-          !(GLOBAL.mailaction & MAIL_OUTBOXNOW))
+	  !(GLOBAL.mailaction & MAIL_OUTBOXNOW))
        {
         if(mail==1)
          goback();
-        else
+	else
          strcpy(GLOBAL.location,p->htmlframe[p->activeframe].cacheitem.URL);
        }
 
@@ -1660,6 +1691,7 @@ submit:
 #ifndef CUSTOMER
     if(mousex>x_maxx()-206 && mousey>x_maxy()-13 &&
        mousex<x_maxx()-156 && mousey<x_maxy()-2)
+//scrnsvr:
     {
      strcpy(lasttime,"*"); //screensaver activated
      SecondsSleeping=32000l;
@@ -1723,7 +1755,7 @@ submit:
                 redraw=2;
                 break;
         case 4: p->htmlframe[p->activeframe].posX=
-                 p->htmlframe[p->activeframe].scroll.total_x-p->htmlframe[p->activeframe].scroll.xsize;
+		 p->htmlframe[p->activeframe].scroll.total_x-p->htmlframe[p->activeframe].scroll.xsize;
                 if(p->htmlframe[p->activeframe].posX<0)
                  p->htmlframe[p->activeframe].posX=0;
                 redraw=2;
@@ -1829,7 +1861,7 @@ submit:
 /*     *** this is what Netscape does, but it is too slow 
        redrawatoms(p->activeframe,
               p->htmlframe[p->activeframe].posX,p->htmlframe[p->activeframe].posY,
-              p->htmlframe[p->activeframe].scroll.xsize,p->htmlframe[p->activeframe].scroll.ysize,
+	      p->htmlframe[p->activeframe].scroll.xsize,p->htmlframe[p->activeframe].scroll.ysize,
               p->htmlframe[p->activeframe].scroll.xtop,p->htmlframe[p->activeframe].scroll.ytop);
 */
       }

@@ -111,7 +111,7 @@ char *ArachneDIAL(void)
   value=configvariable(&ARACHNEcfg,"Hangup",NULL);
   if(value)
   {
-   makestr(hangup,value,78);
+   makestr(hangup,value,128);
    strcat(hangup,"\n");
   }
  }
@@ -127,7 +127,7 @@ char *ArachneDIAL(void)
 
  if(value && strcmpi(value,"NUL"))
  {
-  makestr(terminal,value,78);
+  makestr(terminal,value,128);
   strcat(terminal,"\n");
  }
  else
@@ -162,7 +162,15 @@ char *ArachneDIAL(void)
  }//end if ETHERPPP
  else
  */
- if(strstr(strupr(value),"PPPD.EXE"))
+//!!glennmcc: begin Dec 24, 2000
+// changed "PPPD.EXE to "PPP" so that *any* .EXE, .COM or .BAT
+// with "PPP" in the name will still result in a new PPPDRC.CFG file
+// examples... epppd.exe ppp.exe myppp.exe lsppp.exe loadppp.bat ppp_drv.com
+// if(strstr(strupr(value),"PPPD.EXE"))
+
+//!!glennmcc: July 6, 2002 always write pppdrc.cfg
+// if(strstr(strupr(value),"PPP"))
+//!!glennmcc: end
  {
   int f=a_open("pppdrc.cfg",O_TEXT|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
   if(f!=-1)

@@ -47,6 +47,18 @@ struct Http_parameters
  char useproxy;
  char keepalive;
  char acceptcookies;
+
+//!!glennmcc: begin Dec 11,2001---- made it configurable y/n
+// added to fix "HTTPS verifying images" loop by trying HTTP instead
+ char https2http;
+//!!glennmcc: end
+
+//!!glennmcc: begin May 03, 2002
+// added to optionally "ignore" <script> tag
+// (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
+char ignorejs;
+//!!glennmcc
+
 };
 
 extern struct Http_parameters http_parameters;

@@ -71,7 +71,7 @@ void hidehover(void);
 
 #define CLICK_CUSTOMER 1000
 
-#define MOUSESTEP 10
+#define MOUSESTEP 8
 
 #include "pckbrd.h"
 

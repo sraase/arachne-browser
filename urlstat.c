@@ -107,6 +107,15 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
     return 1;
   }
  }
+
+//!glennmcc: begin Sep 16, 2001
+// added to fix "CID verifying images" loop
+ else if(!strcmpi(absURL->protocol,"cid"))
+ {
+   return 1;
+ }
+//!glennmcc: end
+
  else if(!strcmpi(absURL->protocol,"mailto"))
  {
   sprintf(cacheitem->locname,"%s%ssendmail.ah",sharepath,GUIPATH);
@@ -369,6 +378,17 @@ void AnalyseURL(char *str,struct Url *url,int frame)
  else
  {
   // =============================== PRIRAZENI STANDARTNICH PORTU ===========
+
+
+//!!glennmcc: begin Dec 09, 2001
+// added to fix "HTTPS verifying images" loop by trying HTTP instead
+//!!glennmcc: begin Dec 11,2001---- made it configurable y/n
+if(http_parameters.https2http)
+{
+  if(!strcmpi(url->protocol,"https"))
+   strcpy(url->protocol,"http");
+}
+//!!glennmcc: end
 
   if(!strcmpi(url->protocol,"http"))
    url->port=80;

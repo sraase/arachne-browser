@@ -137,14 +137,18 @@ char *activeislastinput(void)
 
 void ReadFileBox(void)
 {
-   setTXTprompt("TEXTAREA.TXT");
+//!!glennmcc: May 08, 2002 (changed default read filename to QUICKPAD.TXT)
+   setTXTprompt("QUICKPAD.TXT");
+// setTXTprompt("TEXTAREA.TXT");
    inputatom(MSG_READF,MSG_EFNAME);
    activeistextwindow=INPUT_READFILE;
 }
 
 void WriteFileBox(void)
 {
-   setTXTprompt("TEXTAREA.TXT");
+//!!glennmcc: May 08, 2002 (changed default write filename to QUICKPAD.TXT)
+   setTXTprompt("QUICKPAD.TXT");
+// setTXTprompt("TEXTAREA.TXT");
    inputatom(MSG_WRITEF,MSG_EFNAME);
    activeistextwindow=INPUT_WRITEFILE;
 }

@@ -125,7 +125,7 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
  do
  {
   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-                   &status );		//SDL
+		   &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
 //  printf("FTP daemon said>");
@@ -258,6 +258,11 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
    get_extension(mimestr,ext);
    if(!strncmpi(ext,"TXT",3) || !strncmpi(ext,"HTM",3))
    {
+//!!glennmcc: begin June 09, 2002
+//optionally upload TXT and HTM in binary mode
+    ptr=configvariable(&ARACHNEcfg,"UseBinaryFTP",NULL);
+    if(!ptr || toupper(*ptr)=='N')
+//!!glennmcc: end
     sprintf( str, "TYPE A");
 //    ascii=1;
    }

@@ -8,7 +8,7 @@
 #include "gui.h"
 #include "customer.h"
 
-#define MOUSESTEP 10
+#define MOUSESTEP 8
 
 #ifndef XTVERSION
 int thisx,thisy,thisxx,thisyy;

@@ -799,8 +799,12 @@ void Deallocmem(void)
  p->firstHTMLatom=p->lastHTMLatom=IE_NULL;
  p->memory_overflow=0;
  mouseon();
+//!!Bernie: begin July 6, 2002...
+// prevents memory allocation errors in atoms.c caused by
+// the addition of Deallocmem() to main.c
+activeatomptr=NULL;
+//!!Bernie: end
 }
-
 
 void DummyFrame(struct Page *p,int *x, long *y)
 {

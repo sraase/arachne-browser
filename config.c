@@ -346,7 +346,7 @@ int willexecute(char *cmd) //vykonat nejakou hloupost:
 struct uiface user_interface;
 #endif
 
-extern char reg;
+//extern char reg;
 extern struct ib_editor ARACHNEcfg;//hlavni konfigurace
 
 void configure_user_interface(void)
@@ -354,15 +354,19 @@ void configure_user_interface(void)
  char *value;
 
  value=configvariable(&ARACHNEcfg,"SmallIcons",NULL);
+/*
  if(value && toupper(*value)=='N' && reg)
   user_interface.iconsoff=1;
  else
+*/
   user_interface.iconsoff=0;
 
  value=configvariable(&ARACHNEcfg,"Hotkeys",NULL);
+/*
  if(value && toupper(*value)=='N' && reg)
   user_interface.hotkeys=0;
  else
+*/
   user_interface.hotkeys=1;
 
  user_interface.bigfont=0;
@@ -729,6 +733,25 @@ void configure_user_interface(void)
  else
   http_parameters.acceptcookies=1;
 
+//!!glennmcc: begin Dec 11, 2001
+// added to fix "HTTPS verifying images" loop by trying HTTP instead
+// (defaults to No if "HTTPS2HTTP Yes" line is not in Arachne.cfg)
+ value=configvariable(&ARACHNEcfg,"HTTPS2HTTP",NULL);
+ if(value && toupper(*value=='Y'))
+  http_parameters.https2http=1;
+ else
+  http_parameters.https2http=0;
+//!!glennmcc: end
+
+//!!glennmcc: begin May 03, 2002
+// added to optionally "ignore" <script> tag
+// (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
+ value=configvariable(&ARACHNEcfg,"IGNOREJS",NULL);
+ if(value && toupper(*value=='Y'))
+  http_parameters.ignorejs=1;
+ else
+  http_parameters.ignorejs=0;
+//!!glennmcc: end
 
 }
 #endif

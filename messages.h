@@ -21,10 +21,11 @@ Notes for translators:
 */
 
 //Messages with (almost) unlimited size (one line of text):
+//!!glennmcc: June 22, 2002 ... spelling correction "succesfuly->successfully" ;-)
 
 #define MSG_START  "\nArachne V%s%s is taking off...\n%s\n"
-#define MSG_END    "\nArachne V%s%s%s has just succesfuly collapsed to DOS...\n%s\n\n"
-#define MSG_ENDX   "Arachne has just succesfuly collapsed...\n\n"
+#define MSG_END    "\nArachne V%s%s%s has just successfully collapsed to DOS...\n%s\n\n"
+#define MSG_ENDX   "Arachne has just successfully collapsed...\n\n"
 #define MSG_MEM    "Arachne is out of conventional (low) DOS memory"
 #define MSG_MEMERR "Arachne is out of memory - malloc() failed.\n"
 #define MSG_BYTES  ": (%lu bytes missing)\n"
