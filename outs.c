@@ -17,7 +17,8 @@ void outs( char far *s)        /* print a ASCIIZ string to stdio */
 {
  if(fullscreen)
   return;
- if(graphics)
+
+#ifndef TEXTONLY
  {
   char str[105], *ptr;
   int l;
@@ -52,8 +53,9 @@ void outs( char far *s)        /* print a ASCIIZ string to stdio */
   lasttime[0]='\0';
 
  }
- else
+#else
   puts(s);
+#endif
 }
 
 void outsn( char far *s,int n) /* print a string with len max n */

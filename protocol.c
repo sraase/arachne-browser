@@ -28,8 +28,8 @@ int protocol_arachne(struct HTTPrecord *cacheitem,struct Url *url,int *returnval
     if(back)
      goback();
     else
-     strcpy(GLOBAL.location,htmlframe[activeframe].cacheitem.URL);
-    arachne.target=activeframe;
+     strcpy(GLOBAL.location,p->htmlframe[p->activeframe].cacheitem.URL);
+    arachne.target=p->activeframe;
    }
 
    GLOBAL.reload=0;
@@ -41,7 +41,9 @@ int protocol_arachne(struct HTTPrecord *cacheitem,struct Url *url,int *returnval
 #ifndef POSIX
   if(!strcmpi(url->file,"restart"))
   {
+   char buf[IE_MAXLEN];
    char *ptr=getenv("ASETUP");
+
    if(ptr && !strcmp(ptr,"inst"))  //special case - "Finish Setup" button
     return GOTO_USEREND;
 
@@ -79,6 +81,7 @@ int protocol_arachne(struct HTTPrecord *cacheitem,struct Url *url,int *returnval
   else
   if(!strcmpi(url->file,"hangup"))
   {
+   char buf[IE_MAXLEN];
    arachne.target=0; //!!!
    outs(MSG_HANGUP);
    if(reg && tcpip)
@@ -87,9 +90,7 @@ int protocol_arachne(struct HTTPrecord *cacheitem,struct Url *url,int *returnval
    sprintf(buf,"%s\nif exist PPP.LOG del PPP.LOG\n",configvariable(&ARACHNEcfg,"Hangup",NULL));
    value=configvariable(&ARACHNEcfg,"ExitOnHangup",NULL);
    if(!(value && toupper(*value)=='Y'))
-   {
     strcat(buf,"@arachne -c\n");
-   }
    else
     exitmsg();
    *returnvalue=willexecute(buf);
@@ -173,6 +174,8 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
  //------------------------------------------------------------------------
  {
   char *selector;
+  char text[IE_MAXLEN];
+
   int plugin=externalprotocol(url->protocol,text);
   if(plugin)
    return GOTO_EXTERNAL;
@@ -214,6 +217,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
  //------------------------------------------------------------------------
  {
   char *ptr;
+  char text[IE_MAXLEN];
   int plugin=externalprotocol(url->protocol,text);
 
   if(plugin)
@@ -302,7 +306,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 
   if(!xpopdump(url,dele,log))
   {
-   sprintf(htmlframe[0].cacheitem.locname,"%s%serr_pop3.ah",sharepath,GUIPATH);
+   sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_pop3.ah",sharepath,GUIPATH);
    return GOTO_ERROR;
   }
   else if(arachne.scriptline==0)
@@ -365,7 +369,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 
   if(!xsendmail(url,helo,log))
   {
-   sprintf(htmlframe[0].cacheitem.locname,"%s%serr_smtp.ah",sharepath,GUIPATH);
+   sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_smtp.ah",sharepath,GUIPATH);
    return GOTO_ERROR;
   }
   else if(arachne.scriptline==0)

@@ -134,11 +134,11 @@ void customer_draw(void)
 
 void customer_zoom(void)
 {
- htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
-// htscrn_ysize=x_maxy()-67;
-// htscrn_ytop=50;
- htscrn_ysize=x_maxy()-47;
- htscrn_ytop=30;
+ p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
+// p->htscrn_ysize=x_maxy()-67;
+// p->htscrn_ytop=50;
+ p->htscrn_ysize=x_maxy()-47;
+ p->htscrn_ytop=30;
 }
 
 int customer_URLcheck(void)

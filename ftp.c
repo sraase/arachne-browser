@@ -401,31 +401,34 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
      done=1;
 
     //wait until we can write to socket:
-    while(sock_tbleft(&datasocket)<lenread) 	//SDL
+    while(sock_tbleft(&datasocket)<lenread) //SDL
 //    while( datasocket.datalen > 1024)
     {
      sock_tick(&datasocket,&status);
      xChLogoTICK(1); // animace loga
      if(GUITICK())
-     goto dataquit;
+      goto dataquit;
     }
 
     if(done)
-     break;
+    {
+     sock_close( &datasocket );
+     a_close(f);
+     goto dataclose;
+    }
 
     sock_fastwrite(&datasocket,(unsigned char *)buffer,lenread);
     sock_tick(&datasocket,&status);
    }//loop
   }
-  a_close(f);
  }
 
 
 dataquit:
-
- outs(MSG_CLOSE);
  sock_abort( &datasocket );
-// sock_wait_closed( &datasocket, sock_delay, NULL, &status );
+
+dataclose:
+ outs(MSG_CLOSE);
  sock_wait_closed( &datasocket, sock_delay, (sockfunct_t) TcpIdleFunc,
 		   &status );		//SDL
 

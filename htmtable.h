@@ -55,5 +55,3 @@ void closeatom_y(XSWAP adr,long absy);
 int determine_new_x(struct HTMLtable *tab);
 int determine_new_width(struct HTMLtable *tab,int xspan);
 
-extern struct HTMLtable *thistable;
-

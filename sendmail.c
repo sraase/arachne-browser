@@ -55,7 +55,7 @@ int xsendmail(struct Url *url,char helo, char logfile)
 {
  longword host;
  long length;
- char str[128],pom[80];
+ char str[128],pom[128];
  char buffer[BUFLEN];
  struct ffblk ff;
  char filename[80];
@@ -289,15 +289,14 @@ int xsendmail(struct Url *url,char helo, char logfile)
     }
     else
     if(field && (lastcarka || str[0]==' '))
-    {
      ptr=str;
-    }
     else
      field=0;
 
     if(field)
     {
      struct ib_editor expandlist;
+     int rcpt;
 
      if(ptr[0]==' ' && ptr[1]=='@') //expand mailing list
      {
@@ -313,15 +312,23 @@ int xsendmail(struct Url *url,char helo, char logfile)
      else
       expandlist.filename[0]='\0';
 
-     while(field!=0)
+     if(field!=0)
+      rcpt=1;
+     else
+      rcpt=0;
+
+     while(rcpt)
      {
       if(field==1) //address in ptr
-       field=0; //no more fields
-      else //expand distribution list
+       rcpt=0;
+      else
       {
        ptr=ie_getline(&expandlist,expandlist.y++);
        if(expandlist.y==expandlist.lines)
+       {
+        rcpt=0;
         field=0;
+       }
       }
 
       cutaddress(ptr);
@@ -338,14 +345,14 @@ int xsendmail(struct Url *url,char helo, char logfile)
        sock_puts(socket,(unsigned char *)pom);
        sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
                         &status );		//SDL
-       sock_gets( socket, (unsigned char *)str, sizeof( str ));
-       outs(str);
+       sock_gets( socket, (unsigned char *)pom, sizeof( pom ));
+       outs(pom);
        if(log!=-1)
        {
-        write(log,str,strlen(str));
+        write(log,pom,strlen(pom));
         write(log,"\r\n",2);
        }
-       if(*str == '2')
+       if(*pom == '2')
         success++;
       }
      }//loop
@@ -501,6 +508,7 @@ quit:
     if(log!=-1)
     {
      write(log,"QUIT\r\n",6);
+     close(log);
     }
     sock_puts(socket,(unsigned char *)"QUIT");
     sock_close( socket );

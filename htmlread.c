@@ -1,7 +1,7 @@
 
 // ========================================================================
 // HTML source read routines for Arachne WWW browser
-// (c)1998-2000 xChaos software
+// (c)1998-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
@@ -15,7 +15,7 @@ extern int socknum;
 int openHTML(struct HTTPrecord *cache,char source)
 {
  //-------------------------------------------------------------- http open
- if(source==HTTP_HTML && arachne.target==currentframe)
+ if(source==HTTP_HTML && arachne.target==p->currentframe)
  {
   if(!cache->knowsize)
    cache->size=10000000l;
@@ -35,7 +35,7 @@ int openHTML(struct HTTPrecord *cache,char source)
  //------------------------------------------------------------- local open
   char *fnameptr;
   
-  if(htmlframe[currentframe].status==MAIL && GLOBAL.source)
+  if(p->htmlframe[p->currentframe].status==MAIL && GLOBAL.source)
    fnameptr=cache->rawname;
   else
    fnameptr=cache->locname;
@@ -57,11 +57,11 @@ int readHTML(struct HTTPrecord *cache,char source)
 {
  //-------------------------------------------------------------- http read
 #ifndef NOTCPIP
- if(source==HTTP_HTML && arachne.target==currentframe)
+ if(source==HTTP_HTML && arachne.target==p->currentframe)
 #ifdef POSIX
-  return tickhttp(cache,buf,socknum);
+  return tickhttp(cache,p->buf,socknum);
 #else
-  return tickhttp(cache,buf,socket);
+  return tickhttp(cache,p->buf,socket);
 #endif
  //----------------------------------------------------------- history read
  else
@@ -81,17 +81,16 @@ int readHTML(struct HTTPrecord *cache,char source)
     ptr2="</B>";
    }
    line=ie_getline(&history,history.y);
-   sprintf(buf,"%s%s<LI><A HREF=\"%s\">%s</A>%s\n",head,ptr,line,line,ptr2);
+   sprintf(p->buf,"%s%s<LI><A HREF=\"%s\">%s</A>%s\n",head,ptr,line,line,ptr2);
    history.y--;
-   return strlen(buf);
+   return strlen(p->buf);
   }
  }
  //------------------------------------------------------------- local read
  //not used in overalid executable!
  else
  {
-  int ret=a_read(cache->handle,buf,BUF);
-  //printf("%ld bytes read from HTML stream...\n",ret);
+  int ret=a_read(cache->handle,p->buf,BUF);
 
   if(ret<0)
    return 0;
@@ -105,7 +104,7 @@ void closeHTML(struct HTTPrecord *cache,char source)
 {
  //-------------------------------------------------------------- http close
 #ifndef NOTCPIP
- if(source==HTTP_HTML && currentframe==arachne.target)
+ if(source==HTTP_HTML && p->currentframe==arachne.target)
   closehttp(cache);
  else
 #endif

@@ -1,7 +1,7 @@
 
 // ========================================================================
 // HTML drawing routines for Arachne WWW browser
-// (c)1997 xChaos software
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
@@ -10,10 +10,8 @@
 
 // ================== vykresleni jednoho HTML atomu: ======================
 
-void drawatom(struct HTMLrecord *atom,
-              int fromx, long fromy,
-              int draw_x, int draw_y,
-              int screen_x, int screen_y)
+void drawatom(struct HTMLrecord *atom, 
+      int fromx, long fromy, int draw_x, int draw_y, int screen_x, int screen_y)
 {
  char txt[IE_MAXLEN+2],*ptr;
  int x1,x2,x0;
@@ -28,7 +26,7 @@ void drawatom(struct HTMLrecord *atom,
 
  switch(atom->type)
  {
-  case TEXT: //************************************************************
+  case TEXT: // ************************************************************
 
    if(atom->y-fromy<0l || atom->yy-fromy>draw_y)return;
 
@@ -38,7 +36,7 @@ void drawatom(struct HTMLrecord *atom,
    font=atom->data1;
    style=atom->data2;
    if(cgamode)
-    x_setcolor(tmpframedata[atom->frameID].cgatext);
+    x_setcolor(p->tmpframedata[atom->frameID].cgatext);
    else
     x_setcolor(RGB(atom->R,atom->G,atom->B));
 
@@ -102,8 +100,8 @@ void drawatom(struct HTMLrecord *atom,
   break; //end plain text
 
 
-  case IMG: //*********************************************************** IMG
-  case TD_BACKGROUND: //********************************** TD with BACKGROUND
+  case IMG: // *********************************************************** IMG
+  case TD_BACKGROUND: // ********************************** TD with BACKGROUND
   {
    struct picinfo *image;
    unsigned image_xswapadr;
@@ -115,6 +113,7 @@ void drawatom(struct HTMLrecord *atom,
    int bgcolor=0;
    int atomx;
    long atomy;
+   unsigned char r,g,b;
    struct HTTPrecord HTTPdoc;
 
    if(atype==TD_BACKGROUND && atom->data2)
@@ -182,7 +181,7 @@ void drawatom(struct HTMLrecord *atom,
       if(atype==TD_BACKGROUND)
       {
        image->is_background=1;
-       image->bgindex=tmpframedata[frameID].bgindex;
+       image->bgindex=p->tmpframedata[frameID].bgindex;
        image->screen_x=image->from_x=image->pic_x=x1+screen_x;
        image->screen_y=image->from_y=image->pic_y=(int)(y1+screen_y);
        image->draw_x=x2-x1;
@@ -258,9 +257,9 @@ void drawatom(struct HTMLrecord *atom,
     if(bgcolor)
      back=RGB(r,g,b);
     else
-     back=RGB(tmpframedata[frameID].backR,
-              tmpframedata[frameID].backG,
-              tmpframedata[frameID].backB);
+     back=RGB(p->tmpframedata[frameID].backR,
+              p->tmpframedata[frameID].backG,
+              p->tmpframedata[frameID].backB);
    }
    Cell3D((int)(screen_x+x1),(int)(screen_y+y1),
           (int)(screen_x+x2),(int)(screen_y+y2),back);
@@ -273,20 +272,20 @@ void drawatom(struct HTMLrecord *atom,
    if(back==10)
     x_setcolor(14);
    else
-    x_setcolor(RGB(tmpframedata[frameID].textR,
-                   tmpframedata[frameID].textG,
-                   tmpframedata[frameID].textB));
+    x_setcolor(RGB(p->tmpframedata[frameID].textR,
+                   p->tmpframedata[frameID].textG,
+                   p->tmpframedata[frameID].textB));
    x_text_ib((int)(x1+screen_x+1),(int)(screen_y+y1+1),(unsigned char *)txt);
 
   }
   break;
 
-  case TD: //************************************************************* TD
-  case TABLE: //******************************************************* TABLE
+  case TD: // ************************************************************* TD
+  case TABLE: // ******************************************************* TABLE
    x2--;
    y2--;
-  case HR: //************************************************************* HR
-  case LI: //************************************************************* LI
+  case HR: // ************************************************************* HR
+  case LI: // ************************************************************* LI
    if(x2>draw_x)x2=draw_x;
    if(y2>draw_y)y2=draw_y;
    if(x1<0)x1=0;
@@ -322,8 +321,8 @@ void drawatom(struct HTMLrecord *atom,
     if(xg_256 == MM_Hic) initpalette();
 #endif*/
 
-    if((tmpframedata[atom->frameID].bgindex==15 ||
-        tmpframedata[atom->frameID].bgindex==0) && !atom->data1)
+    if((p->tmpframedata[atom->frameID].bgindex==15 ||
+        p->tmpframedata[atom->frameID].bgindex==0) && !atom->data1)
      c2=7;
 
     if(atom->type==TD)
@@ -348,7 +347,7 @@ void drawatom(struct HTMLrecord *atom,
           (int)(screen_x+x1),(int)(screen_y+y2));
  break;
 
-  case INPUT: //******************************************************* INPUT
+  case INPUT: // ******************************************************* INPUT
   {
    char type, checked;
 #ifdef CALDERA
@@ -644,8 +643,8 @@ void dumpvirtual(struct HTMLframe *frame,struct TMPframedata *htmldata, int from
   }
   if(arachne.framescount==0)
   {
-   firstonscr=virtualfirstonscr;
-   lastonscr=virtuallastonscr;
+   p->firstonscr=virtualfirstonscr;
+   p->lastonscr=virtuallastonscr;
   }
   htmldata->usevirtualscreen=1;
  }
@@ -664,7 +663,7 @@ void redrawatoms(char frame,
                  int screen_x, int screen_y)
 
 {
- unsigned currentHTMLatom=firstonscr,nextHTMLatom;
+ unsigned currentHTMLatom=p->firstonscr,nextHTMLatom;
  struct HTMLrecord *atomptr;
 
  while(currentHTMLatom!=IE_NULL)
@@ -708,7 +707,7 @@ void deallocvirtual(void)
 void redrawHTML(char nomsg, char virt)
 {
  unsigned currentHTMLatom,nextHTMLatom;
- long firstonscrn=HTMLatomcounter,lastonscrn=-1,n,from_y[MAXFRAMES];
+ long firstonscrn=p->HTMLatomcounter,lastonscrn=-1,n,from_y[MAXFRAMES];
  int draw_x[MAXFRAMES],draw_y[MAXFRAMES],
      screen_x[MAXFRAMES],screen_y[MAXFRAMES],from_x[MAXFRAMES];
  struct HTMLframe *frame;
@@ -723,11 +722,11 @@ void redrawHTML(char nomsg, char virt)
 
 #ifdef VIRT_SCR
 
- htmldata=&tmpframedata[activeframe];
- frame=&htmlframe[activeframe];
+ htmldata=&(p->tmpframedata[p->activeframe]);
+ frame=&(p->htmlframe[p->activeframe]);
 
  if(virt==REDRAW_VIRTUAL && allocatedvirtual[htmldata->whichvirtual] &&
-    (activeframe>0 || arachne.framescount==0) &&
+    (p->activeframe>0 || arachne.framescount==0) &&
     frame->posX>=virtualxstart[htmldata->whichvirtual] &&
     frame->posX+frame->scroll.xsize<virtualxend[htmldata->whichvirtual] &&
     frame->posY>=virtualystart[htmldata->whichvirtual] &&
@@ -737,7 +736,7 @@ void redrawHTML(char nomsg, char virt)
   XSetAnim1();
 #endif
   dumpvirtual(frame,htmldata,frame->posX,frame->posY);
-  redrawatoms(activeframe,
+  redrawatoms(p->activeframe,
               frame->posX,frame->posY,
               frame->scroll.xsize,frame->scroll.ysize,
               frame->scroll.xtop,frame->scroll.ytop);
@@ -756,8 +755,8 @@ void redrawHTML(char nomsg, char virt)
  resetcolorcache();
  neediknredraw=0;
  IiNpal=16;
- firstonscr=firstHTMLatom;
- lastonscr=lastHTMLatom;
+ p->firstonscr=p->firstHTMLatom;
+ p->lastonscr=p->lastHTMLatom;
 
 #ifdef VIRT_SCR
 
@@ -766,17 +765,17 @@ void redrawHTML(char nomsg, char virt)
  i=0;
  while(i<MAXFRAMES-1 && i>=0)
  {
-  while(htmlframe[i].hidden && i<MAXFRAMES-1 && i!=-1)
+  while(p->htmlframe[i].hidden && i<MAXFRAMES-1 && i!=-1)
   {
-   i=htmlframe[i].next;
+   i=p->htmlframe[i].next;
    kbhit();
   }
 
   if(i>=MAXFRAMES-1 || i==-1)
    break;
 
-  frame=&htmlframe[i];
-  htmldata=&tmpframedata[i];
+  frame=&(p->htmlframe[i]);
+  htmldata=&(p->tmpframedata[i]);
 
   draw_x[i]=frame->scroll.xsize;
   draw_y[i]=frame->scroll.ysize;
@@ -887,7 +886,7 @@ void redrawHTML(char nomsg, char virt)
    allvirtual=0;
   }
   kbhit();
-  i=htmlframe[i].next;
+  i=p->htmlframe[i].next;
  }//loop
 
 #endif
@@ -920,22 +919,22 @@ void redrawHTML(char nomsg, char virt)
  bigfonts_allowed();
 #endif
 
- pushcurrent=currentframe;
+ pushcurrent=p->currentframe;
  i=0;
  while(i<MAXFRAMES-1 && i>=0)
  {
-  while(htmlframe[i].hidden && i<MAXFRAMES-1 && i!=-1)
+  while(p->htmlframe[i].hidden && i<MAXFRAMES-1 && i!=-1)
   {
    kbhit();
-   i=htmlframe[i].next;
+   i=p->htmlframe[i].next;
   }
 
   if(i>=MAXFRAMES-1 || i==-1)
    break;
 
-  frame=&htmlframe[i];
-  htmldata=&tmpframedata[i];
-  currentframe=i;
+  frame=&(p->htmlframe[i]);
+  htmldata=&(p->tmpframedata[i]);
+  p->currentframe=i;
 
 #ifdef VIRT_SCR
   if(htmldata->usevirtualscreen)
@@ -968,7 +967,7 @@ void redrawHTML(char nomsg, char virt)
 
 
   //redraw visible part of the document
-  currentHTMLatom=firstHTMLatom;
+  currentHTMLatom=p->firstHTMLatom;
   n=0l; //atom counter
   while(currentHTMLatom!=IE_NULL)
   {
@@ -977,8 +976,8 @@ void redrawHTML(char nomsg, char virt)
     MALLOCERR();
    nextHTMLatom=atomptr->next;
    if(atomptr->frameID==i &&
-      atomptr->yy>=frame->posY &&
-      atomptr->xx>=frame->posX &&
+      atomptr->yy>frame->posY &&
+      atomptr->xx>frame->posX &&
       atomptr->y<frame->posY+frame->scroll.ysize &&
       atomptr->x<frame->posX+frame->scroll.xsize)
    {
@@ -987,12 +986,12 @@ void redrawHTML(char nomsg, char virt)
      if(firstonscrn>n)
      {
       firstonscrn=n;
-      firstonscr=currentHTMLatom;
+      p->firstonscr=currentHTMLatom;
      }
      if(lastonscrn<n)
      {
       lastonscrn=n;
-      lastonscr=currentHTMLatom;
+      p->lastonscr=currentHTMLatom;
      }
     }
 #ifdef VIRT_SCR
@@ -1002,7 +1001,7 @@ void redrawHTML(char nomsg, char virt)
       imgcount++;
      if(n%200==0 || !(imgcount%4))
      {
-      int tyc=(int)(100l*n/HTMLatomcounter);
+      int tyc=(int)(100l*n/p->HTMLatomcounter);
       kbhit();
       if(tyc>=0 && tyc!=lasttyc)
       {
@@ -1065,8 +1064,8 @@ void redrawHTML(char nomsg, char virt)
     swapmod=1;
     virtualIiNpal=IiNpal;
    }
-   virtualfirstonscr=firstonscr;
-   virtuallastonscr=lastonscr;
+   virtualfirstonscr=p->firstonscr;
+   virtuallastonscr=p->lastonscr;
 
    x_video_XMS(0, 0);
    if(IiNpal>16)
@@ -1091,9 +1090,9 @@ void redrawHTML(char nomsg, char virt)
   drawframeborder(i);
 
   kbhit();
-  i=htmlframe[i].next;
+  i=p->htmlframe[i].next;
  }//loop
- currentframe=pushcurrent;
+ p->currentframe=pushcurrent;
 
 #ifndef POSIX
  bigfonts_forbidden();
@@ -1137,13 +1136,13 @@ void html_background(char whichframe,
 {
  if(cgamode)
  {
-  tmpframedata[whichframe].cgatext=15-tmpframedata[whichframe].bgindex;
+  p->tmpframedata[whichframe].cgatext=15-p->tmpframedata[whichframe].bgindex;
  }
- else if(tmpframedata[whichframe].backgroundptr!=IE_NULL && !ignoreimages)
+ else if(p->tmpframedata[whichframe].backgroundptr!=IE_NULL && !ignoreimages)
  {
   struct picinfo *background,*imgptr;
   struct HTTPrecord HTTPdoc;
-  struct HTMLrecord *atomptr=(struct HTMLrecord *)ie_getswap(tmpframedata[whichframe].backgroundptr);
+  struct HTMLrecord *atomptr=(struct HTMLrecord *)ie_getswap(p->tmpframedata[whichframe].backgroundptr);
   if(atomptr)
   {
 //   int frameID=atomptr->frameID;
@@ -1174,7 +1173,7 @@ void html_background(char whichframe,
      background->sizeonly=0;
      background->IsInXms=0;
      background->is_background=1;
-     background->bgindex=tmpframedata[whichframe].bgindex;
+     background->bgindex=p->tmpframedata[whichframe].bgindex;
      background->draw_x=draw_x;
      background->draw_y=draw_y+1;
      background->screen_x=screen_x;
@@ -1191,30 +1190,31 @@ void html_background(char whichframe,
       return;
      }
      else
-      tmpframedata[whichframe].backgroundptr=IE_NULL;
+      p->tmpframedata[whichframe].backgroundptr=IE_NULL;
     }
     farfree(background);
    }
   }
  }
 
- x_setfill(0,tmpframedata[whichframe].bgindex);
+ x_setfill(0,p->tmpframedata[whichframe].bgindex);
  x_bar(screen_x,screen_y,screen_x+draw_x,draw_y+screen_y);
 
 }//end sub
 
 void drawframeborder(char i)
 {
- struct ScrollBar *scroll=&htmlframe[i].scroll;
+ struct ScrollBar *scroll=&(p->htmlframe[i].scroll);
 
- if(i>0 && !htmlframe[i].hidden && arachne.framescount>0 && htmlframe[i].frameborder)
+ if(i>0 && !p->htmlframe[i].hidden && arachne.framescount>0 && 
+     p->htmlframe[i].frameborder)
  {
   int scrollbarsize=0;
 
-  if(htmlframe[i].allowscrolling)
+  if(p->htmlframe[i].allowscrolling)
    scrollbarsize=user_interface.scrollbarsize;
 
-  if(i==activeframe)
+  if(i==p->activeframe)
    x_setfill(0,8);
   else
    x_setfill(0,15);
@@ -1227,7 +1227,7 @@ void drawframeborder(char i)
          scroll->xtop+scroll->xsize+scrollbarsize+1,
          scroll->ytop-1);
 
-  if(i==activeframe)
+  if(i==p->activeframe)
    x_setfill(0,15);
   else
    x_setfill(0,8);
@@ -1240,15 +1240,15 @@ void drawframeborder(char i)
          scroll->xtop+scroll->xsize+scrollbarsize+1,
          scroll->ytop+scroll->ymax+1);
  }
- oldactive=activeframe;
+ p->oldactive=p->activeframe;
 }
 
 void drawactiveframe(void)
 {
- if(oldactive!=activeframe)
+ if(p->oldactive!=p->activeframe)
  {
-  drawframeborder(oldactive);	  // old active and active frame
-  drawframeborder(activeframe);
+  drawframeborder(p->oldactive);	  // old active and active frame
+  drawframeborder(p->activeframe);
  }
 }
 
@@ -1258,3 +1258,4 @@ void will_activate_atom(int setx, int sety)
  mousey=sety-2;
  GLOBAL.activate_textarea=1;
 }
+

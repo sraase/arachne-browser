@@ -1,21 +1,12 @@
+
 // ========================================================================
 // Normal and animated GIF routines
-// (c)1997,1998,1999,2000 Zdenek Harovnik + Arachne Labs (xChaos software)
+// (c)1997,1998,1999,2000 Zdenek Harovnik + Michael Polak, Arachne Labs
 // ========================================================================
 
-#include "posix.h"
-
-#include "svga.h"
-
-#include "picinfo.h"
-#include "v_putimg.h"
-#ifdef XANIMGIF
+#include "arachne.h"
 #include "xanimgif.h"
-#endif
-#include "messages.h"
-#include "uiface.h"
-#include "ie.h"
-#include "a_io.h"
+#include "v_putimg.h"
 
 //originaly (c) Ibase group
 //changes and BMP implementation (c)1996,1997 xChaos
@@ -76,7 +67,6 @@ int  RoundGE(double d);
 extern char egamode,cgamode,vga16mode,vgamono;
 extern int   IiNpal; //delka souhrnne palety --> vynulovat pri Clrscr a pod.!
 extern char *Iipal;  //souhrnna paleta
-extern int   currentframe;
 
 // Globaly
 int filx;          /* .GIF soubor a .OBR soubor */
@@ -125,7 +115,7 @@ void init_picinfo(struct picinfo *img)
   img->BegImg=0;
   img->is_background=0;
   img->filename[0]='\0';
-  img->picinfo_frameID=currentframe;
+  img->picinfo_frameID=p->currentframe;
   img->BckImg = 0;
 }
 

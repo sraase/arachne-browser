@@ -84,7 +84,7 @@ int add2hotlist(void)
  }
  else
  {
-  urlptr=htmlframe[0].cacheitem.URL;
+  urlptr=p->htmlframe[0].cacheitem.URL;
   titleptr=arachne.title;
  }
 
@@ -232,17 +232,17 @@ int reloadpage(void)
 
 int scrollpageup(int scrollbarbutton)
 {
-  if(htmlframe[activeframe].posY>0)
+  if(p->htmlframe[p->activeframe].posY>0)
   {
 #ifdef VIRT_SCR
-   long old=htmlframe[activeframe].posY;
+   long old=p->htmlframe[p->activeframe].posY;
 #endif
-   htmlframe[activeframe].posY-=htmlframe[activeframe].scroll.ysize/(1+(shift()||scrollbarbutton))-fonty(8,BOLD|ITALIC);
-   if(htmlframe[activeframe].posY<0)
-    htmlframe[activeframe].posY=0;
+   p->htmlframe[p->activeframe].posY-=p->htmlframe[p->activeframe].scroll.ysize/(1+(shift()||scrollbarbutton))-fonty(8,BOLD|ITALIC);
+   if(p->htmlframe[p->activeframe].posY<0)
+    p->htmlframe[p->activeframe].posY=0;
 #ifdef VIRT_SCR
    if(user_interface.smooth)
-    smothscroll(old,htmlframe[activeframe].posY);
+    smothscroll(old,p->htmlframe[p->activeframe].posY);
 #endif
    redraw=2;
   }
@@ -253,18 +253,20 @@ int scrollpageup(int scrollbarbutton)
 
 int scrollpagedown(int scrollbarbutton)
 {
-  if(htmlframe[activeframe].posY<htmlframe[activeframe].scroll.total_y-htmlframe[activeframe].scroll.ysize &&
-     htmlframe[activeframe].scroll.total_y>htmlframe[activeframe].scroll.ysize)
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
+ 
+  if(frame->posY<frame->scroll.total_y-frame->scroll.ysize && 
+     frame->scroll.total_y>frame->scroll.ysize)
   {
 #ifdef VIRT_SCR
-   long old=htmlframe[activeframe].posY;
+   long old=frame->posY;
 #endif
-   htmlframe[activeframe].posY+=htmlframe[activeframe].scroll.ysize/(1+(shift()||scrollbarbutton))-fonty(8,BOLD|ITALIC);
-   if(htmlframe[activeframe].posY>htmlframe[activeframe].scroll.total_y-htmlframe[activeframe].scroll.ysize)
-    htmlframe[activeframe].posY=htmlframe[activeframe].scroll.total_y-htmlframe[activeframe].scroll.ysize;
+   frame->posY+=frame->scroll.ysize/(1+(shift()||scrollbarbutton))-fonty(8,BOLD|ITALIC);
+   if(frame->posY>frame->scroll.total_y-frame->scroll.ysize)
+    frame->posY=frame->scroll.total_y-frame->scroll.ysize;
 #ifdef VIRT_SCR
    if(user_interface.smooth)
-    smothscroll(old,htmlframe[activeframe].posY);
+    smothscroll(old,frame->posY);
 #endif
    redraw=2;
   }
@@ -275,12 +277,14 @@ int scrollpagedown(int scrollbarbutton)
 
 int scrollleft(void)
 {
- if(htmlframe[activeframe].scroll.total_x>htmlframe[activeframe].scroll.xsize)
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
+
+ if(frame->scroll.total_x>frame->scroll.xsize)
  {
-  if(htmlframe[activeframe].posX>htmlframe[activeframe].scroll.xsize/2)
-   htmlframe[activeframe].posX-=htmlframe[activeframe].scroll.xsize/2;
+  if(frame->posX>frame->scroll.xsize/2)
+   frame->posX-=frame->scroll.xsize/2;
   else
-   htmlframe[activeframe].posX=0;
+   frame->posX=0;
   redraw=2;
  }
  else
@@ -290,12 +294,14 @@ int scrollleft(void)
 
 int scrollright(void)
 {
- if(htmlframe[activeframe].scroll.total_x>htmlframe[activeframe].scroll.xsize)
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
+
+ if(frame->scroll.total_x>frame->scroll.xsize)
  {
-  if(htmlframe[activeframe].posX+htmlframe[activeframe].scroll.xsize/2<htmlframe[activeframe].scroll.total_x-htmlframe[activeframe].scroll.xsize)
-   htmlframe[activeframe].posX+=htmlframe[activeframe].scroll.xsize/2;
+  if(frame->posX+frame->scroll.xsize/2<frame->scroll.total_x-frame->scroll.xsize)
+   frame->posX+=frame->scroll.xsize/2;
   else
-   htmlframe[activeframe].posX=htmlframe[activeframe].scroll.total_x-htmlframe[activeframe].scroll.xsize;
+   frame->posX=frame->scroll.total_x-frame->scroll.xsize;
   redraw=2;
  }
  else
@@ -305,12 +311,14 @@ int scrollright(void)
 
 int smothleft(void)
 {
- if(htmlframe[activeframe].scroll.total_x>htmlframe[activeframe].scroll.xsize)
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
+
+ if(frame->scroll.total_x>frame->scroll.xsize)
  {
-  if(htmlframe[activeframe].posX>fontx(8,BOLD|ITALIC,'M'))
-   htmlframe[activeframe].posX-=fontx(8,BOLD|ITALIC,'M');
+  if(frame->posX>fontx(8,BOLD|ITALIC,'M'))
+   frame->posX-=fontx(8,BOLD|ITALIC,'M');
   else
-   htmlframe[activeframe].posX=0;
+   frame->posX=0;
   redraw=2;
  }
  return 0;
@@ -318,12 +326,14 @@ int smothleft(void)
 
 int smothright(void)
 {
- if(htmlframe[activeframe].scroll.total_x>htmlframe[activeframe].scroll.xsize)
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
+
+ if(frame->scroll.total_x>frame->scroll.xsize)
  {
-  if(htmlframe[activeframe].posX+fontx(8,BOLD|ITALIC,'M')<htmlframe[activeframe].scroll.total_x-htmlframe[activeframe].scroll.xsize)
-   htmlframe[activeframe].posX+=fontx(8,BOLD|ITALIC,'M');
+  if(frame->posX+fontx(8,BOLD|ITALIC,'M')<frame->scroll.total_x-frame->scroll.xsize)
+   frame->posX+=fontx(8,BOLD|ITALIC,'M');
   else
-   htmlframe[activeframe].posX=htmlframe[activeframe].scroll.total_x-htmlframe[activeframe].scroll.xsize;
+   frame->posX=frame->scroll.total_x-frame->scroll.xsize;
   redraw=2;
  }
  return 0;
@@ -331,11 +341,13 @@ int smothright(void)
 
 int smothup(void)
 {
- if(htmlframe[activeframe].posY>0)
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
+
+ if(frame->posY>0)
  {
-  htmlframe[activeframe].posY-=fonty(8,BOLD|ITALIC);
-  if(htmlframe[activeframe].posY<0)
-   htmlframe[activeframe].posY=0;
+  frame->posY-=fonty(8,BOLD|ITALIC);
+  if(frame->posY<0)
+   frame->posY=0;
   redraw=2;
  }
  return 0;
@@ -343,12 +355,14 @@ int smothup(void)
 
 int smothdown(void)
 {
- if(htmlframe[activeframe].posY<htmlframe[activeframe].scroll.total_y-htmlframe[activeframe].scroll.ysize &&
-    htmlframe[activeframe].scroll.total_y>htmlframe[activeframe].scroll.ysize)
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
+
+ if(frame->posY<frame->scroll.total_y-frame->scroll.ysize &&
+    frame->scroll.total_y>frame->scroll.ysize)
  {
-  htmlframe[activeframe].posY+=fonty(8,BOLD|ITALIC);
-  if(htmlframe[activeframe].posY>htmlframe[activeframe].scroll.total_y-htmlframe[activeframe].scroll.ysize)
-   htmlframe[activeframe].posY=htmlframe[activeframe].scroll.total_y-htmlframe[activeframe].scroll.ysize;
+  frame->posY+=fonty(8,BOLD|ITALIC);
+  if(frame->posY>frame->scroll.total_y-frame->scroll.ysize)
+   frame->posY=frame->scroll.total_y-frame->scroll.ysize;
   redraw=2;
  }
  return 0;
@@ -574,9 +588,9 @@ int GUIEVENT(int key, int mouse)
    else
    if(shift()) //shift+home
     return scrollleft();
-   else if(htmlframe[activeframe].posY>0)
+   else if(p->htmlframe[p->activeframe].posY>0)
    {
-    htmlframe[activeframe].posY=0;
+    p->htmlframe[p->activeframe].posY=0;
     redraw=2;
    }
   }
@@ -590,12 +604,14 @@ int GUIEVENT(int key, int mouse)
    else
    if(shift()) //shift+end
     return scrollright();
-   else if(htmlframe[activeframe].posY<htmlframe[activeframe].scroll.total_y-htmlframe[activeframe].scroll.ysize &&
-           htmlframe[activeframe].scroll.total_y>htmlframe[activeframe].scroll.ysize)
+   else if(p->htmlframe[p->activeframe].posY<p->htmlframe[p->activeframe].scroll.total_y-
+           p->htmlframe[p->activeframe].scroll.ysize &&
+           p->htmlframe[p->activeframe].scroll.total_y>p->htmlframe[p->activeframe].scroll.ysize)
    {
-    htmlframe[activeframe].posY=htmlframe[activeframe].scroll.total_y-htmlframe[activeframe].scroll.ysize;
-    if(htmlframe[activeframe].posY<0)
-     htmlframe[activeframe].posY=0;
+    p->htmlframe[p->activeframe].posY=
+     p->htmlframe[p->activeframe].scroll.total_y-p->htmlframe[p->activeframe].scroll.ysize;
+    if(p->htmlframe[p->activeframe].posY<0)
+     p->htmlframe[p->activeframe].posY=0;
     redraw=2;
    }
   }
@@ -693,7 +709,7 @@ int GUIEVENT(int key, int mouse)
 
    activeurl(newurl);
 
-   if(key==27136 && strchr(newurl,'*') && strcmp(newurl,htmlframe[0].cacheitem.URL))
+   if(key==27136 && strchr(newurl,'*') && strcmp(newurl,p->htmlframe[0].cacheitem.URL))
    {
     strcpy(GLOBAL.location,newurl);
     arachne.target=0;
@@ -879,17 +895,17 @@ int GUIEVENT(int key, int mouse)
     char old;
     do
     {
-     old=activeframe;
-     activeframe=htmlframe[activeframe].next;
+     old=p->activeframe;
+     p->activeframe=p->htmlframe[p->activeframe].next;
     }
-    while(htmlframe[activeframe].hidden && activeframe!=-1);
+    while(p->htmlframe[p->activeframe].hidden && p->activeframe!=-1);
 
-    if(activeframe>arachne.framescount || activeframe==-1)
+    if(p->activeframe>arachne.framescount || p->activeframe==-1)
     {
      mouseoff();
-     oldactive=old;
-     activeframe=0;
-     drawframeborder(oldactive);
+     p->oldactive=old;
+     p->activeframe=0;
+     drawframeborder(p->oldactive);
      mouseon();
     }
     else
@@ -970,12 +986,12 @@ int GUIEVENT(int key, int mouse)
    {
     GLOBAL.source=0;
     GLOBAL.validtables=0;
-    sprintf(GLOBAL.location,"file:%s",htmlframe[activeframe].cacheitem.locname);
+    sprintf(GLOBAL.location,"file:%s",p->htmlframe[p->activeframe].cacheitem.locname);
 
     {
-     int ishttp=!strncmpi(htmlframe[activeframe].cacheitem.URL,"http:",5);
+     int ishttp=!strncmpi(p->htmlframe[p->activeframe].cacheitem.URL,"http:",5);
      if(ishttp && !user_interface.nohtt)
-      makehttfilename(htmlframe[activeframe].cacheitem.rawname,&GLOBAL.location[5]);
+      makehttfilename(p->htmlframe[p->activeframe].cacheitem.rawname,&GLOBAL.location[5]);
      else
      {
       char *ptr=strrchr(GLOBAL.location,'.');
@@ -984,11 +1000,11 @@ int GUIEVENT(int key, int mouse)
        if(ishttp)
         strcpy(ptr,".fil");
        else
-        makestr(&ptr[1],htmlframe[activeframe].cacheitem.URL,3); //napr. HTT, GOP ...
+        makestr(&ptr[1],p->htmlframe[p->activeframe].cacheitem.URL,3); //napr. HTT, GOP ...
       }
      }
     }
-    strcpy(LASTlocname,htmlframe[activeframe].cacheitem.locname);
+    strcpy(LASTlocname,p->htmlframe[p->activeframe].cacheitem.locname);
     arachne.target=0;
     return gotoloc();
    }
@@ -1093,8 +1109,8 @@ int GUIEVENT(int key, int mouse)
      goto submit;
     GLOBAL.source=0;
     GLOBAL.validtables=0;
-    strcpy(LASTlocname,htmlframe[activeframe].cacheitem.locname);
-    sprintf(htmlframe[0].cacheitem.locname,"%s%ssaveas.ah",sharepath,GUIPATH);
+    strcpy(LASTlocname,p->htmlframe[p->activeframe].cacheitem.locname);
+    sprintf(p->htmlframe[0].cacheitem.locname,"%s%ssaveas.ah",sharepath,GUIPATH);
     arachne.framescount=0;
     arachne.target=0;
     GLOBAL.needrender=2; //forced HTML
@@ -1105,8 +1121,8 @@ int GUIEVENT(int key, int mouse)
    {
     GLOBAL.source=0;
     GLOBAL.validtables=0;
-    strcpy(LASTlocname,htmlframe[activeframe].cacheitem.locname);
-    sprintf(htmlframe[0].cacheitem.locname,"%s%stextedit.ah",sharepath,GUIPATH);
+    strcpy(LASTlocname,p->htmlframe[p->activeframe].cacheitem.locname);
+    sprintf(p->htmlframe[0].cacheitem.locname,"%s%stextedit.ah",sharepath,GUIPATH);
     arachne.framescount=0;
     arachne.target=0;
     GLOBAL.needrender=2; //forced HTML
@@ -1271,7 +1287,7 @@ submit:
       {
        GLOBAL.needrender=1;
        GLOBAL.validtables=0;
-       strcpy(htmlframe[0].cacheitem.locname,LASTlocname);
+       strcpy(p->htmlframe[0].cacheitem.locname,LASTlocname);
        return 1;
       }
       else if(mail)
@@ -1282,7 +1298,7 @@ submit:
         if(mail==1)
          goback();
         else
-         strcpy(GLOBAL.location,htmlframe[activeframe].cacheitem.URL);
+         strcpy(GLOBAL.location,p->htmlframe[p->activeframe].cacheitem.URL);
        }
 
        if(GLOBAL.mailaction & MAIL_ATTACH)
@@ -1310,7 +1326,7 @@ submit:
       process_form(0,formID); //copy file
       GLOBAL.needrender=1;
       GLOBAL.validtables=0;
-      strcpy(htmlframe[0].cacheitem.locname,LASTlocname);
+      strcpy(p->htmlframe[0].cacheitem.locname,LASTlocname);
       return 1;
      }
 
@@ -1343,14 +1359,14 @@ submit:
      }
 
      if(!strcmpi(GLOBAL.location,"arachne:again"))
-      strcpy(GLOBAL.location,htmlframe[activeframe].cacheitem.URL);
+      strcpy(GLOBAL.location,p->htmlframe[p->activeframe].cacheitem.URL);
 
      if(!strcmpi(GLOBAL.location,"arachne:view"))
      {
       GLOBAL.source=1;
       GLOBAL.needrender=1;
-      strcpy(htmlframe[activeframe].cacheitem.locname,
-             htmlframe[activeframe].cacheitem.rawname);
+      strcpy(p->htmlframe[p->activeframe].cacheitem.locname,
+             p->htmlframe[p->activeframe].cacheitem.rawname);
       return 1;
      }
 
@@ -1644,22 +1660,22 @@ submit:
      //=====================================================================
      //scroll buttons
 #ifdef GGI
-     if( !user_interface.smooth && !htmlframe[i].hidden && htmlframe[i].allowscrolling )
+     if( !user_interface.smooth && !p->htmlframe[i].hidden && p->htmlframe[i].allowscrolling )
 #else
 
-     if((!tmpframedata[i].usevirtualscreen || !user_interface.smooth)
-      && !htmlframe[i].hidden && htmlframe[i].allowscrolling )
+     if((!p->tmpframedata[i].usevirtualscreen || !user_interface.smooth)
+      && !p->htmlframe[i].hidden && p->htmlframe[i].allowscrolling )
 
 #endif
      {
-      int s=OnScrollButtons(&htmlframe[i].scroll);
+      int s=OnScrollButtons(&(p->htmlframe[i].scroll));
 
       if(s)
       {
        mouseoff();
-       activeframe=i;
+       p->activeframe=i;
        drawactiveframe();
-       ImouseWait(); //msg for Bernie: don't forget, that s may be 0...
+       ImouseWait(); //msg for Bernie: don't forget, that may be 0...
 
        switch(s)
        {
@@ -1672,14 +1688,14 @@ submit:
      }
      //=====================================================================
      //black zone in scroll bars
-     if(!htmlframe[i].hidden && htmlframe[i].allowscrolling )
+     if(!p->htmlframe[i].hidden && p->htmlframe[i].allowscrolling )
      {
-      int s=OnBlackZone(&htmlframe[i].scroll);
+      int s=OnBlackZone(&(p->htmlframe[i].scroll));
 
       if(s)
       {
        mouseoff();
-       activeframe=i;
+       p->activeframe=i;
        drawactiveframe();
        ImouseWait();
 
@@ -1687,12 +1703,13 @@ submit:
        {
         case 1: return scrollpageup(0);
         case 2: return scrollpagedown(0);
-        case 3: htmlframe[activeframe].posX=0;
+        case 3: p->htmlframe[p->activeframe].posX=0;
                 redraw=2;
                 break;
-        case 4: htmlframe[activeframe].posX=htmlframe[activeframe].scroll.total_x-htmlframe[activeframe].scroll.xsize;
-                if(htmlframe[activeframe].posX<0)
-                 htmlframe[activeframe].posX=0;
+        case 4: p->htmlframe[p->activeframe].posX=
+                 p->htmlframe[p->activeframe].scroll.total_x-p->htmlframe[p->activeframe].scroll.xsize;
+                if(p->htmlframe[p->activeframe].posX<0)
+                 p->htmlframe[p->activeframe].posX=0;
                 redraw=2;
        }//end switch
       }//end if OnBlackZone...
@@ -1701,12 +1718,12 @@ submit:
     }
     while(i++<arachne.framescount); //[0...3]
 
-    if(mousey<htscrn_ytop) //deactive active frame - clicked on title bar...
+    if(mousey<p->htscrn_ytop) //deactive active frame - clicked on title bar...
     {
      mouseoff();
-     oldactive=activeframe;
-     activeframe=0;
-     drawframeborder(oldactive);
+     p->oldactive=p->activeframe;
+     p->activeframe=0;
+     drawframeborder(p->oldactive);
      mouseon();
     }
    }//end "clicked not on link"
@@ -1719,13 +1736,14 @@ submit:
    if( !activeatomScrollBarTICK())
    {
    i=0;
-   do if(!htmlframe[i].hidden && htmlframe[i].allowscrolling &&
+   do if(!p->htmlframe[i].hidden && p->htmlframe[i].allowscrolling &&
          (scrolledframe==-1 || scrolledframe==i))
    {
-    if(ScrollBarTICK(&htmlframe[i].scroll,&htmlframe[i].posX,&htmlframe[i].posY))
+    if(ScrollBarTICK(&(p->htmlframe[i].scroll),
+       &(p->htmlframe[i].posX),&(p->htmlframe[i].posY)))
     {
      mouseoff();
-     activeframe=i;
+     p->activeframe=i;
      drawactiveframe();
      redraw=1;
 
@@ -1735,8 +1753,9 @@ submit:
 
     else
 
-     ScrollDraw(&htmlframe[activeframe].scroll,htmlframe[activeframe].posX,
-                 htmlframe[activeframe].posY);
+     ScrollDraw(&(p->htmlframe[p->activeframe].scroll),
+                 p->htmlframe[p->activeframe].posX, 
+                 p->htmlframe[p->activeframe].posY);
 #endif
 
 #ifdef VIRT_SCR
@@ -1744,8 +1763,9 @@ submit:
 #endif
 
 #ifndef GGI
-     ScrollDraw(&htmlframe[activeframe].scroll,htmlframe[activeframe].posX,
-                htmlframe[activeframe].posY);
+     ScrollDraw(&(p->htmlframe[p->activeframe].scroll),
+                p->htmlframe[p->activeframe].posX,
+                p->htmlframe[p->activeframe].posY);
 #endif
      scrolledframe=i;
     }
@@ -1753,10 +1773,10 @@ submit:
 #ifdef GGI
     if(user_interface.smooth)
     {
-     scrollbarbutton=OnScrollButtons(&htmlframe[i].scroll);
+     scrollbarbutton=OnScrollButtons(&(p->htmlframe[i].scroll));
      if(scrollbarbutton)
      {
-      activeframe=i;
+      p->activeframe=i;
       mouseoff();
       if(redraw)
        redrawHTML(REDRAW_WITH_MESSAGE,REDRAW_VIRTUAL);
@@ -1778,22 +1798,23 @@ submit:
 #ifdef VIRT_SCR
     if(user_interface.smooth)
     {
-     scrollbarbutton=OnScrollButtons(&htmlframe[i].scroll);
+     scrollbarbutton=OnScrollButtons(&(p->htmlframe[i].scroll));
      if(scrollbarbutton)
      {
-      activeframe=i;
+      p->activeframe=i;
       mouseoff();
       if(redraw)
       {
        Try2DumpActiveVirtual();
-       ScrollDraw(&htmlframe[activeframe].scroll,htmlframe[activeframe].posX,
-                  htmlframe[activeframe].posY);
+       ScrollDraw(&(p->htmlframe[p->activeframe].scroll),
+                  p->htmlframe[p->activeframe].posX,
+                  p->htmlframe[p->activeframe].posY);
 
 /*     *** this is what Netscape does, but it is too slow 
-       redrawatoms(activeframe,
-              htmlframe[activeframe].posX,htmlframe[activeframe].posY,
-              htmlframe[activeframe].scroll.xsize,htmlframe[activeframe].scroll.ysize,
-              htmlframe[activeframe].scroll.xtop,htmlframe[activeframe].scroll.ytop);
+       redrawatoms(p->activeframe,
+              p->htmlframe[p->activeframe].posX,p->htmlframe[p->activeframe].posY,
+              p->htmlframe[p->activeframe].scroll.xsize,p->htmlframe[p->activeframe].scroll.ysize,
+              p->htmlframe[p->activeframe].scroll.xtop,p->htmlframe[p->activeframe].scroll.ytop);
 */
       }
       else
@@ -1822,3 +1843,4 @@ submit:
  return 0;
 
 }
+

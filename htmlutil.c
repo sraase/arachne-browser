@@ -10,9 +10,9 @@
 
 //start of frames
 //============================================================================
-void addframeset(char xflag, int *emptyframe, char framewantborder)
+void addframeset(char xflag, int *emptyframe, char framewantborder, char *startptr)
 {
- char *startptr=text,*endptr;
+ char *endptr;
  int velikost[MAXFRAMES];
  struct ScrollBar *from;
  int fromframe,newframecount=0,border=1,starcount=0;
@@ -23,30 +23,30 @@ void addframeset(char xflag, int *emptyframe, char framewantborder)
   return;
 
  if(*emptyframe==-1) //we are adding first empty frame
-  fromframe=currentframe;
+  fromframe=p->currentframe;
  else
   fromframe=*emptyframe;
 
  *emptyframe=newframe;
 
- if(fromframe && htmlframe[fromframe].frameborder)
+ if(fromframe && p->htmlframe[fromframe].frameborder)
   border=0;
 
  if(framewantborder==UNDEFINED_FRAMEBORDER)
  {
   if(fromframe)
-   framewantborder=htmlframe[fromframe].frameborder & I_WANT_FRAMEBORDER;
+   framewantborder=p->htmlframe[fromframe].frameborder & I_WANT_FRAMEBORDER;
   else
    framewantborder=I_WANT_FRAMEBORDER;
  }
 
  memset(velikost,0,2*MAXFRAMES);
- from=&htmlframe[fromframe].scroll;
+ from=(&p->htmlframe[fromframe].scroll);
 
  if(xflag)
  {
   vsechno=zbytek=from->xsize+1-border;
-  if(htmlframe[fromframe].allowscrolling)
+  if(p->htmlframe[fromframe].allowscrolling)
    vsechno+=user_interface.scrollbarsize;
  }
  else
@@ -104,38 +104,38 @@ void addframeset(char xflag, int *emptyframe, char framewantborder)
  i=0;
  while(i<newframecount && newframe>0)
  {
-  tmpframedata[newframe].whichvirtual=newframe-1; //let's overwrite screen 0
-  htmlframe[newframe].parent=currentframe;
-  htmlframe[newframe].hidden=0;
-  htmlframe[newframe].allowscrolling=0;
-  htmlframe[newframe].frameborder=FRAMEBORDER_IS_ON | framewantborder; //was: =1;
+  p->tmpframedata[newframe].whichvirtual=newframe-1; //let's overwrite screen 0
+  p->htmlframe[newframe].parent=p->currentframe;
+  p->htmlframe[newframe].hidden=0;
+  p->htmlframe[newframe].allowscrolling=0;
+  p->htmlframe[newframe].frameborder=FRAMEBORDER_IS_ON | framewantborder; //was: =1;
   if(xflag)
   {
-   htmlframe[newframe].scroll.xsize=velikost[i]/*-user_interface.scrollbarsize*/-3;
-   htmlframe[newframe].scroll.ymax=from->ymax-2*border;
-   htmlframe[newframe].scroll.xtop=from->xtop+zbytek+border;
-   htmlframe[newframe].scroll.ytop=from->ytop+border;
+   p->htmlframe[newframe].scroll.xsize=velikost[i]/*-user_interface.scrollbarsize*/-3;
+   p->htmlframe[newframe].scroll.ymax=from->ymax-2*border;
+   p->htmlframe[newframe].scroll.xtop=from->xtop+zbytek+border;
+   p->htmlframe[newframe].scroll.ytop=from->ytop+border;
    if(velikost[i]<=0)
-    htmlframe[newframe].hidden=1;
+    p->htmlframe[newframe].hidden=1;
   }
   else
   {
-   htmlframe[newframe].scroll.xsize=from->xsize-2*border;
-   if(htmlframe[fromframe].allowscrolling)
-    htmlframe[newframe].scroll.xsize+=user_interface.scrollbarsize;
-   htmlframe[newframe].scroll.ymax=velikost[i]-3; // 3 - reserve for neighbour
-   htmlframe[newframe].scroll.xtop=from->xtop+border;
-   htmlframe[newframe].scroll.ytop=from->ytop+zbytek+border;
+   p->htmlframe[newframe].scroll.xsize=from->xsize-2*border;
+   if(p->htmlframe[fromframe].allowscrolling)
+    p->htmlframe[newframe].scroll.xsize+=user_interface.scrollbarsize;
+   p->htmlframe[newframe].scroll.ymax=velikost[i]-3; // 3 - reserve for neighbour
+   p->htmlframe[newframe].scroll.xtop=from->xtop+border;
+   p->htmlframe[newframe].scroll.ytop=from->ytop+zbytek+border;
    if(velikost[i]<=3)
-    htmlframe[newframe].hidden=1;
+    p->htmlframe[newframe].hidden=1;
   }
 
   zbytek+=velikost[i++];
   prevframe=newframe;
   newframe=findfreeframe();
-  htmlframe[prevframe].next=newframe;
+  p->htmlframe[prevframe].next=newframe;
  }
- htmlframe[prevframe].next=htmlframe[fromframe].next;
+ p->htmlframe[prevframe].next=p->htmlframe[fromframe].next;
 
  if(newframe==-1) //cannot insert new frame - error!
  {
@@ -143,18 +143,18 @@ void addframeset(char xflag, int *emptyframe, char framewantborder)
   return;
  }
 
- htmlframe[fromframe].hidden=1;
+ p->htmlframe[fromframe].hidden=1;
 
  if(xflag)
  {
-  htmlframe[prevframe].scroll.xsize=
-   from->xsize-htmlframe[prevframe].scroll.xtop+from->xtop-border;
-  if(htmlframe[fromframe].allowscrolling)
-   htmlframe[prevframe].scroll.xsize+=user_interface.scrollbarsize;
+  p->htmlframe[prevframe].scroll.xsize=
+   from->xsize-p->htmlframe[prevframe].scroll.xtop+from->xtop-border;
+  if(p->htmlframe[fromframe].allowscrolling)
+   p->htmlframe[prevframe].scroll.xsize+=user_interface.scrollbarsize;
  }
  else
-  htmlframe[prevframe].scroll.ymax=
-   from->ymax-htmlframe[prevframe].scroll.ytop+from->ytop-border;
+  p->htmlframe[prevframe].scroll.ymax=
+   from->ymax-p->htmlframe[prevframe].scroll.ytop+from->ytop-border;
 
 }
 
@@ -176,17 +176,17 @@ void free_children(int parent)
 
  while(i<MAXFRAMES)
  {
-  if(htmlframe[i].parent==parent)
+  if(p->htmlframe[i].parent==parent)
   {
-   if(htmlframe[parent].next==i)
-    htmlframe[parent].next=htmlframe[i].next;
-   htmlframe[i].framename[0]='\0';
-   htmlframe[i].hidden=1;
-   htmlframe[i].parent=-1;
+   if(p->htmlframe[parent].next==i)
+    p->htmlframe[parent].next=p->htmlframe[i].next;
+   p->htmlframe[i].framename[0]='\0';
+   p->htmlframe[i].hidden=1;
+   p->htmlframe[i].parent=-1;
   }
   i++;
  }
- htmlframe[parent].hidden=0;
+ p->htmlframe[parent].hidden=0;
 }
 
 void delete_children(int parent)
@@ -199,10 +199,10 @@ void delete_children(int parent)
 
  while(i<MAXFRAMES)
  {
-  if(htmlframe[i].parent==parent)
+  if(p->htmlframe[i].parent==parent)
   {
-   AnalyseURL(htmlframe[i].cacheitem.URL,&url,IGNORE_PARENT_FRAME);
-   found=SearchInCache(&url,&htmlframe[i].cacheitem,&writeadr,&status);
+   AnalyseURL(p->htmlframe[i].cacheitem.URL,&url,IGNORE_PARENT_FRAME);
+   found=SearchInCache(&url,&(p->htmlframe[i].cacheitem),&writeadr,&status);
    if(found && status!=LOCAL)
     DeleteFromCache(writeadr);
   }
@@ -218,7 +218,7 @@ char findfreeframe(void)
 
  while(i<MAXFRAMES)
  {
-  if(htmlframe[i].parent==-1 && !htmlframe[i].framename[0])
+  if(p->htmlframe[i].parent==-1 && !p->htmlframe[i].framename[0])
    return i;
   i++;
  }
@@ -309,19 +309,20 @@ void METAtag(void)
       ptr++;
       if(ptr[0]!='#')
       {
-       AnalyseURL(ptr,&url,currentframe); //(plne zneni...)
-       url2str(&url,text);
-       ptr=text;
+       AnalyseURL(ptr,&url,p->currentframe); //(plne zneni...)
+       url2str(&url,p->text);
+       ptr=p->text;
       }
       makestr(GLOBAL.location,ptr,URLSIZE);
       GLOBAL.timeout=1;
-      GLOBAL.refreshtarget=currentframe;
+      GLOBAL.refreshtarget=p->currentframe;
      }
     }
    }
   }
   else
-  if(!RENDER.translatecharset && !strcmpi(tagarg,"CONTENT-TYPE")) 
+  if(/* this depends whether HTTP header should have prioroty over META: !RENDER.translatecharset &&*/ 
+      !strcmpi(tagarg,"CONTENT-TYPE")) 
   /* real HTTP header or user-forced charset has higher priority */
   {
    if(getvar("CONTENT",&tagarg))
@@ -406,6 +407,8 @@ void BodyArachne(struct TMPframedata *html)
  ptr=configvariable(&ARACHNEcfg,"Background",NULL);
  if(ptr && strcmpi(ptr,"NUL")) // ... ptr!="NUL"
  {
+  struct picinfo *img=p->img;
+ 
 #ifdef POSIX
   makestr(img->URL,ptr,79);
 #else
@@ -420,7 +423,7 @@ void BodyArachne(struct TMPframedata *html)
    HTMLatom.y=0;
    HTMLatom.yy=0;
    addatom(&HTMLatom,img,sizeof(struct picinfo),BACKGROUND,BOTTOM,0,0,IE_NULL,0);
-   html->backgroundptr=lastHTMLatom;
+   html->backgroundptr=p->lastHTMLatom;
   }
  }
 
@@ -533,7 +536,7 @@ int atom2nextline(int x, long y, XSWAP adr)
 
 void tablerow(long y,long yy,XSWAP tbladr)
 {
- XSWAP currentHTMLatom=lastHTMLatom;
+ XSWAP currentHTMLatom=p->lastHTMLatom;
  struct HTMLrecord *atomptr;
 
  do
@@ -577,10 +580,10 @@ void addjsevents(int tag)
 
 void Deallocmem(void)
 {
- XSWAP currentHTMLatom=lastHTMLatom;
+ XSWAP currentHTMLatom=p->lastHTMLatom;
  struct HTMLrecord *atomptr;
 
- if(!HTMLatomcounter)
+ if(p->HTMLatomcounter==0)
   return;
  mouseoff();
 
@@ -625,11 +628,160 @@ void Deallocmem(void)
 
  ie_killcontext(CONTEXT_HTML);
 
- HTMLatomcounter=0;
- firstonscr=lastonscr=IE_NULL;
- firstHTMLatom=lastHTMLatom=IE_NULL;
- memory_overflow=0;
+ p->HTMLatomcounter=0;
+ p->firstonscr=p->lastonscr=IE_NULL;
+ p->firstHTMLatom=p->lastHTMLatom=IE_NULL;
+ p->memory_overflow=0;
  mouseon();
 }
 
 
+void DummyFrame(struct Page *p,int *x, long *y)
+{
+ unsigned currentlink;
+ char *tagarg;
+ struct HTMLrecord HTMLatom;
+ struct Url url;
+ char str[URLSIZE+1];
+
+ if(getvar("SRC",&tagarg))
+ {
+  HTMLatom.x=*x;
+  HTMLatom.y=*y;
+  HTMLatom.xx=*x;
+  HTMLatom.yy=*y+p->sizeRow;
+  //vlozit link:
+  AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+  url2str(&url,str);
+
+  //vyrobim si pointr na link, a od ted je vsechno link:
+  addatom(&HTMLatom,str,strlen(str),HREF,BOTTOM,0,0,IE_NULL,1);
+  currentlink=p->lastHTMLatom;
+
+  getvar("NAME",&tagarg);
+  strcat(str," (");
+  strcat(str,tagarg);
+  strcat(str,")");
+
+//  pushfont(font,style,&HTMLatom,&fontstack);
+  HTMLatom.R=p->tmpframedata[p->currentframe].linkR;
+  HTMLatom.G=p->tmpframedata[p->currentframe].linkG;
+  HTMLatom.B=p->tmpframedata[p->currentframe].linkB;
+  p->img->size_y=60;
+  p->img->size_x=60;
+  strcpy(p->img->filename,"HTM.IKN");
+  p->img->URL[0]='\0';
+  HTMLatom.x=*x;
+  HTMLatom.y=*y;
+  *x+=p->img->size_x;
+  HTMLatom.xx=*x;
+  HTMLatom.yy=*y+p->img->size_y;
+  addatom(&HTMLatom,p->img,sizeof(struct picinfo),IMG,BOTTOM,0,0,currentlink,0);
+  HTMLatom.x=*x+FUZZYPIX;
+  HTMLatom.xx=p->docRight;
+  HTMLatom.yy=*y+fonty(3,UNDERLINE);
+  addatom(&HTMLatom,str,strlen(str),TEXT,BOTTOM,3,UNDERLINE,currentlink,0);
+  *y+=p->img->size_y;
+//  if(!popfont(&font,&style,&HTMLatom,&fontstack))
+//  {
+   HTMLatom.R=p->tmpframedata[p->currentframe].textR;
+   HTMLatom.G=p->tmpframedata[p->currentframe].textG;
+   HTMLatom.B=p->tmpframedata[p->currentframe].textB;
+//  }
+ }
+
+}
+
+
+void CheckArachneFormExtensions(struct HTTPrecord *cache,char *value, int *checked)
+{
+ char *tagarg, *ptr;
+
+ if(getvar("ARACHNECFGVALUE",&tagarg))
+ {
+  ptr=configvariable(&ARACHNEcfg,tagarg,NULL);
+  if(ptr)
+   makestr(value,ptr,IE_MAXLEN);
+ }
+
+ if(getvar("ARACHNESAVE",&tagarg))
+ {
+  ptr=configvariable(&ARACHNEcfg,"DownloadPath",NULL);
+  makestr(value,ptr,79);
+  ptr=strrchr(cache->URL,'\\');
+  if(!ptr)
+  {
+   ptr=strrchr(cache->URL,'/');
+   if(!ptr)
+   {
+    if(cache->rawname[0])
+    {
+     ptr=strrchr(cache->rawname,'\\');
+     if(!ptr)
+      ptr=cache->rawname;
+     else
+      ptr++;
+    }
+    else
+    {
+     ptr=strrchr(cache->locname,'\\');
+     if(!ptr)
+      ptr=cache->locname;
+     else
+      ptr++;
+    }
+   }
+   else
+    ptr++; //skip backslash
+  }
+  else
+   ptr++; //skip slash
+
+  strcat(value,ptr);
+ }
+
+ if(getvar("ARACHNEMIME",&tagarg))
+  strcpy(value,cache->mime);
+
+ if(getvar("ARACHNEREALM",&tagarg))
+  strcpy(value,AUTHENTICATION->realm);
+
+ if(getvar("ARACHNEVER",&tagarg))
+ {
+  strcpy(value,VER);
+  strcat(value,beta);
+ }
+
+ if(getvar("ARACHNEDOC",&tagarg))
+ {
+  if(file_exists(cache->rawname))
+   strcpy(value,cache->rawname); //rawname is not virtual - .JPG,.CNM
+  else
+   strcpy(value,LASTlocname); //rawname is not filename - .DGI
+  strlwr(value);
+ }
+
+ if(getvar("ARACHNECHECKED",&tagarg)) //for VALUE=...
+ {
+  ptr=configvariable(&ARACHNEcfg,tagarg,NULL);
+  if(ptr && !strcmpi(value,ptr))
+   *checked=1;
+ }
+
+ if(getvar("ARACHNEVGA",&tagarg) && vgadetected) //for VALUE=...
+ {
+  strcpy(value,vgadetected);
+ }
+
+ if(getvar("ARACHNENOTCHECKED",&tagarg)) //FOR ARACHNECFGVALUE=...
+ {
+  if(!strstr(tagarg,value))
+   *checked=1;
+ }
+
+ if(getvar("ARACHNECFGHIDE",&tagarg)) //FOR ARACHNECFGVALUE=...
+ {
+  if(strstr(tagarg,value))
+   value[0]='\0';
+ }
+}//end unsecure extensions.......................................

@@ -1,13 +1,13 @@
 
 // ========================================================================
 // Initialization and deinitialization of Arachne WWW browser
-// (c)1997,1998,1999 Arachne Labs (xChaos software)
+// (c)1997-2000 Michael Polak, Arachne Labs 
 // ========================================================================
 
 #include "arachne.h"
 #include "main.h"
 #include "html.h"
-#include "htmtable.h"
+
 #include "xanimgif.h"
 #include "customer.h"
 
@@ -133,7 +133,6 @@ if(!Iipal)
 meminit(arachne.xSwap);         //0 - try to use XMS
 
 graphicsinit(arachne.graphics); //XLOPIF SVGA GRAPHICS
-graphics=1;
 
 defaultGUIstyle();
 if(!noGUIredraw && !strcmpi(arachne.graphics,"VGA"))
@@ -175,16 +174,16 @@ bioskey_init();//switch terminal to raw mode
 
  InitInput(&tmpeditor,"","",1,CONTEXT_SYSTEM);//URL input prompt
 if(fonty(SYSFONT,0)==14)
- MakeInputAtom(&URLprompt,&tmpeditor,50,-21,htscrn_xsize,-3);
+ MakeInputAtom(&URLprompt,&tmpeditor,50,-21,p->htscrn_xsize,-3);
 else if(fonty(SYSFONT,0)<=16)
- MakeInputAtom(&URLprompt,&tmpeditor,50,-22,htscrn_xsize,-2);
+ MakeInputAtom(&URLprompt,&tmpeditor,50,-22,p->htscrn_xsize,-2);
 else
  MakeInputAtom(&URLprompt,&tmpeditor,50,-25,x_maxx()-152,-2);
 
 InitInput(&tmpeditor,"","",1,CONTEXT_SYSTEM);//text input prompt
 MakeInputAtom(&TXTprompt,&tmpeditor,
-              64,htscrn_ysize/2,
-              htscrn_xsize-128,htscrn_ysize/2+fonty(SYSFONT,0)+4);
+              64,p->htscrn_ysize/2,
+              p->htscrn_xsize-128,p->htscrn_ysize/2+fonty(SYSFONT,0)+4);
 
 
 //initialization of certain global variables:
@@ -202,6 +201,7 @@ GLOBAL.location[0]='\0';
 GLOBAL.currentcharset[0]='\0';
 reset_tmpframedata();
 reset_frameset();
+AUTHENTICATION->proxy=0;
 
 //initialize BASE URL of default frame:
 ResetURL(&baseURL);
@@ -221,8 +221,8 @@ memset(allocatedvirtual,0,MAXVIRTUAL);
   //return to frameset ?!
   if(arachne.framescount)
   {
-   SetInputAtom(&URLprompt,htmlframe[0].cacheitem.URL);
-   strcpy(GLOBAL.location,htmlframe[0].cacheitem.URL);
+   SetInputAtom(&URLprompt,p->htmlframe[0].cacheitem.URL);
+   strcpy(GLOBAL.location,p->htmlframe[0].cacheitem.URL);
   }
 
   if(!arachne.framescount || arachne.target)
@@ -552,20 +552,23 @@ void init_bin(void)
 
  //printf("allocating...\n");
 
- buf=farmalloc(BUF+8);//I
- text=farmalloc(BUF+8);//I
+ p->buf=farmalloc(BUF+8);//I
+ p->text=farmalloc(BUF+8);//I
  argnamestr=farmalloc(MAXARGNAMES);
  argvaluestr=farmalloc(BUF/4);
- img=farmalloc(sizeof(struct picinfo)+2);//I
- thistable=farmalloc(sizeof(struct HTMLtable)+2);
+ p->img=farmalloc(sizeof(struct picinfo)+2);//I
+ p->thistable=farmalloc(sizeof(struct HTMLtable)+2);
+#ifdef POSIX
+ p->newtable=p->thistable;
+#endif 
  GLOBAL.location=farmalloc(URLSIZE);
  Referer=farmalloc(URLSIZE);
  //allocated in loadpick() !  
- //htmlframe=(struct HTMLframe*)farmalloc(MAXFRAMES*(1+sizeof(struct HTMLframe)));
- tmpframedata=(struct TMPframedata*)farmalloc(MAXFRAMES*(2+sizeof(struct TMPframedata)));
+ //p->htmlframe=(struct HTMLframe*)farmalloc(MAXFRAMES*(1+sizeof(struct HTMLframe)));
+ p->tmpframedata=(struct TMPframedata*)farmalloc(MAXFRAMES*(2+sizeof(struct TMPframedata)));
 
- if(!buf || !text || !img || !thistable || !GLOBAL.location || !htmlframe ||
-    !argnamestr || !argvaluestr || !Referer || !tmpframedata)
+ if(!p->buf || !p->text || !p->img || !p->thistable || !GLOBAL.location || !p->htmlframe ||
+    !argnamestr || !argvaluestr || !Referer || !p->tmpframedata)
   memerr0();
 
 }
@@ -610,12 +613,12 @@ void reset_tmpframedata(void)
 
  while(i<MAXFRAMES)
  {
-  tmpframedata[i].usevirtualscreen=0;
-  tmpframedata[i].whichvirtual=i-1;
-  tmpframedata[i].backgroundptr=IE_NULL;
+  p->tmpframedata[i].usevirtualscreen=0;
+  p->tmpframedata[i].whichvirtual=i-1;
+  p->tmpframedata[i].backgroundptr=IE_NULL;
   i++;
  }
- tmpframedata[0].whichvirtual=0;
+ p->tmpframedata[0].whichvirtual=0;
 }
 
 void reset_frameset(void)
@@ -623,17 +626,17 @@ void reset_frameset(void)
  int i=arachne.framescount+1;
  while(i<MAXFRAMES)
  {
-  htmlframe[i].parent=-1;
-  htmlframe[i].next=-1;
-  htmlframe[i].hidden=1;
-  htmlframe[i].framename[0]='\0';
+  p->htmlframe[i].parent=-1;
+  p->htmlframe[i].next=-1;
+  p->htmlframe[i].hidden=1;
+  p->htmlframe[i].framename[0]='\0';
   i++;
  }
 
- strcpy(htmlframe[0].framename,"_top");
- htmlframe[0].allowscrolling=1;
- htmlframe[0].marginwidth=HTMLBORDER;
- htmlframe[0].marginheight=HTMLBORDER;
+ strcpy(p->htmlframe[0].framename,"_top");
+ p->htmlframe[0].allowscrolling=1;
+ p->htmlframe[0].marginwidth=HTMLBORDER;
+ p->htmlframe[0].marginheight=HTMLBORDER;
 }
 
 #ifndef NOTCPIP

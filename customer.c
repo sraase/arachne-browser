@@ -24,10 +24,10 @@ int customer_onbutton( int x, int y)
 //define size of HTML rendering area
 void customer_zoom(void)
 {
- //htscrn_xtop=0; //currently this must be always zero
- htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
- htscrn_ysize=x_maxy()-CUSTOMER_Y+17;
- htscrn_ytop=CUSTOMER_Y;
+ //p->htscrn_xtop=0; //currently this must be always zero
+ p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
+ p->htscrn_ysize=x_maxy()-CUSTOMER_Y+17;
+ p->htscrn_ytop=CUSTOMER_Y;
 }
 
 //draw anything you want into area outside HTML rendering area

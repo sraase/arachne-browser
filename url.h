@@ -9,7 +9,7 @@
 #define __URL_H
 
 #define URLSIZE 256
-#define PROTOCOLSIZE 9
+#define PROTOCOLSIZE 11
 #define STRINGSIZE 40
 #define PASSWORDSIZE 16
 
@@ -34,6 +34,7 @@ struct AUTH_STRUCT
  char user[STRINGSIZE];
  char password[PASSWORDSIZE];
  char flag;
+ char proxy;
 };
 
 //cache item structure

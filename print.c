@@ -1,4 +1,9 @@
 
+// ========================================================================
+// Plain ASCII output module for Arachne
+// (c)1997-2000 Michael Polak, Arachne Labs
+// ========================================================================
+
 #include "arachne.h"
 #include "html.h"
 
@@ -78,7 +83,7 @@ void generateprt(void)
  ie_openf_lim(&txt,CONTEXT_TMP,MAXLINES2PRINT);
  strcpy(txt.filename,PRINTFNAME);
 
- currentHTMLatom=firstHTMLatom;
+ currentHTMLatom=p->firstHTMLatom;
 
  while(currentHTMLatom!=IE_NULL)
  {
@@ -88,7 +93,7 @@ void generateprt(void)
    MALLOCERR();
   currentHTMLatom=atomptr->next;
 
-  if(atomptr->frameID==activeframe &&
+  if(atomptr->frameID==p->activeframe &&
      atomptr->type==TEXT ||
      atomptr->type==HR ||
      atomptr->type==LI ||
@@ -193,13 +198,13 @@ void generateprt(void)
   ie_insline(&txt,0,radka);
 
   memset(radka,' ',CONSOLEWIDTH);
-  l=strlen(htmlframe[activeframe].cacheitem.URL);
+  l=strlen(p->htmlframe[p->activeframe].cacheitem.URL);
   if(l>CONSOLEWIDTH-28)
   {
    l=CONSOLEWIDTH-28;
    strncpy(&radka[CONSOLEWIDTH-28],"...",3);
   }
-  strncpy(radka,htmlframe[activeframe].cacheitem.URL,l);
+  strncpy(radka,p->htmlframe[p->activeframe].cacheitem.URL,l);
   inettime(&radka[CONSOLEWIDTH-25]);
   ie_insline(&txt,0,radka);
 
@@ -231,12 +236,15 @@ void saveastext(void)
 {
  GLOBAL.validtables=TABLES_UNKNOWN;
  fixedfont=1;
- arachne.target=currentframe;
+ arachne.target=p->currentframe;
  mouseoff();
- if(renderHTML(LOCAL_HTML,0,RENDER_PRINTER))
+ p->rendering_target=RENDER_PRINTER;
+ p->html_source=LOCAL_HTML;
+ p->forced_html=0;
+ if(renderHTML(p))
  {
   if(GLOBAL.validtables==TABLES_EXPAND)
-   renderHTML(LOCAL_HTML,0,RENDER_PRINTER);
+   renderHTML(p);
   outs(MSG_PRN);
   generateprt();
  }

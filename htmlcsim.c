@@ -1,7 +1,7 @@
 
 // ========================================================================
 // HTML rendering routines for Arachne - part 1/2 of CSIM implemntation
-// (c)1997,1998,1999 Arachne Labs (xChaos software)
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
@@ -16,9 +16,8 @@
 //. Clickable map ( a link behind the image )
 void LinkUSEMAPs(void)
 {
- unsigned nextHTMLatom,pom,nextpom,currentHTMLatom=firstHTMLatom;
+ unsigned nextHTMLatom,pom,nextpom,currentHTMLatom=p->firstHTMLatom;
  struct HTMLrecord *atomptr;
-
 
  outs(MSG_USEMAP);
  while(currentHTMLatom!=IE_NULL)
@@ -33,14 +32,17 @@ void LinkUSEMAPs(void)
     atomptr=(struct HTMLrecord *)ie_getswap(atomptr->linkptr);
     atomptrtype=atomptr->type;
     mapname=ie_getswap(atomptr->ptr);
+    if(mapname[0]=='#')
+     mapname++;
 
-    if(mapname[0]=='#' && atomptrtype==USEMAP)
+    if(atomptrtype==USEMAP)
     //only relative links to the same document are accepted:
     {
      //we need to update atomptr->linkptr - we will search document for
      //matching MAP tag:
-     pom=firstHTMLatom;
-     strcpy(text,&mapname[1]);
+     char processedmapname[URLSIZE];
+     pom=p->firstHTMLatom;
+     makestr(processedmapname,mapname,URLSIZE);
      while(pom!=IE_NULL)
      {
       atomptr=(struct HTMLrecord *)ie_getswap(pom);
@@ -48,7 +50,7 @@ void LinkUSEMAPs(void)
       if(atomptr->type==MAP) //<IMG USEMAP>
       {
        mapname=ie_getswap(atomptr->ptr);
-       if(!strcmpi(mapname,text))
+       if(!strcmpi(mapname,processedmapname))
        {
         atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
         atomptr->linkptr=pom;
@@ -71,10 +73,12 @@ void LinkUSEMAPs(void)
 void USEMAParea(struct HTMLrecord *atom,char basetarget)
 {
  char target=findtarget(basetarget);
- unsigned arealink=IE_NULL; // "NOHREF"
+ unsigned arealink=IE_NULL;          //"NOHREF"
  char shape=RECT;
  int *array,maxcoord=4,n=0;
  char *ptr,*comma,*tagarg;
+ char *tmpcoords="-1,-1,-1,-1";
+ char tmpURL[URLSIZE]="\0";
 
  if(getvar("HREF",&tagarg))
  {
@@ -84,15 +88,15 @@ void USEMAParea(struct HTMLrecord *atom,char basetarget)
    struct Url *url=farmalloc(sizeof(struct Url));
    if(!url)
     memerr();
-   AnalyseURL(tagarg,url,currentframe); //(plne zneni...)
-   url2str(url,text);
-   tagarg=text;
+   AnalyseURL(tagarg,url,p->currentframe); //(plne zneni...)
+   url2str(url,tmpURL);
+   tagarg=tmpURL;
    farfree(url);
   }
 
   //vyrobim si pointr na link, a od ted je vsechno link:
   addatom(atom,tagarg,strlen(tagarg),HREF,BOTTOM,target,0,IE_NULL,1);
-  arealink=lastHTMLatom;
+  arealink=p->lastHTMLatom;
  }
 
  if(getvar("SHAPE",&tagarg))
@@ -110,10 +114,7 @@ void USEMAParea(struct HTMLrecord *atom,char basetarget)
  if(getvar("COORDS",&tagarg))
   ptr=tagarg;
  else
- {
-  strcpy(text,"-1,-1,-1,-1");
-  ptr=text;
- }
+  ptr=tmpcoords;
 
  if(shape==POLY)
   maxcoord=1000;

@@ -6,7 +6,6 @@
 
 #include "arachne.h"
 #include "html.h"
-#include "htmtable.h"
 
 #define FUZZYWIDTH 1
 

@@ -1,9 +1,8 @@
 
 // ========================================================================
-// Overlaid part of Arachne URL/CACHE management/history
-// (c)1997,1998,1999 Arachne Labs (xChaos software)
+// Part of Arachne URL/CACHE management/history - overlaid in DOS version.
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
-
 
 #include "arachne.h"
 #include "html.h"
@@ -278,7 +277,7 @@ char NeedImage(char reload, XSWAP from)
  struct Url url;
  struct picinfo *img;
  unsigned status;
- XSWAP uptr,currentHTMLatom=firstHTMLatom,IMGatom;
+ XSWAP uptr,currentHTMLatom=p->firstHTMLatom,IMGatom;
  XSWAP imageptr[MAXCONV];
  int found,converting=0,willconvert=0;
  int maxmem=1;//,frameID;
@@ -306,12 +305,12 @@ char NeedImage(char reload, XSWAP from)
 
  mouseoff();
 #ifdef POSIX
- buf[0]='\0';
+ p->buf[0]='\0';
 #else
- strcpy(buf,"@echo off\n");
+ strcpy(p->buf,"@echo off\n");
 #endif
 
- pushact=activeframe;
+ pushact=p->activeframe;
  while(currentHTMLatom!=IE_NULL)
  {
   kbhit();
@@ -327,10 +326,10 @@ char NeedImage(char reload, XSWAP from)
   type=atomptr->type;
   if(type==IMG || type==EMBED || type==BACKGROUND || type==TD_BACKGROUND)
   {
-   if(atomptr->yy>htmlframe[atomptr->frameID].posY &&
-      atomptr->xx>htmlframe[atomptr->frameID].posX &&
-      atomptr->y<htmlframe[atomptr->frameID].posY+htmlframe[atomptr->frameID].scroll.ysize &&
-      atomptr->x<htmlframe[atomptr->frameID].posX+htmlframe[atomptr->frameID].scroll.xsize)
+   if(atomptr->yy>p->htmlframe[atomptr->frameID].posY &&
+      atomptr->xx>p->htmlframe[atomptr->frameID].posX &&
+      atomptr->y<p->htmlframe[atomptr->frameID].posY+p->htmlframe[atomptr->frameID].scroll.ysize &&
+      atomptr->x<p->htmlframe[atomptr->frameID].posX+p->htmlframe[atomptr->frameID].scroll.xsize)
     GLOBAL.imagevisible=1;
    else
     GLOBAL.imagevisible=0;
@@ -359,7 +358,7 @@ char NeedImage(char reload, XSWAP from)
        strcpy(GLOBAL.location,HTTPdoc.URL);
        GLOBAL.isimage=1;
        mouseon();
-       activeframe=pushact;
+       p->activeframe=pushact;
        from=currentHTMLatom;
        return 1;
       }
@@ -406,9 +405,10 @@ char NeedImage(char reload, XSWAP from)
     {
      if(!ie_getswap(uptr))
      {
-      strcpy(text,HTTPdoc.rawname);
-	   uptr=Write2Cache(&url,&HTTPdoc,0,1); //create filename
-      strcpy(HTTPdoc.rawname,text);
+      char tmpstr[80];
+      makestr(tmpstr,HTTPdoc.rawname,79);
+      uptr=Write2Cache(&url,&HTTPdoc,0,1); //create filename
+      makestr(HTTPdoc.rawname,tmpstr,79);
      }
 
      pom=strrchr(HTTPdoc.locname,'.');
@@ -417,7 +417,7 @@ char NeedImage(char reload, XSWAP from)
       strcpy(&pom[1],ext);
       sprintf(HTTPdoc.mime,"file/.%s",ext);
 
-      if(file_exists(HTTPdoc.rawname) && !strstr(buf,HTTPdoc.rawname) && //exclude dupes...
+      if(file_exists(HTTPdoc.rawname) && !strstr(p->buf,HTTPdoc.rawname) && //exclude dupes...
          cmdlen<BUF-IE_MAXLEN)
       {
 #ifdef CLEMENTINE
@@ -429,11 +429,11 @@ char NeedImage(char reload, XSWAP from)
           //we will try to convert image, if there is enough space
           //in $roura$.bat (means "pipe"), and if the image is already not
           //in converting queue:
-          mode=make_cmd(command, &buf[cmdlen], HTTPdoc.URL, "\0","\0",
+          mode=make_cmd(command, &(p->buf[cmdlen]), HTTPdoc.URL, "\0","\0",
                         HTTPdoc.rawname, HTTPdoc.locname);
 
-          strcat(&buf[cmdlen],"\n");
-          cmdlen+=strlen(&buf[cmdlen]);
+          strcat(&(p->buf[cmdlen]),"\n");
+          cmdlen+=strlen(&(p->buf[cmdlen]));
 
           //touch(HTTPdoc.locname) - mainly for Write2Cache
           f=a_fast_open(HTTPdoc.locname,O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -484,7 +484,7 @@ char NeedImage(char reload, XSWAP from)
 #ifndef POSIX
   if(maxmem>0 && farcoreleft()>(long)((long)maxmem+10l)*1024)
   {
-   willexecute(buf);
+   willexecute(p->buf);
 #endif
 #ifndef NOTCPIP
    FinishBackground(BG_FINISH);
@@ -492,8 +492,8 @@ char NeedImage(char reload, XSWAP from)
 
    outs(msg);
 #ifdef POSIX
-   printf("Executing command:\n%s\n",buf);
-   system(buf);
+   printf("Executing command:\n%s\n",p->buf);
+   system(p->buf);
 #else
    rouraname(command);
    system(command);
@@ -507,10 +507,10 @@ char NeedImage(char reload, XSWAP from)
   else
   {
    if(maxmem==-1)
-    closebat(/*cmd*/buf,RESTART_REDRAW);
+    closebat(/*cmd*/p->buf,RESTART_REDRAW);
    else
-    closebat(/*cmd*/buf,RESTART_KEEP_GRAPHICS);
-   GLOBAL.willexecute=willexecute(/*cmd*/buf);
+    closebat(/*cmd*/p->buf,RESTART_KEEP_GRAPHICS);
+   GLOBAL.willexecute=willexecute(/*cmd*/p->buf);
 #ifndef NOTCPIP
    FinishBackground(BG_FINISH);
 #endif
@@ -520,7 +520,7 @@ char NeedImage(char reload, XSWAP from)
    if(maxmem==-2)
    {
     x_setfill(0,0);
-    x_bar(htscrn_xtop,htscrn_ytop,htscrn_xtop+htscrn_xsize,htscrn_ysize+htscrn_ytop);
+    x_bar(p->htscrn_xtop,p->htscrn_ytop,p->htscrn_xtop+p->htscrn_xsize,p->htscrn_ysize+p->htscrn_ytop);
    }
    else
    if(maxmem==-1)
@@ -533,7 +533,7 @@ char NeedImage(char reload, XSWAP from)
  }
 
  mouseon();
- activeframe=pushact;
+ p->activeframe=pushact;
  return 0; //nic nepotrebuju...
 }
 

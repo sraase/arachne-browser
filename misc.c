@@ -51,7 +51,7 @@ void Goto_A_NAME(char *name) //name je pointer do xSwapu!!!
 {
  long Y;
  char a_name[80];
- unsigned currentHTMLatom=firstHTMLatom;
+ unsigned currentHTMLatom=p->firstHTMLatom;
  struct HTMLrecord *atomptr;
 
  strcpy(a_name,name);
@@ -69,15 +69,17 @@ void Goto_A_NAME(char *name) //name je pointer do xSwapu!!!
    if((!strcmpi(ptr,a_name) || *ptr=='#' && !strcmpi(ptr+1,a_name) ) &&
    atomptr->frameID==arachne.target)
    {
-    long oldY=htmlframe[arachne.target].posY;
-    htmlframe[arachne.target].posY=Y;
-    if(htmlframe[arachne.target].posY>htmlframe[arachne.target].scroll.total_y-htmlframe[arachne.target].scroll.ysize)
+    long oldY=p->htmlframe[arachne.target].posY;
+    p->htmlframe[arachne.target].posY=Y;
+    if(p->htmlframe[arachne.target].posY>
+       p->htmlframe[arachne.target].scroll.total_y-p->htmlframe[arachne.target].scroll.ysize)
     {
-     htmlframe[arachne.target].posY=htmlframe[arachne.target].scroll.total_y-htmlframe[arachne.target].scroll.ysize;
-     if(htmlframe[arachne.target].posY<0)
-      htmlframe[arachne.target].posY=0;
+     p->htmlframe[arachne.target].posY=
+      p->htmlframe[arachne.target].scroll.total_y-p->htmlframe[arachne.target].scroll.ysize;
+     if(p->htmlframe[arachne.target].posY<0)
+      p->htmlframe[arachne.target].posY=0;
     }
-    if(htmlframe[arachne.target].posY!=oldY || GLOBAL.norefresh)
+    if(p->htmlframe[arachne.target].posY!=oldY || GLOBAL.norefresh)
     {
      if(GLOBAL.norefresh)
       redrawHTML(REDRAW_WITH_MESSAGE,REDRAW_CREATE_VIRTUAL);
@@ -164,9 +166,9 @@ void copy(char *from,char *to)
  {
   do
   {
-   l=a_read(f1,buf,BUF);
+   l=a_read(f1,p->buf,BUF);
    if(l>0)
-    write(f2,buf,l); // error checking has to be added later !!!!
+    write(f2,p->buf,l); // error checking has to be added later !!!!
   }
   while(l==BUF);
   a_close(f2);
@@ -390,7 +392,8 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
       {
        int l=strlen(pom);
        if(l>80)l=80;
-       out+=paranoid_strncpy(out,pom,l)-1;
+       strncpy(out,pom,l);
+       out+=l-1;
       }
       else
       {
@@ -417,7 +420,7 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
     case 'R':
     {
      char x[10];
-     sprintf(x,"%d",htmlframe[arachne.target].scroll.xsize);
+     sprintf(x,"%d",p->htmlframe[arachne.target].scroll.xsize);
      strcpy(out,x);
      out+=strlen(x)-1;
     }

@@ -10,12 +10,12 @@
 NOTCPIP    ... do not use WATTCP TCP/IP stack
 NOPS       ... no PostScript printing
 NOKEY      ... do not use shareware registration key
-OVLR       ... optimizations for overlaid executable (Borland C++ 3.1)
+OVRL       ... optimizations for overlaid executable (Borland C++ 3.1)
 HICOLOR    ... use LOPIF library with support for 16 bits/pixel modes
 VIRT_SCR   ... use LOPIF library with support for virtual screens
 XANIMGIF   ... include animated GIFs to executable
-JAVASCRIPT ... include JavaScript support to executable (no longer finished)
-XTVERSION  ... maximal optimizaton for speed and size (no longer tested)
+JAVASCRIPT ... include JavaScript support to executable (not finished)
+XTVERSION  ... maximal optimizaton for speed and memory savings
 
 CUSTOMER   ... general customization (currently, module for Vadem is included)
 AGB        ... CORE.EXE for G.E.Capital Bank in Czech Republic (acquired AGB)
@@ -51,6 +51,7 @@ void outs(char *str); //change browser status message
 #include "url.h"
 #include "glflag.h"
 #include "uiface.h"
+#include "htmtable.h"
 
 #include "a_io.h" //arachne i/o stub
 
@@ -254,10 +255,6 @@ int TcpIdleFunc(void);
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 //HTML, graphics, MIME, DGI
 
-//basic function for reading HTML stream and creating HTML atoms....
-//very dependent on GLOBAL.* family of variables, and more !!!
-int renderHTML(char online,char forced_html, char printing);
-
 void HTTPcharset(char *charset);
 void try2readHTMLcolor(char *string,unsigned char *r,unsigned char *g,unsigned char *b);
 int try2getnum(char *str,unsigned proczaklad);
@@ -435,8 +432,9 @@ XSWAP AnalyseCSIM(int x, int y,struct HTMLrecord *map);
 //decompose RFC compliant string:
 void decompose_inetstr(char *str);
 
-//argument manipulation
+//HTML tag argument manipulation
 int getvar(char *name,char **value);
+int searchvar(char *name);
 void putvarname(char *name,int size);
 void putvarvalue(char *value,int size);
 
@@ -464,54 +462,67 @@ int PrintScreen2BMP(char virtscr);
 // ========================================================================
 
 //screen parameters
-extern int htscrn_xsize,htscrn_ysize,htscrn_ytop,htscrn_xtop;
-
-//main structure for all frames - htmlframe[0] is always defined
-extern struct HTMLframe *htmlframe;
-extern struct TMPframedata *tmpframedata;
-
-//number of frames [0..MAXFRAMES-1] - arachne.framescount
-
-//frame Arachne currently writes to:
-extern int currentframe;
-
-//frame currently slected (activated) by user:
-extern int activeframe,oldactive;
+struct Page
+{
+ int htscrn_xsize,htscrn_ysize,htscrn_ytop,htscrn_xtop;
+ char html_source;      //HTTP_HTML, LOCAL_HTML, etc.
+ char forced_html; //1=true or 0
+ char rendering_target; //1=true or 0
+ int currentframe;      //frame Arachne currently writes to:
+ int activeframe,oldactive;
+ char *buf;
+ int httplen;
+ char memory_overflow;        //document is too long!
+ char *text;                  //temporary text buffer
+ struct picinfo *img;         //temporary image memory - allocated only once for all images
+ struct HTMLtable *thistable; //pointer to temporary table - in DOS, it just always points to newtable
+#ifdef POSIX
+ struct HTMLtable *newtable;  //temporary table - new table to create...
+#endif
+ int docLeft,docRight,docLeftEdge,docRightEdge;
+ long docClearLeft,docClearRight;
+ int sizeRow,sizeTextRow;
+ long xsum,maxsum;
+ XSWAP firstHTMLatom,lastHTMLatom;
+ XSWAP firstHTMLtable,nextHTMLtable,prevHTMLtable;
+ XSWAP firstonscr,lastonscr;
+ long HTMLatomcounter;
+ struct HTMLframe *htmlframe;
+ struct TMPframedata *tmpframedata;
+};
 
 // ========================================================================
-
-extern int firstswap; //first free swapinng buffer numbrer - ie.h
-extern int swapnum;   //current swap number...
-
-//!! This is important variable: if we have hard-written some data to
-//xSwap memory area, we must set it to tell memory manager the current
-//buffer ("swap") was modified
+// main structure for all frames - htmlframe[0] is always defined
+extern struct Page *p;
+// ========================================================================
 
 // ========================================================================
+// !! This is important variable: if we have hard-written some data to
+// xSwap memory area, we must set it to tell memory manager the current
+// buffer ("swap") was modified
+extern int swapmod;
 /* important for 16-bit code: made public from ie.h !
    this flag has to be set if memory handled by XSWAP handlers
    (ie_getswap, ie_putswap) was modified - alternative to ie_putswap()
 */
-extern int swapmod;
-//!!!!
 // ========================================================================
 
-extern char DisableXMS;
+extern char DisableXMS;     // DOS only 
 
-extern char exepath[65];
+extern char exepath[65];    // read-only
 #ifdef POSIX
-extern char helppath[80];
-extern char sharepath[80];
-extern char dotarachne[65];
-extern char fntpath[80];
-extern char fntinf[80];
+extern char helppath[80];   // read-only
+extern char sharepath[80];  // read-only
+extern char dotarachne[65]; // read-only
+extern char fntpath[80];    // read-only
+extern char fntinf[80];     // read-only
 #else
 #define helppath exepath
 #define sharepath exepath
 extern char *fntinf;
 #endif
 
-extern char *buf;
+//extern char *buf;
 
 extern char *msg_con;
 extern char *msg_errcon;
@@ -543,7 +554,6 @@ extern char *Referer;
 extern char closing[2];
 extern int socknum;
 extern int status;
-extern int httplen;
 //extern struct bin_file Tablelist; //indexed binarni structure
 extern char nobr_overflow[MAXNOBR];
 extern struct ib_editor history;   //history.lst
@@ -558,7 +568,6 @@ extern char graphics;            //is graphics available ?
 extern char tcpip;               //is TCP/IP available ?
 extern char httpstub;            //is HTTP stub available ?
 extern char ipmode;
-extern char memory_overflow;     //document is too long!
 extern char memory_model;          //LOW DOS memory management (0..4)
 extern int BUF;               //velikost vyrovnavaciho buferu
 extern int loadrefresh;       //perioda prekreslovani (v bajtech) pro LAN TCP/IP
@@ -589,28 +598,14 @@ extern char nemapuj; //do not map icon palette
 
 //variables specific to HTML rendering
 //should be moved to single data structure in future...
-extern unsigned char r,g,b;
-extern int left,right,rowsize,textrowsize,leftedge,rightedge;
-extern long xsum,maxsum;
-extern int HTMLswap;
 
 extern char islist;
-extern long clearleft,clearright;
-extern long percflag;
-extern char *text;
-extern struct picinfo *img;
 
 extern char neediknredraw;
 
 //for 256 color modes:
 extern int IiNpal; //total lenghth of paletter --> zero when clear screen!
 
-//XSWAP pointers to various parts of HTML document:
-extern XSWAP firstonscr,lastonscr;
-extern XSWAP firstHTMLatom,lastHTMLatom;
-extern XSWAP firstHTMLtable,nextHTMLtable,prevHTMLtable;
-
-extern long HTMLatomcounter;
 extern XSWAP lastonmouse,activeadr,focusedatom;
 extern XSWAP lastfound;
 extern long lastfoundY;
@@ -622,7 +617,7 @@ extern long ScreenSaver;
 extern long SecondsSleeping; //for screensaver
 extern char lasttime[32];   //for screensaver
 extern char global_nomouse;
-extern char *hotlist;
+extern char *hotlist;       //constant
 extern char egamode,cgamode,vga16mode,vgamono,ignoreimages;
 extern char fixedfont;
 extern int ikn;
@@ -655,7 +650,6 @@ extern int virtualIiNpal;
 extern int argnamecount,argvaluecount;
 extern char *argnamestr,*argvaluestr;
 extern long ppplogtime;
-extern char ascii160hack;
 
 extern struct Url baseURL;
 extern char GlobalLogoStyle;
@@ -663,3 +657,11 @@ extern char GlobalLogoStyle;
 extern int swapoptimize;
 extern char *vgadetected;
 #define MALLOCERR() mallocerr(ptrmsg,__FILE__,__LINE__)
+
+
+// ========================================================================
+//basic function for reading HTML stream and creating HTML atoms....
+//very dependent on GLOBAL.* family of variables, and more !!!
+
+int renderHTML(struct Page *p);
+

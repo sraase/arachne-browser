@@ -8,8 +8,8 @@
 
 void highlightatom(struct HTMLrecord *foundatom)
 {
- struct HTMLframe *frame=&htmlframe[activeframe];
-// struct TMPframedata *htmldata=&tmpframedata[activeframe];
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
+// struct TMPframedata *htmldata=&(p->tmpframedata[p->activeframe]);
  mouseoff();
 
  x_setfill(0,14);

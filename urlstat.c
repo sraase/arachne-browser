@@ -1,7 +1,7 @@
 
 // ========================================================================
 // Staticaly linked part of Arachne URL/CACHE management/hostory
-// (c)1997,1998,1999 Arachne Labs (xChaos software)
+// (c)1997,1998,1999,2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
@@ -284,7 +284,7 @@ void AnalyseURL(char *str,struct Url *url,int frame)
   else if(frame==GLOBAL_LOCATION_AS_BASEURL)
    AnalyseURL(GLOBAL.location,base,IGNORE_PARENT_FRAME);
   else
-   AnalyseURL(htmlframe[frame].cacheitem.URL,base,IGNORE_PARENT_FRAME);
+   AnalyseURL(p->htmlframe[frame].cacheitem.URL,base,IGNORE_PARENT_FRAME);
  }
  else
   base=&baseURL;
@@ -357,7 +357,9 @@ void AnalyseURL(char *str,struct Url *url,int frame)
     !strcmpi(url->protocol,"find") ||
 //    !strcmpi(url->protocol,"freq") ||
 //    !strcmpi(url->protocol,"fidonet") ||
-    !strcmpi(url->protocol,"arachne"))
+    !strcmpi(url->protocol,"arachne") ||
+    !strcmpi(url->protocol,"javascript") ||
+    !strcmpi(url->protocol,"gui"))
  {
   makestr(url->file,strptr,URLSIZE-1);
   if(!strcmpi(url->protocol,"file")) isfile=1;
@@ -390,9 +392,11 @@ void AnalyseURL(char *str,struct Url *url,int frame)
   else
   if(!strcmpi(url->protocol,"pop3"))
    url->port=110;
+/*
   else
   if(!strcmpi(url->protocol,"irc"))
    url->port=6667;
+*/
   else
   if(!strcmpi(url->protocol,"finger"))
    url->port=79;
@@ -507,7 +511,8 @@ void url2str(struct Url *url,char *out)
  if(!strcmpi(url->protocol,"file") || !strcmpi(url->protocol,"mailto") ||
     !strcmpi(url->protocol,"about") || !strcmpi(url->protocol,"reload") ||
     !strcmpi(url->protocol,"news") || !strcmpi(url->protocol,"arachne") ||
-    !strcmpi(url->protocol,"find") || !strcmpi(url->protocol,"gui") )
+    !strcmpi(url->protocol,"find") || !strcmpi(url->protocol,"gui") ||
+    !strcmpi(url->protocol,"javascript") )
   sprintf(outbuf,"%s:%s",url->protocol,url->file);
  else
  if(!strcmpi(url->protocol,"finger") || !strcmpi(url->protocol,"telnet") )

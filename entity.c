@@ -39,6 +39,9 @@ unsigned char HTMLentity(char *name)
  if(!strcmpi(name,"reg"))
   return 'r';
  else
+ if(!strcmpi(name,"middot"))
+  return 127;
+ else
  if(!strcmpi(name,"sp"))
   return ' ';
  else

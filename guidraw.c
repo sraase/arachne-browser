@@ -257,27 +257,27 @@ void PaintTitle(void)    // vykresleni nazvu stranky
   char *title;
 
   mouseoff();
-  Box3D(0,htscrn_ytop-50,x_maxx()-152,htscrn_ytop-27);
-  DrawIconLater( "SMALL_WM",x_maxx()-187,htscrn_ytop-46);
+  Box3D(0,p->htscrn_ytop-50,x_maxx()-152,p->htscrn_ytop-27);
+  DrawIconLater( "SMALL_WM",x_maxx()-187,p->htscrn_ytop-46);
   if(fonty(SYSFONT,0)<=16)
   {
-   Box3D(0,htscrn_ytop-25,x_maxx()-152,htscrn_ytop-2);
+   Box3D(0,p->htscrn_ytop-25,x_maxx()-152,p->htscrn_ytop-2);
    URLprompt.xx=x_maxx()-152-user_interface.scrollbarsize;
    if(user_interface.scrollbarsize>3)
-    Scratch3D(URLprompt.xx+3,htscrn_ytop-13,x_maxx()-155);
+    Scratch3D(URLprompt.xx+3,p->htscrn_ytop-13,x_maxx()-155);
   }
   else
   {
-   Box3D(0,htscrn_ytop-25,48,htscrn_ytop-2);
+   Box3D(0,p->htscrn_ytop-25,48,p->htscrn_ytop-2);
    URLprompt.xx=x_maxx()-152;
   }
   x_setcolor(0);
   title=gettitle(buf);
 
-  decorated_text(10,htscrn_ytop-47,MSG_TITLE,colormap);
-  decorated_text(10,htscrn_ytop-22,"URL",colormap);
+  decorated_text(10,p->htscrn_ytop-47,MSG_TITLE,colormap);
+  decorated_text(10,p->htscrn_ytop-22,"URL",colormap);
   x_settextjusty(2,2);
-  decorated_text(x_maxx()-192,htscrn_ytop-47,title,colormap);
+  decorated_text(x_maxx()-192,p->htscrn_ytop-47,title,colormap);
   x_settextjusty(0,2);        // vzdycky psat pismo od leveho horniho rohu
   x_setcolor(0);
  }
@@ -623,7 +623,7 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
 #ifndef CUSTOMER
  mouseoff();
 
- drawatom(&URLprompt,0u,0,htscrn_xsize,htscrn_ysize,htscrn_xtop,htscrn_ytop);
+ drawatom(&URLprompt,0u,0,p->htscrn_xsize,p->htscrn_ysize,p->htscrn_xtop,p->htscrn_ytop);
  activeatomptr=NULL; //pod mysi neni nic
 
  if(title_ok && !force)
@@ -636,7 +636,7 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
   char buf[64];
   gettitle(buf);
  }
- x_bar(50,htscrn_ytop-47,x_maxx()-196-bannerwidth,htscrn_ytop-29);
+ x_bar(50,p->htscrn_ytop-47,x_maxx()-196-bannerwidth,p->htscrn_ytop-29);
 
  htmlfont(3,0);
 
@@ -649,7 +649,7 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
  }
 
  x_settextjusty(0,1);        // na stred!
- x_text_ib(50,htscrn_ytop-37,(unsigned char *)arachne.title);
+ x_text_ib(50,p->htscrn_ytop-37,(unsigned char *)arachne.title);
  x_settextjusty(0,2);        // vzdycky psat pismo od leveho horniho rohu
 
  mouseon();
@@ -947,15 +947,15 @@ void zoom(void)
  if(fullscreen || customerscreen)
 #endif
  {
-  htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
-  htscrn_ysize=x_maxy();
-  htscrn_ytop=0;
+  p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
+  p->htscrn_ysize=x_maxy();
+  p->htscrn_ytop=0;
  }
  else if(arachne.GUIstyle==STYLE_FULLSCREEN)
  {
-  htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
-  htscrn_ysize=x_maxy()-67;
-  htscrn_ytop=50;
+  p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
+  p->htscrn_ysize=x_maxy()-67;
+  p->htscrn_ytop=50;
  }
 #ifdef CUSTOMER_MODULE
  else if(customerscreen)
@@ -965,37 +965,37 @@ void zoom(void)
 #endif
  else if( x_maxx()<640)
  {
-  htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
-  htscrn_ysize=x_maxy()-117;
-  htscrn_ytop=100;
+  p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
+  p->htscrn_ysize=x_maxy()-117;
+  p->htscrn_ytop=100;
  }
  else if(arachne.GUIstyle==STYLE_MOZILLA)
  {
-  htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
-  htscrn_ysize=x_maxy()-117;
-  htscrn_ytop=100;
+  p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize-1;
+  p->htscrn_ysize=x_maxy()-117;
+  p->htscrn_ytop=100;
  }
  else
  {
-  htscrn_xsize=x_maxx()-152-user_interface.scrollbarsize;
-  htscrn_ysize=x_maxy()-67;
-  htscrn_ytop=50;
+  p->htscrn_xsize=x_maxx()-152-user_interface.scrollbarsize;
+  p->htscrn_ysize=x_maxy()-67;
+  p->htscrn_ytop=50;
  }
 
- htscrn_xtop=0;
- htmlframe[0].scroll.xvisible=0;
- htmlframe[0].scroll.yvisible=1;
- ScrollInit(&htmlframe[0].scroll,
-             htscrn_xsize,
-             htscrn_ysize,
-             htscrn_ysize,
-	     htscrn_xtop,
-	     htscrn_ytop,
-	     htmlframe[0].scroll.total_x,
-	     htmlframe[0].scroll.total_y);
- TXTprompt.xx=htscrn_xsize-64;
- TXTprompt.y=htscrn_ysize/2;
- TXTprompt.yy=htscrn_ysize/2+fonty(SYSFONT,0)+4;
+ p->htscrn_xtop=0;
+ p->htmlframe[0].scroll.xvisible=0;
+ p->htmlframe[0].scroll.yvisible=1;
+ ScrollInit(&(p->htmlframe[0].scroll),
+             p->htscrn_xsize,
+             p->htscrn_ysize,
+             p->htscrn_ysize,
+	     p->htscrn_xtop,
+	     p->htscrn_ytop,
+	     p->htmlframe[0].scroll.total_x,
+	     p->htmlframe[0].scroll.total_y);
+ TXTprompt.xx=p->htscrn_xsize-64;
+ TXTprompt.y=p->htscrn_ysize/2;
+ TXTprompt.yy=p->htscrn_ysize/2+fonty(SYSFONT,0)+4;
 }
 
 void gohome(void)

@@ -1,6 +1,7 @@
+
 // ========================================================================
 // GRAPHICAL USER INTERFACE for Arachne WWW browser - runtime functions
-// (c)1997 xChaos software, portions (c)1997 Caldera Inc.
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
@@ -59,11 +60,13 @@ void draw_time_online(void)
 
 void xChLogo(char n)
 {
- if(!graphics || fullscreen || arachne.GUIstyle==STYLE_FULLSCREEN || customerscreen)
+ if(fullscreen || arachne.GUIstyle==STYLE_FULLSCREEN || customerscreen)
  {
   //printf("gr=%d fs=%d gui=%d cust=%d\n",graphics,fullscreen,arachne.GUIstyle,customerscreen);
   return;
  } 
+
+#ifndef TEXTONLY
 {
  char logo[10]="XCHLOGO0";
 
@@ -80,6 +83,8 @@ void xChLogo(char n)
   draw_time_online();
  }
 }
+#endif
+
 }//end sub
 
 void xChLogoTICK(char Style) // animace loga
@@ -88,10 +93,11 @@ void xChLogoTICK(char Style) // animace loga
  Backgroundhttp();
 #endif
 
- if(!graphics || fullscreen || customerscreen ||
+ if( fullscreen || customerscreen ||
     !user_interface.logoiddle || GLOBAL.backgroundimages>BACKGROUND_SLEEPING)
   return;
 
+#ifndef TEXTONLY
 #ifdef POSIX
  if(Style==10)
  {
@@ -133,6 +139,7 @@ void xChLogoTICK(char Style) // animace loga
    ikn=0;
   }
  }
+#endif 
 }//end sub
 
 
@@ -149,6 +156,7 @@ void mouseoff(void)
 }
 
 
+#ifndef TEXTONLY
 //totalni infomace o pameti...
 char lastinfo=0;
 
@@ -162,6 +170,7 @@ void MemInfoLine(char *text1,char *text2,int color,int *y)
  *y+=fonty(0,NORMAL);
  x_settextjusty(0,2);        // vzdycky psat pismo od leveho horniho rohu
 }
+#endif
 
 int endvtoolbar(void)
 {
@@ -176,6 +185,7 @@ int endvtoolbar(void)
 
 void MemInfo(char forced)
 {
+#ifndef TEXTONLY
  char str[30];
  unsigned long ldsp;
  int y=endvtoolbar();
@@ -186,7 +196,7 @@ void MemInfo(char forced)
  {
   if(arachne.framescount)
   {
-   activeframe=0;
+   p->activeframe=0;
    redrawHTML(REDRAW_NO_MESSAGE,REDRAW_CREATE_VIRTUAL);
   }
   else
@@ -195,7 +205,7 @@ void MemInfo(char forced)
   return;
  }
 
- if((x_maxx()<640 || arachne.GUIstyle || !graphics ||
+ if((x_maxx()<640 || arachne.GUIstyle ||
      fullscreen || customerscreen || fixedfont) /*fixedfont=printing hack*/
   && !forced) return;
 
@@ -273,11 +283,11 @@ void MemInfo(char forced)
  MemInfoLine("HTTP cache items",str,0,&y);
 
  //HTML atoms
- if(pagetime<1000000l && HTMLatomcounter>0l)
+ if(pagetime<1000000l && p->HTMLatomcounter>0l)
  {
   char atoms[30];
   sprintf(str,"%ld:%02d",pagetime/60,(int)(pagetime % 60));
-  sprintf(atoms,"%ld HTML atoms",HTMLatomcounter);
+  sprintf(atoms,"%ld HTML atoms",p->HTMLatomcounter);
   x_setcolor(8);
   x_line(x_maxx()-147,y,x_maxx()-4,y);
   y++;
@@ -311,5 +321,6 @@ void MemInfo(char forced)
 
  mouseon();
 
+#endif
 }
 

@@ -1,3 +1,9 @@
+
+// ========================================================================
+// PostScript output module for Arachne WWW Browser
+// (c)1998-2000 Michael Polak, Arachne Labs
+// ========================================================================
+
 #include "arachne.h"
 #include "html.h"
 
@@ -8,7 +14,6 @@
 #define PIX2PT(pix) ((pix)/2)
 #define MM2PT(mm) (float)((mm)*2.8)
 
-// ps: post script
 void generateps(void)
 {
  float page_pt=MM2PT(user_interface.postscript_y);
@@ -17,7 +22,7 @@ void generateps(void)
  long currentpagestart_pix=0l;
  float pt_x,pt_y,pt_xx,pt_yy;
  int pagecount=0;
- int totalpages=(int)(htmlframe[activeframe].scroll.total_y/page_pix)+1;
+ int totalpages=(int)(p->htmlframe[p->activeframe].scroll.total_y/page_pix)+1;
  unsigned currentHTMLatom;
  char str[256];
  char text[2*IE_MAXLEN+2];
@@ -25,7 +30,7 @@ void generateps(void)
  char *fntptr=NULL;
  char currentfontsize;
  unsigned char currentfontstyle;
- int pspropfontsize[7]={0,6,7,8,9,10,14};
+ int pspropfontsize[7]={0,6,7,8,9,10,14};  //in future, we will use Adobe Font Metrics instead !!!!!!
  int psfixedfontsize[7]={0,6,7,8,9,10,12};
  int realfontsize;
  struct HTMLrecord *atomptr;
@@ -50,7 +55,7 @@ void generateps(void)
  write(f,str,strlen(str));
 
  //for all PostScript pages...
- while(currentpagestart_pix<htmlframe[activeframe].scroll.total_y)
+ while(currentpagestart_pix<p->htmlframe[p->activeframe].scroll.total_y)
  {
   pagecount++;
   sprintf(str,MSG_PS,pagecount,totalpages);
@@ -86,7 +91,7 @@ void generateps(void)
     fntptr=fntstr;
 
     //for all HTML atoms on this page...
-    currentHTMLatom=firstHTMLatom;
+    currentHTMLatom=p->firstHTMLatom;
     while(currentHTMLatom!=IE_NULL)
     {
      kbhit();
@@ -96,7 +101,7 @@ void generateps(void)
      currentHTMLatom=atomptr->next;
 
      if((atomptr->type==TEXT || currentfontsize==1 && currentfontstyle==0) &&
-        atomptr->frameID==activeframe &&
+        atomptr->frameID==p->activeframe &&
         (atomptr->yy>currentpagestart_pix &&
          atomptr->yy<currentpagestart_pix+page_pix ||
          atomptr->y<currentpagestart_pix+page_pix) &&
@@ -187,12 +192,15 @@ stroke\n",pt_x,pt_y,pt_xx,pt_y,pt_xx,pt_yy,pt_x,pt_yy);
 void saveasps(void)
 {
  GLOBAL.validtables=TABLES_UNKNOWN;
- arachne.target=currentframe;
+ arachne.target=p->currentframe;
  mouseoff();
- if(renderHTML(LOCAL_HTML,0,RENDER_PRINTER))
+ p->rendering_target=RENDER_PRINTER;
+ p->html_source=LOCAL_HTML;
+ p->forced_html=0;
+ if(renderHTML(p))
  {
   if(GLOBAL.validtables==TABLES_EXPAND)
-   renderHTML(LOCAL_HTML,0,RENDER_PRINTER);
+   renderHTML(p);
   generateps();
  }
  else

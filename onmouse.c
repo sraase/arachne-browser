@@ -1,29 +1,29 @@
+
 // ========================================================================
 // Arachne mouse interface, "activeatom" related
-// (c)1997-1999 Michael Polak, Arachne Laabs
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
 #include "html.h"
 #include "gui.h"
 
-
 char *onmouse(int click)
 {
  int linkonmouse;
  struct HTMLrecord atomonmouse;
  char *ptr;
- unsigned currentHTMLatom=firstonscr,nextHTMLatom;
+ unsigned currentHTMLatom=p->firstonscr,nextHTMLatom;
  int dx,x,y;
  long dy;
  char ontoolbar=0;
  struct HTMLrecord *atomptr;
  int count=0;
 
- if(mousey<htscrn_ytop && !customerscreen)
+ if(mousey<p->htscrn_ytop && !customerscreen)
  {
-  x=mousex-htscrn_xtop;
-  y=mousey-htscrn_ytop;
+  x=mousex-p->htscrn_xtop;
+  y=mousey-p->htscrn_ytop;
   atomptr=&URLprompt;
   if(click && click!=MOUSE_RELEASE && !lmouse && atomptr->x<=x && atomptr->xx>=x && atomptr->y<=y && atomptr->yy>=y)
   {
@@ -59,8 +59,8 @@ char *onmouse(int click)
 
  if(activeistextwindow && click && click!=MOUSE_RELEASE)
  {
-  x=mousex-htscrn_xtop;
-  y=mousey-htscrn_ytop;
+  x=mousex-p->htscrn_xtop;
+  y=mousey-p->htscrn_ytop;
   atomptr=&TXTprompt;
   if(atomptr->x<=x && atomptr->xx>=x && atomptr->y<=y && atomptr->yy>=y)
   {
@@ -78,8 +78,8 @@ char *onmouse(int click)
   }
  }
 
- if(mousey<htscrn_ytop || mousey>htscrn_ytop+htscrn_ysize ||
-     mousex>htscrn_xtop+htscrn_xsize || mousex<htscrn_xtop)
+ if(mousey<p->htscrn_ytop || mousey>p->htscrn_ytop+p->htscrn_ysize ||
+     mousex>p->htscrn_xtop+p->htscrn_xsize || mousex<p->htscrn_xtop)
  {
   ontoolbar=1;
   goto nolink;
@@ -87,10 +87,10 @@ char *onmouse(int click)
 
  if(htmlpulldown)
  {
-  x=mousex-htmlframe[activeatom.frameID].scroll.xtop;
-  y=mousey-htmlframe[activeatom.frameID].scroll.ytop;
-  dx=htmlframe[activeatom.frameID].posX;
-  dy=htmlframe[activeatom.frameID].posY;
+  x=mousex-p->htmlframe[activeatom.frameID].scroll.xtop;
+  y=mousey-p->htmlframe[activeatom.frameID].scroll.ytop;
+  dx=p->htmlframe[activeatom.frameID].posX;
+  dy=p->htmlframe[activeatom.frameID].posY;
   if(activeatom.type==INPUT && activeatom.data1==SELECT &&
      activeatom.x-dx<=x && activeatom.xx-dx>=x &&
      activeatom.y-dy<=y && activeatom.yy-dy>=y)
@@ -114,11 +114,11 @@ char *onmouse(int click)
   int i=1;
   do
   {
-   if(mousex>htmlframe[i].scroll.xtop &&
-      mousex<htmlframe[i].scroll.xtop+htmlframe[i].scroll.xsize &&
-      mousey>htmlframe[i].scroll.ytop &&
-      mousey<htmlframe[i].scroll.ytop+htmlframe[i].scroll.ymax)
-    activeframe=i;
+   if(mousex>p->htmlframe[i].scroll.xtop &&
+      mousex<p->htmlframe[i].scroll.xtop+p->htmlframe[i].scroll.xsize &&
+      mousey>p->htmlframe[i].scroll.ytop &&
+      mousey<p->htmlframe[i].scroll.ytop+p->htmlframe[i].scroll.ymax)
+    p->activeframe=i;
   }
   while(i++<arachne.framescount);
 
@@ -143,22 +143,22 @@ char *onmouse(int click)
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
    MALLOCERR();
-  if(currentHTMLatom==lastonscr)
+  if(currentHTMLatom==p->lastonscr)
    nextHTMLatom=IE_NULL;
   else
    nextHTMLatom=atomptr->next;
 
-  x=mousex-htmlframe[atomptr->frameID].scroll.xtop;//mouse coord rel. to PosX
-  y=mousey-htmlframe[atomptr->frameID].scroll.ytop;//mouse coord rel. to PosY
-  dx=htmlframe[atomptr->frameID].posX;
-  dy=htmlframe[atomptr->frameID].posY;
+  x=mousex-p->htmlframe[atomptr->frameID].scroll.xtop;//mouse coord rel. to PosX
+  y=mousey-p->htmlframe[atomptr->frameID].scroll.ytop;//mouse coord rel. to PosY
+  dx=p->htmlframe[atomptr->frameID].posX;
+  dy=p->htmlframe[atomptr->frameID].posY;
 
   if(atomptr->type!=TABLE && atomptr->type!=TD
      && atomptr->type!=TD_BACKGROUND && //no tables !
      atomptr->x-dx<=x && atomptr->xx-dx>=x &&
      atomptr->y-dy<=y && atomptr->yy-dy>=y &&
-     x>0 && x<htmlframe[atomptr->frameID].scroll.xsize &&
-     y>0 && y<htmlframe[atomptr->frameID].scroll.ysize)
+     x>0 && x<p->htmlframe[atomptr->frameID].scroll.xsize &&
+     y>0 && y<p->htmlframe[atomptr->frameID].scroll.ysize)
   {
 
    if(click) //copy to clipboard
@@ -244,27 +244,27 @@ char *onmouse(int click)
       MALLOCERR();
      if(activeatom.yy-activeatom.y<editorptr->lines/2*fonty(OPTIONFONT,0))
      {
-      int d=6+fonty(OPTIONFONT,0)*(editorptr->lines/2);
-      long realy=activeatom.y-dy+htmlframe[activeatom.frameID].scroll.ytop;
+      int d=8+fonty(OPTIONFONT,0)*(editorptr->lines/2);
+      long realy=activeatom.y-dy+p->htmlframe[activeatom.frameID].scroll.ytop;
 
-      if(realy+d>htscrn_ysize+htscrn_ytop && realy-htscrn_ytop>htscrn_ysize/2)
+      if(realy+d>p->htscrn_ysize+p->htscrn_ytop && realy-p->htscrn_ytop>p->htscrn_ysize/2)
       {
-       if(realy-d<htscrn_ytop)
-        d=(int)(realy+fonty(OPTIONFONT,0)-htscrn_ytop-3*FUZZYPIX);
+       if(realy-d<p->htscrn_ytop)
+        d=(int)(realy+fonty(OPTIONFONT,0)-p->htscrn_ytop-3*FUZZYPIX);
        activeatom.y=activeatom.yy-d;
       }
       else
       {
-       if(realy+d>htscrn_ysize+htscrn_ytop)
-        d=(int)(htscrn_ysize+htscrn_ytop-realy-3*FUZZYPIX);
+       if(realy+d>p->htscrn_ysize+p->htscrn_ytop)
+        d=(int)(p->htscrn_ysize+p->htscrn_ytop-realy-3*FUZZYPIX);
        activeatom.yy=activeatom.y+d;
       }
       mouseoff();
       drawatom(&activeatom,dx,dy,
-                htscrn_xsize+htscrn_xtop-htmlframe[activeatom.frameID].scroll.xtop,
-                htscrn_ysize+htscrn_ytop-htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
-                htmlframe[activeatom.frameID].scroll.xtop,
-                htmlframe[activeatom.frameID].scroll.ytop);  //frames...
+                p->htscrn_xsize+p->htscrn_xtop-p->htmlframe[activeatom.frameID].scroll.xtop,
+                p->htscrn_ysize+p->htscrn_ytop-p->htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
+                p->htmlframe[activeatom.frameID].scroll.xtop,
+                p->htmlframe[activeatom.frameID].scroll.ytop);  //frames...
       mouseon();
       htmlpulldown=1;//important flag - tells us that HTML visual is in special mode
      }
@@ -404,18 +404,18 @@ char *onmouse(int click)
      if(atomonmouse.type==INPUT && atomonmouse.data1==SUBMIT ||
         atomonmouse.type==IMG && atomonmouse.data1!=2) //not USEMAP!
      {
-      thisx=atomonmouse.x-dx+htmlframe[atomonmouse.frameID].scroll.xtop;
-      thisy=(int)(atomonmouse.y-dy+htmlframe[atomonmouse.frameID].scroll.ytop);
-      thisxx=atomonmouse.xx-dx+htmlframe[atomonmouse.frameID].scroll.xtop+2+2*(atomonmouse.type==INPUT);
-      thisyy=(int)(atomonmouse.yy-dy+htmlframe[atomonmouse.frameID].scroll.ytop+2);
-      if(thisx<htscrn_xtop)
-       thisx=htscrn_xtop;
-      if(thisxx>htscrn_xtop+htscrn_xsize)
-       thisxx=htscrn_xtop+htscrn_xsize;
-      if(thisy<htscrn_ytop)
-       thisy=htscrn_ytop;
-      if(thisyy>htscrn_ytop+htscrn_ysize)
-       thisyy=htscrn_ytop+htscrn_ysize;
+      thisx=atomonmouse.x-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
+      thisy=(int)(atomonmouse.y-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
+      thisxx=atomonmouse.xx-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop+2+2*(atomonmouse.type==INPUT);
+      thisyy=(int)(atomonmouse.yy-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop+2);
+      if(thisx<p->htscrn_xtop)
+       thisx=p->htscrn_xtop;
+      if(thisxx>p->htscrn_xtop+p->htscrn_xsize)
+       thisxx=p->htscrn_xtop+p->htscrn_xsize;
+      if(thisy<p->htscrn_ytop)
+       thisy=p->htscrn_ytop;
+      if(thisyy>p->htscrn_ytop+p->htscrn_ysize)
+       thisyy=p->htscrn_ytop+p->htscrn_ysize;
       pressthatbutton(1);
      }
     }
@@ -509,10 +509,10 @@ char *onmouse(int click)
  nolink:
  if(click==2)
  {
-  if(activeframe) //right click on frame source
+  if(p->activeframe) //right click on frame source
   {
    arachne.target=0;
-   return htmlframe[activeframe].cacheitem.URL;
+   return p->htmlframe[p->activeframe].cacheitem.URL;
   }
   else if(!ontoolbar)
    return "arachne:back";

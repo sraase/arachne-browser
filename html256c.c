@@ -21,7 +21,7 @@ void MixVisiblePaletes(char writepal)
  int maxpocet;//,frameID;
  XSWAP dummy1;
  unsigned dummy2;
- unsigned currentHTMLatom=firstHTMLatom,nextHTMLatom;
+ unsigned currentHTMLatom=p->firstHTMLatom,nextHTMLatom;
  struct HTMLframe *frame;
  struct HTMLrecord *imgatomptr;
  struct HTTPrecord HTTPdoc;
@@ -49,9 +49,7 @@ void MixVisiblePaletes(char writepal)
   if(!imgatomptr)
    MALLOCERR();
   nextHTMLatom=imgatomptr->next;
-//  htmldata=&tmpframedata[imgatomptr->frameID];
-  frame=&htmlframe[imgatomptr->frameID];
-//  frameID=imgatomptr->frameID;
+  frame=&(p->htmlframe[imgatomptr->frameID]);
   if( (imgatomptr->type==IMG || imgatomptr->type==TD_BACKGROUND) &&
       (imgatomptr->y>=frame->posY ||
        imgatomptr->yy>=frame->posY) &&

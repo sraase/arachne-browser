@@ -34,7 +34,7 @@ int main(int argc, char **argv )
  XSWAP *cacheitem_writeadr;
  unsigned *cacheitem_status;
  char found;
- char html_source=LOCAL_HTML,forced_html=0;
+// char html_source=LOCAL_HTML,p->forced_html=0;
 #ifndef NOTCPIP
  int closesock;
 #endif
@@ -69,19 +69,19 @@ IveGotNewUrl:
  GLOBAL.abort=0;
  GLOBAL.allowdealloc=0;
  error=0;
- strcpy(Referer,htmlframe[activeframe].cacheitem.URL);
+ strcpy(Referer,p->htmlframe[p->activeframe].cacheitem.URL);
  if(!strncmpi(Referer,"file:",5))
   Referer[0]='\0';
 
  if(GLOBAL_justrestarted && arachne.framescount) // arachne -c, -r + frames
  {
-  forced_html=RELOAD_HTML_FRAMES;
+  p->forced_html=RELOAD_HTML_FRAMES;
   if(!arachne.target)
    GLOBAL.nothot=1;
  }
  else
  {
-  forced_html=0;
+  p->forced_html=0;
   if(GLOBAL.postdata && arachne.framescount)
   {
    char push=GLOBAL.postdata;
@@ -108,8 +108,8 @@ IveGotNewUrl:
    if(!l)
    {
     GLOBAL.reload=RELOAD_CURRENT_LOCATION;
-    strcpy(GLOBAL.location,htmlframe[activeframe].cacheitem.URL);
-    arachne.target=activeframe;
+    strcpy(GLOBAL.location,p->htmlframe[p->activeframe].cacheitem.URL);
+    arachne.target=p->activeframe;
    }
    else
    {
@@ -125,10 +125,9 @@ IveGotNewUrl:
    char *ptr=configvariable(&ARACHNEcfg,"SearchEngine",NULL);
    if(!ptr)
     ptr="http://www.altavista.com/cgi-bin/query?q=";
-   cgiquery((unsigned char *)&GLOBAL.location[5],(unsigned char *)buf,1);
+   cgiquery((unsigned char *)&GLOBAL.location[5],(unsigned char *)p->buf,1);
    strcpy(GLOBAL.location,ptr);
-   strncat(GLOBAL.location,buf,URLSIZE-strlen(GLOBAL.location)-2);
-   GLOBAL.location[URLSIZE-1]='\0';
+   makestr(GLOBAL.location,p->buf,URLSIZE-strlen(GLOBAL.location)-2);
   }
   else
   if(!strcmpi(GLOBAL.location,"arachne:addressbook"))
@@ -145,13 +144,15 @@ IveGotNewUrl:
   GLOBAL.validtables=TABLES_UNKNOWN;
   GLOBAL.tabledepth=0;
   ie_killcontext(CONTEXT_TABLES);
-  firstHTMLtable=IE_NULL;
+  p->firstHTMLtable=IE_NULL;
+  p->firstHTMLatom=p->lastHTMLatom=IE_NULL;
+  p->firstonscr=p->lastonscr=IE_NULL;
 
-  cacheitem=&htmlframe[arachne.target].cacheitem;
+  cacheitem=&(p->htmlframe[arachne.target].cacheitem);
   //status of main displayed document
-  cacheitem_status=&htmlframe[arachne.target].status;
+  cacheitem_status=&(p->htmlframe[arachne.target].status);
   //update adr of main displayed document
-  cacheitem_writeadr=&tmpframedata[arachne.target].writeadr;
+  cacheitem_writeadr=&(p->tmpframedata[arachne.target].writeadr);
   timer=time(NULL);
   if(GLOBAL.nowimages!=IMAGES_SEEKCACHE)
    pagetime=timer;
@@ -209,15 +210,15 @@ IveGotNewUrl:
  if(!strcmpi(url.protocol,"arachne") && !strcmpi(url.file,"history"))
  {
   url2str(&url,cacheitem->URL);
-  html_source=HISTORY_HTML;
-  forced_html=1;
+  p->html_source=HISTORY_HTML;
+  p->forced_html=1;
   GLOBAL.nothot=1;
   *cacheitem_status=VIRTUAL;
   strcpy(url.kotva,"current");
   goto Render;
  }
 
- html_source=LOCAL_HTML;
+ p->html_source=LOCAL_HTML;
 
  //------------------------------------------------------------------------
  found=SearchInCache(&url,cacheitem,cacheitem_writeadr,cacheitem_status);
@@ -241,25 +242,25 @@ IveGotNewUrl:
   if(!strcmpi(url.protocol,"telnet"))
   //------------------------------------------------------------------------
   {
-   plugin=externalprotocol(url.protocol,text);
+   plugin=externalprotocol(url.protocol,p->text);
 
    if(plugin)
    {
     external:
-    make_cmd(text,buf,
-             htmlframe[arachne.target].cacheitem.URL,
-             url.host, url.file, text, "NUL");
+    make_cmd(p->text,p->buf,
+             p->htmlframe[arachne.target].cacheitem.URL,
+             url.host, url.file, p->text, "NUL");
    }
    else
-    sprintf(buf,"telnet %s\n",url.host);
+    sprintf(p->buf,"telnet %s\n",url.host);
 
 #ifdef POSIX
-   printf("Executing command:\n%s\n",buf);
-   system(buf);
+   printf("Executing command:\n%s\n",p->buf);
+   system(p->buf);
    goto Wait4Orders;
 #else
-   closebat(buf,RESTART_REDRAW);
-   returnvalue=willexecute(buf);
+   closebat(p->buf,RESTART_REDRAW);
+   returnvalue=willexecute(p->buf);
    x_grf_mod(3);
    goto end;
 #endif
@@ -292,14 +293,14 @@ IveGotNewUrl:
 #endif
 
     sprintf(str,"external/%s",url.protocol);
-    plugin=externalprotocol(url.protocol,text);
+    plugin=externalprotocol(url.protocol,p->text);
     if(plugin)
      goto external;
     else
-     sprintf(htmlframe[0].cacheitem.locname,"%s%serr_net.ah",sharepath,GUIPATH);
+     sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_net.ah",sharepath,GUIPATH);
 
     *cacheitem_writeadr=IE_NULL;
-    forced_html=1;
+    p->forced_html=1;
     arachne.target=0;
     error=1;
     goto Render;
@@ -315,16 +316,16 @@ IveGotNewUrl:
 
    if(!httpstub)
    {
-    html_source=HTTP_HTML;
+    p->html_source=HTTP_HTML;
     if(user_interface.multitasking==MULTI_SAFE)
      FinishBackground(BG_FINISH);
    }
    else
    {
     if(GLOBAL.isimage)
-     html_source=HTTP_HTML;
+     p->html_source=HTTP_HTML;
     else
-     html_source=LOCAL_HTML;
+     p->html_source=LOCAL_HTML;
    }
 
    *cacheitem_writeadr=Write2Cache(&url,cacheitem,1,1);
@@ -370,8 +371,8 @@ IveGotNewUrl:
      if(AUTHENTICATION->flag==AUTH_REQUIRED)
      {
       sprintf(cacheitem->locname,"%s%slogin.ah",sharepath,GUIPATH);
-      forced_html=1;
-      html_source=LOCAL_HTML;
+      p->forced_html=1;
+      p->html_source=LOCAL_HTML;
       goto Render;
      }
 
@@ -385,9 +386,9 @@ IveGotNewUrl:
       goto IveGotNewUrl;
      }
 
-     sprintf(htmlframe[0].cacheitem.locname,"%s%serr_open.ah",sharepath,GUIPATH);
-     forced_html=1;
-     html_source=LOCAL_HTML;
+     sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_open.ah",sharepath,GUIPATH);
+     p->forced_html=1;
+     p->html_source=LOCAL_HTML;
      arachne.target=0;
      error=1;
      goto Render;
@@ -411,25 +412,25 @@ IveGotNewUrl:
    case GOTO_ERROR:
    arachne.target=0;
    error=1;
-   forced_html=1;
+   p->forced_html=1;
    goto Render;
 
    case GOTO_LOCAL_HTML:
-   html_source=LOCAL_HTML;
-   forced_html=1;
+   p->html_source=LOCAL_HTML;
+   p->forced_html=1;
    goto Render;
 
    case UNKNOWN_PROTOCOL:
    if (!GLOBAL.isimage)
    {
-    plugin=externalprotocol(url.protocol,text);
+    plugin=externalprotocol(url.protocol,p->text);
     if(plugin)
      goto external;
 
-    sprintf(htmlframe[0].cacheitem.locname,"%s%serr_url.ah",sharepath,GUIPATH);
+    sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_url.ah",sharepath,GUIPATH);
     arachne.target=0;
     error=1;
-    forced_html=1;
+    p->forced_html=1;
     goto Render;
    }
    else
@@ -460,16 +461,16 @@ IveGotNewUrl:
 
 
 #ifndef NOTCPIP
-// if((arachne.newframe>0 || arachne.target>0)&& html_source==HTTP_HTML)
- if((arachne.target || isframe) && html_source==HTTP_HTML && !GLOBAL.isimage)
+// if((arachne.newframe>0 || arachne.target>0)&& p->html_source==HTTP_HTML)
+ if((arachne.target || isframe) && p->html_source==HTTP_HTML && !GLOBAL.isimage)
  {
- // html_source will not be set to HTTP_HTML when we are offline
+ // p->html_source will not be set to HTTP_HTML when we are offline
   Download(cacheitem);
   closehttp(cacheitem);
-  html_source=LOCAL_HTML;
+  p->html_source=LOCAL_HTML;
  }
 
- if(GLOBAL.isimage && html_source==HTTP_HTML)
+ if(GLOBAL.isimage && p->html_source==HTTP_HTML)
  {
   if(update_redirection!=IE_NULL)
   {
@@ -528,7 +529,7 @@ IveGotNewUrl:
   }
 
   //we are rendering HTML again, but we read it from disk:
-  html_source=LOCAL_HTML;
+  p->html_source=LOCAL_HTML;
  }//endif is image
 #endif
 
@@ -565,7 +566,7 @@ IveGotNewUrl:
 
 #ifndef NOTCPIP
   //download on background:
-  if((weird || plugin || GLOBAL.backgr) && html_source==HTTP_HTML)
+  if((weird || plugin || GLOBAL.backgr) && p->html_source==HTTP_HTML)
   {
    Download(cacheitem);
    closehttp(cacheitem);
@@ -595,8 +596,8 @@ IveGotNewUrl:
    else
     strcat(cacheitem->locname,"copy.ah");
 
-   forced_html=1;
-   html_source=LOCAL_HTML;
+   p->forced_html=1;
+   p->html_source=LOCAL_HTML;
    goto Render;
   }
 
@@ -625,7 +626,7 @@ IveGotNewUrl:
     sprintf(cacheitem->mime,"file/.%s",ext);
     cacheitem->dynamic=1;
 
-    mode=make_cmd(command,buf,cacheitem->URL,
+    mode=make_cmd(command,p->buf,cacheitem->URL,
                   url.host, url.file, str,cacheitem->locname);
     unlink(cacheitem->locname);
     UpdateInCache(*cacheitem_writeadr,cacheitem);
@@ -648,20 +649,20 @@ IveGotNewUrl:
      //ie_savebin(&HTTPcache);
 
 #ifndef POSIX
-     if(strstr(strlwr(buf),"insight"))
+     if(strstr(strlwr(p->buf),"insight"))
      {
       tempinit(mman);
       strcat(mman,"$roura2.bat");
       unlink(mman);
      }
 #endif     
-//     printf("Executing command: %s\n",buf);
-     system(buf);
+//     printf("Executing command: %s\n",p->buf);
+     system(p->buf);
 #ifndef POSIX
      if(mman[0] && file_exists(mman))    
       system(mman);
 #endif
-     html_source=LOCAL_HTML;
+     p->html_source=LOCAL_HTML;
      GLOBAL.postdata=0;
      GLOBAL.nowimages=IMAGES_SEEKCACHE;
      //if POSIX is defined, this will automaticaly proceed to Render: label
@@ -681,10 +682,10 @@ IveGotNewUrl:
    {
     sprintf(str,MSG_PLUGIN,cacheitem->mime,ctrlbreak);
     outs(str);
-    mode=make_cmd(command,buf , cacheitem->URL,
+    mode=make_cmd(command,p->buf , cacheitem->URL,
                   url.host, url.file,cacheitem->locname, "NUL");
 #ifdef POSIX
-    system(buf);
+    system(p->buf);
     goto Wait4Orders;
 #endif
    }
@@ -701,16 +702,16 @@ IveGotNewUrl:
    //------------------------------------------------------------------------
    sprintf(str,MSG_CONV,oldmime,ext,MSG_DELAY1,ctrlbreak);
    outs(str);
-   if(strstr(strlwr(buf),"insight"))
+   if(strstr(strlwr(p->buf),"insight"))
    {
     tempinit(mman);
     strcat(mman,"$roura2.bat");
     unlink(mman);
     sprintf(str,"\nif exist %s call %s",mman,mman);
-    strcat(buf,str);
+    strcat(p->buf,str);
    }
-   closebat(buf,(mode!=-1));
-   returnvalue=willexecute(buf);
+   closebat(p->buf,(mode!=-1));
+   returnvalue=willexecute(p->buf);
    if(mode==-1)
    {
     x_grf_mod(3);
@@ -722,7 +723,7 @@ IveGotNewUrl:
     if(mode==-2)
     {
      x_setfill(0,0);
-     x_bar(htscrn_xtop,htscrn_ytop,htscrn_xtop+htscrn_xsize,htscrn_ysize+htscrn_ytop);
+     x_bar(p->htscrn_xtop,p->htscrn_ytop,p->htscrn_xtop+p->htscrn_xsize,p->htscrn_ysize+p->htscrn_ytop);
     }
    }
    goto end;
@@ -742,16 +743,17 @@ Render:
   GLOBAL.norefresh=0;
 
 //--------------------------------------------------------------------------
-//process all frames, write cacheitem to htmlframe[arachne.target]
+//process all frames, write cacheitem to p->htmlframe[arachne.target]
 
- if(!renderHTML(html_source,forced_html,RENDER_SCREEN))
+ p->rendering_target=RENDER_SCREEN;
+ if(!renderHTML(p))
 //--------------------------------------------------------------------------
  {
   //send error message/reload page to currently processed frame:
-  cacheitem=&htmlframe[currentframe].cacheitem;
+  cacheitem=&(p->htmlframe[p->currentframe].cacheitem);
 
   //failed to load remote document - try again
-  if(!error && *cacheitem_status!=LOCAL && html_source!=HISTORY_HTML && !(GLOBAL_justrestarted))
+  if(!error && *cacheitem_status!=LOCAL && p->html_source!=HISTORY_HTML && !(GLOBAL_justrestarted))
   {
    *cacheitem_writeadr=Write2Cache(&url,cacheitem,0,0);
    DeleteFromCache(*cacheitem_writeadr);
@@ -760,8 +762,8 @@ Render:
   }
 
   //failed to load local document:
-  sprintf(buf,"%s%serr_load.ah",sharepath,GUIPATH);
-  if(!strcmp(buf,htmlframe[currentframe].cacheitem.locname) || error)
+  sprintf(p->buf,"%s%serr_load.ah",sharepath,GUIPATH);
+  if(!strcmp(p->buf,p->htmlframe[p->currentframe].cacheitem.locname) || error)
   {
    error=1;
    MakeTitle(MSG_ERROR);
@@ -769,9 +771,9 @@ Render:
   }
   else
   {
-   strcpy(htmlframe[currentframe].cacheitem.locname,buf);
-   forced_html=1;
-   html_source=LOCAL_HTML;
+   strcpy(p->htmlframe[p->currentframe].cacheitem.locname,p->buf);
+   p->forced_html=1;
+   p->html_source=LOCAL_HTML;
    error=1;
    arachne.target=0;
    goto Render;
@@ -786,7 +788,7 @@ Render:
   timer=time(NULL);
 #endif
 
-  if(!GLOBAL.isimage && !GLOBAL.source)   //. source -->html_source
+  if(!GLOBAL.isimage && !GLOBAL.source)   //. source -->p->html_source
   {
    //pridani do historie
    if(url.kotva[0])
@@ -824,7 +826,7 @@ Render:
  {
   //printf("error=%d, validtables=%d\n",error, GLOBAL.validtables);
   //while redrawing page we are always reading it from disk
-  html_source=LOCAL_HTML;
+  p->html_source=LOCAL_HTML;
   //because we are just redrawiing, so we do not modify the history list...
   GLOBAL.nothot=1;
   goto Render;
@@ -852,7 +854,7 @@ Search4Image:
 
   while(arachne.newframe<=arachne.framescount && arachne.newframe>0)
   {
-   AnalyseURL(htmlframe[arachne.newframe].cacheitem.URL,&url,IGNORE_PARENT_FRAME);
+   AnalyseURL(p->htmlframe[arachne.newframe].cacheitem.URL,&url,IGNORE_PARENT_FRAME);
    if(!SearchInCache(&url,&HTTPdoc,&dummy1,&dummy2))
    {
     strcpy(GLOBAL.location,HTTPdoc.URL);
@@ -866,7 +868,7 @@ Search4Image:
     goto IveGotNewUrl;
    }
    kbhit();
-   arachne.newframe=htmlframe[arachne.newframe].next;
+   arachne.newframe=p->htmlframe[arachne.newframe].next;
   }
  }
  arachne.newframe=0;
@@ -926,7 +928,7 @@ Search4Image:
    GLOBAL.isimage=0;
 
    //when redrawing images, we always load document from disk...
-   html_source=LOCAL_HTML;
+   p->html_source=LOCAL_HTML;
    GLOBAL.nothot=1;
    GLOBAL.validtables=TABLES_UNKNOWN;
    goto Render;
@@ -939,7 +941,7 @@ Search4Image:
  if(GLOBAL.validtables==TABLES_EXPAND)
  {
   //while redrawing page we are always reading it from disk
-  html_source=LOCAL_HTML;
+  p->html_source=LOCAL_HTML;
   //because we are just redrawiing, so we do not modify the history list...
   GLOBAL.nothot=1;
   goto Render;
@@ -953,7 +955,7 @@ PageDone:
  if(GLOBAL.timeout)
   GLOBAL.secondsleft-=(int)pagetime;
 
- if(memory_overflow)
+ if(p->memory_overflow)
   outs(MSG_NOTMEM);
  else if(GLOBAL.abort)
  {
@@ -1072,7 +1074,7 @@ ReadScriptLine:
   if(tcpip)
    tcp_tick(NULL);
 
-  if(html_source==HTTP_HTML)
+  if(p->html_source==HTTP_HTML)
   {
    if(closing[0])
    {
@@ -1111,13 +1113,13 @@ ReadScriptLine:
     int fr=0;
     do
     {
-     cacheitem=(struct HTTPrecord *)ie_getswap(tmpframedata[fr].writeadr);
+     cacheitem=(struct HTTPrecord *)ie_getswap(p->tmpframedata[fr].writeadr);
      if(cacheitem)
      {
-      cacheitem->x=htmlframe[fr].posX;
-      cacheitem->y=htmlframe[fr].posY;
-      cacheitem->knowsize=htmlframe[fr].cacheitem.knowsize;
-      cacheitem->size=htmlframe[fr].cacheitem.size;
+      cacheitem->x=p->htmlframe[fr].posX;
+      cacheitem->y=p->htmlframe[fr].posY;
+      cacheitem->knowsize=p->htmlframe[fr].cacheitem.knowsize;
+      cacheitem->size=p->htmlframe[fr].cacheitem.size;
       swapmod=1;
      }
     }
@@ -1132,8 +1134,8 @@ ReadScriptLine:
 
    if(GLOBAL.reload==RELOAD_CURRENT_LOCATION) // not RELOAD_NEW_LOCATION...
    {
-    strcpy(GLOBAL.location,htmlframe[activeframe].cacheitem.URL);
-    arachne.target=activeframe;
+    strcpy(GLOBAL.location,p->htmlframe[p->activeframe].cacheitem.URL);
+    arachne.target=p->activeframe;
    }
 
    if(GLOBAL.timeout)
@@ -1148,23 +1150,23 @@ ReadScriptLine:
   else
   if(GLOBAL.needrender)
   {
-   forced_html=0;
+   p->forced_html=0;
    GLOBAL.timeout=0;
    GLOBAL.validtables=TABLES_UNKNOWN;
    if(GLOBAL.source)       //HTML source code - special mode...
    {
-    if(activeframe>0)
-     memcpy(&htmlframe[0].cacheitem,
-            &htmlframe[activeframe].cacheitem,sizeof(struct HTTPrecord));
+    if(p->activeframe>0)
+     memcpy(&(p->htmlframe[0].cacheitem),
+            &(p->htmlframe[p->activeframe].cacheitem),sizeof(struct HTTPrecord));
     arachne.target=0;
     arachne.framescount=0;
     GLOBAL.nothot=1;
    }
    else
    if(GLOBAL.needrender>1) //special dialog boxes, etc.
-    forced_html=1;
+    p->forced_html=1;
 
-   html_source=LOCAL_HTML;
+   p->html_source=LOCAL_HTML;
    pagetime=time(NULL);
    goto Render;
   }
@@ -1203,16 +1205,17 @@ ReadScriptLine:
   else
   if(GLOBAL.del) //delete key was pressed - delete from cache/mail directory
   {
-   if(htmlframe[activeframe].status!=LOCAL &&
-      tmpframedata[activeframe].writeadr!=IE_NULL)
+   if(p->htmlframe[p->activeframe].status!=LOCAL &&
+      p->tmpframedata[p->activeframe].writeadr!=IE_NULL)
    {
     //delete cached version:
     if(GLOBAL.del==1)
     {
-     sprintf(buf,MSG_REMOVE,htmlframe[activeframe].cacheitem.locname);
-     outs(buf);
+     char str[256];
+     sprintf(str,MSG_REMOVE,p->htmlframe[p->activeframe].cacheitem.locname);
+     outs(str);
     }
-    DeleteFromCache(tmpframedata[activeframe].writeadr);
+    DeleteFromCache(p->tmpframedata[p->activeframe].writeadr);
    }
    else
     Piip();

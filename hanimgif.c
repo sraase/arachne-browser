@@ -257,7 +257,7 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
    }
 
    // spocitat si aktualni pix_x,pic_y,stop_x,stop_y,from_x,from_y
-   frame=&htmlframe[gif->picinfo_frameID];
+   frame=&(p->htmlframe[gif->picinfo_frameID]);
 
    gif->from_x = gif->pic_x = frame->scroll.xtop+gif->html_x-frame->posX;
    gif->from_y = gif->pic_y = (int)(frame->scroll.ytop+gif->html_y-frame->posY);

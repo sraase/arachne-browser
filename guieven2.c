@@ -1,7 +1,7 @@
 
 // ========================================================================
 // GRAPHICAL USER INTERFACE for Arachne WWW browser - runtime functions
-// (c)1997 xChaos software, portions (c)1997 Caldera Inc.
+// (c)1997-2000 Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
@@ -129,7 +129,7 @@ int onbutton(int x,int y)
  }
 
  //Click on history button
- if(x>URLprompt.xx && x<x_maxx()-152 && y>URLprompt.y+htscrn_ytop && y<htscrn_ytop)
+ if(x>URLprompt.xx && x<x_maxx()-152 && y>URLprompt.y+p->htscrn_ytop && y<p->htscrn_ytop)
  {
 #ifdef OVRL
 #ifndef XTVERSION
@@ -139,7 +139,7 @@ int onbutton(int x,int y)
   return CLICK_HISTORY;
  }
 
- if(y<htscrn_ytop-25 && y>htscrn_ytop-50)
+ if(y<p->htscrn_ytop-25 && y>p->htscrn_ytop-50)
  {
  if(x>x_maxx()-300 && x<x_maxx()-190)
  {
@@ -386,8 +386,8 @@ char shift(void)
 void smothscroll(long from,long to)
 {
  int step=user_interface.step;
- struct HTMLframe *frame=&htmlframe[activeframe];
- struct TMPframedata *htmldata=&tmpframedata[activeframe];
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
+ struct TMPframedata *htmldata=&(p->tmpframedata[p->activeframe]);
 
  if(!htmldata->usevirtualscreen)
   return;
@@ -423,7 +423,7 @@ void novirtual(void)
  int i=0;
  do
  {
-  virtualyend[tmpframedata[i].whichvirtual]=0l;
+  virtualyend[p->tmpframedata[i].whichvirtual]=0l;
  }
  while(++i<MAXFRAMES);
 }
@@ -434,16 +434,15 @@ void novirtual(void)
 #ifdef VIRT_SCR
 void Try2DumpActiveVirtual(void)
 {
- if(allocatedvirtual[tmpframedata[activeframe].whichvirtual] &&
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
+ if(allocatedvirtual[p->tmpframedata[p->activeframe].whichvirtual] &&
     user_interface.smooth &&
-    htmlframe[activeframe].posX>=virtualxstart[tmpframedata[activeframe].whichvirtual] &&
-    htmlframe[activeframe].posX+htmlframe[activeframe].scroll.xsize<virtualxend[tmpframedata[activeframe].whichvirtual] &&
-    htmlframe[activeframe].posY>=virtualystart[tmpframedata[activeframe].whichvirtual] &&
-    htmlframe[activeframe].posY+htmlframe[activeframe].scroll.ysize<virtualyend[tmpframedata[activeframe].whichvirtual])
+    frame->posX>=virtualxstart[p->tmpframedata[p->activeframe].whichvirtual] &&
+    frame->posX+frame->scroll.xsize<virtualxend[p->tmpframedata[p->activeframe].whichvirtual] &&
+    frame->posY>=virtualystart[p->tmpframedata[p->activeframe].whichvirtual] &&
+    frame->posY+frame->scroll.ysize<virtualyend[p->tmpframedata[p->activeframe].whichvirtual])
  {
-  dumpvirtual(&htmlframe[activeframe],&tmpframedata[activeframe],
-              htmlframe[activeframe].posX,
-              htmlframe[activeframe].posY);
+  dumpvirtual(frame,&(p->tmpframedata[p->activeframe]),frame->posX,frame->posY);
 #ifdef GGI
   Smart_ggiFlush();
 #endif 

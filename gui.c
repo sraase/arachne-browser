@@ -74,10 +74,10 @@ mammys:
  else
  if(lx==mousex && ly==mousey && justmoved)
  {
-  if(mousex>=htscrn_xtop &&
-     mousex<=htscrn_xtop+htscrn_xsize &&
-     mousey>=htscrn_ytop &&
-     mousey<=htscrn_ytop+htscrn_ysize)
+  if(mousex>=p->htscrn_xtop &&
+     mousex<=p->htscrn_xtop+p->htscrn_xsize &&
+     mousey>=p->htscrn_ytop &&
+     mousey<=p->htscrn_ytop+p->htscrn_ysize)
   {
    if(lastonbutton)
    {
@@ -156,7 +156,7 @@ mammys:
   i=0;
   do
   {
-   htmlframe[i].scroll.onscrollx=htmlframe[i].scroll.onscrolly=0;
+   p->htmlframe[i].scroll.onscrollx=p->htmlframe[i].scroll.onscrolly=0;
   }
   while(i++<arachne.framescount); //[0...3]
  }//endif not mys

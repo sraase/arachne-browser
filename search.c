@@ -1,6 +1,7 @@
+
 // ========================================================================
 // Search HTML document in memory for search string
-// (c)1997 xChaos software
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
@@ -30,9 +31,8 @@ void setTXTprompt(char *str)
 void SearchString(void)
 {
  struct HTMLrecord HTMLatom,foundatom;
- unsigned currentHTMLatom=firstonscr,foundHTMLatom,nextHTMLatom;
- struct HTMLframe *frame=&htmlframe[activeframe];
-// struct TMPframedata *htmldata=&tmpframedata[activeframe];
+ unsigned currentHTMLatom=p->firstonscr,foundHTMLatom,nextHTMLatom;
+ struct HTMLframe *frame=&(p->htmlframe[p->activeframe]);
  long minY=0l;
  char *str,*tmp,*foundstr,*ptr,found=0;
  struct HTMLrecord *atomptr;
@@ -45,7 +45,7 @@ void SearchString(void)
 
  getTXTprompt(str,IE_MAXLEN);
 
- if(HTMLatomcounter>1000)
+ if(p->HTMLatomcounter>1000)
  {
   sprintf(tmp,MSG_SRCH1,str);
   outs(tmp);
@@ -59,7 +59,7 @@ void SearchString(void)
   if(!atomptr)
    MALLOCERR();
   nextHTMLatom=atomptr->next;
-  if(atomptr->type==TEXT && atomptr->frameID==activeframe &&
+  if(atomptr->type==TEXT && atomptr->frameID==p->activeframe &&
      atomptr->y>=frame->posY)
   {
    memcpy(&HTMLatom,atomptr,sizeof(struct HTMLrecord));
@@ -75,10 +75,10 @@ void SearchString(void)
    {
     minY=HTMLatom.y;
     memcpy(&foundatom,&HTMLatom,sizeof(struct HTMLrecord));
-    strcpy(foundstr,ptr);
+    makestr(foundstr,ptr,IE_MAXLEN);
     foundHTMLatom=currentHTMLatom;
     found=1;
-    if(foundHTMLatom==firstHTMLatom)
+    if(foundHTMLatom==p->firstHTMLatom)
      break;
    }
   }
@@ -105,7 +105,7 @@ void SearchString(void)
 
   if(arachne.framescount)
   {
-   activeframe=0;
+   p->activeframe=0;
    redrawHTML(REDRAW_NO_MESSAGE,REDRAW_CREATE_VIRTUAL);
   }
   else

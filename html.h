@@ -28,7 +28,7 @@ void MixVisiblePaletes(char writepal);
 int MixPal(struct picinfo *o,int n,char writepal);
 
 //frame management
-void addframeset(char xflag, int *empty, char framewantborder);
+void addframeset(char xflag, int *emptyframe, char framewantborder, char *startptr);
 char findfreeframe(void);
 int findtarget(int basetarget);
 //void resetframeborder(struct HTMLframe *frame, char shift);
@@ -62,14 +62,16 @@ void ResetHtmlPage(struct TMPframedata *html,char ishtml, char allowuser);
 void LinkUSEMAPs(void);
 void highlightatom(struct HTMLrecord *foundatom);
 void fixrowsize(int font,char style);
-void pushfont(int font,char style, struct Fontstack *fontstack);
-int popfont(int *font,char *style, struct Fontstack *fontstack);
+void pushfont(int font,char style, struct HTMLrecord *atom, struct Fontstack *fontstack);
+int popfont(int *font,char *style, struct HTMLrecord *atom, struct Fontstack *fontstack);
 int space(char font);
 
 //external treatment of certain tags outside renderHTML:
 void METAtag(void);
 void USEMAParea(struct HTMLrecord *atom,char basetarget);
 void BodyArachne(struct TMPframedata *html);
+void DummyFrame(struct Page *p,int *x, long *y);
+void CheckArachneFormExtensions(struct HTTPrecord *cache,char *value, int *checked);
 
 #define CONSOLEWIDTH user_interface.printerwidth
 #define OPTIONFONT (2+user_interface.fontshift)
@@ -101,18 +103,18 @@ extern char rgbcacheidx;
 
 #define PARAGRAPH \
 alignrow(x,y,orderedlist[listdepth]);\
-if(x>left && lasttag!=TAG_BODY || lasttag==TAG_SLASH_TABLE || \
+if(x>p->docLeft && lasttag!=TAG_BODY || lasttag==TAG_SLASH_TABLE || \
    lasttag==TAG_BR || lasttag==TAG_UL || lasttag==TAG_OL || lasttag==TAG_OL)\
 {\
- y+=rowsize;\
+ y+=p->sizeRow;\
  if(fixedfont)\
   y+=fonty(basefont,0);\
  else\
   y+=fonty(basefont,0)/2;\
 }\
-if(xsum>maxsum)\
- maxsum=xsum;\
-xsum=0;
+if(p->xsum>p->maxsum)\
+ p->maxsum=p->xsum;\
+p->xsum=0;
 
 
 // basic HTML rendering modes:

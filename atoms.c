@@ -1,7 +1,7 @@
 
 // ========================================================================
 // Arachne "activeatom" and mouse interface
-// (c)1997,1999 Michael Polak, Arachne Labs
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
@@ -18,11 +18,12 @@ char gotonextlink( int *x, int *y , char back, char asc)
  char rv;
  unsigned currentHTMLatom,nextHTMLatom;
  struct HTMLrecord *atomptr;
+ struct HTMLframe *frame;
 
  if(back)
-  currentHTMLatom=lastonscr;
+  currentHTMLatom=p->lastonscr;
  else
-  currentHTMLatom=firstonscr;
+  currentHTMLatom=p->firstonscr;
 
  while(currentHTMLatom!=IE_NULL)
  {
@@ -32,24 +33,26 @@ char gotonextlink( int *x, int *y , char back, char asc)
 
   if(back) //Shift+Tab
   {
-   if(currentHTMLatom==firstonscr)
+   if(currentHTMLatom==p->firstonscr)
     nextHTMLatom=IE_NULL;
    else
     nextHTMLatom=atomptr->prev;
   }
   else //Tab
   {
-   if(currentHTMLatom==lastonscr)
+   if(currentHTMLatom==p->lastonscr)
     nextHTMLatom=IE_NULL;
    else
     nextHTMLatom=atomptr->next;
   }//endif
 
+  frame=&(p->htmlframe[atomptr->frameID]);
+
   if(atomptr->linkptr!=IE_NULL &&
-     atomptr->x>htmlframe[atomptr->frameID].posX &&
-     atomptr->y>htmlframe[atomptr->frameID].posY &&
-     atomptr->xx<htmlframe[atomptr->frameID].posX+htmlframe[atomptr->frameID].scroll.xsize &&
-     atomptr->yy<htmlframe[atomptr->frameID].posY+htmlframe[atomptr->frameID].scroll.ysize &&
+     atomptr->x>frame->posX &&
+     atomptr->y>frame->posY &&
+     atomptr->xx<frame->posX+frame->scroll.xsize &&
+     atomptr->yy<frame->posY+frame->scroll.ysize &&
      !(atomptr->type==TABLE || atomptr->type==TD || atomptr->type==TD_BACKGROUND ||
        atomptr->type==INPUT && atomptr->data1==HIDDEN))
   {
@@ -87,8 +90,8 @@ char gotonextlink( int *x, int *y , char back, char asc)
  ret:
  if(fy>=0)
  {
-  *x=(int)(fx-2-htmlframe[frameID].posX+htmlframe[frameID].scroll.xtop);
-  *y=(int)(fy-2-htmlframe[frameID].posY+htmlframe[frameID].scroll.ytop);
+  *x=(int)(fx-2-p->htmlframe[frameID].posX+p->htmlframe[frameID].scroll.xtop);
+  *y=(int)(fy-2-p->htmlframe[frameID].posY+p->htmlframe[frameID].scroll.ytop);
  }
  return rv;
 }
@@ -102,7 +105,7 @@ char *activeislastinput(void)
  {
   unsigned submitlink=atomptr->linkptr;
   char found=0;
-  unsigned currentHTMLatom=firstonscr;
+  unsigned currentHTMLatom=p->firstonscr;
 
   while(currentHTMLatom!=IE_NULL)
   {
@@ -162,13 +165,13 @@ void inputatom(char *msg1,char *msg2)
  activeatomptr=&TXTprompt;
 
  mouseoff();
- Box3D(TXTprompt.x-BOXBORDER,htscrn_ytop+(int)(TXTprompt.y-fonty(BOXTEXT)-BOXBORDER),
-       TXTprompt.xx+BOXBORDER,htscrn_ytop+(int)(TXTprompt.yy+BOXBORDER-2));
+ Box3D(TXTprompt.x-BOXBORDER,p->htscrn_ytop+(int)(TXTprompt.y-fonty(BOXTEXT)-BOXBORDER),
+       TXTprompt.xx+BOXBORDER,p->htscrn_ytop+(int)(TXTprompt.yy+BOXBORDER-2));
  x_setcolor(0);
  htmlfont(BOXTEXT);
  {
   int colormap[5]={8,-1,-1,15,7};
-  decorated_text(TXTprompt.x,htscrn_ytop+(int)(TXTprompt.y-fonty(BOXTEXT)-2),msg1,colormap);
+  decorated_text(TXTprompt.x,p->htscrn_ytop+(int)(TXTprompt.y-fonty(BOXTEXT)-2),msg1,colormap);
  }
 
  activeatomredraw();
@@ -186,8 +189,7 @@ int activeatomtick(int key,char textareacmd)
  {
   int x1,x2,xs,ys,asc,oldline;
   long y1,y2;
-//  struct TMPframedata *htmldata=&tmpframedata[activeatomptr->frameID];
-  struct HTMLframe *frame=&htmlframe[activeatomptr->frameID];
+  struct HTMLframe *frame=&(p->htmlframe[activeatomptr->frameID]);
 
   x2=activeatomptr->xx;
   x1=activeatomptr->x;
@@ -441,8 +443,10 @@ int activeismap(int *dx, int *dy) //je aktivnim obrazkem klikatelna mapa ?
  if(activeatomptr && activeatomptr->type==IMG &&
     activeatomptr->data1 && activeatomptr->data1!=2)
  {
-  *dx=(int)(activeatomptr->x+activeatomptr->data2+htmlframe[activeatomptr->frameID].scroll.xtop-htmlframe[activeatomptr->frameID].posX);
-  *dy=(int)(activeatomptr->y+activeatomptr->data2+htmlframe[activeatomptr->frameID].scroll.ytop-htmlframe[activeatomptr->frameID].posY);
+  *dx=(int)(activeatomptr->x+activeatomptr->data2+
+       p->htmlframe[activeatomptr->frameID].scroll.xtop-p->htmlframe[activeatomptr->frameID].posX);
+  *dy=(int)(activeatomptr->y+activeatomptr->data2+
+       p->htmlframe[activeatomptr->frameID].scroll.ytop-p->htmlframe[activeatomptr->frameID].posY);
   return activeatomptr->data1;
  }
  else
@@ -454,7 +458,7 @@ int activeismap(int *dx, int *dy) //je aktivnim obrazkem klikatelna mapa ?
 void RadioSwitch(int fromx, long fromy,XSWAP current,XSWAP formptr)
 {
  char name[80];
- XSWAP currentHTMLatom=firstHTMLatom,nextHTMLatom;
+ XSWAP currentHTMLatom=p->firstHTMLatom,nextHTMLatom;
  struct ScrollBar *scroll;
  struct HTMLrecord *atomptr;
 
@@ -488,7 +492,7 @@ void RadioSwitch(int fromx, long fromy,XSWAP current,XSWAP formptr)
      atomptr->data2=0; //!neni checked!
     swapmod=1;        //!ulozit!
 
-    scroll=&htmlframe[atomptr->frameID].scroll;
+    scroll=&(p->htmlframe[atomptr->frameID].scroll);
     if(atomptr->y>=fromy && atomptr->y<fromy+scroll->ysize &&
        atomptr->x>=fromx && atomptr->x<fromy+scroll->xsize)
     {
@@ -504,7 +508,7 @@ void RadioSwitch(int fromx, long fromy,XSWAP current,XSWAP formptr)
 
 void HideLink(char *hideURL)
 {
- XSWAP currentHTMLatom=firstHTMLatom,nextHTMLatom;
+ XSWAP currentHTMLatom=p->firstHTMLatom,nextHTMLatom;
  XSWAP hidethis=IE_NULL;
  struct HTMLrecord *atomptr;
 
@@ -537,7 +541,7 @@ int ProcessLinks(char generateASF)
 {
  struct Url url;
  char frameID;
- XSWAP currentHTMLatom=firstHTMLatom,nextHTMLatom;
+ XSWAP currentHTMLatom=p->firstHTMLatom,nextHTMLatom;
  XSWAP hidethis=IE_NULL;
  unsigned dummy;
  int count=0,asf;
@@ -549,11 +553,12 @@ int ProcessLinks(char generateASF)
 
  if(generateASF)
  {
-  tempinit(buf);
-  strcat(buf,"$tmp$.asf");
-  asf=a_open(buf,O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  char fname[80];
+  tempinit(fname);
+  strcat(fname,"$tmp$.asf");
+  asf=a_open(fname,O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
   if(asf>=0)
-   sprintf(GLOBAL.location,"file:%s",buf);
+   sprintf(GLOBAL.location,"file:%s",fname);
   else
    return 0;
  }
@@ -598,9 +603,9 @@ int ProcessLinks(char generateASF)
   else
   if(hidethis!=IE_NULL && atomptr->linkptr==hidethis)
   {
-   atomptr->R=tmpframedata[frameID].textR;
-   atomptr->G=tmpframedata[frameID].textG;
-   atomptr->B=tmpframedata[frameID].textB;
+   atomptr->R=p->tmpframedata[frameID].textR;
+   atomptr->G=p->tmpframedata[frameID].textG;
+   atomptr->B=p->tmpframedata[frameID].textB;
    swapmod=1;
   }
 
@@ -609,8 +614,8 @@ int ProcessLinks(char generateASF)
 
  if(generateASF)
  {
-  sprintf(buf,"%s\n",htmlframe[0].cacheitem.URL);
-  write(asf,buf,strlen(buf));
+  write(asf,p->htmlframe[0].cacheitem.URL,strlen(p->htmlframe[0].cacheitem.URL));
+  write(asf,"\n",1);
   a_close(asf);
   return 1;
  }
@@ -624,7 +629,7 @@ void activeatomredraw(void)
 {
  if(activeatomptr)
  {
-  struct HTMLframe *frame=&htmlframe[activeatomptr->frameID];
+  struct HTMLframe *frame=&(p->htmlframe[activeatomptr->frameID]);
 
   mouseoff();
   if(activeatomptr==&URLprompt || activeatomptr==&TXTprompt)
@@ -659,7 +664,7 @@ void activeatomcursor(char cursor)
 
   if(arachne.framescount)
   {
-   activeframe=0;
+   p->activeframe=0;
    redrawHTML(REDRAW_NO_MESSAGE,REDRAW_CREATE_VIRTUAL);
   }
   else
@@ -672,7 +677,7 @@ void activeatomcursor(char cursor)
   char zn[2]=" \0";
   char *ptr;
   int ink,paper;
-  struct HTMLframe *frame=&htmlframe[activeatomptr->frameID];
+  struct HTMLframe *frame=&(p->htmlframe[activeatomptr->frameID]);
 
   if(subtype==SELECT)
   {
@@ -828,8 +833,8 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
 {
  int selected;
  long selecty=activeatom.y;
- int fromx=htmlframe[activeatom.frameID].posX;
- long fromy=htmlframe[activeatom.frameID].posY;
+ int fromx=p->htmlframe[activeatom.frameID].posX;
+ long fromy=p->htmlframe[activeatom.frameID].posY;
 
  if(selecty<fromy)
   selecty=fromy;
@@ -842,13 +847,14 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
   int rows;
   long realy=activeatom.y;
   long realyy=activeatom.yy;
-  int onscreen_x=(int)(activeatom.x-fromx+htmlframe[activeatom.frameID].scroll.xtop);
-  int onscreen_xx=(int)(activeatom.xx-fromx+htmlframe[activeatom.frameID].scroll.xtop);
+  struct ScrollBar *scroll=&(p->htmlframe[activeatom.frameID].scroll);
+  int onscreen_x=(int)(activeatom.x-fromx+scroll->xtop);
+  int onscreen_xx=(int)(activeatom.xx-fromx+scroll->xtop);
 
-  if(realy-fromy+htmlframe[activeatom.frameID].scroll.ytop<htscrn_ytop)
-   realy=htmlframe[activeatom.frameID].scroll.ytop-htscrn_ytop+fromy;
-  if(realyy-fromy+htmlframe[activeatom.frameID].scroll.ytop>htscrn_ytop+htscrn_ysize)
-   realyy=htscrn_ytop+htscrn_ysize-htmlframe[activeatom.frameID].scroll.ytop+fromy;
+  if(realy-fromy+scroll->ytop<p->htscrn_ytop)
+   realy=scroll->ytop-p->htscrn_ytop+fromy;
+  if(realyy-fromy+scroll->ytop>p->htscrn_ytop+p->htscrn_ysize)
+   realyy=p->htscrn_ytop+p->htscrn_ysize-scroll->ytop+fromy;
 
   rows=2*(int)((realyy-realy-4)/fonty(OPTIONFONT,0));
   if(selected>rows)
@@ -868,7 +874,7 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
    int sw=0;
    if(key==0 && user_interface.scrollbarsize>3)
    {
-    struct ScrollBar scroll;
+    struct ScrollBar tmpscroll;
     char resetstyle=0;
 
     if(!user_interface.scrollbarstyle)
@@ -876,16 +882,16 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
      user_interface.scrollbarstyle='N';
      resetstyle=1;
     }
-    scroll.xvisible=0;
-    scroll.yvisible=1;
-    ScrollInit(&scroll,
+    tmpscroll.xvisible=0;
+    tmpscroll.yvisible=1;
+    ScrollInit(&tmpscroll,
                (int)(activeatom.xx-activeatom.x-user_interface.scrollbarsize-6),
                (int)(realyy-realy-8),
                (int)(realyy-realy-8),
                onscreen_x+3,
-               (int)(realy+3-fromy+htmlframe[activeatom.frameID].scroll.ytop),1,1);
+               (int)(realy+3-fromy+scroll->ytop),1,1);
 
-    sw=OnScrollButtons(&scroll);
+    sw=OnScrollButtons(&tmpscroll);
     if(resetstyle)
      user_interface.scrollbarstyle=0;
 
@@ -965,7 +971,7 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
        htmlsavey=mousey;
       }
 
-      mousey=(int)(realy-fromy+htmlframe[activeatom.frameID].scroll.ytop)+
+      mousey=(int)(realy-fromy+scroll->ytop)+
               fonty(OPTIONFONT,0)*(editorptr->x-editorptr->zoomy+2)/2;
       mousex=onscreen_xx-user_interface.scrollbarsize-4;
       ImouseSet( mousex, mousey);
@@ -975,9 +981,9 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
      hidehighlight();
      thisx=onscreen_x+3;
      thisxx=onscreen_xx-user_interface.scrollbarsize-1;
-     thisy=(int)(realy-fromy+htmlframe[activeatom.frameID].scroll.ytop)+
+     thisy=(int)(realy-fromy+scroll->ytop)+
              fonty(OPTIONFONT,0)*(editorptr->x-editorptr->zoomy)/2+3;
-     thisyy=thisy+fonty(OPTIONFONT,0)+1;
+     thisyy=thisy+fonty(OPTIONFONT,0)+2;
 
      if(key!=PAGEUP && key!=PAGEDOWN)
      {
@@ -988,10 +994,10 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
 
     mouseoff();
     drawatom(&activeatom,fromx,fromy,
-              htscrn_xsize+htscrn_xtop-htmlframe[activeatom.frameID].scroll.xtop,
-              htscrn_ysize+htscrn_ytop-htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
-              htmlframe[activeatom.frameID].scroll.xtop,
-              htmlframe[activeatom.frameID].scroll.ytop);  //frames...
+              p->htscrn_xsize+p->htscrn_xtop-scroll->xtop,
+              p->htscrn_ysize+p->htscrn_ytop-scroll->ytop, 
+              //select window can overwrite other
+              scroll->xtop,scroll->ytop);  //frames...
     mouseon();
     if(key)
      showhighlight();
@@ -1047,10 +1053,9 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
    {
     mouseoff();
     drawatom(&activeatom,fromx,fromy,
-              htscrn_xsize+htscrn_xtop-htmlframe[activeatom.frameID].scroll.xtop,
-              htscrn_ysize+htscrn_ytop-htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
-              htmlframe[activeatom.frameID].scroll.xtop,
-              htmlframe[activeatom.frameID].scroll.ytop);  //frames...
+              p->htscrn_xsize+p->htscrn_xtop-scroll->xtop,
+              p->htscrn_ysize+p->htscrn_ytop-scroll->ytop, 
+              scroll->xtop,scroll->ytop); 
     mouseon();
    }
    return;

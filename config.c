@@ -163,16 +163,16 @@ int loadpick( char *exename) //nahrat konfiguraci
 #endif
  }//endif first start
 
- htmlframe=(struct HTMLframe*)farmalloc(MAXFRAMES*(2+sizeof(struct HTMLframe)));
+ p->htmlframe=(struct HTMLframe*)farmalloc(MAXFRAMES*(2+sizeof(struct HTMLframe)));
  AUTHENTICATION=farmalloc(sizeof(struct AUTH_STRUCT)+2);
- if(htmlframe && AUTHENTICATION)
+ if(p->htmlframe && AUTHENTICATION)
  {
   if(f>=0)
-   i=a_read(f,htmlframe,MAXFRAMES*(1+sizeof(struct HTMLframe)));
+   i=a_read(f,p->htmlframe,MAXFRAMES*(1+sizeof(struct HTMLframe)));
   else
    i=0;
   if(i<MAXFRAMES*(1+sizeof(struct HTMLframe)))
-   memset(htmlframe,0,MAXFRAMES*(1+sizeof(struct HTMLframe)));
+   memset(p->htmlframe,0,MAXFRAMES*(1+sizeof(struct HTMLframe)));
 
   if(f>=0)
    i=a_read(f,AUTHENTICATION,sizeof(struct AUTH_STRUCT));
@@ -237,7 +237,7 @@ void savepick() //ulozit konfiguraci
  if(f>=0)
  {
   write(f,&arachne,sizeof(struct ArachnePick));
-  write(f,htmlframe,MAXFRAMES*(1+sizeof(struct HTMLframe)));
+  write(f,p->htmlframe,MAXFRAMES*(1+sizeof(struct HTMLframe)));
   write(f,AUTHENTICATION,sizeof(struct AUTH_STRUCT));
   a_close(f);
  }
@@ -323,7 +323,7 @@ int willexecute(char *cmd) //vykonat nejakou hloupost:
   write(f,cmd,strlen(cmd));
   a_close(f);
   if(tempdir[0])
-   return EXIT_FAST_EXECUTE; // %TEMP%\$roura$.bat
+   return EXIT_FAST_EXECUTE; // %ARACHNETEMP%\$roura$.bat
   else
    return EXIT_EXECUTE;      // .\$roura$.bat
  }

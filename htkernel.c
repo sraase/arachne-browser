@@ -1,5 +1,4 @@
 
-
 // ========================================================================
 // Arachne WWW browser ""kernel" HTTP functions
 // (c)1997,1998,1999 xChaos software
@@ -36,10 +35,10 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
  struct timeval tv;
 #endif
 
- if(httplen) //flush rest of header...
+ if(p->httplen) //flush rest of header...
  {
-  count=httplen;
-  httplen=0;
+  count=p->httplen;
+  p->httplen=0;
   if(cache->handle!=-1)
    write(cache->handle,buf,count);
   Backgroundhttp();
@@ -71,9 +70,12 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
     return 0;
    }
 
+#ifdef GGI
+  IfRequested_ggiFlush();
+#endif
 #ifdef POSIX
   tv.tv_sec = 0;
-  tv.tv_usec = 200;
+  tv.tv_usec = 500; //increased to one milisecond for best results...
 
   FD_ZERO (&rfds);
   FD_ZERO (&efds);
@@ -141,11 +143,14 @@ void Backgroundhttp(void)
   GLOBAL.backgroundimages=BACKGROUND_RUNNING; //"semafor"
   status=GLOBAL.back_status;
 
+#ifdef GGI
+  IfRequested_ggiFlush();
+#endif
 #ifdef POSIX
   fcntl (GLOBAL.back_socknum, F_SETFL, O_NONBLOCK);
 
   tv.tv_sec = 0;
-  tv.tv_usec = 200;
+  tv.tv_usec = 500;
 
   FD_ZERO (&rfds);
   FD_ZERO (&efds);

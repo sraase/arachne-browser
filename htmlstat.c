@@ -1,5 +1,4 @@
 
-
 // ========================================================================
 // HTML rendering routines for Arachne WWW browser, statical part
 // (c)1997-2000 Michael Polak, Arachne Labs
@@ -11,10 +10,10 @@
 
 // ========================================================================
 // Fast arguments for HTML tags.
-// (c)1997,1999 Michael Polak, Arachne Labs
 // ========================================================================
 
 
+// getvar() reads value of variable of given name
 int getvar(char *name,char **value)
 {
  int i=0,nameidx=0,valueidx=0;
@@ -35,6 +34,22 @@ int getvar(char *name,char **value)
  return 0;
 }
 
+int searchvar(char *name)
+{
+ int i=0,nameidx=0;
+ int l=strlen(name);
+
+ while(i<argnamecount)
+ {
+  if(!strncmpi(argnamestr+nameidx+sizeof(int),name,l))
+   return 1;
+  nameidx+=*(int*)(&argnamestr[nameidx]);
+  i++;
+ }
+ return 0;
+}
+
+// putvarname() sets new variable name
 void putvarname(char *name,int size)
 {
  int idx=0,i=argnamecount;
@@ -54,6 +69,7 @@ void putvarname(char *name,int size)
  }
 }
 
+// putvarname() sets new variable value (putvarname must be called first)
 void putvarvalue(char *value,int size)
 {
  int idx=0,i=argvaluecount;
@@ -74,7 +90,7 @@ void putvarvalue(char *value,int size)
 
 }
 
-//hexa -> deci:
+//converts hexadecimal character to decimal value
 char hexdigit(char c)
 {
  if(c>='0' && c<='9') return c-'0';
@@ -82,7 +98,9 @@ char hexdigit(char c)
  return 0;
 }
 
-//read #RRGGBB:
+//try2readHTMLcolor reads RGB color in HTML format "#RRGGBB" - supports also 
+//16 basic color names acording to HTML/4.0 specification.
+
 void try2readHTMLcolor(char *str,unsigned char *r,unsigned char *g,unsigned char *b)
 {
  char string[7]="0000000";
@@ -151,7 +169,7 @@ void try2readHTMLcolor(char *str,unsigned char *r,unsigned char *g,unsigned char
  }
 }
 
-//absolutni hodnota nebo % ze zakladu:
+//try2getnum converts HTML object metrics to number: pixels or percents
 int try2getnum(char *str,unsigned proczaklad)
 {
  int l;
@@ -170,9 +188,7 @@ int try2getnum(char *str,unsigned proczaklad)
 
 // ========================================================================
 // fast HTML tag analysis
-// (c)1997 xChaos software
 // ========================================================================
-
 
 int FastTagDetect(char *tagname)
 {
@@ -378,7 +394,7 @@ int FastTagDetect(char *tagname)
  return 0;
 }
 
-
+//close HTML atom == set coordinates of right bottom corner
 char closeatom(XSWAP adr,int deltax,long absy)
 {
  char expand=0;
@@ -392,7 +408,7 @@ char closeatom(XSWAP adr,int deltax,long absy)
   {
    if(abs((int)atomptr->x+deltax-(int)atomptr->xx)>FUZZYPIX)
     expand=1;
-   xsum+=(atomptr->x+deltax)-atomptr->xx;
+   p->xsum+=(atomptr->x+deltax)-atomptr->xx;
    atomptr->xx=atomptr->x+deltax;
    if(absy) //0...don't overwrite!
     atomptr->yy=absy;
@@ -405,7 +421,8 @@ char closeatom(XSWAP adr,int deltax,long absy)
 }//end if
 
 
-
+// find target frame for any HTML tag with TARGET attribute
+// <A HREF=... TARGET=...>
 int findtarget(int basetarget)
 {
  int target=basetarget;
@@ -416,11 +433,11 @@ int findtarget(int basetarget)
   int fr=0;
 
   if(!strcmpi(tagarg,"_parent"))
-   return htmlframe[currentframe].parent;
+   return p->htmlframe[p->currentframe].parent;
 
   do
   {
-   if(!strncmpi(htmlframe[fr].framename,tagarg,39))
+   if(!strncmpi(p->htmlframe[fr].framename,tagarg,39))
     target=fr;
   }
   while(fr++<arachne.framescount);
@@ -428,11 +445,13 @@ int findtarget(int basetarget)
  return target;
 }
 
-void addatom(struct HTMLrecord *atom,void *ptr,int len,char t, char align,char d1, unsigned char d2,unsigned currentlink,char norightedge)
+//add atom to metafile
+void addatom(struct HTMLrecord *atom,void *ptr,int len,char t, char align,
+           char d1, unsigned char d2,unsigned currentlink,char norightedge)
 {
- unsigned dataptr,prevHTMLatom=lastHTMLatom;
+ unsigned dataptr,prevHTMLatom=p->lastHTMLatom;
 
- // printf("Adding atomg of type %d...\n",t);
+ // printf("Adding atom of type %d...\n",t);
 
  if(len==0 && t==TEXT) return;
 
@@ -445,88 +464,83 @@ void addatom(struct HTMLrecord *atom,void *ptr,int len,char t, char align,char d
  atom->align=align;
  atom->data1=d1;
  atom->data2=d2;
- atom->R=r;
- atom->G=g;
- atom->B=b;
+// atom->R=r;   //this comes pre-defined in HTML atom...
+// atom->G=g;
+// atom->B=b;
  atom->ptr=dataptr;
  atom->datalen=len;
  atom->linkptr=currentlink;
  atom->next=IE_NULL;
  atom->prev=prevHTMLatom;
- atom->frameID=currentframe;
+ atom->frameID=p->currentframe;
 #ifdef JAVASCRIPT
  atom->jsptr=IE_NULL;
 #endif
 
- lastHTMLatom=ie_putswap((char *)atom,sizeof(struct HTMLrecord),CONTEXT_HTML);
- if(firstHTMLatom==IE_NULL)
-  firstHTMLatom=lastHTMLatom;
+ p->lastHTMLatom=ie_putswap((char *)atom,sizeof(struct HTMLrecord),CONTEXT_HTML);
+ if(p->firstHTMLatom==IE_NULL)
+  p->firstHTMLatom=p->lastHTMLatom;
  else
  {
   struct HTMLrecord *atomptr=(struct HTMLrecord *)ie_getswap(prevHTMLatom);
   if(atomptr)
   {
-   atomptr->next=lastHTMLatom;
+   atomptr->next=p->lastHTMLatom;
    swapmod=1;
   }
   else
    MALLOCERR();
  }
 
- if(lastHTMLatom==IE_NULL || swapnum==IE_MAXSWAP-1)
+ if(p->lastHTMLatom==IE_NULL)
  {
-  memory_overflow=1;
+  p->memory_overflow=1;
   return;
  }
  else
-  HTMLatomcounter++;
+  p->HTMLatomcounter++;
 
  if(!norightedge)
  {
-  if(atom->xx>right)
-   right=atom->xx;
-  if(atom->xx>rightedge)
-   rightedge=atom->xx;
-  if(atom->xx+HTMLBORDER>htmlframe[currentframe].scroll.total_x)
-   htmlframe[currentframe].scroll.total_x=atom->xx+HTMLBORDER;
+  if(atom->xx>p->docRight)
+   p->docRight=atom->xx;
+  if(atom->xx>p->docRightEdge)
+   p->docRightEdge=atom->xx;
+  if(atom->xx+HTMLBORDER>p->htmlframe[p->currentframe].scroll.total_x)
+   p->htmlframe[p->currentframe].scroll.total_x=atom->xx+HTMLBORDER;
 
-  xsum+=(long)(atom->xx-atom->x);
+  p->xsum+=(long)(atom->xx-atom->x);
  }
 
-/*
-#ifdef FASTDEALLOC
-firstswap=0;
-HTMLswap=swapnum;
-#endif
-*/
 }
 
+// move HTML document "cursor" d pixels to the right
 void xshift(int *x,int d)
 {
  *x+=d;
- if(*x>right)
-  right=*x;
- if(*x>rightedge)
-  rightedge=*x;
- if(*x+HTMLBORDER>htmlframe[currentframe].scroll.total_x)
-  htmlframe[currentframe].scroll.total_x=*x+HTMLBORDER;
+ if(*x>p->docRight)
+  p->docRight=*x;
+ if(*x>p->docRightEdge)
+  p->docRightEdge=*x;
+ if(*x+HTMLBORDER>p->htmlframe[p->currentframe].scroll.total_x)
+  p->htmlframe[p->currentframe].scroll.total_x=*x+HTMLBORDER;
 
- xsum+=(long)d;
+ p->xsum+=(long)d;
 }
 
-//. Called after the current line has been processed
+//called after the current line has been processed
 void alignrow(int x,long y,int islist)
 {
  int xhop;
  //int idx;
  long vsize;
- unsigned currentHTMLatom=lastHTMLatom;
+ unsigned currentHTMLatom=p->lastHTMLatom;
  struct HTMLrecord *atomptr;
 
- if(!HTMLatomcounter)
+ if(p->HTMLatomcounter==0)
   return;
 
- if(!textrowsize)textrowsize=rowsize;
+ if(!p->sizeTextRow)p->sizeTextRow=p->sizeRow;
 
  alignloop:
  atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
@@ -541,7 +555,7 @@ void alignrow(int x,long y,int islist)
   {
    if(atomptr->type==TEXT) //text
    {
-    atomptr->y+=textrowsize;
+    atomptr->y+=p->sizeTextRow;
     atomptr->yy=atomptr->y;
     atomptr->y-=fonty((int)atomptr->data1,atomptr->data2);
    }
@@ -549,7 +563,7 @@ void alignrow(int x,long y,int islist)
         //^^^^^^^^^^^^^^^^^ this is for <BUTTON> tags
    {
     vsize=atomptr->yy-atomptr->y;
-    atomptr->y+=rowsize;
+    atomptr->y+=p->sizeRow;
     atomptr->yy=atomptr->y;
     atomptr->y-=vsize;
    }
@@ -558,7 +572,7 @@ void alignrow(int x,long y,int islist)
 
   if(atomptr->align & CENTER) //ALIGN=CENTER
   {
-   xhop=(right-x)/2;
+   xhop=(p->docRight-x)/2;
    atomptr->x+=xhop;
    atomptr->xx+=xhop;
    swapmod=1; //zapsal jsem do swapovane pameti!
@@ -566,7 +580,7 @@ void alignrow(int x,long y,int islist)
   else
   if(atomptr->align & RIGHT) //ALIGN=RIGHT
   {
-   xhop=(right-x);
+   xhop=(p->docRight-x);
    atomptr->x+=xhop;
    atomptr->xx+=xhop;
    swapmod=1; //zapsal jsem do swapovane pameti!
@@ -595,50 +609,51 @@ void alignrow(int x,long y,int islist)
    goto alignloop;
   }
  }
- if(clearright && y+rowsize>=clearright)
+ if(p->docClearRight && y+p->sizeRow>=p->docClearRight)
  {
-  right=rightedge;
-  clearright=0;
+  p->docRight=p->docRightEdge;
+  p->docClearRight=0;
  }
- if(clearleft && y+rowsize>=clearleft)
+ if(p->docClearLeft && y+p->sizeRow>=p->docClearLeft)
  {
-  if(islist==0)left=leftedge;
-  clearleft=0;
+  if(islist==0)p->docLeft=p->docLeftEdge;
+  p->docClearLeft=0;
  }
 
- textrowsize=0;
+ p->sizeTextRow=0;
 }//end sub
 
-//.  <BR CLEAR=ALL>
+//implementatino of HTML tag <BR CLEAR=ALL>
 void clearall(long *y)
 {
- if(clearleft && clearleft>=clearright)
-  *y=clearleft;
- else if (clearright)
-  *y=clearright;
+ if(p->docClearLeft && p->docClearLeft>=p->docClearRight)
+  *y=p->docClearLeft;
+ else if (p->docClearRight)
+  *y=p->docClearRight;
 
- if(clearleft)
+ if(p->docClearLeft)
  {
-  clearleft=0;
-  left=leftedge;
+  p->docClearLeft=0;
+  p->docLeft=p->docLeftEdge;
  }
 
- if(clearright)
+ if(p->docClearRight)
  {
-  clearright=0;
-  right=rightedge;
+  p->docClearRight=0;
+  p->docRight=p->docRightEdge;
  }
 }
 
 void fixrowsize(int font,char style)
 {
-     if(fonty(font,style)>rowsize)
-      rowsize=fonty(font,style);
-     if(fonty(font,style)>textrowsize)
-      textrowsize=fonty(font,style);
+     if(fonty(font,style)>p->sizeRow)
+      p->sizeRow=fonty(font,style);
+     if(fonty(font,style)>p->sizeTextRow)
+      p->sizeTextRow=fonty(font,style);
 }
 
-void pushfont(int font,char style, struct Fontstack *fontstack)
+//save current font information to font stack
+void pushfont(int font,char style, struct HTMLrecord *atom,struct Fontstack *fontstack)
 {
  if(fontstack->depth<MAXFONTSTACK)
  {
@@ -648,21 +663,22 @@ void pushfont(int font,char style, struct Fontstack *fontstack)
    fontstack->depth++; //default value is -1
   fontstack->font[fontstack->depth]=font;
   fontstack->style[fontstack->depth]=style;
-  fontstack->rgb[3*fontstack->depth]=r;
-  fontstack->rgb[3*fontstack->depth+1]=g;
-  fontstack->rgb[3*fontstack->depth+2]=b;
+  fontstack->rgb[3*fontstack->depth]=atom->R;
+  fontstack->rgb[3*fontstack->depth+1]=atom->G;
+  fontstack->rgb[3*fontstack->depth+2]=atom->B;
  }
 }
 
-int popfont(int *font,char *style, struct Fontstack *fontstack)
+//restore current font information to font stack
+int popfont(int *font,char *style, struct HTMLrecord *atom, struct Fontstack *fontstack)
 {
  if(fontstack->depth>=0)
  {
   *font=fontstack->font[fontstack->depth];
   *style=fontstack->style[fontstack->depth];
-  r=fontstack->rgb[3*fontstack->depth];
-  g=fontstack->rgb[3*fontstack->depth+1];
-  b=fontstack->rgb[3*fontstack->depth+2];
+  atom->R=fontstack->rgb[3*fontstack->depth];
+  atom->G=fontstack->rgb[3*fontstack->depth+1];
+  atom->B=fontstack->rgb[3*fontstack->depth+2];
   fontstack->depth--; //margin value is -1
   return 1;
  }
@@ -691,14 +707,14 @@ int RGB(unsigned char r,unsigned char g,unsigned char b)
 }
 
 
+//returns width of space (ASCI 32)
 int space(char font)
 {
  return fontx(font,0,' ');
 }
 
 
-
-//. For accelarating color look up
+//initialization of color cache, which speeds up color lookup
 void resetcolorcache(void)
 {
  memset(cacher,0,16);

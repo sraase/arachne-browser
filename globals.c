@@ -1,11 +1,10 @@
 
 // ========================================================================
 // Global variables declaration files
-// (c)1997 xChaos software, portions (c)1987 Caldera Inc.
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
-#include "htmtable.h"
 
 //velikost stacku
 unsigned _stklen=65500u;
@@ -30,20 +29,13 @@ char *exetype="; svgastat";
 
 // ========================================================================
 
-//screen parameters
-int htscrn_xsize,htscrn_ysize,htscrn_ytop,htscrn_xtop;
+struct Page P,*p=&P;
 
 //main structure for all frames - htmlframe[0] should be always defined
-struct HTMLframe *htmlframe=NULL; //allocate MAXFRAMES*sizeof(.)+1!
-struct TMPframedata *tmpframedata=NULL; //allocate MAXFRAMES*sizeof(.)+1!
+//struct HTMLframe *htmlframe=NULL; //allocate MAXFRAMES*sizeof(.)+1!
+//struct TMPframedata *tmpframedata=NULL; //allocate MAXFRAMES*sizeof(.)+1!
 
 //number of frames [0..MAXFRAMES-1] is in arachne.framescount
-
-//frame Arachne currently writes to:
-int  currentframe=0;
-
-//frame currently slected (activated) by user:
-int activeframe=0,oldactive=0;
 
 // ========================================================================
 
@@ -59,7 +51,7 @@ char *fntinf="system\\fontinfo.bin";
 #endif
 
 
-char *buf=NULL;            //univerzalni buffer vstup vystup
+//char *buf=NULL;            //univerzalni buffer vstup vystup
 char *msg_con=MSG_CON;
 char *msg_errcon=MSG_ERRCON;
 char *msg_askdns=MSG_ASKDNS;
@@ -96,8 +88,8 @@ char closing[2]={0,0};
 int socknum;
 #endif
 
-int status;
-int httplen;
+int status; //for WATTCP
+
 //struct bin_file Tablelist; //obsolete binary structurers
 struct bin_file HTTPcache;   //binary cache database
 char nobr_overflow[MAXNOBR];
@@ -112,18 +104,15 @@ struct ib_editor tmpeditor,*editorptr;//ukazatel na jeden vyskyt IBASE editoru
 struct uiface user_interface; //user controled variables
 
 char myIPstr[20]="0.0.0.0";           //moje IP adresa
-char graphics=0;            //je k dispozici grafika ?
 char tcpip=0;               //je k dispozici TCP/IP ?
 char httpstub=0;            //je k dispozici TCP/IP ?
 char ipmode=MODE_NORMAL;
-char memory_overflow=0;     //prilis dlouhy dokument
 char memory_model=0;        //memory_model=1 ... optimum performance
-int BUF;                    //velikost vyrovnavaciho buferu
+int BUF;                    //work buffer size for p->buf and p->text
 int loadrefresh=1000;       //perioda prekreslovani (v bajtech) pro LAN TCP/IP
 char noGUIredraw=0;
 
 char htmlmsg[100]="\0";
-
 char htmlpulldown=0;
 int htmlsavex=-1,htmlsavey;
 char activeistextwindow=0;
@@ -139,24 +128,11 @@ char *setupdoc="file:%soptions.htm";
 int    IiNpal=0;   //delka souhrnne palety --> vynulovat pri Clrscr apod.!
 char   *Iipal; //souhrnna paleta
 
-//variables specific to HTML rendering
-unsigned char r,g,b;
-int left,right,rowsize,textrowsize,leftedge,rightedge;
-long xsum,maxsum;
-long clearleft,clearright;
-long percflag;
-char *text=NULL;
-struct HTMLtable *thistable=NULL;
-struct picinfo *img=NULL;
-
+//this is just optimization flag for IKN library
 char neediknredraw;
 
 //pointers to dynamic array of HTML atoms:
-XSWAP firstHTMLatom=IE_NULL,lastHTMLatom=IE_NULL;
-XSWAP firstHTMLtable=IE_NULL,nextHTMLtable=IE_NULL,prevHTMLtable=IE_NULL;
-long HTMLatomcounter=0;
 XSWAP lastonmouse=IE_NULL,activeadr=IE_NULL,focusedatom=IE_NULL;
-XSWAP firstonscr=IE_NULL,lastonscr=IE_NULL;
 XSWAP lastfound=IE_NULL;
 long lastfoundY=0l;
 int lastfoundX=0;

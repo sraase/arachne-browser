@@ -1,11 +1,31 @@
 
 // ========================================================================
 // CGI (DGI) query processor for Arachne WWW browser
-// (c)1997 xChaos software
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
 #include "html.h"
+
+//this little helper function converts semicolons to colons in TO: and CC:
+void adrfield(char *str)
+{
+ int u=0,z=0;
+
+ while(*str)
+ {
+  if(*str=='\"')u=1-u;
+  else
+  if(*str=='(')z=1;
+  else
+  if(*str==')')z=0;
+  else
+  if(!u && !z && (*str==';' || *str==':' || *str=='+'))
+   *str=',';
+
+  str++;
+ }
+}
 
 void process_form(char cgi, XSWAP formID)
 //cgi | 0=internal config, 1=create query string, 2=http conversion, 4=subimg
@@ -21,7 +41,7 @@ void process_form(char cgi, XSWAP formID)
   int mailmsg=-1;
   char delorig=0,nosign=0;
   char mailname[80]="\0";
-  XSWAP currentHTMLatom=firstHTMLatom;
+  XSWAP currentHTMLatom=p->firstHTMLatom;
   char *ptr;
   int f,i;
   struct HTMLrecord *atomtmpptr;
@@ -78,12 +98,12 @@ void process_form(char cgi, XSWAP formID)
      value=ie_getline(&tmpeditor,0);
      if(value && *value)
      {
-      strcpy(buf,value);
+      strcpy(p->buf,value);
      }
      else
-      buf[0]='\0';
+      p->buf[0]='\0';
 
-     value=buf;
+     value=p->buf;
 
      //----------------------------------------------------------
      if((subtype==RADIO || subtype==CHECKBOX || subtype==SUBMIT && name[0])
@@ -124,10 +144,10 @@ void process_form(char cgi, XSWAP formID)
 //         struct ffblk ff;
          char *src;
 
-         if(htmlframe[activeframe].cacheitem.rawname[0] 
-            && file_exists(htmlframe[activeframe].cacheitem.rawname))
+         if(p->htmlframe[p->activeframe].cacheitem.rawname[0] 
+            && file_exists(p->htmlframe[p->activeframe].cacheitem.rawname))
           //rawname is not virtual - .JPG,.CNM
-          src=htmlframe[activeframe].cacheitem.rawname;
+          src=p->htmlframe[p->activeframe].cacheitem.rawname;
          else
           //rawname is not filename - .DGI
           src=LASTlocname;
@@ -215,11 +235,13 @@ void process_form(char cgi, XSWAP formID)
         }
         else if (!strcmpi(cmd,"TO") && mailmsg>=0)
         {
+         adrfield(value);
          sprintf(str,"To: %s\n",value);
          write(mailmsg,str,strlen(str));
         }
         else if (!strcmpi(cmd,"CC") && mailmsg>=0 && value[0])
         {
+         adrfield(value);
          sprintf(str,"CC: %s\n",value);
          write(mailmsg,str,strlen(str));
         }
@@ -298,14 +320,14 @@ void process_form(char cgi, XSWAP formID)
          {
           if(ptr[j]<32 || ptr[j]=='=')
           {
-           sprintf(&buf[k],"=%02X",(unsigned char)ptr[j]);
+           sprintf(&(p->buf[k]),"=%02X",(unsigned char)ptr[j]);
            k+=3;
           }
           else
-           buf[k++]=ptr[j];
+           p->buf[k++]=ptr[j];
           j++;
          }//loop
-         ptr=buf;
+         ptr=p->buf;
          len=k;
         }//endif quoted-printable
 
@@ -324,11 +346,11 @@ void process_form(char cgi, XSWAP formID)
 	  f=a_open(ptr,O_RDONLY|O_TEXT,0);
           if(f>=0)
           {
-	   i=a_read(f,&buf[1],BUF-1);
+	   i=a_read(f,&(p->buf[1]),BUF-1);
            if(i>0)
            {
-            buf[0]='\n';
-            write(mailmsg,buf,i+1);
+            p->buf[0]='\n';
+            write(mailmsg,p->buf,i+1);
            }
 	   a_close(f);
           }//endif
@@ -336,8 +358,8 @@ void process_form(char cgi, XSWAP formID)
         }//endif
         if(!reg)
         {
-         sprintf(buf,"\n-- Arachne V%s%s, NON-COMMERCIAL copy, %s\n",VER,beta,homepage);
-         write(mailmsg,buf,strlen(buf));
+         sprintf(p->buf,"\n-- Arachne V%s%s, NON-COMMERCIAL copy, %s\n",VER,beta,homepage);
+         write(mailmsg,p->buf,strlen(p->buf));
         }
        }//end if modify/resend
       }
@@ -379,12 +401,12 @@ void process_form(char cgi, XSWAP formID)
         ptr=ie_getline(&tmpeditor,i);
         if(ptr)
         {
-         strcpy(buf,ptr);
-         strcat(buf,"\r\n");
+         strcpy(p->buf,ptr);
+         strcat(p->buf,"\r\n");
          querystring=ie_getswap(GLOBAL.postdataptr);
          if(!querystring)
      	  MALLOCERR();
-         qlen+=cgiquery((unsigned char *)buf,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
+         qlen+=cgiquery((unsigned char *)p->buf,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
          swapmod=1; //novy platny querystring:
         }
         i++;
@@ -407,9 +429,9 @@ void process_form(char cgi, XSWAP formID)
         if(*ptr=='1') //selected value:
         {
          if(ptr[1])
-          strcpy(buf,&ptr[1]);
+          strcpy(p->buf,&ptr[1]);
          else
-          makestr(buf,ie_getline(&tmpeditor,i+1),BUF);
+          makestr(p->buf,ie_getline(&tmpeditor,i+1),BUF);
 
          querystring=ie_getswap(GLOBAL.postdataptr);
          if(!querystring)
@@ -422,7 +444,7 @@ void process_form(char cgi, XSWAP formID)
          strcat(querystring,name);
          strcat(querystring,"=");
          qlen+=strlen(name)+1;
-         qlen+=cgiquery((unsigned char *)buf,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
+         qlen+=cgiquery((unsigned char *)p->buf,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
          swapmod=1; //novy platny querystring:
         }
        }

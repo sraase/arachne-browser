@@ -39,11 +39,11 @@ int PrintScreen2BMP(char virtscr)
 #ifdef VIRT_SCR
  if(virtscr)
  {
-  if(allocatedvirtual[activeframe])
+  if(allocatedvirtual[p->activeframe])
   {
-   xv_set_actvirt(activeframe);
-   x=virtualxend[activeframe]-virtualxstart[activeframe];
-   y=virtualyend[activeframe]-virtualystart[activeframe];
+   xv_set_actvirt(p->activeframe);
+   x=virtualxend[p->activeframe]-virtualxstart[p->activeframe];
+   y=virtualyend[p->activeframe]-virtualystart[p->activeframe];
    outs(MSG_WRITE);
   }
   else

@@ -1057,6 +1057,5 @@ const short cur[32] =
  gl_enableclipping();
 #endif
  x_defcurs( (short *)cur, (short *)&cur[16], 15); //myssii kursor
- graphics=1;
 }
 

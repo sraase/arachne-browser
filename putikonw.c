@@ -1,3 +1,9 @@
+
+// ========================================================================
+// Arachne Icons (.IKN) library
+// (c)1997,1998,1999,2000 Zdenek Harovnik + Michael Polak, Arachne Labs
+// ========================================================================
+
 // HARO verze : 02.02.1998
 // Verze : vyuziva ie_swap... funkce
 // verze bez messages, pro hru universe a pro Arachne WWW Browser
@@ -20,9 +26,7 @@ int v_transpimg(int x0, int y0, unsigned char *bi1, int Transp);
 
 int ie_swap(int newswap);
 
-extern int firstswap; //prvni swap, od ktereho se bude pridelovat volne misto
 extern int swapmod;   //priznak modifikace swapovane pameti
-extern int swapnum;   // akt.cislo swapu v mem
 
 #define BUFERSIZE 16100l
 
@@ -63,7 +67,7 @@ XSWAP g_AktImgSwap = IE_NULL; // handle swapu pro pridavani
 unsigned int g_FreeOff = 0;       // kolik mam mista ve swapu pro IMG
 unsigned int g_maxswap = 0;       // velikost bufru pro ikony
 unsigned int g_AktPalLen = 0;     // pamatovani si minule delky palety
-//int          g_UpIcnData = 0;     // buffer na icn data nad/pod FIRSTHTMLSWAP
+//int          g_UpIcnData = 0;     //no longer used
 char         g_LastPal[768];      // minula paleta (pro porovnani s akt)
 //int          g_UpAllIcn = 0;      // pocet ikon nad FIRSTHTMLSWAP
 

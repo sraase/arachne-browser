@@ -1,3 +1,4 @@
+
 // ========================================================================
 // Arachne WWW browser HTTP functions
 // (c)1997-2000 Michael Polak, Arachne Labs
@@ -33,7 +34,7 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  char header_done=0;
  int postindex=0;
  char contentlength[80]="";
- char authorization[80]="";
+ char authorization[128]="";
  char acceptcharset[80]="";
  char cookiestr[IE_MAXLEN+2]="";
  char *nocache="Cache-Control: no-cache\r\nPragma: no-cache\r\n";
@@ -168,7 +169,7 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
     if(strlen(cookiestr)+strlen(str)+10<IE_MAXLEN)
     {
      if(cookiestr[0])
-      strcat(cookiestr,"; ");
+      strcat(cookiestr,";\r\n ");
      else
       strcat(cookiestr,"Cookie: ");
      strcat(cookiestr,str);
@@ -198,6 +199,19 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
   base64code((unsigned char *)authorization,str);
   sprintf(authorization,"Authorization: Basic %s\r\n",str);
  }
+
+ //this is experimental proxy authorization code !!!
+ if(AUTHENTICATION->proxy)
+ {
+  char tmp[128];
+  sprintf(str,"%s:%s",
+          configvariable(&ARACHNEcfg,"ProxyUsername",NULL),
+          configvariable(&ARACHNEcfg,"ProxyPassword",NULL));
+  base64code((unsigned char *)str,tmp);
+  sprintf(str,"Proxy-authorization: Basic %s\r\n",tmp);
+  strcat(authorization,str);
+ }
+ //end experiment
 
  if(tcpip && !httpstub)
  {
@@ -318,7 +332,7 @@ Content-length: %d\r\n",ql);
   }
 #endif
 
- sprintf(buf,"\
+ sprintf(p->buf,"\
 %s %s HTTP/1.0\r\n\
 User-agent: xChaos_Arachne/4.%s%s (%s; %dx%d,%s; www.arachne.cz)\r\n\
 Accept: */*\r\n\
@@ -331,13 +345,13 @@ Host: %s%s\r\n\
  if(tcpip && !httpstub)    //if TCP/IP is enabled
  {
 #ifdef POSIX
-  if(sock_puts( socknum, buf)<0) //send HTTP reques....
+  if(sock_puts( socknum, p->buf)<0) //send HTTP reques....
   {
    outs(MSG_CLOSED);
    return 0;
   }
 #else
-  sock_puts( socket, (unsigned char *)buf); //send HTTP reques....
+  sock_puts( socket, (unsigned char *)p->buf); //send HTTP reques....
 #endif
 
   if(querystring)           //if query string has to be posted
@@ -416,7 +430,7 @@ Host: %s%s\r\n\
   f=a_fast_open(reqname,O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
   if (f>=0)
   {
-   write(f,buf ,strlen(buf));
+   write(f,p->buf ,strlen(p->buf));
    if(poststring)
    {
     querystring=ie_getswap(GLOBAL.postdataptr);
@@ -450,8 +464,8 @@ Host: %s%s\r\n\
   f=a_fast_open(reqname,O_RDONLY|O_TEXT,0);
   if(f)
   {
-   httplen=a_read(f,buf,BUF-1);
-   buf[httplen]='\0';
+   p->httplen=a_read(f,p->buf,BUF-1);
+   p->buf[httplen]='\0';
    close(f);
   }
 
@@ -464,12 +478,16 @@ Host: %s%s\r\n\
  } // ====================================================================
 */
 
- httplen=0;
+ //let's initialize this session.
+ p->httplen=0;
  cache->size=0l;
  cache->knowsize=0;
  cache->dynamic=1;
- strcpy(cache->mime,"???");
- buf[0]='\0';
+ if(GLOBAL.isimage)
+  strcpy(cache->mime,"image/gif");
+ else
+  strcpy(cache->mime,"text/html");
+ p->buf[0]='\0';
 
  // READ HEADER:
  {
@@ -497,9 +515,12 @@ Host: %s%s\r\n\
      goto abort;
    }
 
+#ifdef GGI
+  IfRequested_ggiFlush();
+#endif
 #ifdef POSIX
    tv.tv_sec = 0;
-   tv.tv_usec = 200;
+   tv.tv_usec = 500;
     
    FD_ZERO (&rfds);
    FD_ZERO (&efds);
@@ -514,7 +535,7 @@ Host: %s%s\r\n\
      return 0;
    }
 
-   count=read(socknum, &buf[httplen],BUF-httplen);
+   count=read(socknum, &(p->buf[p->httplen]),BUF-p->httplen);
    if(count<0)
    {
     if (errno != EAGAIN) {
@@ -524,19 +545,19 @@ Host: %s%s\r\n\
     else count = 0;
    }
    
-   httplen+=count;
-   buf[httplen]='\0';
-   if(strstr(buf,"\r\n\r\n") || strstr(buf,"\r\r") || strstr(buf,"\n\n") || httplen>=BUF)
+   p->httplen+=count;
+   p->buf[p->httplen]='\0';
+   if(strstr(p->buf,"\r\n\r\n") || strstr(p->buf,"\r\r") || strstr(p->buf,"\n\n") || p->httplen>=BUF)
     header_done=1;
 #else
    if (sock_dataready( socket ))
    {
-    if(httplen+256<BUF)
+    if(p->httplen+256<BUF)
     {
-     count=sock_fastread( socket, (unsigned char *)&buf[httplen], 256);
-     httplen+=count;
-     buf[httplen]='\0';
-     if(strstr(buf,"\r\n\r\n") || strstr(buf,"\r\r") || strstr(buf,"\n\n"))
+     count=sock_fastread( socket, (unsigned char *)&(p->buf[p->httplen]), 256);
+     p->httplen+=count;
+     p->buf[p->httplen]='\0';
+     if(strstr(p->buf,"\r\n\r\n") || strstr(p->buf,"\r\r") || strstr(p->buf,"\n\n"))
       header_done=1;
     }
     else
@@ -568,26 +589,25 @@ Host: %s%s\r\n\
 sock_err:
 
  sockmsg(status,socknum);
- if(httplen==0)
+ if(p->httplen==0)
   return 0;
 
 analyse:
 #endif
 
- if(strncmp(buf,"HTTP",4) && buf[0] && httplen)
+ if(strncmp(p->buf,"HTTP",4) && p->buf[0] && p->httplen)
  {
   count=0;
-  strcpy(cache->mime,"text/html");
   goto write2cache;
  }
 
  count=0;
  line=0;
- while(count<httplen)
+ while(count<p->httplen)
  {
-  if(buf[count]=='\n')
+  if(p->buf[count]=='\n')
   {
-   makestr(str,&buf[line],IE_MAXLEN);
+   makestr(str,&(p->buf[line]),IE_MAXLEN);
    ptr=strchr(str,'\r');
    if(ptr)*ptr='\0';
    ptr=strchr(str,'\n');
@@ -710,7 +730,10 @@ analyse:
     }
 
     // ----------------------------------------------- WWW-authenticate
-
+    else if(!strcmpi(str,"Proxy-authenticate"))
+    {
+     AUTHENTICATION->proxy=1;
+    }
     else if(!strcmpi(str,"WWW-Authenticate"))
     {
      if(AUTHENTICATION->flag==AUTH_FORCED)
@@ -802,7 +825,7 @@ write2cache:
     sprintf(pom,"<TITLE>%s %s</TITLE><PRE>\n",MSG_HTTP,cache->URL);
     write(htt,pom,strlen(pom));
 
-    write(htt,buf,count);
+    write(htt,p->buf,count);
 
     ptr=strrchr(cache->locname,'\\');
     if(ptr)
@@ -832,22 +855,22 @@ write2cache:
   }
  }
 
- if(strncmp(buf,"HTTP",4)) // ... buf[0 to 3]!="HTTP" ...!
+ if(strncmp(p->buf,"HTTP",4)) // ... p->buf[0 to 3]!="HTTP" ...!
   count=0;
  else
-  httplen-=count+1;
+  p->httplen-=count+1;
 
- if(httplen<0)           //hack pro hlavicky bez CR-LF ?
-  httplen=0; 
+ if(p->httplen<0)           //hack pro hlavicky bez CR-LF ?
+  p->httplen=0; 
  if(count>4)             //aspon hlavicka HTTP/x.x_xxx_...
-  memmove(buf,&buf[count+1],httplen);
+  memmove(p->buf,&(p->buf[count+1]),p->httplen);
 
  return 1;
 
  abort: /**** abort evevrything ****/
 
- buf[0]='\0';
- httplen=0;
+ p->buf[0]='\0';
+ p->httplen=0;
 #ifdef POSIX
  close(socknum);
 #else
@@ -861,6 +884,7 @@ write2cache:
 int openhttp(struct Url *url,struct HTTPrecord *cache)
 {
  int ret;
+ int origproxy=AUTHENTICATION->proxy;
 
  if(AUTHENTICATION->flag==AUTH_FORCED)
  {
@@ -873,7 +897,7 @@ int openhttp(struct Url *url,struct HTTPrecord *cache)
  AUTHENTICATION->flag=AUTH_UNDEFINED;
 
  ret=authenticated_http(url,cache);
- if(AUTHENTICATION->flag==AUTH_OK)
+ if(AUTHENTICATION->flag==AUTH_OK || AUTHENTICATION->proxy!=origproxy)
   ret=authenticated_http(url,cache);
 
  GLOBAL.postdata=0;
@@ -945,9 +969,9 @@ void Download(struct HTTPrecord *cache)
  while(rd>0)
  {
 #ifdef POSIX
-  rd=tickhttp(cache,buf,socknum);
+  rd=tickhttp(cache,p->buf,socknum);
 #else
-  rd=tickhttp(cache,buf,socket);
+  rd=tickhttp(cache,p->buf,socket);
 #endif
   fpos+=rd;
 
@@ -982,11 +1006,11 @@ char GoBackground(struct HTTPrecord *cache)
     user_interface.multitasking==MULTI_NO)
   return 0;
 
- if(httplen) //flush rest of header...
+ if(p->httplen) //flush rest of header...
  {
   if(cache->handle!=-1)
-   write(cache->handle,buf,httplen);
-  httplen=0;
+   write(cache->handle,p->buf,p->httplen);
+  p->httplen=0;
  }
 
 #ifndef POSIX
@@ -1072,3 +1096,4 @@ void sockmsg(int status,int snum)
 }
 #endif
 #endif
+

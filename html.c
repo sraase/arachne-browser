@@ -1,18 +1,18 @@
+
 // ========================================================================
 // HTML rendering routines for Arachne WWW browser
-// (c)1997,1998,1999 Michael Polak, Arachne Labs (xChaos software)
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
 #include "html.h"
-#include "htmtable.h"
 #include "internet.h"
 
-int renderHTML(char source,char forced_html, char printing)
+int renderHTML(struct Page *p)
 {
  //not specific to frames:
  char search4maps=0;
-
+ unsigned char in; //in=p->buf[i]...
  //specific to frames:
  int i,bflen;
  long fpos;
@@ -40,9 +40,9 @@ int renderHTML(char source,char forced_html, char printing)
  struct Url url;
  struct HTMLrecord HTMLatom;
  char plaintext,istextarea,isselect,istitle,isscript,input_image,ext[5];
- int leftedgestack[MAXTABLEDEPTH+2],rightedgestack[MAXTABLEDEPTH+2];
- int leftstack[MAXTABLEDEPTH+2],rightstack[MAXTABLEDEPTH+2];
- long clearleftstack[MAXTABLEDEPTH+2],clearrightstack[MAXTABLEDEPTH+2];
+ int stackLeftEdge[MAXTABLEDEPTH+2],stackRightEdge[MAXTABLEDEPTH+2];
+ int stackLeft[MAXTABLEDEPTH+2],stackRight[MAXTABLEDEPTH+2];
+ long clearstackLeft[MAXTABLEDEPTH+2],clearstackRight[MAXTABLEDEPTH+2];
  long maxsumstack[MAXTABLEDEPTH+2];
  unsigned tableptrstack[MAXTABLEDEPTH+2];
  int fontstackdepth[MAXTABLEDEPTH+2];
@@ -55,8 +55,8 @@ int renderHTML(char source,char forced_html, char printing)
  int currentnobr=0;
  int alreadyselected=0,multiple=0;
  int listdepth,listdepthstack[2*MAXTABLEDEPTH],listedge[2*MAXTABLEDEPTH];
+ int pre_RightEdge, pre_Right;
  struct HTTPrecord *cache;
- struct HTMLtable *tmptable;
  struct HTMLframe *frame;
  struct TMPframedata *htmldata;
  struct HTMLrecord *atomptr;
@@ -64,7 +64,10 @@ int renderHTML(char source,char forced_html, char printing)
  XSWAP currentlink,currentform,currentbutton,
        currenttextarea,thistableadr,
        currenttable[MAXTABLEDEPTH+2],currentcell[MAXTABLEDEPTH+2];
-
+ struct HTMLtable *tmptable;
+ struct picinfo *img=p->img; //allocated for Page structure
+ char *text=p->text;
+ long percflag;
 
 // --------------------------------------------------------------------------
 /* This function is called in following modes:
@@ -80,33 +83,33 @@ int renderHTML(char source,char forced_html, char printing)
  RENDER.willadjusttables=0;
 
  if(arachne.target==0)
-  SetInputAtom(&URLprompt,htmlframe[0].cacheitem.URL);
+  SetInputAtom(&URLprompt,p->htmlframe[0].cacheitem.URL);
 
- //start from htmlframe[0] (will be skipped later if it is parrent frame)
- if(forced_html==RELOAD_HTML_FRAMES)
+ //start from p->htmlframe[0] (will be skipped later if it is parrent frame)
+ if(p->forced_html==RELOAD_HTML_FRAMES)
  {
-  forced_html=0;
-  currentframe=htmlframe[0].next;
-  if(currentframe<0)
+  p->forced_html=0;
+  p->currentframe=p->htmlframe[0].next;
+  if(p->currentframe<0)
   {
-   currentframe=0;
+   p->currentframe=0;
    arachne.target=0;
    arachne.framescount=0; //delete frames!
    reset_frameset();
-   htmlframe[0].next=-1;
+   p->htmlframe[0].next=-1;
   }
 
-  if(!printing)
+  if(!p->rendering_target)
    DrawTitle(0);
  }
  else
  {
-  currentframe=0;
+  p->currentframe=0;
   if(arachne.target==0)
   {
    arachne.framescount=0; //delete frames!
    reset_frameset();
-   htmlframe[0].next=-1;
+   p->htmlframe[0].next=-1;
   }
  }
 
@@ -114,8 +117,8 @@ int renderHTML(char source,char forced_html, char printing)
  Deallocmem();
 
  //reset table pointer
- nextHTMLtable=firstHTMLtable;
- prevHTMLtable=IE_NULL;
+ p->nextHTMLtable=p->firstHTMLtable;
+ p->prevHTMLtable=IE_NULL;
 
  //show some info to user
  MemInfo(NORMAL);
@@ -135,7 +138,7 @@ int renderHTML(char source,char forced_html, char printing)
  fpos=0;
  tagname[0]='\0';
  entityname[0]='\0';
- tagargptr=&text[BUF/2];
+ tagargptr=&(text[BUF/2]);
  taglen=0;
  tag=0;
  lasttag=0;
@@ -187,35 +190,38 @@ int renderHTML(char source,char forced_html, char printing)
  currenttextarea=IE_NULL;
  currentbutton=IE_NULL;
  thistableadr=IE_NULL;
+
  currenttable[0]=IE_NULL;
  currentcell[0]=IE_NULL;
  centerdepth[0]=0;
  tdwidth[0]=0;
 
- //skip unmodified parent frames (typicaly htmlframe[0])
- while(htmlframe[currentframe].hidden && currentframe<MAXFRAMES-1 &&
-       currentframe!=arachne.target && htmlframe[currentframe].next!=-1)
+ //skip unmodified parent frames (typicaly p->htmlframe[0])
+ while(p->htmlframe[p->currentframe].hidden && p->currentframe<MAXFRAMES-1 &&
+       p->currentframe!=arachne.target && p->htmlframe[p->currentframe].next!=-1)
  {
   kbhit();
-  currentframe=htmlframe[currentframe].next;
+  p->currentframe=p->htmlframe[p->currentframe].next;
  }
- activeframe=basetarget=currentframe;
- previousframe=currentframe;
+ p->activeframe=basetarget=p->currentframe;
+ previousframe=p->currentframe;
 
  //define pointer to current html frame:
- frame=&htmlframe[currentframe];
+ frame=&(p->htmlframe[p->currentframe]);
+
  //define pointer to current cache item:
  cache=&frame->cacheitem;
- //define pointer to current temporary frame data
- htmldata=&tmpframedata[currentframe];
 
- left=leftedge=0;
- right=rightedge=frame->scroll.xsize;
+ //define pointer to current temporary frame data
+ htmldata=&(p->tmpframedata[p->currentframe]);
+
+ p->docLeft=p->docLeftEdge=0;
+ pre_Right=pre_RightEdge=p->docRight=p->docRightEdge=frame->scroll.xsize;
 
  //only for first rendering:
  if(!GLOBAL.isimage || GLOBAL.source)
  {
-  if(currentframe==0)
+  if(p->currentframe==0)
   {
    if(GLOBAL.source)
    {
@@ -223,10 +229,10 @@ int renderHTML(char source,char forced_html, char printing)
     MakeTitle(text);
    }
    else
-   if(GLOBAL.validtables==TABLES_UNKNOWN && currentframe==0)
+   if(GLOBAL.validtables==TABLES_UNKNOWN && p->currentframe==0)
    {
     MakeTitle("");
-    if(source==HTTP_HTML)
+    if(p->html_source==HTTP_HTML)
      DrawTitle(0);
    }
   }
@@ -239,17 +245,17 @@ int renderHTML(char source,char forced_html, char printing)
  }
 
  get_extension(frame->cacheitem.mime,ext);
- if((!strcmpi(ext,"HTM") || forced_html) && !GLOBAL.source)
+ if((!strcmpi(ext,"HTM") || p->forced_html) && !GLOBAL.source)
  {
   //formatovani a barvy v HTML dokumentu:
   x=frame->marginwidth;
   y=frame->marginheight;
   plaintext=0;
-  left=leftedge=leftstack[0]=leftedgestack[0]=frame->marginwidth;;
-  right=rightedge=rightstack[0]=rightedgestack[0]=frame->scroll.xsize-frame->marginwidth-FUZZYPIX;
+  p->docLeft=p->docLeftEdge=stackLeft[0]=stackLeftEdge[0]=frame->marginwidth;;
+  p->docRight=p->docRightEdge=stackRight[0]=stackRightEdge[0]=frame->scroll.xsize-frame->marginwidth-FUZZYPIX;
   ResetHtmlPage(htmldata,TEXT_HTML,1);
   frame->scroll.xvisible=0;
-  if(currentframe==0)
+  if(p->currentframe==0)
    frame->scroll.yvisible=1;
   else
    frame->scroll.yvisible=0;
@@ -263,36 +269,36 @@ int renderHTML(char source,char forced_html, char printing)
  }
 
  if(fixedfont)
-  right=rightedge=rightedgestack[0]=(CONSOLEWIDTH-2)*space(SYSFONT);
+  p->docRight=p->docRightEdge=stackRightEdge[0]=(CONSOLEWIDTH-2)*space(SYSFONT);
 #ifndef NOPS
- else if(printing)
-  right=rightedge=rightedgestack[0]=(int)((user_interface.postscript_x-51)*5);
+ else if(p->rendering_target)
+  p->docRight=p->docRightEdge=stackRightEdge[0]=(int)((user_interface.postscript_x-51)*5);
 #endif
 
- if(!GLOBAL.isimage /*&& GLOBAL.validtables!=TABLES_EXPAND*/ && !GLOBAL.source && !forced_html)
+ if(!GLOBAL.isimage /*&& GLOBAL.validtables!=TABLES_EXPAND*/ && !GLOBAL.source && !p->forced_html)
  {
   frame->posX=cache->x;
   frame->posY=cache->y;
  }
 
- lastspcx=left;
+ lastspcx=p->docLeft;
  percflag=0;
  HTMLatom.x=x;
  HTMLatom.y=y;
- r=htmldata->textR;
- g=htmldata->textG;
- b=htmldata->textB;
+ HTMLatom.R=htmldata->textR;
+ HTMLatom.G=htmldata->textG;
+ HTMLatom.B=htmldata->textB;
  listdepth=0;
  orderedlist[0]=0;
- clearleft=clearright=0;
- clearleftstack[0]=clearrightstack[0]=0;
+ p->docClearLeft=p->docClearRight=0;
+ clearstackLeft[0]=clearstackRight[0]=0;
  maxsumstack[0]=0;
  tableptrstack[0]=IE_NULL;
 
  pre=plaintext;
  if(plaintext)font=SYSFONT;
 
- textrowsize=rowsize=fonty(font,style); //?rowsize?
+ p->sizeTextRow=p->sizeRow=fonty(font,style); //?p->sizeRow?
  xsize=0;
 
 #ifdef VIRT_SCR
@@ -315,16 +321,16 @@ int renderHTML(char source,char forced_html, char printing)
             frame->scroll.ytop,
             frame->scroll.xsize,0);//total x,y
  ScrollButtons(&frame->scroll);
- if(!GLOBAL.isimage && GLOBAL.validtables==TABLES_UNKNOWN && source==HTTP_HTML)
+ if(!GLOBAL.isimage && GLOBAL.validtables==TABLES_UNKNOWN && p->html_source==HTTP_HTML)
   redrawHTML(REDRAW_WITH_MESSAGE,REDRAW_SCREEN);
 
  //-----pouze obrazek ------------------
- if(*ext && strstr(imageextensions,ext) && !forced_html)
+ if(*ext && strstr(imageextensions,ext) && !p->forced_html)
  {
   int znamrozmerx=0,znamrozmery=0;
 
 #ifndef NOTCPIP
-  if(source==HTTP_HTML && arachne.target==currentframe)
+  if(p->html_source==HTTP_HTML && arachne.target==p->currentframe)
    Download(cache);
 #endif
 
@@ -366,7 +372,7 @@ int renderHTML(char source,char forced_html, char printing)
   supsem:
   strcpy(img->alt,text);
   MakeTitle(text);
-  if(!printing)
+  if(!p->rendering_target)
    DrawTitle(0);
 
   if(!znamrozmerx)
@@ -378,7 +384,7 @@ int renderHTML(char source,char forced_html, char printing)
   HTMLatom.y=0;
   HTMLatom.xx=img->size_x;
   HTMLatom.yy=img->size_y;
-  rowsize=img->size_y;
+  p->sizeRow=img->size_y;
   frame->scroll.total_x=img->size_x;
   addatom(&HTMLatom,img,sizeof(struct picinfo),IMG,0,0,0,currentlink,1);
   lastredraw=-1l;
@@ -386,9 +392,9 @@ int renderHTML(char source,char forced_html, char printing)
   goto exitloop;
  }
 
- if(!openHTML(cache,source))
+ if(!openHTML(cache,p->html_source))
  {
-  if(arachne.target==currentframe)
+  if(arachne.target==p->currentframe)
    return 0;
   else
    goto exitloop;
@@ -397,17 +403,17 @@ int renderHTML(char source,char forced_html, char printing)
 
 loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
   if((percflag & 0x1ff) == 0x1ff ) //kazdych 512
-   if(!printing && GUITICK())
+   if(!p->rendering_target && GUITICK())
     if(GLOBAL.gotolocation || GLOBAL.abort)
      goto exitloop;
 
-  if(!percflag /* && !(currentframe<arachne.framescount)*/)
+  if(!percflag /* && !(p->currentframe<arachne.framescount)*/)
   {
    int prc;
 
-   frame->scroll.total_y=y+rowsize;
+   frame->scroll.total_y=y+p->sizeRow;
 
-   if(!printing && (user_interface.quickanddirty  || noresize ||
+   if(!p->rendering_target && (user_interface.quickanddirty  || noresize ||
         !(GLOBAL.validtables==TABLES_UNKNOWN && RENDER.willadjusttables)))
    {
     if(y>frame->posY+frame->scroll.ysize &&
@@ -450,14 +456,14 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       mouseon();
      }
     }//endif draw scrallbar
-   }//endif !printing (=hidden output)
+   }//endif !p->rendering_target (=hidden output)
 
    if(cache->size)
     prc=(int)(100*fpos/cache->size);
    else
     prc=0;
 
-   if(source==LOCAL_HTML)
+   if(p->html_source==LOCAL_HTML)
    {
     char *msg;
 
@@ -502,22 +508,23 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
   if(i==bflen)
   {
-   bflen=readHTML(cache,source);
-   //printf("buffer lenght:%d\n",bflen);
+   bflen=readHTML(cache,p->html_source);
 
-   if(bflen<=0 || memory_overflow) //end of page, or out of memory
+   if(bflen<=0 || p->memory_overflow) //end of page, or out of memory
     goto exitloop;
    else
     i=0;
   }
 
   if(RENDER.translatecharset)
-   buf[i]=GLOBAL.codepage[(unsigned char)buf[i]];
+   in=GLOBAL.codepage[(unsigned char)p->buf[i]];
+  else
+   in=(unsigned char)p->buf[i];
 
   //text/html ignoruje konce radku, uvnitr <PRE> nebo text/plain ne:
-  if(buf[i]<' ' && buf[i]>=0)
+  if(in<' ')
   {
-   if(istextarea && (buf[i]=='\n' || buf[i]=='\r'))
+   if(istextarea && (in=='\n' || in=='\r'))
    {
     if(txtlen>IE_MAXLEN)txtlen=IE_MAXLEN;
     text[txtlen]='\0';
@@ -527,11 +534,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     goto loop;
    }
    else
-   if(!pre || (buf[i]!='\n' /*&& buf[i]!='\r'*/) || tag || isselect)
+   if(!pre || (in!='\n' /*&& in!='\r'*/) || tag || isselect)
    {
     if(tag && param && uvozovky || endoftag)
      goto loop;
-    buf[i]=' ';
+    in=' ';
    }
    else
    {
@@ -542,7 +549,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     fixrowsize(font,style);
     if(!invisibletag)
      addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
-    y+=rowsize;
+    y+=p->sizeRow;
     goto linebreak;
    }
   }//endif
@@ -551,7 +558,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
   if(!tag)
   {
    endoftag=0;
-   if(buf[i]=='<' && !plaintext) //zacatek HTMLtagu
+   if(in=='<' && !plaintext) //zacatek HTMLtagu
    {
     HTMLatom.xx=x;
      HTMLatom.y=y;
@@ -564,10 +571,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
      if(lasttag==TAG_BODY)
       lasttag=TAG_P;
-     if(istitle && !arachne.title[0] && !currentframe)
+     if(istitle && !arachne.title[0] && !p->currentframe)
      {
       MakeTitle(text);
-      if(!printing)
+      if(!p->rendering_target)
        DrawTitle(0);
       invisibletag=0;
       istitle=0;
@@ -586,7 +593,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
    }
 
    //Entity (&lt;,&jt; &copy ...)
-   if(buf[i]=='&' && !plaintext && (isalpha(buf[i+1]) || buf[i+1]=='#' || i==bflen))
+   if(in=='&' && !plaintext && (isalpha(p->buf[i+1]) || p->buf[i+1]=='#' || i==bflen))
    //HTML entita zacina '&'
    //uvnitr tagu by byt nemela
    {
@@ -598,25 +605,25 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
    else
    if(entity)       //vnitrek entity
    {
-    if(entilen>8 || buf[i]==';' || buf[i]==' ')
+    if(entilen>8 || in==';' || in==' ')
     {
      entityname[entilen]='\0';
      if(entilen>0)
-      buf[i]=(char)HTMLentity(entityname);
+      in=(char)HTMLentity(entityname);
      else
-      buf[i]='&';
+      in='&';
      entity=0;
     }
     else
     {
-     entityname[entilen++]=buf[i];
+     entityname[entilen++]=in;
      goto loop;
     }
    }//endif entity
 
-   if((unsigned char)buf[i]==160) // ASCII 160 is ALWAYS nobreak space in HTML
+   if((unsigned char)in==160) // ASCII 160 is ALWAYS nobreak space in HTML
    {
-    buf[i]=' ';
+    in=' ';
     lastspace=0;
     lastentity=1;
     nbsp=1;
@@ -624,41 +631,41 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
 /*
    we will show anything which may be in font set...
-   if((unsigned char)buf[i]>128 && (unsigned char)buf[i]<160)
+   if((unsigned char)in>128 && (unsigned char)in<160)
    {
-    buf[i]=' ';
+    in=' ';
    }
 */
    // <-----------------------------------------<--------<-----------mimo tag
-   if(buf[i]!=' ' || !lastspace || pre)
+   if(in!=' ' || !lastspace || pre)
    {
-    if(txtlen<BUF) text[txtlen++]=buf[i];
+    if(txtlen<BUF) text[txtlen++]=in;
     if(!invisibletag)
     {
-     charsize=fontx(font,style,buf[i]);
+     charsize=fontx(font,style,in);
      x+=charsize;
-     if(x>right)
+     if(x>p->docRight)
      {
       if(lastspcpos==0 || pre || nownobr)
       {
        xsize=x-HTMLatom.x;
-       if(xsize<right-left && !pre && !nownobr && !nobr /*&&
-          (HTMLatom.x!=left || GLOBAL.validtables)*/ || right<rightedge)
+       if(xsize<p->docRight-p->docLeft && !pre && !nownobr && !nobr /*&&
+          (HTMLatom.x!=p->docLeft || GLOBAL.validtables)*/ || p->docRight<p->docRightEdge)
        {
         // <------------------------------------------------odsunout cely atom
         alignrow(HTMLatom.x,y,orderedlist[listdepth]);
-        y+=rowsize;
+        y+=p->sizeRow;
 
         //kdyz jsou levy a pravy okraj moc blizko u sebe...
-        if(xsize>right-left)
+        if(xsize>p->docRight-p->docLeft)
          clearall(&y);
 
-        textrowsize=rowsize=fonty(font,style);
-        x=left+xsize;
-        HTMLatom.x=left;
+        p->sizeTextRow=p->sizeRow=fonty(font,style);
+        x=p->docLeft+xsize;
+        HTMLatom.x=p->docLeft;
         HTMLatom.y=y;
         HTMLatom.xx=x;
-        HTMLatom.yy=y+rowsize;
+        HTMLatom.yy=y+p->sizeRow;
         addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
         HTMLatom.x=x;
         HTMLatom.y=y;
@@ -669,7 +676,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        }
        else
        {
-        right+=charsize;
+        p->docRight+=charsize;
         //during second pass, certain <NOBR> elements will be treated as <BR>
         if(nobr)
          boom=1;
@@ -684,19 +691,19 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
        fixrowsize(font,style);
        HTMLatom.xx=lastspcx;
-       HTMLatom.yy=y+rowsize;
+       HTMLatom.yy=y+p->sizeRow;
 
        addatom(&HTMLatom,text,lastspcpos,TEXT,align,font,style,currentlink,0);
        alignrow(lastspcx,y,orderedlist[listdepth]);
 
-       txtlen=strlen(&text[lastspcpos]);
-       memmove(text,&text[lastspcpos],txtlen);
-       HTMLatom.x=left;
-       y=y+rowsize;
-       textrowsize=rowsize=fonty(font,style); //?rowsize?
+       txtlen=strlen(&(text[lastspcpos]));
+       memmove(text,&(text[lastspcpos]),txtlen);
+       HTMLatom.x=p->docLeft;
+       y=y+p->sizeRow;
+       p->sizeTextRow=p->sizeRow=fonty(font,style); //?p->sizeRow?
        HTMLatom.y=y;
        xsize=x-lastspcx;
-       x=left+xsize;
+       x=p->docLeft+xsize;
        HTMLatom.y=y;
        lastspace=0;
        lastspcpos=0;
@@ -705,7 +712,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      }
     }//endif viditelny text
 
-    if(buf[i]==' ' && !nbsp || buf[i]=='/') //wrap also long unix pathnames !
+    if(in==' ' && !nbsp || in=='/') //wrap also long unix pathnames !
     {
      lastspcpos=txtlen;
      lastspcx=x;//-fontx(font,' ');
@@ -728,7 +735,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
   else
   //................................................zpracovani vnitrku tagu
   {
-   if (buf[i]=='>' && !uvozovky && (nolt || !(comment && strncmp(pom,"--",2))))
+   if (in=='>' && !uvozovky && (nolt || !(comment && strncmp(pom,"--",2))))
    {
     if(param && !comment)
     {
@@ -751,10 +758,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     if(tag<TAG_SLASH || tag==TAG_SLASH_TABLE)
      endoftag=1;
 
-    if(istextarea && tag!=TAG_SLASH_TEXTAREA ||
-       istitle && tag!=TAG_SLASH_TITLE ||
-       isselect && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION ||
-       isscript && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT && tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS)
+    if((istextarea && tag!=TAG_SLASH_TEXTAREA) ||
+       (istitle && tag!=TAG_SLASH_TITLE) ||
+       (isselect && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
+       (isscript && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT && 
+        tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS))
      tag=0;
 
     switch(tag)
@@ -764,12 +772,12 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      p:
      PARAGRAPH;
-     textrowsize=rowsize=0; //fonty(font,style); //?rowsize?
+     p->sizeTextRow=p->sizeRow=0; //fonty(font,style); //?p->sizeRow?
      invisibletag=0; //paragraf ukonci chybny option, title, apod.
      //align=basealign[tabledepth];
 
      alignset:
-     x=left;
+     x=p->docLeft;
      lastspace=1;//mazat mezery
      if(getvar("ALIGN",&tagarg))
      {
@@ -809,21 +817,21 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        //vlozit link:
        if(tagarg[0]!='#')
        {
-        AnalyseURL(tagarg,&url,currentframe); //(plne zneni...)
+        AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
         url2str(&url,text);
         tagarg=text;
        }
       
        //vyrobim si pointr na link, a od ted je vsechno link:
        addatom(&HTMLatom,tagarg,strlen(tagarg),HREF,align,target,removable,IE_NULL,1);
-       currentlink=lastHTMLatom;
-       pushfont(font,style,&fontstack);
+       currentlink=p->lastHTMLatom;
+       pushfont(font,style,&HTMLatom,&fontstack);
 
        contlink:
        style=style | UNDERLINE;
-       r=htmldata->linkR;
-       g=htmldata->linkG;
-       b=htmldata->linkB;
+       HTMLatom.R=htmldata->linkR;
+       HTMLatom.G=htmldata->linkG;
+       HTMLatom.B=htmldata->linkB;
        fixrowsize(font,style);
       }
 
@@ -842,13 +850,13 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      currentlink=IE_NULL;
 
      nolink:
-     if(!popfont(&font,&style,&fontstack))
+     if(!popfont(&font,&style,&HTMLatom,&fontstack))
      {
       if(style & UNDERLINE)
        style -= UNDERLINE;
-      r=htmldata->textR;
-      g=htmldata->textG;
-      b=htmldata->textB;
+      HTMLatom.R=htmldata->textR;
+      HTMLatom.G=htmldata->textG;
+      HTMLatom.B=htmldata->textB;
      }
      fixrowsize(font,style);
      break;
@@ -888,7 +896,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        
        struct HTTPrecord HTTPdoc;
 
-       AnalyseURL(tagarg,&url,currentframe);
+       AnalyseURL(tagarg,&url,p->currentframe);
        url2str(&url,img->URL);
 
        //printf("Image URL is: %s\n",img->URL);
@@ -954,7 +962,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       {
        ismap=2;
        addatom(&HTMLatom,tagarg,strlen(tagarg),USEMAP,align,0,0,IE_NULL,1);
-       imglink=lastHTMLatom;
+       imglink=p->lastHTMLatom;
        search4maps=1;
       }
 
@@ -980,7 +988,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       if(getvar("WIDTH",&tagarg))
       {
-       int max=right-left;
+       int max=p->docRight-p->docLeft;
        int i;
        if(max<0) max=0;
        i=try2getnum(tagarg,max);
@@ -1024,49 +1032,49 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       if(imgleft)
       {
-       if(x>left)
-        HTMLatom.y=y+rowsize;
+       if(x>p->docLeft)
+        HTMLatom.y=y+p->sizeRow;
        else
        {
         HTMLatom.y=y;
         x+=img->size_x;
        }
-       HTMLatom.x=left;
-       left+=img->size_x;
-       HTMLatom.xx=left;
+       HTMLatom.x=p->docLeft;
+       p->docLeft+=img->size_x;
+       HTMLatom.xx=p->docLeft;
        HTMLatom.yy=HTMLatom.y+img->size_y;
-       if(HTMLatom.yy>clearleft)
-        clearleft=HTMLatom.yy;
+       if(HTMLatom.yy>p->docClearLeft)
+        p->docClearLeft=HTMLatom.yy;
 
-       if(left>right)
+       if(p->docLeft>p->docRight)
         clearall(&y);
 
        imgalign=0; //a hlavne tady: rikam, ze uz s tim nebudu hejbat !!!
       }
       else if(imgright)
       {
-       if(left+img->size_x>right)
+       if(p->docLeft+img->size_x>p->docRight)
         clearall(&y);
 
-       if(right-img->size_x<x)
+       if(p->docRight-img->size_x<x)
        {
         clearall(&y);
-        x=left;
+        x=p->docLeft;
        }
 
-       if(left+img->size_x>right)
+       if(p->docLeft+img->size_x>p->docRight)
        {
-        right+=img->size_x;
-        rightedge=right;
+        p->docRight+=img->size_x;
+        p->docRightEdge=p->docRight;
        }
 
-       HTMLatom.xx=right+1;
+       HTMLatom.xx=p->docRight+1;
        HTMLatom.y=y;
-       right-=img->size_x;
-       HTMLatom.x=right+1;
+       p->docRight-=img->size_x;
+       HTMLatom.x=p->docRight+1;
        HTMLatom.yy=y+img->size_y;
-       if(HTMLatom.yy>clearright)
-        clearright=HTMLatom.yy;
+       if(HTMLatom.yy>p->docClearRight)
+        p->docClearRight=HTMLatom.yy;
 
        imgalign=0; //a hlavne tady: rikam, ze uz s tim nebudu hejbat !!!
       }
@@ -1074,29 +1082,29 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       {
        //normalni - misto jednoho atomu
        //nevejde se nam tam ?
-       if(x+img->size_x>right)
+       if(x+img->size_x>p->docRight)
        {
         if(!pre && !nownobr)
         {
-         if(img->size_x<=right-left && x>left ||
-            !tabledepth && !clearleft && !clearright)
+         if(img->size_x<=p->docRight-p->docLeft && x>p->docLeft ||
+            !tabledepth && !p->docClearLeft && !p->docClearRight)
          {
           alignrow(x,y,orderedlist[listdepth]);
-          y+=rowsize;
-          x=left;
-          rowsize=0; //!hned spravim
+          y+=p->sizeRow;
+          x=p->docLeft;
+          p->sizeRow=0; //!hned spravim
          }
          else clearall(&y);
         }
        }
 
-       if(rowsize<img->size_y)
-        rowsize=img->size_y;
+       if(p->sizeRow<img->size_y)
+        p->sizeRow=img->size_y;
 
        if(imgalign & BOTTOM)
-        textrowsize=rowsize;
-       else if(imgalign & MIDDLE && textrowsize<rowsize/2)
-        textrowsize=rowsize/2;
+        p->sizeTextRow=p->sizeRow;
+       else if(imgalign & MIDDLE && p->sizeTextRow<p->sizeRow/2)
+        p->sizeTextRow=p->sizeRow/2;
 
        HTMLatom.x=x;
        HTMLatom.y=y;
@@ -1114,53 +1122,53 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      break;
 
      case TAG_BR: //<BR>
-     if(xsum>maxsum)
-      maxsum=xsum;
-     xsum=0;
-     if(rowsize==0)
-      textrowsize=rowsize=fonty(font,style);
+     if(p->xsum>p->maxsum)
+      p->maxsum=p->xsum;
+     p->xsum=0;
+     if(p->sizeRow==0)
+      p->sizeTextRow=p->sizeRow=fonty(font,style);
      br:
 
      alignrow(x,y,orderedlist[listdepth]);
-     y+=rowsize;
+     y+=p->sizeRow;
 
      if(getvar("CLEAR",&tagarg))
      {
-      if(clearleft>y && !strcmpi(tagarg,"LEFT"))
+      if(p->docClearLeft>y && !strcmpi(tagarg,"LEFT"))
       {
-       y=clearleft;
-       clearleft=0;
-       left=leftedge;
+       y=p->docClearLeft;
+       p->docClearLeft=0;
+       p->docLeft=p->docLeftEdge;
       }
       else
-      if(clearright>y && !strcmpi(tagarg,"RIGHT"))
+      if(p->docClearRight>y && !strcmpi(tagarg,"RIGHT"))
       {
-       y=clearright;
-       clearright=0;
-       right=rightedge;
+       y=p->docClearRight;
+       p->docClearRight=0;
+       p->docRight=p->docRightEdge;
       }
       else
       if(!strcmpi(tagarg,"ALL"))
       {
-       if(clearleft>y && clearleft>=clearright)
+       if(p->docClearLeft>y && p->docClearLeft>=p->docClearRight)
        {
-        y=clearleft;
+        y=p->docClearLeft;
        }
        else
-       if(clearright>y)
+       if(p->docClearRight>y)
        {
-        y=clearright;
+        y=p->docClearRight;
        }
-       left=leftedge;
-       right=rightedge;
-       clearleft=clearright=0;
+       p->docLeft=p->docLeftEdge;
+       p->docRight=p->docRightEdge;
+       p->docClearLeft=p->docClearRight=0;
 
       }
      }
 
      linebreak:
-     textrowsize=rowsize=fonty(font,style); //?rowsize?
-     x=left;
+     p->sizeTextRow=p->sizeRow=fonty(font,style); //?p->sizeRow?
+     x=p->docLeft;
      lastspace=1;//mazat mezery
      HTMLatom.x=x;
      HTMLatom.y=y;
@@ -1172,7 +1180,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      align=align | CENTER;
      basealign[tabledepth]=align;
      centerdepth[tabledepth]++;
-     if(x>left)
+     if(x>p->docLeft)
       goto br;
 
      break;
@@ -1186,7 +1194,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       align=align - CENTER;
       basealign[tabledepth]=align;
      }
-     if(x>left)
+     if(x>p->docLeft)
       goto br;
      break;
 
@@ -1194,8 +1202,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      align=align | SUP;
      font-=1;
-     if(rowsize<3*fonty(font,style)/2)
-      rowsize+=fonty(font,style)/2;
+     if(p->sizeRow<3*fonty(font,style)/2)
+      p->sizeRow+=fonty(font,style)/2;
      break;
 
      case TAG_SLASH_SUP:
@@ -1211,8 +1219,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      align=align | SUB;
      font-=1;
-     if(rowsize<3*fonty(font,style)/2)
-      rowsize+=fonty(font,style)/2;
+     if(p->sizeRow<3*fonty(font,style)/2)
+      p->sizeRow+=fonty(font,style)/2;
      break;
 
      case TAG_SLASH_SUB:
@@ -1230,13 +1238,18 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      nownobr=0;
      boom=0;
      nobr_x_anchor=x;
-     if(xsum>maxsum)
-      maxsum=xsum;
-     xsum=0;
+     if(p->xsum>p->maxsum)
+      p->maxsum=p->xsum;
+     p->xsum=0;
+     if(!tabledepth)
+     {
+      pre_Right=p->docRight;
+      pre_RightEdge=p->docRightEdge;
+     }
 
      if(currentnobr<MAXNOBR)
      {
-      if((GLOBAL.validtables && nobr_overflow[currentnobr] || noresize) && x>left)
+      if((GLOBAL.validtables && nobr_overflow[currentnobr] || noresize) && x>p->docLeft)
        goto br;
       else
        nobr_overflow[currentnobr]=0;
@@ -1252,15 +1265,22 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       RENDER.willadjusttables=1;
       nobr_overflow[currentnobr]=1;
       x=nobr_x_anchor;
-      y+=rowsize;
+      y+=p->sizeRow;
      }
-     if(xsum>maxsum)
-      maxsum=xsum;
-     xsum=0;
+     if(p->xsum>p->maxsum)
+      p->maxsum=p->xsum;
+     p->xsum=0;
      nobr=0;
      nownobr=0;
      if(currentnobr<MAXNOBR-1)
       currentnobr++;
+     if(!tabledepth)
+     {
+      if(pre_Right<p->docRight)
+       p->docRight=pre_Right;
+      if(pre_RightEdge<p->docRightEdge)
+       p->docRightEdge=pre_RightEdge;
+     }
      break;
 
      case TAG_SLASH_P: //</P>
@@ -1272,41 +1292,41 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      // --------------------------------------------- HTML level 1 - headers
      case TAG_H1: //<H1>
 
-     pushfont(font,style,&fontstack);
+     pushfont(font,style,&HTMLatom,&fontstack);
      font=6;
      header:
      style=1;
      PARAGRAPH;
-     textrowsize=rowsize=fonty(font,style);
+     p->sizeTextRow=p->sizeRow=fonty(font,style);
      goto alignset;
 
      case TAG_H2: //<H2>
 
-     pushfont(font,style,&fontstack);
+     pushfont(font,style,&HTMLatom,&fontstack);
      font=5;
      goto header;
 
      case TAG_H3: //<H3>
 
-     pushfont(font,style,&fontstack);
+     pushfont(font,style,&HTMLatom,&fontstack);
      font=4;
      goto header;
 
      case TAG_H4: //<H4>
 
-     pushfont(font,style,&fontstack);
+     pushfont(font,style,&HTMLatom,&fontstack);
      font=3;
      goto header;
 
      case TAG_H5: //<H5>
 
-     pushfont(font,style,&fontstack);
+     pushfont(font,style,&HTMLatom,&fontstack);
      font=2;
      goto header;
 
      case TAG_H6: //<H6>
 
-     pushfont(font,style,&fontstack);
+     pushfont(font,style,&HTMLatom,&fontstack);
      font=1;
      goto header;
 
@@ -1318,7 +1338,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      case TAG_SLASH_H5:
      case TAG_SLASH_H6:
 
-     if(!popfont(&font,&style,&fontstack))
+     if(!popfont(&font,&style,&HTMLatom,&fontstack))
      {
       font=basefont;
       style=0;
@@ -1344,6 +1364,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      font=basefont;
      style=FIXED;
      pre=1;
+     if(!tabledepth)
+     {
+      pre_Right=p->docRight;
+      pre_RightEdge=p->docRightEdge;
+     }
      fixrowsize(font,style);
      break;
 
@@ -1352,12 +1377,20 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      font=basefont;
      style=0;
      pre=0;
+     if(!tabledepth)
+     {
+      if(pre_Right<p->docRight)
+       p->docRight=pre_Right;
+      if(pre_RightEdge<p->docRightEdge)
+       p->docRightEdge=pre_RightEdge;
+     }
+
      goto br;
 
      case TAG_FONT:     //<FONT>
      case TAG_BASEFONT: //<BASEFONT>
 
-     pushfont(font,style,&fontstack);
+     pushfont(font,style,&HTMLatom,&fontstack);
      if(getvar("SIZE",&tagarg))
      {
       if(tagarg[0]=='+')
@@ -1373,7 +1406,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      if(getvar("COLOR",&tagarg))
      {
-      try2readHTMLcolor(tagarg,&r,&g,&b);
+      try2readHTMLcolor(tagarg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
      }
 
      if(getvar("3D",&tagarg))
@@ -1411,12 +1444,12 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      case TAG_SLASH_FONT:
 
-     if(!popfont(&font,&style,&fontstack))
+     if(!popfont(&font,&style,&HTMLatom,&fontstack))
      {
       font=basefont;
-      r=htmldata->textR;
-      g=htmldata->textG;
-      b=htmldata->textB;
+      HTMLatom.R=htmldata->textR;
+      HTMLatom.G=htmldata->textG;
+      HTMLatom.B=htmldata->textB;
       if(style & TEXT3D)
        style -= TEXT3D;
 
@@ -1429,7 +1462,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      case TAG_SLASH_FRAMESET:
 
-     if(arachne.framescount>=currentframe)
+     if(arachne.framescount>=p->currentframe)
       goto br;
 
      case TAG_BIG: //<BIG>
@@ -1478,24 +1511,24 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       if(getvar("WIDTH",&tagarg))
       {
-       width=try2getnum(tagarg,right-left);
+       width=try2getnum(tagarg,p->docRight-p->docLeft);
       }
       else
-       width=right-left;
+       width=p->docRight-p->docLeft;
 
       alignrow(x,y,orderedlist[listdepth]);
-      if(x>left)y+=rowsize;
-      rowsize=fonty(basefont,0);
-      if(size+4>rowsize)rowsize=size+4;
-      x=left;
+      if(x>p->docLeft)y+=p->sizeRow;
+      p->sizeRow=fonty(basefont,0);
+      if(size+4>p->sizeRow)p->sizeRow=size+4;
+      x=p->docLeft;
       HTMLatom.x=x;
-      HTMLatom.y=y+rowsize/2-size/2;
+      HTMLatom.y=y+p->sizeRow/2-size/2;
       HTMLatom.xx=x+width;
-      HTMLatom.yy=y+rowsize/2-size/2+size;
+      HTMLatom.yy=y+p->sizeRow/2-size/2+size;
       addatom(&HTMLatom,"",0,HR,hralign,noshade,0,IE_NULL,0);
       alignrow(HTMLatom.xx,HTMLatom.y,orderedlist[listdepth]);
-      y+=rowsize;
-      textrowsize=rowsize=fonty(font,style);
+      y+=p->sizeRow;
+      p->sizeTextRow=p->sizeRow=fonty(font,style);
      }
      break;
 
@@ -1557,13 +1590,13 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(tabledepth>MAXTABLEDEPTH)
        goto p;
 
-      //let's get temporary pointer to current table structure (16bit DOS only)
+      //backup-of temporary table structure - 16bit DOS only, XSWAP pointers are persistent in POSIX
       if(thistableadr!=IE_NULL)
       {
        tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
        if(tmptable)
        {
-        memcpy(tmptable,thistable,sizeof(struct HTMLtable));
+        memcpy(tmptable,p->thistable,sizeof(struct HTMLtable));
         swapmod=1;
         tableptrstack[tabledepth]=thistableadr;
         thistableadr=IE_NULL;
@@ -1571,27 +1604,27 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       }
 
       //some alignment...
-      if(x>left)
+      if(x>p->docLeft)
       {
        alignrow(x,y,orderedlist[listdepth]);
-       y+=rowsize;
-       x=left;
+       y+=p->sizeRow;
+       x=p->docLeft;
       }
 
       //alocation of new table (max. number of tables is currently limited)
-      if(nextHTMLtable==IE_NULL)
+      if(p->nextHTMLtable==IE_NULL)
       {
        newtab=1;
-       thistableadr=ie_putswap((char *)thistable,sizeof(struct HTMLtable),CONTEXT_TABLES);
+       thistableadr=ie_putswap((char *)p->thistable,sizeof(struct HTMLtable),CONTEXT_TABLES);
        if(thistableadr==IE_NULL)
         goto p;
 
-       if(firstHTMLtable==IE_NULL)
-        firstHTMLtable=thistableadr;
+       if(p->firstHTMLtable==IE_NULL)
+        p->firstHTMLtable=thistableadr;
 
-       if(prevHTMLtable!=IE_NULL)
+       if(p->prevHTMLtable!=IE_NULL)
        {
-        tmptable=(struct HTMLtable *)ie_getswap(prevHTMLtable);
+        tmptable=(struct HTMLtable *)ie_getswap(p->prevHTMLtable);
         if(tmptable)
         {
          tmptable->nextHTMLtable=thistableadr;
@@ -1600,19 +1633,18 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         else
          MALLOCERR();
        }
-       prevHTMLtable=thistableadr;
+       p->prevHTMLtable=thistableadr;
 
       }
       else
       {
        //tmptable=(struct HTMLtable *)ie_getswap(Tablelist.lineadr[Tablelist.cur]);
-       tmptable=(struct HTMLtable *)ie_getswap(nextHTMLtable);
+       tmptable=(struct HTMLtable *)ie_getswap(p->nextHTMLtable);
        if(tmptable)
        {
-        memcpy(thistable,tmptable,sizeof(struct HTMLtable));
-        //thistableadr=Tablelist.lineadr[Tablelist.cur];
-        thistableadr=prevHTMLtable=nextHTMLtable;
-        nextHTMLtable=tmptable->nextHTMLtable;
+        memcpy(p->thistable,tmptable,sizeof(struct HTMLtable));
+        thistableadr=p->prevHTMLtable=p->nextHTMLtable;
+        p->nextHTMLtable=tmptable->nextHTMLtable;
        }
        else
         MALLOCERR();
@@ -1635,26 +1667,26 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       //let's do this only for NEW tables:
       if(GLOBAL.validtables==TABLES_UNKNOWN || newtab)
       {
-       inittable(thistable);
+       inittable(p->thistable);
        if(newtab)
-        thistable->nextHTMLtable=IE_NULL;
+        p->thistable->nextHTMLtable=IE_NULL;
 
        if(fixedfont)
        {
-        thistable->cellspacing=FIXEDFONTY;
-        thistable->cellpadding=0;
+        p->thistable->cellspacing=FIXEDFONTY;
+        p->thistable->cellpadding=0;
        }
        else
        {
         if(getvar("CELLSPACING",&tagarg))
-         thistable->cellspacing=atoi(tagarg);
+         p->thistable->cellspacing=atoi(tagarg);
         else
-         thistable->cellspacing=2;
+         p->thistable->cellspacing=2;
 
         if(getvar("CELLPADDING",&tagarg))
-         thistable->cellpadding=atoi(tagarg);
+         p->thistable->cellpadding=atoi(tagarg);
         else
-         thistable->cellpadding=2;
+         p->thistable->cellpadding=2;
        }
       }
 
@@ -1663,41 +1695,44 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       //table border is not included in table->maxwidth (?)
       //final width of HTMLatom should be equal to table->realwidth (?)
 
-      thistable->maxwidth=right-left-2*border;
+      p->thistable->maxwidth=p->docRight-p->docLeft-2*border;
       if(getvar("WIDTH",&tagarg))
       {
        char *perc=strchr(tagarg,'%');
-       thistable->maxwidth=try2getnum(tagarg,thistable->maxwidth);
+       p->thistable->maxwidth=try2getnum(tagarg,p->thistable->maxwidth);
        if(perc)
-        thistable->fixedmax=PERCENTS_FIXED_TABLE;
+        p->thistable->fixedmax=PERCENTS_FIXED_TABLE;
        else
        {
-        thistable->fixedmax=PIXELS_FIXED_TABLE;
-        thistable->maxwidth-=2*border;
+        p->thistable->fixedmax=PIXELS_FIXED_TABLE;
+        p->thistable->maxwidth-=2*border;
        }
       }
 
-      if(thistable->maxwidth<0)
-       thistable->maxwidth=0;
+      if(p->thistable->maxwidth<0)
+       p->thistable->maxwidth=0;
 
       //expand
       if(GLOBAL.validtables==TABLES_EXPAND)
-       expand(thistable);
+       expand(p->thistable);
 
       //twidth is width of table, which is valid for current pass
       if(GLOBAL.validtables/* &&
-         (thistable->realwidth>thistable->maxwidth/2 || !tabledepth)*/)
-       twidth=thistable->realwidth;
+         (p->thistable->realwidth>p->thistable->maxwidth/2 || !tabledepth)*/)
+       twidth=p->thistable->realwidth;
       else
-       twidth=thistable->maxwidth;
+       twidth=p->thistable->maxwidth;
 
-      HTMLatom.x=left;
+      HTMLatom.x=p->docLeft;
       HTMLatom.xx=HTMLatom.x+twidth;
 
-      if(2*HTMLatom.xx>3*right)
-       clearall(&y);
-      else if(HTMLatom.xx>right)
-       right=HTMLatom.xx;
+       if(HTMLatom.xx>p->docRight && 
+          (GLOBAL.validtables!=TABLES_UNKNOWN || p->thistable->fixedmax==PIXELS_FIXED_TABLE))
+        clearall(&y);
+    
+// we dont really want this....    
+//      if(HTMLatom.xx>p->docRight) 
+//       p->docRight=HTMLatom.xx;
 
       alignarg=getvar("ALIGN",&tagarg);
       if(alignarg || (align & RIGHT) || (align & CENTER))
@@ -1706,9 +1741,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         RENDER.willadjusttables=1;
        if(!strcmpi(tagarg,"LEFT"))
        {
-        if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
+        if(GLOBAL.validtables==TABLES_UNKNOWN && p->thistable->fixedmax==0)
         {
-         thistable->maxwidth/=2;
+         p->thistable->maxwidth/=2;
          twidth/=2;
         }
         tabalign=LEFT;
@@ -1716,28 +1751,28 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        else
        if(!strcmpi(tagarg,"RIGHT") || !alignarg && (align & RIGHT))
        {
-        if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
+        if(GLOBAL.validtables==TABLES_UNKNOWN && p->thistable->fixedmax==0)
         {
-         thistable->maxwidth/=2;
+         p->thistable->maxwidth/=2;
          twidth/=2;
         }
-        HTMLatom.x=right-FUZZYPIX-twidth;
-        if(HTMLatom.x<left)
+        HTMLatom.x=p->docRight-FUZZYPIX-twidth;
+        if(HTMLatom.x<p->docLeft)
         {
          clearall(&y);
-         HTMLatom.x=left;
+         HTMLatom.x=p->docLeft;
         }
-        HTMLatom.xx=left+twidth;
+        HTMLatom.xx=p->docLeft+twidth;
         tabalign=RIGHT;
        }
        else
        if(!strcmpi(tagarg,"CENTER") || !alignarg && (align & CENTER))
        {
-        newx=(int)(right-left-twidth)/2;
-        if(newx<left || GLOBAL.validtables==TABLES_UNKNOWN)
-         HTMLatom.x=left;
+        newx=(int)(p->docRight-p->docLeft-twidth)/2;
+        if(newx<p->docLeft || GLOBAL.validtables==TABLES_UNKNOWN)
+         HTMLatom.x=p->docLeft;
         else
-         HTMLatom.x=left+newx;
+         HTMLatom.x=p->docLeft+newx;
         HTMLatom.xx=HTMLatom.x+twidth;
         tabalign=CENTER;
        }
@@ -1745,66 +1780,64 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       if(getvar("BGCOLOR",&tagarg))
       {
-       makestr(thistable->tablebg,tagarg,SHORTSTR);
-       makestr(thistable->rowbg,tagarg,SHORTSTR);
+       makestr(p->thistable->tablebg,tagarg,SHORTSTR);
+       makestr(p->thistable->rowbg,tagarg,SHORTSTR);
       }
       else
       {
-       thistable->tablebg[0]='\0';
-       thistable->rowbg[0]='\0';
+       p->thistable->tablebg[0]='\0';
+       p->thistable->rowbg[0]='\0';
       }
 
       HTMLatom.y=y;
       HTMLatom.yy=y+2*border;
       listdepthstack[tabledepth]=listdepth;
       orderedlist[++listdepth]=0;
-      leftstack[tabledepth]=left;
-      rightstack[tabledepth]=right;
-      leftedgestack[tabledepth]=leftedge;
-      rightedgestack[tabledepth]=rightedge;
-      clearleftstack[tabledepth]=clearleft;
-      clearrightstack[tabledepth]=clearright;
-      if(xsum>maxsum)
-       maxsum=xsum;
-      maxsumstack[tabledepth]=maxsum;
-      maxsum=0l;
-      pushfont(font,style,&fontstack);
+      stackLeft[tabledepth]=p->docLeft;
+      stackRight[tabledepth]=p->docRight;
+      stackLeftEdge[tabledepth]=p->docLeftEdge;
+      stackRightEdge[tabledepth]=p->docRightEdge;
+      clearstackLeft[tabledepth]=p->docClearLeft;
+      clearstackRight[tabledepth]=p->docClearRight;
+      if(p->xsum>p->maxsum)
+       p->maxsum=p->xsum;
+      maxsumstack[tabledepth]=p->maxsum;
+      p->maxsum=0l;
+      pushfont(font,style,&HTMLatom,&fontstack);
       fontstackdepth[tabledepth]=fontstack.depth;
       tabledepth++;
       currentcell[tabledepth]=IE_NULL;
       basealign[tabledepth]=align;
 
-      thistable->depth=tabledepth; //for resizing optimization
+      p->thistable->depth=tabledepth; //for resizing optimization
       if(tabledepth>GLOBAL.tabledepth)
        GLOBAL.tabledepth=tabledepth;
 
       //initizalizations for both rendering passes:
       if(GLOBAL.validtables)
-       thistable->maxwidth=thistable->realwidth;
+       p->thistable->maxwidth=p->thistable->realwidth;
 
-      thistable->x=0;
-      thistable->y=0;
-      thistable->tdstart=HTMLatom.y+border+thistable->cellspacing;
-      thistable->nexttdend=thistable->tdend=thistable->maxtdend=thistable->tdstart;
-      memset(thistable->rowspan,0,sizeof(char)*MAXTD);
+      p->thistable->x=0;
+      p->thistable->y=0;
+      p->thistable->tdstart=HTMLatom.y+border+p->thistable->cellspacing;
+      p->thistable->nexttdend=p->thistable->tdend=p->thistable->maxtdend=p->thistable->tdstart;
+      memset(p->thistable->rowspan,0,sizeof(char)*MAXTD);
 
-      thistable->valignrow=MIDDLE;
+      p->thistable->valignrow=MIDDLE;
 
       //ulozim tabulku do seznamu tabulek
       tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
       if(tmptable)
       {
-       memcpy(tmptable,thistable,sizeof(struct HTMLtable));
+       memcpy(tmptable,p->thistable,sizeof(struct HTMLtable));
        swapmod=1;
       }
       else
        MALLOCERR();
 
       //vyrobim si pointer na tabulku:
-      //addatom(&HTMLatom,"",0,TABLE,TOP,border,tabalign,Tablelist.lineadr[Tablelist.cur],1);
       addatom(&HTMLatom,"",0,TABLE,TOP,border,tabalign,thistableadr,1);
-//      currenttable[tabledepth]=HTMLdoc.lineadr[HTMLdoc.len-1];
-      currenttable[tabledepth]=lastHTMLatom;
+      currenttable[tabledepth]=p->lastHTMLatom;
 
       //a v seznamu je na rade dalsi tabulka...
       //Tablelist.cur++;
@@ -1824,10 +1857,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(tabledepth && currenttable[tabledepth]!=IE_NULL)
       {
        clearall(&y);
-       if(x>left)
+       if(x>p->docLeft)
         {
          alignrow(x,y,orderedlist[listdepth]);
-         y+=rowsize;
+         y+=p->sizeRow;
         }
 
        //uzavreni posledniho policka
@@ -1844,36 +1877,33 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         if(currentcell[tabledepth]!=IE_NULL) //uzavrit posledni ctverecek na radce
         {
          if(thistableadr==parenttableadr)
-          tmptable=thistable;
+          tmptable=p->thistable;
          else
-         {
-           tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-           //printf("tables out of sync");
-
-         }
+          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr); 
 
          if(tmptable)
          {
 
           // fix desired table cell width data:
           // tabledepth>1 == we are wrapped in another table cell...
-          if(xsum>maxsum)
-           maxsum=xsum;
+          if(p->xsum>p->maxsum)
+           p->maxsum=p->xsum;
           if(tabledepth>1)
           {
-           if(tdwidth[tabledepth-1] && tdwidth[tabledepth-1]<maxsum)
-            maxsum=tdwidth[tabledepth-1];
+           if(tdwidth[tabledepth-1] && tdwidth[tabledepth-1]<p->maxsum)
+            p->maxsum=tdwidth[tabledepth-1];
           }
 
           if(y<tdheight)
            y=tdheight;
 
-          if(processcell(tmptable,maxsum,rightedge-leftedge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
+          if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,
+              y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
            RENDER.willadjusttables=1;
           if(thistableadr!=parenttableadr)
            swapmod=1;
 
-          if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
+          if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN ||               RENDER.willadjusttables==0) //acceleration
            closeatom(currentcell[tabledepth],cellx,y);
          }
          else
@@ -1882,7 +1912,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
         //spocitam sirku a zjistim posledni udaje
         if(thistableadr==parenttableadr)
-         tmptable=thistable;
+         tmptable=p->thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -1902,7 +1932,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
          //----------------------------------------------------------------
          //return to previous state of reneding engine - calc max. desired
-         //cell width - maxsum and xsum, where maxsum>=xsum ...
+         //cell width - p->maxsum and p->xsum, where p->maxsum>=p->xsum ...
 
          {
           long desired=2*border+tmptable->realwidth+tmptable->totalxsum;
@@ -1912,36 +1942,37 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
            desired=2*border+tmptable->maxwidth;
           }
 
-          if(desired>maxsum)
-           maxsum=desired;
+          if(desired>p->maxsum)
+           p->maxsum=desired;
          }
 
          switch(tmptable->fixedmax)
          {
           case PIXELS_FIXED_TABLE:
-          if(maxsumstack[tabledepth-1]>maxsum)
-           maxsum=maxsumstack[tabledepth-1];
+          if(maxsumstack[tabledepth-1]>p->maxsum)
+           p->maxsum=maxsumstack[tabledepth-1];
 
-          if(tmptable->maxwidth>maxsum)
-           maxsum=tmptable->maxwidth;
+          if(tmptable->maxwidth>p->maxsum)
+           p->maxsum=tmptable->maxwidth;
 
           default:
-          xsum=0;
+          p->xsum=0;
           break;
 
           case PERCENTS_FIXED_TABLE:
-          xsum=maxsum;
+          p->xsum=p->maxsum;
          }
 
          //----------------------------------------------------------------
 
          //zapsani zavrene tabulky
+
          if(thistableadr==parenttableadr)
          {
           tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
           if(tmptable)
           {
-           memcpy(tmptable,thistable,sizeof(struct HTMLtable));
+           memcpy(tmptable,p->thistable,sizeof(struct HTMLtable));
           }
          }
          swapmod=1;
@@ -1950,8 +1981,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          celly=tmptable->tdend+tmptable->cellspacing+border;
 
          //dirty fix of desired width - should be already ok, but just
-         if(cellx>maxsum)
-           xsum=maxsum=cellx;
+         if(cellx>p->maxsum)
+           p->xsum=p->maxsum=cellx;
 
          if(closeatom(currenttable[tabledepth],cellx,celly)
             && tabalign && !GLOBAL.validtables)
@@ -1974,41 +2005,39 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        //tablerightedge
        tabledepth--;
        listdepth=listdepthstack[tabledepth];
-       leftedge=leftedgestack[tabledepth];
-       left=leftstack[tabledepth];
-       rightedge=rightedgestack[tabledepth];
-       right=rightstack[tabledepth];
-       clearleft=clearleftstack[tabledepth];
-       clearright=clearrightstack[tabledepth];
+       p->docLeftEdge=stackLeftEdge[tabledepth];
+       p->docLeft=stackLeft[tabledepth];
+       p->docRightEdge=stackRightEdge[tabledepth];
+       p->docRight=stackRight[tabledepth];
+       p->docClearLeft=clearstackLeft[tabledepth];
+       p->docClearRight=clearstackRight[tabledepth];
        fontstack.depth=fontstackdepth[tabledepth];
        if(tabledepth)
        {
         thistableadr=tableptrstack[tabledepth];
         tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
         if(tmptable)
-         memcpy(thistable,tmptable,sizeof(struct HTMLtable));
+         memcpy(p->thistable,tmptable,sizeof(struct HTMLtable));
         else
          MALLOCERR();
        }
        else
         thistableadr=IE_NULL;
 
-
-
-       if(cellx>=right-left && tabledepth)
+       if(cellx>=p->docRight-p->docLeft && tabledepth>0)
        {
-        rightedge=right=left+cellx;
+        p->docRightEdge=p->docRight=p->docLeft+cellx;
        }
 
        align=basealign[tabledepth];
        currentlink=IE_NULL;
-       if(!popfont(&font,&style,&fontstack))
+       if(!popfont(&font,&style,&HTMLatom,&fontstack))
        {
         font=basefont;
         style=0;
-        r=htmldata->textR;
-        g=htmldata->textG;
-        b=htmldata->textB;
+        HTMLatom.R=htmldata->textR;
+        HTMLatom.G=htmldata->textG;
+        HTMLatom.B=htmldata->textB;
        }
        y=celly;
 
@@ -2016,57 +2045,57 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         y+=fonty(font,style)/4;*/
 
        invisibletag=0;
-       rowsize=textrowsize=0;
+       p->sizeRow=p->sizeTextRow=0;
        nobr=0;
        nownobr=0;
        if(GLOBAL.validtables)
        {
         if(tabalign==LEFT && cellx+FUZZYPIX<frame->scroll.total_x)
         {
-         left=tblstart+cellx+FUZZYPIX;
-         if(right>left)
+         p->docLeft=tblstart+cellx+FUZZYPIX;
+         if(p->docRight>p->docLeft)
          {
-          if(celly>clearleft)
-           clearleft=celly;
+          if(celly>p->docClearLeft)
+           p->docClearLeft=celly;
           y=tblystart;
          }
          else
-          left=leftedge;
+          p->docLeft=p->docLeftEdge;
 
         }
         else
         if(tabalign==RIGHT && cellx+FUZZYPIX<frame->scroll.total_x)
         {
-         right=tblstart-FUZZYPIX;
-         if(right>left)
+         p->docRight=tblstart-FUZZYPIX;
+         if(p->docRight>p->docLeft)
          {
-          if(celly>clearright)
-           clearright=celly;
+          if(celly>p->docClearRight)
+           p->docClearRight=celly;
           y=tblystart;
          }
          else
-          right=rightedge;
+          p->docRight=p->docRightEdge;
         }
        }
 
        //clear left and right ... AFTER returning to <TABLE ALIGN=.....>
-       if(clearright && y>=clearright)
+       if(p->docClearRight && y>=p->docClearRight)
        {
-        right=rightedge;
-        clearright=0;
+        p->docRight=p->docRightEdge;
+        p->docClearRight=0;
        }
 
-       if(clearleft && y>=clearleft)
+       if(p->docClearLeft && y>=p->docClearLeft)
        {
-        if(orderedlist[listdepth]==0)left=leftedge;
-        clearleft=0;
+        if(orderedlist[listdepth]==0)p->docLeft=p->docLeftEdge;
+        p->docClearLeft=0;
        }
 
        if(!GLOBAL.validtables && (tabalign==LEFT || tabalign==RIGHT || tabalign==CENTER))
         RENDER.willadjusttables=1;
 
        tdheight=y;
-       x=left;
+       x=p->docLeft;
        //fixrowsize(font,style);
        if(tabledepth)
         istd=1;
@@ -2105,10 +2134,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(tabledepth && currenttable[tabledepth]!=IE_NULL)
       {
        clearall(&y);
-       if(x>left)
+       if(x>p->docLeft)
        {
         alignrow(x,y,orderedlist[listdepth]);
-        y+=rowsize;
+        y+=p->sizeRow;
        }
 
        atomptr=(struct HTMLrecord *)ie_getswap(currenttable[tabledepth]);
@@ -2119,7 +2148,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
         //getswap musim delat pokazde, protoze tabulka je dynamicky ulozena
         if(thistableadr==parenttableadr)
-          tmptable=thistable;
+          tmptable=p->thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2140,15 +2169,15 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          {
 
           // fix desired table cell width data:
-          if(xsum>maxsum)
-           maxsum=xsum;
-          if(tdwidth[tabledepth] && tdwidth[tabledepth]<maxsum)
-           maxsum=tdwidth[tabledepth];
+          if(p->xsum>p->maxsum)
+           p->maxsum=p->xsum;
+          if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
+           p->maxsum=tdwidth[tabledepth];
 
           if(y<tdheight)
            y=tdheight;
 
-          if(processcell(tmptable,maxsum,rightedge-leftedge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
+          if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
             RENDER.willadjusttables=1;
           if(thistableadr!=parenttableadr)
            swapmod=1;
@@ -2163,7 +2192,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          MALLOCERR();
 
         if(thistableadr==parenttableadr)
-         tmptable=thistable;
+         tmptable=p->thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2270,10 +2299,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       }
 
       clearall(&y);
-      if(x>left)
+      if(x>p->docLeft)
       {
        alignrow(x,y,orderedlist[listdepth]);
-       y+=rowsize;
+       y+=p->sizeRow;
       }
 
       img->URL[0]='\0';
@@ -2308,18 +2337,16 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
        if(getvar("BGCOLOR",&tagarg))
        {
-        //printf("[%s]",tagarg);
-        try2readHTMLcolor(tagarg,&r,&g,&b);
+        try2readHTMLcolor(tagarg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
         bgcolor=1;
        }
 
        if(getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode)
        {
-        AnalyseURL(tagarg,&url,currentframe); //(plne zneni...)
+        AnalyseURL(tagarg,&url,p->currentframe); 
         url2str(&url,img->URL);
         init_picinfo(img);
         img->URL[URLSIZE-1]='\0';
-        //printf("background image=%s\n",img->URL);
        }
 
       if(getvar("HEIGHT",&tagarg))
@@ -2343,7 +2370,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         XSWAP parenttableadr=atomptr->linkptr;
 
         if(thistableadr==parenttableadr)
-         tmptable=thistable;
+         tmptable=p->thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2353,7 +2380,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         {
          if(!bgcolor && tmptable->rowbg[0])
          {
-          try2readHTMLcolor(tmptable->rowbg,&r,&g,&b);
+          try2readHTMLcolor(tmptable->rowbg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
           bgcolor=1;
          }
 
@@ -2400,15 +2427,15 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          {
 
           // fix desired table cell width data:
-          if(xsum>maxsum)
-           maxsum=xsum;
-          if(tdwidth[tabledepth] && tdwidth[tabledepth]<maxsum)
-           maxsum=tdwidth[tabledepth];
+          if(p->xsum>p->maxsum)
+           p->maxsum=p->xsum;
+          if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
+           p->maxsum=tdwidth[tabledepth];
 
           if(y<tdheight)
            y=tdheight;
 
-          if(processcell(tmptable,maxsum,rightedge-leftedge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
+          if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
             RENDER.willadjusttables=1;
           if(thistableadr!=parenttableadr)
            swapmod=1;
@@ -2427,7 +2454,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          tdwidth[tabledepth]=0; //undefined maximum TD width - can expand
 
         if(thistableadr==parenttableadr)
-         tmptable=thistable;
+         tmptable=p->thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2447,8 +2474,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           swapmod=1;
          HTMLatom.x+=tblx+border;
          HTMLatom.xx=HTMLatom.x+width;
-         x=leftedge=left=HTMLatom.x+tmptable->cellpadding;
-         rightedge=right=HTMLatom.xx-tmptable->cellpadding;
+         x=p->docLeftEdge=p->docLeft=HTMLatom.x+tmptable->cellpadding;
+         p->docRightEdge=p->docRight=HTMLatom.xx-tmptable->cellpadding;
          y=HTMLatom.y+tmptable->cellpadding;
          HTMLatom.yy=tmptable->tdend+tmptable->cellpadding;
 
@@ -2457,7 +2484,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          if(caption) //nadpis
           border=0;
 
-         if(right-left<FUZZYPIX) //v uzkych sloupcich nedelat bordel!
+         if(p->docRight-p->docLeft<FUZZYPIX) //v uzkych sloupcich nedelat bordel!
           align=BOTTOM;
 
          if(img->URL[0])
@@ -2466,12 +2493,12 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           addatom(&HTMLatom,"",0,TD,valign,border,bgcolor,parenttableadr,1);
 
 //         currentcell[tabledepth]=HTMLdoc.lineadr[HTMLdoc.len-1];
-         currentcell[tabledepth]=lastHTMLatom;
+         currentcell[tabledepth]=p->lastHTMLatom;
          //!rowspan fix!
          if(yspan>1)
          {
           if(thistableadr==parenttableadr)
-           tmptable=thistable;
+           tmptable=p->thistable;
           else
           {
            tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2481,7 +2508,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
           {
            if(tmptable->x-xspan+1<MAXROWSPANTD)
            {
-            tmptable->closerowspan[tmptable->x-xspan+1]=lastHTMLatom;
+            tmptable->closerowspan[tmptable->x-xspan+1]=p->lastHTMLatom;
             if(thistableadr!=parenttableadr)
              swapmod=1;
            }
@@ -2499,14 +2526,14 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        fontstack.depth=fontstackdepth[tabledepth-1];
       } //endif uvnitr table
 
-      r=htmldata->textR;
-      g=htmldata->textG;
-      b=htmldata->textB;
+      HTMLatom.R=htmldata->textR;
+      HTMLatom.G=htmldata->textG;
+      HTMLatom.B=htmldata->textB;
       currentlink=IE_NULL;
       font=basefont;
-      textrowsize=rowsize=0;
-      xsum=0l;
-      maxsum=0l;
+      p->sizeTextRow=p->sizeRow=0;
+      p->xsum=0l;
+      p->maxsum=0l;
      }
      istd=1;
      if(tag==TAG_TABLE)
@@ -2521,9 +2548,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      style=0;
      currentlink=IE_NULL;
-     r=htmldata->textR;
-     g=htmldata->textG;
-     b=htmldata->textB;
+     HTMLatom.R=htmldata->textR;
+     HTMLatom.G=htmldata->textG;
+     HTMLatom.B=htmldata->textB;
      font=basefont;
      goto br;
 
@@ -2532,9 +2559,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      style=0;
      currentlink=IE_NULL;
-     r=htmldata->textR;
-     g=htmldata->textG;
-     b=htmldata->textB;
+     HTMLatom.R=htmldata->textR;
+     HTMLatom.G=htmldata->textG;
+     HTMLatom.B=htmldata->textB;
      font=basefont;
      break;
 #endif
@@ -2542,13 +2569,13 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      case TAG_LI: // <LI> <DT>
 
      alignrow(x,y,orderedlist[listdepth]);
-     if(x>left)
-      y+=rowsize;
-     if(orderedlist[listdepth]!=0 || left+LISTINDENT>right)
-      x=left;
+     if(x>p->docLeft)
+      y+=p->sizeRow;
+     if(orderedlist[listdepth]!=0 || p->docLeft+LISTINDENT>p->docRight)
+      x=p->docLeft;
      else
-      x=left+LISTINDENT;
-     textrowsize=rowsize=fonty(font,style);
+      x=p->docLeft+LISTINDENT;
+     p->sizeTextRow=p->sizeRow=fonty(font,style);
 
      if(orderedlist[listdepth]<1)
      {
@@ -2560,9 +2587,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(fixedfont)
        HTMLatom.y=y;
       else
-       HTMLatom.y=y+rowsize/2-5+type;
+       HTMLatom.y=y+p->sizeRow/2-5+type;
       HTMLatom.xx=x-5-type;
-      HTMLatom.yy=y+rowsize/2+5-type;
+      HTMLatom.yy=y+p->sizeRow/2+5-type;
       addatom(&HTMLatom,"",0,LI,align,type,0,IE_NULL,0);
      }
      else
@@ -2580,17 +2607,17 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      nownobr=1;
      lastspace=1;//mazat mezery
      align=BOTTOM; //seznam zarovnavat doleva
-     if(xsum>maxsum)
-      maxsum=xsum;
-     xsum=0;
+     if(p->xsum>p->maxsum)
+      p->maxsum=p->xsum;
+     p->xsum=0;
      break;
 
      case TAG_DD: //<DD>
 
      alignrow(x,y,orderedlist[listdepth]);
-     y+=rowsize;
-     textrowsize=rowsize=fonty(font,style);
-     x=left+LISTINDENT;
+     y+=p->sizeRow;
+     p->sizeTextRow=p->sizeRow=fonty(font,style);
+     x=p->docLeft+LISTINDENT;
      lastspace=1;
      break;
 
@@ -2607,20 +2634,20 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       orderedlist[listdepth+1]=-1; //unordered list type 2
      list:
      {
-      char flag=(x>left);
+      char flag=(x>p->docLeft);
       int indent=LISTINDENT;
 
       if(orderedlist[listdepth+1]==1) //yes, it is ordered list
        indent*=2;
 
 //      printf("[indent=%d]",indent);
-      if(left+indent<right && listdepth<2*MAXTABLEDEPTH-1)
+      if(p->docLeft+indent<p->docRight && listdepth<2*MAXTABLEDEPTH-1)
       {
-       listedge[listdepth]=left;
-       left+=indent;
+       listedge[listdepth]=p->docLeft;
+       p->docLeft+=indent;
        listdepth++;
-       x=left;
-//       printf("[listedge=%d,left=%d]",listedge[listdepth-1],left);
+       x=p->docLeft;
+//       printf("[listedge=%d,left=%d]",listedge[listdepth-1],p->docLeft);
       }
 
       if(flag)
@@ -2634,7 +2661,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(listdepth)
      {
       listdepth--;
-      left=listedge[listdepth];
+      p->docLeft=listedge[listdepth];
      }
      goto p;
 
@@ -2643,7 +2670,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      {
       int type=TEXT,size=10,checked=0;
-      char value[IE_MAXLEN+1]="\0",name[80]="\0",*ptr;
+      char value[IE_MAXLEN+1]="\0",name[80]="\0";
       char notresize=0;
 
       //official extensions
@@ -2653,13 +2680,13 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       if(getvar("URI",&tagarg))
       {
-       AnalyseURL(cache->URL,&url,currentframe); //(plne zneni...)
+       AnalyseURL(cache->URL,&url,p->currentframe); //(plne zneni...)
        strcpy(value,url.file);
       }
 
       if(getvar("USR",&tagarg))
       {
-       AnalyseURL(cache->URL,&url,currentframe); //(plne zneni...)
+       AnalyseURL(cache->URL,&url,p->currentframe); //(plne zneni...)
        strcpy(value,url.user);
       }
 
@@ -2746,98 +2773,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       //unsecure arachne extensions to <INPUT> tag.....................
       //allowed only for local or forced-html documents
-      if(!strncmpi(cache->URL,"file",4) || !strncmpi(cache->URL,"mailto",4)
+      if(searchvar("ARACHNE") &&
+         (!strncmpi(cache->URL,"file",4) || !strncmpi(cache->URL,"mailto",4)
           || !strncmpi(cache->URL,"about",4) || !strncmpi(cache->URL,"gui",3)
-          || forced_html)
-      {
-       if(getvar("ARACHNECFGVALUE",&tagarg))
-       {
-        ptr=configvariable(&ARACHNEcfg,tagarg,NULL);
-        if(ptr)
-         makestr(value,ptr,IE_MAXLEN);
-       }
-
-       if(getvar("ARACHNESAVE",&tagarg))
-       {
-        ptr=configvariable(&ARACHNEcfg,"DownloadPath",NULL);
-        makestr(value,ptr,79);
-        ptr=strrchr(cache->URL,'\\');
-        if(!ptr)
-        {
-         ptr=strrchr(cache->URL,'/');
-         if(!ptr)
-         {
-          if(cache->rawname[0])
-          {
-           ptr=strrchr(cache->rawname,'\\');
-           if(!ptr)
-            ptr=cache->rawname;
-           else
-            ptr++;
-          }
-          else
-          {
-           ptr=strrchr(cache->locname,'\\');
-           if(!ptr)
-            ptr=cache->locname;
-           else
-            ptr++;
-          }
-         }
-         else
-          ptr++; //skip backslash
-        }
-        else
-         ptr++; //skip slash
-
-        strcat(value,ptr);
-       }
-
-       if(getvar("ARACHNEMIME",&tagarg))
-        strcpy(value,cache->mime);
-
-       if(getvar("ARACHNEREALM",&tagarg))
-        strcpy(value,AUTHENTICATION->realm);
-
-       if(getvar("ARACHNEVER",&tagarg))
-       {
-        strcpy(value,VER);
-        strcat(value,beta);
-       }
-
-       if(getvar("ARACHNEDOC",&tagarg))
-       {
-        if(file_exists(cache->rawname))
-         strcpy(value,cache->rawname); //rawname is not virtual - .JPG,.CNM
-        else
-         strcpy(value,LASTlocname); //rawname is not filename - .DGI
-        strlwr(value);
-       }
-
-       if(getvar("ARACHNECHECKED",&tagarg)) //for VALUE=...
-       {
-        ptr=configvariable(&ARACHNEcfg,tagarg,NULL);
-        if(ptr && !strcmpi(value,ptr))
-         checked=1;
-       }
-
-       if(getvar("ARACHNEVGA",&tagarg) && vgadetected) //for VALUE=...
-       {
-        strcpy(value,vgadetected);
-       }
-
-       if(getvar("ARACHNENOTCHECKED",&tagarg)) //FOR ARACHNECFGVALUE=...
-       {
-        if(!strstr(tagarg,value))
-         checked=1;
-       }
-
-       if(getvar("ARACHNECFGHIDE",&tagarg)) //FOR ARACHNECFGVALUE=...
-       {
-        if(strstr(tagarg,value))
-         value[0]='\0';
-       }
-      }//end unsecure extensions.......................................
+          || p->forced_html))
+       CheckArachneFormExtensions(cache,value, &checked);
 
       if(type==SUBMIT || type==RESET /*|| type==BUTTON*/)
       {
@@ -2878,11 +2818,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       if(type!=HIDDEN)
       {
-       if(x+size>right && x>left && size<right-left && !pre && !nownobr)
+       if(x+size>p->docRight && x>p->docLeft && size<p->docRight-p->docLeft && !pre && !nownobr)
        {
         alignrow(x,y,orderedlist[listdepth]);
-        y+=rowsize;
-        x=left;
+        y+=p->sizeRow;
+        x=p->docLeft;
        }
 
        HTMLatom.x=x;
@@ -2916,10 +2856,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        if(tag!=TAG_BUTTON)
        {
         int ygap=(int)(HTMLatom.yy-HTMLatom.y)+2;
-        if(rowsize<ygap)
-         rowsize=ygap;
-        if(textrowsize<ygap)
-         textrowsize=ygap;
+        if(p->sizeRow<ygap)
+         p->sizeRow=ygap;
+        if(p->sizeTextRow<ygap)
+         p->sizeTextRow=ygap;
        }
       }
       else
@@ -2939,14 +2879,14 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(tag==TAG_BUTTON)
       {
        int ygap=fonty(font,style);
-       if(rowsize<ygap)
-        rowsize=ygap;
-       if(textrowsize<ygap)
-        textrowsize=ygap;
-       currentbutton=lastHTMLatom;
+       if(p->sizeRow<ygap)
+        p->sizeRow=ygap;
+       if(p->sizeTextRow<ygap)
+        p->sizeTextRow=ygap;
+       currentbutton=p->lastHTMLatom;
        currentbuttony=y;
        xshift(&x,space(0));
-       left=x;
+       p->docLeft=x;
        y+=2;
        break;
       }
@@ -2958,7 +2898,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      }//end block!
 
      {
-      int oldright=right;
+      int oldright=p->docRight;
       xshift(&x,space(0));
       if(x>oldright && !pre && !nownobr && !nobr)
        goto br;
@@ -2971,22 +2911,22 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       long oldxsum;
 
       xshift(&x,space(0));
-      oldxsum=xsum;
-      closeatom(currentbutton,x-currentbuttonx,y+rowsize+5); //0=don't overwrite Y coordinate
-      xsum=oldxsum;
+      oldxsum=p->xsum;
+      closeatom(currentbutton,x-currentbuttonx,y+p->sizeRow+5); //0=don't overwrite Y coordinate
+      p->xsum=oldxsum;
       xshift(&x,space(0));
       if(currentbuttony!=y)
       {
-       unsigned pushlast=lastHTMLatom;
-       lastHTMLatom=currentbutton;
+       unsigned pushlast=p->lastHTMLatom;
+       p->lastHTMLatom=currentbutton;
        alignrow(x,currentbuttony,orderedlist[listdepth]);
-       lastHTMLatom=pushlast;
+       p->lastHTMLatom=pushlast;
       }
       alignrow(x,y,orderedlist[listdepth]);
-      rowsize+=5;
+      p->sizeRow+=5;
       currentbutton=IE_NULL;
-      left-=space(0);
-      if(x>right && !pre && !nownobr && !nobr)
+      p->docLeft-=space(0);
+      if(x>p->docRight && !pre && !nownobr && !nobr)
        goto br;
      }
      break;
@@ -3012,12 +2952,12 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       if(getvar("ACTION",&tagarg))
       {
        //vlozit link:
-       AnalyseURL(tagarg,&url,currentframe); //(plne zneni...)
+       AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
        url2str(&url,text);
 
        //vyrobim si pointr na link, a od ted je vsechno link:
        addatom(&HTMLatom,text,strlen(text),FORM,align,target,method,IE_NULL,1);
-       currentform=lastHTMLatom;
+       currentform=p->lastHTMLatom;
       }
      }
      if(!nownobr)
@@ -3059,11 +2999,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      case TAG_SLASH_TITLE:
      //accept title only for the main frame...
-     if(istitle && !arachne.title[0] && !currentframe)
+     if(istitle && !arachne.title[0] && !p->currentframe)
      {
       text[txtlen]='\0';
       MakeTitle(text);
-      if(!printing)
+      if(!p->rendering_target)
        DrawTitle(0);
      }
      invisibletag=0;
@@ -3096,11 +3036,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        rowspix=4+fonty(BUTTONFONT,0)*size+fonty(OPTIONFONT,0)*(size-1);
        HTMLatom.xx=x;
        HTMLatom.yy=y+rowspix;
-       if(rowsize<rowspix+2)rowsize=rowspix+2;
-       if(textrowsize<rowspix+2)textrowsize=rowspix+2;
+       if(p->sizeRow<rowspix+2)p->sizeRow=rowspix+2;
+       if(p->sizeTextRow<rowspix+2)p->sizeTextRow=rowspix+2;
        maxoption=0;
        addatom(&HTMLatom,&tmpeditor,sizeof(struct ib_editor),INPUT,align,SELECT,multiple,currentform,0);
-       atomptr=(struct HTMLrecord *)ie_getswap(lastHTMLatom);
+       atomptr=(struct HTMLrecord *)ie_getswap(p->lastHTMLatom);
        currenttextarea=atomptr->ptr;
       }
       isselect=1; //flag: read contens of <SELECT>... </SELECT>!
@@ -3134,18 +3074,18 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(tag==TAG_SLASH_SELECT) //</SELECT> - end of select tag
      {
       int dx=maxoption+space(SYSFONT)+user_interface.scrollbarsize+11;
-      int oldright=right;
+      int oldright=p->docRight;
       isselect=0;
       invisibletag=0;
-      if(x+dx>right)
+      if(x+dx>p->docRight)
       {
        alignrow(x,y,orderedlist[listdepth]);
-       y+=rowsize;
-       x=left;
+       y+=p->sizeRow;
+       x=p->docLeft;
        lastspace=1;//mazat mezery
-       textrowsize=rowsize=atom2nextline(x,y,lastHTMLatom);
+       p->sizeTextRow=p->sizeRow=atom2nextline(x,y,p->lastHTMLatom);
       }
-      closeatom(lastHTMLatom,dx,0); //0=don't overwrite Y coordinate
+      closeatom(p->lastHTMLatom,dx,0); //0=don't overwrite Y coordinate
       xshift(&x,dx);
       if(!alreadyselected && !multiple)
       {
@@ -3235,9 +3175,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      rowspix=user_interface.scrollbarsize+5+fonty(SYSFONT,0)*rows;
      HTMLatom.xx=x;
      HTMLatom.yy=y+rowspix;
-     if(rowsize<rowspix+2)rowsize=rowspix+2;
-     if(x>right)right=x;
-     if(right>rightedge)rightedge=right;
+     if(p->sizeRow<rowspix+2)p->sizeRow=rowspix+2;
+     if(x>p->docRight)p->docRight=x;
+     if(p->docRight>p->docRightEdge)p->docRightEdge=p->docRight;
 
      tmpeditor.cols=cols;
      if(getvar("ARACHNEEDITOR",&tagarg))
@@ -3265,7 +3205,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(rv==1)
      {
       addatom(&HTMLatom,&tmpeditor,sizeof(struct ib_editor),INPUT,align,TEXTAREA,active,currentform,0);
-      atomptr=(struct HTMLrecord *)ie_getswap(lastHTMLatom);
+      atomptr=(struct HTMLrecord *)ie_getswap(p->lastHTMLatom);
       currenttextarea=atomptr->ptr;
      }
      invisibletag=1;
@@ -3286,14 +3226,14 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(getvar("BACKGROUND",&tagarg) && tagarg[0])
      {
       ResetHtmlPage(htmldata,TEXT_HTML,0);
-      AnalyseURL(tagarg,&url,currentframe); //(plne zneni...)
+      AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
       url2str(&url,img->URL);
       init_picinfo(img);
       img->URL[URLSIZE-1]='\0';
       if(img->URL[0])
       {
        addatom(&HTMLatom,img,sizeof(struct picinfo),BACKGROUND,BOTTOM,0,0,IE_NULL,0);
-       htmldata->backgroundptr=lastHTMLatom;
+       htmldata->backgroundptr=p->lastHTMLatom;
       }
       //printf("background image=%s\n",img->URL);
      }
@@ -3328,11 +3268,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      if(getvar("MARGINWIDTH",&tagarg))
      {
-      left=leftedge=leftstack[0]=leftedgestack[0]=x=frame->marginwidth=atoi(tagarg);
-      right=rightedge=rightstack[0]=rightedgestack[0]=frame->scroll.xsize-frame->marginwidth-FUZZYPIX;
+      p->docLeft=p->docLeftEdge=stackLeft[0]=stackLeftEdge[0]=x=frame->marginwidth=atoi(tagarg);
+      p->docRight=p->docRightEdge=stackRight[0]=stackRightEdge[0]=frame->scroll.xsize-frame->marginwidth-FUZZYPIX;
      }
      else
-      x=left;
+      x=p->docLeft;
 
      if(getvar("MARGINHEIGHT",&tagarg))
      {
@@ -3362,9 +3302,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       htmldata->bgproperties=BGPROPERTIES_FIXED;
 
      invisibletag=0;
-     r=htmldata->textR;
-     g=htmldata->textG;
-     b=htmldata->textB;
+     HTMLatom.R=htmldata->textR;
+     HTMLatom.G=htmldata->textG;
+     HTMLatom.B=htmldata->textB;
      break;
 
      case TAG_BASE: //<BASE>
@@ -3379,19 +3319,19 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       AnalyseURL(text,&url,IGNORE_PARENT_FRAME);
 
       //reset BASE url:
-      if(!currentframe)
+      if(!p->currentframe)
        memcpy(&baseURL,&url,sizeof(struct Url));
 
       url2str(&url,frame->cacheitem.URL);
-      if(!currentframe)
+      if(!p->currentframe)
       {
        SetInputAtom(&URLprompt,frame->cacheitem.URL);
-       if(!printing)
+       if(!p->rendering_target)
         DrawTitle(0);
       }
      }
 
-     basetarget=findtarget(currentframe);
+     basetarget=findtarget(p->currentframe);
 
      break;
 
@@ -3416,7 +3356,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(user_interface.frames && arachne.framescount<MAXFRAMES-1) //[0...6]
      {
       char framewantborder=UNDEFINED_FRAMEBORDER;
-      oldactive=0; //deactivate any possibly active frames
+      p->oldactive=0; //deactivate any possibly active frames
       arachne.backtrace=0; //frameset changed -> old targets are not valid!
 
       if(getvar("FRAMEBORDER",&tagarg) || getvar("BORDER",&tagarg))
@@ -3429,14 +3369,14 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       if(getvar("ROWS",&tagarg) && strchr(tagarg,','))
       {
-       strcpy(text,tagarg);
-       addframeset(0,&emptyframeset,framewantborder);
+       makestr(text,tagarg,BUF);
+       addframeset(0,&emptyframeset,framewantborder,text);
       }
       else
       if(getvar("COLS",&tagarg))
       {
-       strcpy(text,tagarg);
-       addframeset(1,&emptyframeset,framewantborder);
+       makestr(text,tagarg,BUF);
+       addframeset(1,&emptyframeset,framewantborder,text);
       }
      }
 
@@ -3447,7 +3387,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
       alignrow(x,y,orderedlist[listdepth]);
       HTMLatom.x=x;
       HTMLatom.y=y;
-      HTMLatom.xx=right;
+      HTMLatom.xx=p->docRight;
       y+=fonty(6,BOLD);
       HTMLatom.yy=y;
       addatom(&HTMLatom,msg,strlen(msg),TEXT,BOTTOM,6,BOLD,IE_NULL,0);
@@ -3465,15 +3405,15 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
       if(!getvar("SRC",&tagarg))
        tagarg="NUL";
-      AnalyseURL(tagarg,&url,currentframe); //(plne zneni...)
+      AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
       url2str(&url,text);
 
       newframe_target=emptyframeset;
-      frame=&htmlframe[newframe_target];
+      frame=&(p->htmlframe[newframe_target]);
 
       emptyframeset=frame->next;
-      frame->next=htmlframe[previousframe].next;
-      htmlframe[previousframe].next=newframe_target;
+      frame->next=p->htmlframe[previousframe].next;
+      p->htmlframe[previousframe].next=newframe_target;
       previousframe=newframe_target;
 
 
@@ -3556,60 +3496,14 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
                  frame->scroll.xtop,
                  frame->scroll.ytop,
                  frame->scroll.xsize,0);//total x,y
-      ResetHtmlPage(&tmpframedata[newframe_target],TEXT_HTML,1);
+      ResetHtmlPage(&(p->tmpframedata[newframe_target]),TEXT_HTML,1);
 
       frame->posX=0;
       frame->posY=0l;
      }
      else
      {
-      unsigned currentlink;
-
-      if(getvar("SRC",&tagarg))
-      {
-       HTMLatom.x=x;
-       HTMLatom.y=y;
-       HTMLatom.xx=x;
-       HTMLatom.yy=y+rowsize;
-       //vlozit link:
-       AnalyseURL(tagarg,&url,currentframe); //(plne zneni...)
-       url2str(&url,text);
-
-       //vyrobim si pointr na link, a od ted je vsechno link:
-       addatom(&HTMLatom,text,strlen(text),HREF,BOTTOM,0,0,IE_NULL,1);
-       currentlink=lastHTMLatom;
-
-       getvar("NAME",&tagarg);
-       strcat(text," (");
-       strcat(text,tagarg);
-       strcat(text,")");
-
-       pushfont(font,style,&fontstack);
-       r=htmldata->linkR;
-       g=htmldata->linkG;
-       b=htmldata->linkB;
-       img->size_y=60;
-       img->size_x=60;
-       strcpy(img->filename,"HTM.IKN");
-       img->URL[0]='\0';
-       HTMLatom.x=x;
-       HTMLatom.y=y;
-       x+=img->size_x;
-       HTMLatom.xx=x;
-       HTMLatom.yy=y+img->size_y;
-       addatom(&HTMLatom,img,sizeof(struct picinfo),IMG,BOTTOM,0,0,currentlink,0);
-       HTMLatom.x=x+FUZZYPIX;
-       HTMLatom.xx=right;
-       HTMLatom.yy=y+fonty(3,UNDERLINE);
-       addatom(&HTMLatom,text,strlen(text),TEXT,BOTTOM,3,UNDERLINE,currentlink,0);
-       y+=img->size_y;
-       if(!popfont(&font,&style,&fontstack))
-       {
-        r=htmldata->textR;
-        g=htmldata->textG;
-        b=htmldata->textB;
-       }
-      }
+      DummyFrame(p,&x,&y);
       goto br;
      }
 
@@ -3623,7 +3517,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      HTMLatom.x=x;
      HTMLatom.y=y;
      HTMLatom.xx=x;
-     HTMLatom.yy=y+rowsize;
+     HTMLatom.yy=y+p->sizeRow;
 
      if(!getvar("NAME",&tagarg))
       tagarg[0]='\0';
@@ -3641,7 +3535,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      if(getvar("SRC",&tagarg) && !strncmpi(cache->URL,"file",4))
      {
-      AnalyseURL(tagarg,&url,currentframe); //(plne zneni...)
+      AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
       url2str(&url,img->URL);
       img->URL[URLSIZE-1]='\0';
       if(img->URL[0])
@@ -3666,7 +3560,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(getvar("TARGET",&tagarg))
       configvariable(&ARACHNEcfg,"FTPpath",tagarg);
 
-     if(getvar("PRINT",&tagarg) && printing)
+     if(getvar("PRINT",&tagarg) && p->rendering_target)
      {
       if(toupper(*tagarg)=='N')
       {
@@ -3691,21 +3585,21 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     lastspcx=x;
    }
    // <------------------------<---------<------zpracovani parametru HTML tagu
-   else if(!comment && (buf[i]>=' ' || buf[i]<0))
+   else if(!comment && in>=' ')
    {
     //hehehe.... jestli nasledujicim radku nerozumite, nejste sami :-))))
     //autor programu pro vas ma plne pochopeni...
 
-    if(!param && buf[i]!=' ' && taglen<sizeof(tagname))
+    if(!param && in!=' ' && taglen<sizeof(tagname))
     {
-     tagname[taglen++]=buf[i];
+     tagname[taglen++]=in;
      if(taglen==3 && !strncmp(tagname,"!--",3))
      {
       comment=1;
       nolt=1;
      }
     }
-    else if(buf[i]==' ' && vallen && !uvozovky && argument)
+    else if(in==' ' && vallen && !uvozovky && argument)
     {
      if(param)
      {
@@ -3714,18 +3608,18 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      }
      vallen=0;
     }
-    else if((buf[i]=='\"' || buf[i]=='\'' && (!uvozovky || apostrof)) && (!vallen || uvozovky))
+    else if((in=='\"' || in=='\'' && (!uvozovky || apostrof)) && (!vallen || uvozovky))
     {
      if(argument && uvozovky)      //kvuli ' XXX="" '
       tagargptr[vallen++]='\0';
 
      uvozovky=1-uvozovky;
-     if(uvozovky && buf[i]=='\'')
+     if(uvozovky && in=='\'')
       apostrof=1;
      else
       apostrof=0;
     }
-    else if(buf[i]=='=' && !uvozovky && !argument)
+    else if(in=='=' && !uvozovky && !argument)
     {
      putvarname(tagargptr,vallen);
      vallen=0;
@@ -3733,7 +3627,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     }
     else if(vallen<BUF/2)
     {
-     if(buf[i]!=' ' || uvozovky)
+     if(in!=' ' || uvozovky)
      {
       if(!argument && argspc && vallen)
       {
@@ -3741,7 +3635,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        putvarvalue(tagargptr,0);
        vallen=0;
       }
-      tagargptr[vallen++]=buf[i];
+      tagargptr[vallen++]=in;
       argspc=0;
      }
      else
@@ -3756,12 +3650,12 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
    else //ukonceni HTML komentare ? zjistuju '-->'
    {
     pom[1]=pom[0];
-    pom[0]=buf[i];
-    if(buf[i]=='<')
+    pom[0]=in;
+    if(in=='<')
      nolt=0;
    }
 
-  if(memory_overflow)
+  if(p->memory_overflow)
    goto exitloop;
 
 
@@ -3778,7 +3672,7 @@ exitloop:
 
  HTMLatom.xx=x;
  clearall(&y);
- frame->scroll.total_y=y+rowsize+FUZZYPIX;
+ frame->scroll.total_y=y+p->sizeRow+FUZZYPIX;
  HTMLatom.yy=frame->scroll.total_y;
  if(txtlen)
  {
@@ -3800,7 +3694,7 @@ exitloop:
  //kreslit rolovatko ?
  if(frame->scroll.total_x>frame->scroll.xsize+FUZZYPIX &&
     frame->scroll.ymax>user_interface.scrollbarsize &&
-    frame->allowscrolling && !printing)
+    frame->allowscrolling && !p->rendering_target)
  {
   frame->scroll.xvisible=1;
 
@@ -3829,12 +3723,12 @@ exitloop:
              frame->scroll.total_y);//total y
  }
 
- closeHTML(cache,source);
+ closeHTML(cache,p->html_source);
 
  //kdyz budu muset delat tabulky, tak se ani nezdrzovat:
  //if download was aborted, document will be redrawn later
  if((  (GLOBAL.validtables!=TABLES_UNKNOWN || !RENDER.willadjusttables)
-     || source==HTTP_HTML)
+     || p->html_source==HTTP_HTML)
     && !GLOBAL.abort)
  {
   mouseoff();
@@ -3852,10 +3746,10 @@ exitloop:
   // tables
   if(!GLOBAL.norefresh
      &&
-     !printing
+     !p->rendering_target
      &&
      (
-      htmlframe[currentframe].next==-1 || source==HTTP_HTML
+      p->htmlframe[p->currentframe].next==-1 || p->html_source==HTTP_HTML
      )
      &&
      (
@@ -3881,7 +3775,7 @@ exitloop:
         ||
         lastredrawy<=frame->posY+frame->scroll.ysize
         ||
-        prevHTMLtable!=IE_NULL
+        p->prevHTMLtable!=IE_NULL
        )
       )
      )
@@ -3897,7 +3791,7 @@ exitloop:
  }//endif redraw
 
 
- activeframe=arachne.target;
+ p->activeframe=arachne.target;
 
  //treat frames
  if(arachne.framescount)
@@ -3906,29 +3800,29 @@ exitloop:
   unsigned dummy2;
 
   //clear ugly remains of previous screen:
-  if(!currentframe)
+  if(!p->currentframe)
    redrawHTML(REDRAW_NO_MESSAGE,REDRAW_SCREEN);
 
-  if(htmlframe[currentframe].next!=-1)
+  if(p->htmlframe[p->currentframe].next!=-1)
   {
    do
    {
     kbhit();
-    currentframe=htmlframe[currentframe].next;
+    p->currentframe=p->htmlframe[p->currentframe].next;
    }
-   while(htmlframe[currentframe].hidden && htmlframe[currentframe].next!=-1);
+   while(p->htmlframe[p->currentframe].hidden && p->htmlframe[p->currentframe].next!=-1);
 
-   AnalyseURL(htmlframe[currentframe].cacheitem.URL,&url,IGNORE_PARENT_FRAME);
+   AnalyseURL(p->htmlframe[p->currentframe].cacheitem.URL,&url,IGNORE_PARENT_FRAME);
 
-   if(currentframe==arachne.target && forced_html)
+   if(p->currentframe==arachne.target && p->forced_html)
     goto insertframe;
 
 
-   if(SearchInCache(&url,&htmlframe[currentframe].cacheitem,&dummy1,&dummy2) ||
-      source==HTTP_HTML && currentframe==arachne.target)
+   if(SearchInCache(&url,&(p->htmlframe[p->currentframe].cacheitem),&dummy1,&dummy2) ||
+      p->html_source==HTTP_HTML && p->currentframe==arachne.target)
     goto insertframe;
 
-   arachne.newframe=currentframe;    //load missing frames from...
+   arachne.newframe=p->currentframe;    //load missing frames from...
   }
  }
 
@@ -3939,7 +3833,6 @@ exitloop:
   GLOBAL.validtables=TABLES_EXPAND;
  else
   GLOBAL.validtables=TABLES_FINISHED;
- percflag=0;
 
  return 1;
 }

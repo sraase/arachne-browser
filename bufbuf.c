@@ -33,6 +33,8 @@ void tempinit(char *path)
  if(!tempdir)
  {
   char *ptr=getenv("ARACHNETEMP");
+  char str[64];
+
   tempdir=farmalloc(64);
 #ifndef MINITERM
   if(!tempdir)
@@ -41,7 +43,16 @@ void tempinit(char *path)
   tempdir[0]='\0';
 
   if(!ptr)
+  {
    ptr=getenv("TEMP");
+   if(ptr && strlen(ptr)<48)
+   {
+    strcpy(str,ptr);
+    strcat(str,"\\ARACHNE.TMP");
+    mkdir(str);
+    ptr=str;
+   }
+  }
 
   if(ptr)
   {
