@@ -252,10 +252,10 @@ int activeatomtick(int key,char textareacmd)
    memcpy(&tmpeditor,editorptr,sizeof(struct ib_editor));
    oldline=tmpeditor.y;
    redraw=ie_key(&tmpeditor,key,bioskey(2),xs,ys);
-   //vraci 0:nic se nedeje,
-   //      1:nastav kurzor
-   //      2:prekresli radku
-   //      3:prekresli vsechno
+   //vraci 0:nic se nedeje, (tr.: nothing happens)
+   //      1:nastav kurzor (tr.: adjust cursor)
+   //      2:prekresli radku (tr.: overwrite row)
+   //      3:prekresli vsechno (tr.: overwrite everything)
    editorptr=(struct ib_editor *)ie_getswap(activeatomptr->ptr);
    if(editorptr)
    {
@@ -280,12 +280,12 @@ int activeatomtick(int key,char textareacmd)
    }
   }//end if special event ocured (Arachne GUI bindings...)
 
-  if(asc==27) //esc - opustit aktualni atom
+  if(asc==27) //esc - leave current atom
   {
    activeatomcursor(0);
    activeatomptr=NULL;
    defaultmsg();
-   if(activeistextwindow) //!! hrruuuza :-(
+   if(activeistextwindow) //!! hrruuuza :-( (tr.: horror) 
     return key;
   }
   else
@@ -442,6 +442,7 @@ void activeurl(char *url)
 }
 
 int activeismap(int *dx, int *dy) //je aktivnim obrazkem klikatelna mapa ?
+ // tr.: is the active picture a clickable image map?
 {
  //data1 | 1=ISMAP,2=USEMAP,4=INPUT TYPE=...
  if(activeatomptr && activeatomptr->type==IMG &&
@@ -467,6 +468,7 @@ void RadioSwitch(int fromx, long fromy,XSWAP current,XSWAP formptr)
  struct HTMLrecord *atomptr;
 
  //vyresetovat rediobuttons a vykreslit ty, co jsou na obrazovce
+ // tr.: reset radio buttons and draw those, that are on the screen
  editorptr=(struct ib_editor *)ie_getswap(current);
  if(!editorptr)
   return;
@@ -491,10 +493,10 @@ void RadioSwitch(int fromx, long fromy,XSWAP current,XSWAP formptr)
      MALLOCERR();
 
     if(atomptr->ptr==current)
-     atomptr->data2=1; //!je checked!
+     atomptr->data2=1; //!is checked!
     else
-     atomptr->data2=0; //!neni checked!
-    swapmod=1;        //!ulozit!
+     atomptr->data2=0; //!is not checked!
+    swapmod=1;        //!save!
 
     scroll=&(p->htmlframe[atomptr->frameID].scroll);
     if(atomptr->y>=fromy && atomptr->y<fromy+scroll->ysize &&
@@ -503,8 +505,8 @@ void RadioSwitch(int fromx, long fromy,XSWAP current,XSWAP formptr)
      drawatom(atomptr,fromx,fromy,
               scroll->xsize,scroll->ysize,scroll->xtop,scroll->ytop);
     }
-   }//endif jetoeditor
-  }//endif je to RADIO
+   }//endif is it editor
+  }//endif is it radio
   currentHTMLatom=nextHTMLatom;
  }//loop
  mouseon();
@@ -678,7 +680,7 @@ void activeatomcursor(char cursor)
  {
   char subtype=activeatomptr->data1;
   long xc,yc;
-  char zn[2]=" \0";
+  char zn[2]=" ";  //was " \0" [JdS 2004/3/6]
   char *ptr;
   int ink,paper;
   struct HTMLframe *frame=&(p->htmlframe[activeatomptr->frameID]);

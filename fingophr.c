@@ -20,9 +20,9 @@
 #include "arachne.h"
 #include "internet.h"
 
-void xChLogoTICK(char Style); // animace loga
-void xChLogo(char n);                  // vykresleni prazdneho loga
-int  GUITICK(void);            // prekresleni mysi, vstup z klavesy, etc.
+void xChLogoTICK(char Style); // animation of logo
+void xChLogo(char n);                  // draw empty logo
+int  GUITICK(void);            // redraw mouse, keyboard input, etc.
 void memerr(void);
 extern struct GLOBAL_FLAG GLOBAL;
 
@@ -109,7 +109,7 @@ int xfinger(struct Url *url, struct HTTPrecord *cache,char *selector)
    sprintf(str,MSG_RDRPL,total);
   }
 
-  sock_tick( socket, &status ); //posunu TCP/IP
+  sock_tick( socket, &status ); //I shift TCP/IP
 
  }
 

@@ -12,11 +12,17 @@
 #include "x_lopif.h"
 
 int xv_chr_mem(char *fnt_chr,           // Zacatek znaku ve fontu
+                                        // tr.: beginning of chars in font 
 		int  kx,                // Posun ve smeru X
-		int  dx,                // Delka radku
+                                        // tr.: move in x direction
+                int  dx,                // Delka radku 
+                                        // tr.: length of line
 		int  xfnt, int yfnt,    // Velikost fontu v pixlech
+                                        // tr.: size of font in pixels
 		int  color,int fillc,   // Barva znaku a pozadi
+                                        // tr.: colour of char and backgr.
 		char *subobr,           // Obraz se znaky textu (OUT!)
+                                        // tr.: picture with chars of text
 		int  bin);              // bin=0/1 subobr bytovy/binarni
 
 int x_text_ib(int xp, int yp, unsigned char *text)
@@ -39,8 +45,8 @@ int x_text_ib(int xp, int yp, unsigned char *text)
      memset(mezery,0,600);
    }
 
-   py_len = x_txheight(text);        // Vyska v pixlech
-   px_len = x_txwidth(text);         // Delka v pixlech
+   py_len = x_txheight(text);        // Vyska v pixlech (tr. height in pixels)
+   px_len = x_txwidth(text);         // Delka v pixlech (tr. length in pixels)
 
    if(px_len == 0) return( 1 );
 
@@ -77,8 +83,9 @@ int x_text_ib(int xp, int yp, unsigned char *text)
     }
    else if(xg_256==MM_2)            //(1bit/pixel) 
     { Moff = xp % 8;                // Beg offset pro prvni znak
-      Byt1 = xp / 8;                // Prvni byte v XMS
-      Byt2 = (xp + px_len - 1) / 8; // Posledni byte
+                                    // tr.: Beg offset for first char
+      Byt1 = xp / 8;                // Prvni byte v XMS (tr.: first byte in XMS)
+      Byt2 = (xp + px_len - 1) / 8; // Posledni byte (tr.: last byte)
       Len  = Byt2-Byt1+1;
 	  xlu  = Len * 8;
 	  Byt1 = Byt1 * 8;
@@ -92,6 +99,7 @@ int x_text_ib(int xp, int yp, unsigned char *text)
    if(size > 65500L) return( 2 );
 
    //--------- Alokace bufru na text --------------------
+   // tr.: allocation of text buffer
    hsubobr = farmalloc( size );
    if(hsubobr == NULL) 
    {
@@ -126,16 +134,17 @@ int x_text_ib(int xp, int yp, unsigned char *text)
    }
 
    //---------------- Vlasni psani textu do subobru-------------
+   // tr.: writing text into file
    len = strlen(text);
    for(i=0; i<len; i++)
     {
      off = text[i] & 0x00FF;
-     if(off < 32)                     // !!! Mezery sirky 1..31
-     {  if(xg_31yn == 0) // Nekreslit
+     if(off < 32)                // !!! Mezery sirky 1..31 (tr.: spaces width)
+     {  if(xg_31yn == 0) // Nekreslit (tr.: do not draw)
 	 { Moff += off;
 	   continue;
 	 }
-	else             // Kreslit
+        else             // Kreslit (tr.: draw)
 	 { 
 	   zbuf = mezery;
 	   xg_xfnt = off;
@@ -144,14 +153,17 @@ int x_text_ib(int xp, int yp, unsigned char *text)
      else
      {
      //--------- Ziskat adresu fontu v xg_fbuf ------------------
+     // tr.: get address of font in xg_fbuf
      if(xg_foncon == 0)                // Konstantni vzdy v pameti
+                                       // tr.: constant always in memory
        { xg_xfnt = xg_fonlen[off];
 	 off = off * xg_fbyt;
 	 zbuf = xg_fbuf+off;
        }
-     else                              // Proporcni
+     else                              // Proporcni (tr.: proportional)
        { adr = xg_fonadr[off];
-	 if(adr == -1L) continue;      // tento znak neexistuje
+         if(adr == -1L) continue;      // tento znak neexistuje
+                                       // tr.: this char does not exist
 	 xg_xfnt = xg_fonlen[off];
 
 	  { zbuf = xg_fbuf + (unsigned int)adr;
@@ -159,7 +171,7 @@ int x_text_ib(int xp, int yp, unsigned char *text)
        }
      }
 
-     if(xg_fnt_zoo == 1)    // Original velikost
+     if(xg_fnt_zoo == 1)    // Original velikost (tr.: original size)
       {
           
        xv_chr_mem(zbuf, Moff, px_len,xg_xfnt,xg_yfnt, xg_color,xg_fillc,
@@ -169,10 +181,11 @@ int x_text_ib(int xp, int yp, unsigned char *text)
      else if(xg_fnt_zoo == 2)		  // Zooming 2x, (4x?)
       {
       nb = ((((xg_xfnt-1)>>3)+1)*xg_yfnt)*(xg_fnt_zoo<<1); // pocet bytu
+                                                 // tr.: number of bytes
       if(nb > 3000)
        continue;
       else
-       memset(zoobuf,0,nb); // Vynuluj zoobuf
+       memset(zoobuf,0,nb); // Vynuluj zoobuf (tr.: erase zoobuf)
 
       nznk1 = 0;
       nznk2 = 0;
@@ -182,13 +195,16 @@ int x_text_ib(int xp, int yp, unsigned char *text)
       len22 = ((xg_xfnt-1) * xg_fnt_zoo)/8 + 1;
 
       for(nrw=0; nrw<xg_yfnt; nrw++)  // Cykl pres radky znaku fontu
+                    // tr.: cycle through rows of character of font
 	{ for(ncc=0; ncc<nbyte; ncc++)    // Cykl pres byty radku
+                    // tr.: cycle through bytes of row
 	   { ch1 = *(zbuf+nznk1);
 	     if(ncc == (nbyte-1))
 	       jend = zb1;
 	     else
 	       jend = 8;
 	     for(j1=0; j1<jend; j1++)    // Zvetsi jeden byte (cast)
+                                         // tr.: increase one byte (part)
 	      { cx = ch1 & 0x80;
 		if(cx != 0)
 		{
@@ -212,7 +228,7 @@ int x_text_ib(int xp, int yp, unsigned char *text)
 		   xg_color,xg_fillc, subobr, bin);
        Moff += xg_xfnt*xg_fnt_zoo;
       }   // End if Zoom
-    } // End for i = znaky
+    } // End for i = znaky (tr.: end for i = characters
 
    //----------- Write subobr to vv -------------------------
    v_putimg(Byt1, yp, hsubobr);
@@ -223,6 +239,7 @@ int x_text_ib(int xp, int yp, unsigned char *text)
    return( 1 );
 
    // ---------- Chyby -------------------------
+   // tr.: errors
    Err_wr:
    xg_xfnt = xg_fonlen[32];
    farfree(hsubobr);

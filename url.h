@@ -18,6 +18,9 @@ struct Url
 {
  char protocol[PROTOCOLSIZE];
  char user[STRINGSIZE];
+//!!glennmcc: begin Sept 17, 2004 -- for AuthSMTP
+ char authuser[STRINGSIZE];
+//!!glennmcc: end
  char password[PASSWORDSIZE];
  char host[STRINGSIZE];
  unsigned port;

@@ -178,7 +178,7 @@ void ScrollDraw(struct ScrollBar *scroll,int fromx,long fromy)
   Box3Dv(scroll->xtop+scroll->xsize+1,scroll->ytop+scroll->yscr,
         scroll->xtop+scroll->xsize+user_interface.scrollbarsize,scroll->ytop+scroll->yscr+scroll->yscrsz+zblo);
 
-  //ozdobicky
+  //ozdobicky (tr.: ornaments)
   if(scroll->yscrsz>24)
   {
    int ymid=scroll->yscrsz/2;
@@ -256,7 +256,7 @@ void ScrollDraw(struct ScrollBar *scroll,int fromx,long fromy)
  Box3Dh(scroll->xtop+scroll->xscr,scroll->ytop+scroll->ysize+1,
        scroll->xtop+scroll->xscr+scroll->xscrsz,scroll->ytop+scroll->ysize+user_interface.scrollbarsize);
 
- if(scroll->xscrsz>24)//ozdobicky...
+ if(scroll->xscrsz>24)//ozdobicky...  (tr.: ornaments...)
  {
   int xmid=scroll->xscrsz/2;
   int yend=scroll->ytop+scroll->ysize+3;

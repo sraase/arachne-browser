@@ -20,7 +20,7 @@ void ImouseWait(void);
 //----------------------------------------------------------------------------
 //basic SVGA inteface
 void detectgraphics(void);
-void graphicsinit(char *svgamode); //inicializace grafiky, mod dle X_LOPIF
+void graphicsinit(char *svgamode); //initialization of graphics, mode according X_LOPIF
 void initpalette(void);
 
 //----------------------------------------------------------------------------

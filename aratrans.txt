@@ -1,0 +1,23 @@
+How the translation was done:
+-----------------------------
+
+All translations of Czech comments in the code were inserted
+either on the same line marked with "(tr.: ...)" or on the next line
+beginning with "// tr.: ". Only in a few cases I changed very simple
+comments that where some kind of a mixture of Czech and English
+into pure English. 
+
+I left almost all Czech comments in their place, as in some cases
+I was not sure about terminology (eg.: souhrnn  paleta = composite
+palette?), and in other cases I was not able to decide whether a word
+was meant as grammatical subject or object. Semantical and grammatical
+alternatives in the translation are indicated by "/" (eg. "through/on").
+"???" indicates that I had no idea how to translate a (presumedly)
+Czech expression. 
+
+I preferred  to leave deleting of the original Czech comments
+to those, who understand the code. 
+
+Christof Lange
+cce.zizkov@volny.cz
+

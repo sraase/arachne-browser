@@ -373,7 +373,7 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
     outs(str);
    }
    else
-    sock_tick( &datasocket, &status ); //posunu TCP/IP
+    sock_tick( &datasocket, &status ); //shift TCP/IP
   }
  }
  else //-------------------------------------- upload ------------------
@@ -410,7 +410,7 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
 //    while( datasocket.datalen > 1024)
     {
      sock_tick(&datasocket,&status);
-     xChLogoTICK(1); // animace loga
+     xChLogoTICK(1); // animation of logo
      if(GUITICK())
       goto dataquit;
     }

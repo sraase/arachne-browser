@@ -210,6 +210,7 @@ int togglefullscreen(void)
  GLOBAL.nothot=1;
  GLOBAL.needrender=1;
  GLOBAL.validtables=0; //tabulky je potreba prepocitat!!!
+                       //tr.: tables need to be recalculated/converted
  return 1;
 }
 
@@ -466,6 +467,14 @@ int gotomailpage(void)
  arachne.target=0;
  return gotoloc();
 }
+//!!glennmcc: begin Aug 11, 2004 -- news page
+int gotonewspage(void)
+{
+ sprintf(GLOBAL.location,"file:%snews.htm",exepath);
+ arachne.target=0;
+ return gotoloc();
+}
+//!!glennmcc: end
 
 //------------------------------------------------------------------------
 // GUIEVENT converts keyboard and mouse events to function calls
@@ -481,7 +490,7 @@ int GUIEVENT(int key, int mouse)
 
  if(key)
  {
-  if(asc==13) //bylo stisknuto enter ?
+  if(asc==13) //bylo stisknuto enter ? (tr.: was 'enter' pressed?)
   {
    char *gotonewurl=NULL;
 
@@ -554,12 +563,18 @@ int GUIEVENT(int key, int mouse)
    else
    {
     if(user_interface.esc==ESC_BACK)
-     return gotopreviouspage();
+     //!!JdS 2004/2/15 {
+     //return gotopreviouspage();
+     if (!GLOBAL.needrender || GLOBAL.abort)
+      return gotopreviouspage();
+     else
+      GLOBAL.abort=ABORT_TRANSFER;
+     //!!JdS 2004/2/15 }
     else
-    if(user_interface.esc==ESC_IGNORE || GLOBAL.timeout)
-     GLOBAL.abort=ABORT_TRANSFER;
-    else
-     GLOBAL.abort=ABORT_PROGRAM;
+     if(user_interface.esc==ESC_IGNORE || GLOBAL.timeout)
+      GLOBAL.abort=ABORT_TRANSFER;
+     else
+      GLOBAL.abort=ABORT_PROGRAM;
 
     return escape();
    }
@@ -761,12 +776,13 @@ int GUIEVENT(int key, int mouse)
          ptr+=7;
 
         AnalyseURL(ptr,&url,arachne.target); //(plne zneni...)
+                                             // tr.: full length/text
 
 	if(!strcmpi(url.protocol,"file"))
 	{
 	 if(!strncmp(url.file,"//",2))
 	  ptr=&url.file[2];
-         else
+	 else
           ptr=url.file;
 
 	 unlink(ptr);
@@ -800,6 +816,12 @@ int GUIEVENT(int key, int mouse)
     return gotodialpage();
    else if(asc=='M')
     return gotomailpage();
+
+//!!glennmcc: begin Aug 11, 2004 -- news page
+   else if(asc=='N')
+    return gotonewspage();
+//!!glennmcc: end
+
    else if(asc=='C')
    {
     sprintf(GLOBAL.location,"mailto:",exepath);
@@ -1020,7 +1042,7 @@ unlink("textarea.tmp");
        if(ishttp)
         strcpy(ptr,".fil");
        else
-        makestr(&ptr[1],p->htmlframe[p->activeframe].cacheitem.URL,3); //napr. HTT, GOP ...
+        makestr(&ptr[1],p->htmlframe[p->activeframe].cacheitem.URL,3); //e.g. HTT, GOP ...
       }
      }
     }
@@ -1242,7 +1264,7 @@ else if(key==11264)
 
  if(mouse)  
  {
-  SecondsSleeping=0l; //pro screensaver
+  SecondsSleeping=0l; //pro screensaver (tr.: for screensaver)
   if(!lmouse)
   {
    link=onmouse(mouse);
@@ -1263,7 +1285,7 @@ submit:
 
     toolbar(0,1); //show standard toolbar
 
-    if(bioskey(2) & CTRLKEY) //nahrat na pozadi
+    if(bioskey(2) & CTRLKEY) //nahrat na pozadi (tr.: load in background)
      GLOBAL.backgr=1;
     maptype=activeismap(&dx,&dy);
 #ifdef CUSTOMER_MODULE
@@ -1300,7 +1322,7 @@ submit:
      if(!strncmpi(&GLOBAL.location[8],"internal-config",15))
      {
       outs(MSG_CONFIG);
-      process_form(0,formID); //updateovat Arachne.Cfg
+      process_form(0,formID); //update Arachne.Cfg
       if(GLOBAL.location[23]=='=' || GLOBAL.location[23]=='?')
       {
        int l=strlen(&GLOBAL.location[24]);
@@ -1420,6 +1442,7 @@ submit:
      if(!strncmpi(GLOBAL.location,"http:",5))
       http=2;
      //pridat Query string k URL zacinajicimu http://
+     // tr.: add Query string to URL beginning with http://
      process_form(1|http|maptype,formID);
      if(GLOBAL.postdata==1) //FORM METHOD=GET
      {
@@ -1429,7 +1452,7 @@ submit:
        MALLOCERR();
       ql=strlen(querystring);
       if(ql+strlen(GLOBAL.location)+1>=URLSIZE || http==0)
-       GLOBAL.postdata=2; //zkusim metodu post
+       GLOBAL.postdata=2; //zkusim metodu post (tr.: try method post)
       else
       {
        strcat(GLOBAL.location,"?");
@@ -1440,6 +1463,7 @@ submit:
     }
     else
     if(maptype==1) //je aktivnim obrazkem klikatelna mapa "ISMAP" ?
+                   // tr.: is active picture clickable image map?
     {
      char str[20];
      sprintf(str,"?%d,%d",mousex-dx,mousey-dy);
@@ -1553,7 +1577,7 @@ submit:
      //-----------------------------------------------------------------
      case CLICK_ADDHOTLIST: //add to hotlist
      //-----------------------------------------------------------------
-     
+
      return add2hotlist();
 
      //-----------------------------------------------------------------
@@ -1883,7 +1907,7 @@ submit:
 
    }
    while(i++<arachne.framescount); //[0...3]
-   }//endif "aktivni atom se pohnul"
+   }//endif "aktivni atom se pohnul" (tr.: active atom has/was moved)
 
   }//endif holding mouse
   

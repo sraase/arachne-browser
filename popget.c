@@ -234,16 +234,16 @@ int xpopdump(struct Url *url,char dele,char logfile)
 	 if(strlen(fname)>12)
 	  strcat(str,&fname[strlen(fname)-12]);
 	 else
-          strcat(str,fname);
+	  strcat(str,fname);
 
-         if(!findfirst(str,&ff,0))
+	 if(!findfirst(str,&ff,0))
 	 {
 	  fname[8]++;
-          if(fname[8]>'9')
-          {
-           starttime=time(NULL);
-           goto maketime;
-          }
+	  if(fname[8]>'9')
+	  {
+	   starttime=time(NULL);
+	   goto maketime;
+	  }
 	  else
 	   goto makename;
          }
@@ -267,7 +267,7 @@ int xpopdump(struct Url *url,char dele,char logfile)
 			 &status );		//SDL
         len=sock_fastread( socket, (unsigned char*)buffer, POP3BUFSIZE );
         buffer[len]='\0';
-        if(log!=-1)
+	if(log!=-1)
         {
          write(log,buffer,strlen(buffer));
 	}
@@ -280,54 +280,72 @@ int xpopdump(struct Url *url,char dele,char logfile)
 	 len--;
         }
         else
-         ptr=buffer;
+	 ptr=buffer;
 
         //treat special situations:
 	if(lastchar[1]=='.' && lastchar[0]=='\n' &&
 	   (ptr[0]=='\n' || ptr[0]=='\r') ||
-           lastchar[1]=='\n' && ptr[0]=='.' &&
-           (ptr[1]=='\n' || ptr[1]=='\r'))
-        {
-         len=0;
+	   lastchar[1]=='\n' && ptr[0]=='.' &&
+	   (ptr[1]=='\n' || ptr[1]=='\r'))
+	{
+	 len=0;
 	 done=1;
 	}
-        else
-        {
+	else
+	{
 /*
-         while(len>2 &&
-               (ptr[len-1]=='\n' || ptr[len-1]=='\r' || ptr[len-1]=='.'))
+	 while(len>2 &&
+	       (ptr[len-1]=='\n' || ptr[len-1]=='\r' || ptr[len-1]=='.'))
 	 {
 	  len--;
-          if(ptr[len-1]=='\n' && ptr[len]=='.' &&
-             (ptr[len+1]=='\n' || ptr[len+1]=='\r'))
-          {
-           ptr[len]='\0';
+	  if(ptr[len-1]=='\n' && ptr[len]=='.' &&
+	     (ptr[len+1]=='\n' || ptr[len+1]=='\r'))
+	  {
+	   ptr[len]='\0';
 	   done=1;
 	   break;
-          }
-         }
+	  }
+	 }
 
 */
-         if(strstr(ptr,"\n.\r") || strstr(ptr,"\n.\n"))
+	 if(strstr(ptr,"\n.\r") || strstr(ptr,"\n.\n"))
 	 {
 	  char *dot=strrchr(ptr,'.');
-          if(dot)
-           *dot='\0';
-          done=1;
+	  if(dot)
+	   *dot='\0';
+	  done=1;
 
 	 }
 
-        }
+//!!glennmcc: begin Aug 07, 2004
+//fix the 'freeze-up' problem on certain SPAM emails
+if (process==locallength) done=1;
+    {
+     strcpy(str,configvariable(&ARACHNEcfg,"FreezeUpString",NULL));
+       if(strlen(str)>1 && strstr(ptr,str))
+	 {
+	  done=1;
+	 }
+else
+     strcpy(str,configvariable(&ARACHNEcfg,"FreezeUpString2",NULL));
+       if(strlen(str)>1 && strstr(ptr,str))
+	 {
+	  done=1;
+	 }
+    }
+//!!glennmcc: end
 
-        if(len>0)
-         lastchar[1]=ptr[len-1];
-        else
+	}
+
+	if(len>0)
+	 lastchar[1]=ptr[len-1];
+	else
 	 lastchar[1]='\0';
 
-        if(len>1)
-         lastchar[0]=ptr[len-2];
-        else
-         lastchar[0]='\0';
+	if(len>1)
+	 lastchar[0]=ptr[len-2];
+	else
+	 lastchar[0]='\0';
 
 	if(len)
          write(f,ptr,len);

@@ -3,6 +3,14 @@
 // animovanych GIfu.  V urcitych intervalech se bude muset volat fce
 // XAnimateGifs(), ktera projde tabulku gifu a zjisti, ktery je jiz nacase
 // animovat, Zavola XGifFromXms() a nastavi cas pristi animace a tak dokola.
+// tr.: HARO - ppg. for support of animated GIFs. Idea: Animated gifs
+//      are loaded into XMS when DrawGIF() is called, and also they are
+//      saved into the table of animated GIFs. In regular intervals it
+//      will be necessary to call fce XAnimateGifs(). This function reads
+//      examines the table of gifs and finds out for any of them, whether 
+//      it is time to animate it. It calls XGifFromXms() and sets the time
+//      for the next animation etc.
+
 
 #include "ima.h"
 #include "arachne.h"
@@ -15,24 +23,24 @@
 int h_xmove(XMOVE *p);
 int Xcurs_ingif(int xz, int yz, int xe, int ye, int xmouse, int ymouse);
 
-// Globalni promenne pro animaci
-long g_SizeAnimXMS = 0;   // velikost pameti XMS pro animaci
-int  g_HandleXMS = -1;    // handle XMS pro animaci
-int  g_NumAnim = 0;       // Pocet anim.gifu v tabulce
-long g_FreeAnim = 0;      // Volne misto v XMS
+// Global variables for animation
+long g_SizeAnimXMS = 0;   // size of XMS for animation
+int  g_HandleXMS = -1;    // handle XMS for animation
+int  g_NumAnim = 0;       // Number of anim. gifs in table
+long g_FreeAnim = 0;      // Free XMS
 long g_PrevImg = 0;
 
-ENTRYGIF g_TableAnim[MAX_ANIMATEGIF];  // Tabulka animovanych gifu
+ENTRYGIF g_TableAnim[MAX_ANIMATEGIF];  // table of animated gifs
 
 extern int g_SaveGif;
 
-// Inicializuje XMS (alokuje) pamet pro anim. gify. Vola se jednou
-// na zacatku programu.
+// Initializes XMS (allocation) for anim. gifs. 
+// This is called once at the beginning of the program.
 int XInitAnimGIF(int XmsKby)
 {
    int ist;
 
-   if(!(xg_256==MM_256 || xg_256==MM_Hic))  // pouze pro 256 a Hicol mody
+   if(!(xg_256==MM_256 || xg_256==MM_Hic))  // only for 256 and Hicol modes
    { g_HandleXMS = -1;
      return( -1 );
    }
@@ -57,7 +65,7 @@ int XInitAnimGIF(int XmsKby)
    return( -1 );
 }
 
-// Uvolni XMS pro Gify, volat na konci programu
+// Frees XMS for gifs, call at the end of the program
 void XCloseAnimGIF(void)
 {
   int ist;
@@ -74,8 +82,8 @@ void XCloseAnimGIF(void)
 
 moved to guitick.c for overlay optimization...
 
-// Uvolni tabulku a XMS animovanych gifu. Asi volat pri initu HTML
-// stranky
+// Releases the table and XMS for animated gifs.
+// This is called probably at init. of HTML page
 int XResetAnimGif(void)
 {
    g_NumAnim = 0;
@@ -84,12 +92,12 @@ int XResetAnimGif(void)
 }
 */
 
-// uvolni posledni img z XMS
+// releases last img from XMS
 void XGifFreeXMS(void)
 { g_FreeAnim = g_PrevImg;
 }
 
-// hlavicka gifu(jednoho img) v XMS
+// header of gif (of one img) in XMS
 typedef struct _XMSGIFH
    { long      Size;
      long      Next;
@@ -97,13 +105,14 @@ typedef struct _XMSGIFH
      short int TranspCol; // transp color (?)
      short int Dx;
      short int Dy;
-     short int offx1;     // offsety uvnitr gifu
+     short int offx1;     // offsets within gif
      short int offy1;
-     short int tAnim;     // doba animace
+     short int tAnim;     // animation time
      short int Rezer;
    } XMSGIFH;
 
 // Init pred ulozenim jednoho img: call v drawGIF()
+// tr.: Init before saving of one img: call in drawGIF()
 int XInitImgXms(struct picinfo *gif, int NumImg, int Transp, int TraCol, int tAnim, int disp)
 {
    XMOVE  xmove;
@@ -111,7 +120,7 @@ int XInitImgXms(struct picinfo *gif, int NumImg, int Transp, int TraCol, int tAn
    int    ist,dygif,dxgif;
    XMSGIFH xhead;
 
-   // Mam misto ?
+   // Mam misto ? (tr.: do I have space available?)
    if(xg_256 == MM_Hic) LenPix = 2; else LenPix = 1;
    if(gif->resize_x==0 || gif->resize_y==0 /* || interlac */)
    { dygif = gif->size_y; dxgif = gif->size_x;
@@ -122,7 +131,7 @@ int XInitImgXms(struct picinfo *gif, int NumImg, int Transp, int TraCol, int tAn
    SizeXms = (long)sizeof(xhead) + (long)dxgif * (long)dygif * LenPix;
    if((g_FreeAnim + SizeXms) >= g_SizeAnimXMS)
    { gif->IsInXms = 0; //swapmod = 1;
-     return( 2 );   // Neni misto ? prepnout ?
+     return( 2 );   // mo space ? switch ?
    }
 
    xhead.Size = SizeXms;
@@ -142,7 +151,7 @@ int XInitImgXms(struct picinfo *gif, int NumImg, int Transp, int TraCol, int tAn
    ist = h_xmove(&xmove);
    if(!ist) goto End_wrt;
 
-   if(NumImg > 0)    // Zretezit s minulym
+   if(NumImg > 0)    // Zretezit s minulym (tr.: chain with last one)
    {
     xmove.sourceH   = g_HandleXMS;
     xmove.sourceOff = g_PrevImg;
@@ -160,7 +169,8 @@ int XInitImgXms(struct picinfo *gif, int NumImg, int Transp, int TraCol, int tAn
    }
    g_PrevImg = g_FreeAnim;
    g_FreeAnim += SizeXms;
-   if(NumImg == 0)     // Ulozit zacatek prvniho
+   if(NumImg == 0)      // Ulozit zacatek prvniho
+                        // tr.: save beginning of first one
    { gif->IsInXms = 1;
      gif->NextImg = 0;
      gif->BegImg  = g_PrevImg;
@@ -173,7 +183,7 @@ int XInitImgXms(struct picinfo *gif, int NumImg, int Transp, int TraCol, int tAn
    return( 2 );
 }
 
-// uloz radku img do XMS
+// save row of image into XMS
 int XSaveImgLine(char *Img1, int yBeg, int yscr)
 {
   int *Img2, ist;
@@ -200,12 +210,14 @@ int XSaveImgLine(char *Img1, int yBeg, int yscr)
 }
 
 
-// vykreleni Gifu z XMS
+// vykreleni Gifu z XMS (tr.: draw from XMS)
 int XGifFromXms(struct picinfo *gif, int ScrVirt,
             int vdx, int vdy, short int *tAnim)
 {
-// ScrVirt : kam se ma kreslit : 0-scr, 1-virt.scr
+// ScrVirt : where to draw to : 0-scr, 1-virt.scr
 // vdx,vdy : posun mezi virtualni obrazovkou a kreslenym vyrezem
+// tr.:  vdx,vdy : shift between virtual screen and window/sector
+//                 that has been drawn
 
    long    LenPix,Adr1,DxXms;
    XMOVE   xmove,xmovebck;
@@ -221,13 +233,13 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
    oldScrVirt = xg_video_XMS;
    xg_video_XMS = ScrVirt;
 
-   // precist hlavicku framu z XMS
+   // read header of frame from XMS
    xmove.sourceH   = g_HandleXMS;
    xmove.destH     = 0;
    xmove.length    = sizeof(xhead);
    xmove.destOff   = ptr2long((char *)&xhead);
 
-   if(gif->is_animation > 0) // vice nez jeden img
+   if(gif->is_animation > 0) // more than one img
    { if(gif->NextImg == 0)
        xmove.sourceOff = gif->BegImg;
       else
@@ -239,7 +251,7 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
    ist = h_xmove(&xmove);
    if(!ist) goto End_wrt;
 
-   // Transp. frame a mam ulozene pozadi
+   // Transp. frame and I have background saved
    if(xhead.Flags && gif->BckImg > 0)
    {
      xmovebck.sourceH  = g_HandleXMS;
@@ -249,14 +261,15 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
      xmovebck.sourceOff= gif->BckImg;
      ist = h_xmove(&xmovebck);
      if(!ist) goto End_wrt;
-     // Zda vykrelit pozadi :
+     // Whether to draw background :
      // if(xhead.Dx==xheadbck.Dx && xhead.Dy==xheadbck.Dy) //stejne -> kreslit
+          // tr.: identical -> draw
      if(xhead.Rezer >= 2)
      { DrawBck = 1;
      }
    }
 
-   // spocitat si aktualni pix_x,pic_y,stop_x,stop_y,from_x,from_y
+   // calculate current pix_x,pic_y,stop_x,stop_y,from_x,from_y
    frame=&(p->htmlframe[gif->picinfo_frameID]);
 
    gif->from_x = gif->pic_x = frame->scroll.xtop+gif->html_x-frame->posX;
@@ -269,12 +282,12 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
    gif->stop_x = frame->scroll.xtop+frame->scroll.xsize;
    gif->stop_y = frame->scroll.ytop+frame->scroll.ysize;
 
-   // odkud na obrazovce
+   // from where on the screen
    *tAnim = xhead.tAnim;
    xz = gif->pic_x + xhead.offx1 + vdx;
    yz = gif->pic_y + xhead.offy1 + vdy;
-   // odkud v gifu (oriznuti zleva, zprava atd...)
-   x1gif=gif->pic_x - gif->from_x;   // oriznuti z leva ?
+   // from where in the gif (cut from left, from right etc...)
+   x1gif=gif->pic_x - gif->from_x;   // cut from left ?
    y1gif=gif->pic_y - gif->from_y;
 
    if((gif->pic_x + xhead.Dx + xhead.offx1 - x1gif - 1) <=gif->stop_x)
@@ -290,7 +303,7 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
 
    if(dxgif <= 0) goto End_wrt;
 
-   // vykreslit img z xms do video 1:1
+   // draw img from xms into video 1:1
    if(xg_256 == MM_Hic) LenPix = 2; else LenPix = 1;
    LenBuf = xhead.Dx*LenPix+4;
    Buf = farmalloc(LenBuf);
@@ -305,20 +318,20 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
    if(Buf == NULL) goto End_wrt;
    Bufx2 = (int*)Bufx;
 
-   DxXms=LenPix*xhead.Dx;   // delka radku v B v Xms
+   DxXms=LenPix*xhead.Dx;   // length of row in B in Xms
    xmove.length    = dxgif*LenPix;
    xmove.destOff   = ptr2long(Bufx+4);
-   Adr1 = xmove.sourceOff + sizeof(XMSGIFH); // zacatek dat img
+   Adr1 = xmove.sourceOff + sizeof(XMSGIFH); // beginning of data img
    Adr1 = Adr1 + (long)y1gif*DxXms + (long)LenPix*x1gif;
    xmove.sourceOff = Adr1;
    Bufx2[0] = dxgif; Bufx2[1] = 1;
 
-   // Nakreslit pozadi (je stejne velke jako frame)
+   // Draw background (has same size as frame)
    if(DrawBck)
    {
     xmovebck.length    = dxgif*LenPix;
     xmovebck.destOff   = ptr2long(Buf+4);
-    Adr1 = gif->BckImg + sizeof(XMSGIFH); // zacatek dat img
+    Adr1 = gif->BckImg + sizeof(XMSGIFH); // beginning of data img
     Adr1 = Adr1 + (long)y1gif*DxXms + (long)LenPix*x1gif;
     xmovebck.sourceOff = Adr1;
     Buf2[0] = dxgif; Buf2[1] = 1;
@@ -331,14 +344,14 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
      mouseoff();
    }
 
-   // Nakreslit frame gifu
-   // cykl pres radky gifu v XMS
+   // Draw frame of gif
+   // loop through rows of gif in XMS
    for(i = 0; i<dygif; i++)
    {
      ist = h_xmove(&xmove);
      if(!ist) goto End_wrt;
 
-     if(xhead.Flags != 0) // transparentni
+     if(xhead.Flags != 0) // transparent
      {
        if(DrawBck == 0)
        { v_getimg(xz, yz+i, xe, yz+i,Buf);
@@ -375,7 +388,7 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
    } // end for i..
    ire = 1;
 
-   End_wrt:       // sem hop pri chybach
+   End_wrt:       // sem hop pri chybach (tr.: jump here at errors)
    if(Buf) farfree(Buf);
    if(Bufx) farfree(Bufx);
 
@@ -383,13 +396,14 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
    { mouseon();
    }
 
-   // pripravit dalsi img pro pristi call
+   // prepare next img for next call
    if(gif->is_animation > 0)
    { if(xhead.Next == 0L)
        gif->NextImg = 0;   // nastaveni na zacatek
+                           // tr.: set up at the beginning
      else
        gif->NextImg = xhead.Next;  // next img
-      // *ModPic = 1; !!! pres swapmod
+      // *ModPic = 1; !!! through swapmod
      swapmod = 1;
    }
 
@@ -398,7 +412,7 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
 }
 
 
-// Cvicny ppg. pro animaci Gifu
+// exercising ppg. for animation of gifs
 int XAnimateGifs(void)
 {
     int  i,hpic,Num;
@@ -407,31 +421,31 @@ int XAnimateGifs(void)
     struct picinfo *pPicInf;
     int ire = 0;
 
-    if(g_NumAnim > 0)  // Je co animovat
+    if(g_NumAnim > 0)  // there is something to animate
     {
-      AktTime = XReadTime();        // Akt. cas v 1/100s (0..23.59 hodin)
+      AktTime = XReadTime();        // current time in 1/100s (0..23.59 h)
       Num     = 0;
 
       for(i=0; i<g_NumAnim; i++)
       { hpic = g_TableAnim[i].hPicInf;     // handle picinfo
         if(hpic == IE_NULL) continue;
 
-          NextTime = g_TableAnim[i].NextAnim;// kdy se ma animovat
+          NextTime = g_TableAnim[i].NextAnim;// when to animate
           AnimInt  = g_TableAnim[i].TimeAnim;// amim interval
 
-             if(AktTime > NextTime)     // Je cas animace
+             if(AktTime > NextTime)     // It is time to animate
              {
-              //pPicInf = &g_pcinf[hpic];          // z handlu adresu
+              //pPicInf = &g_pcinf[hpic];          // from address handle 
               //outs("Anim X");
               pPicInf = (struct picinfo *) ie_getswap(hpic);
-              if(!pPicInf)                       // pokud se nepovede, tak "Fatal Error"
+              if(!pPicInf)             // if it fails, then "Fatal Error"
                MALLOCERR();
 
             //mouseoff();
-            XGifFromXms( pPicInf, 0, 0, 0,  &AnimInt);  // vzdy do scr
+            XGifFromXms( pPicInf, 0, 0, 0,  &AnimInt);  // always to scr
             //mouseon();
 
-              g_TableAnim[i].NextAnim = XReadTime() + AnimInt;  // od skonceni kresleni
+              g_TableAnim[i].NextAnim = XReadTime() + AnimInt;  // from end of drawing
               Num++;
              }
 
@@ -444,6 +458,7 @@ int XAnimateGifs(void)
 //mp:XsetAnim1 moved to animstat.c
 
 // Ulozi podklad do XMS: jen pro anim -> zadny scale !!
+// tr.: saves basis/background into XMS: only for anim -> no scale !!
 int XSaveBackToXMS(struct picinfo *gif, int dxgif, int dygif, long *XmsAdr)
 {
    XMOVE   xmove;
@@ -453,12 +468,12 @@ int XSaveBackToXMS(struct picinfo *gif, int dxgif, int dygif, long *XmsAdr)
    char   *Img1 = NULL;
 
    *XmsAdr = 0;
-   // Mam misto ?
+   // Do I have space ?
    if(xg_256 == MM_Hic) LenPix = 2; else LenPix = 1;
 
    SizeXms = (long)sizeof(xhead) + (long)dxgif * (long)dygif * LenPix;
    if((g_FreeAnim + SizeXms) >= g_SizeAnimXMS)
-   { return( 0 );   // Neni misto ?
+   { return( 0 );   // There is no space ?
    }
 
    xhead.Size = SizeXms;
@@ -510,7 +525,7 @@ int XSaveBackToXMS(struct picinfo *gif, int dxgif, int dygif, long *XmsAdr)
    return( 0 );
 }
 
-// Vraci cas v 1/100 vteriny
+// Returns time in 1/100 sec.
 long XReadTime( void )
 {
    union REGS r;
@@ -526,12 +541,13 @@ long XReadTime( void )
 }
 
 // Zda cursor zasahuje do prave kresleneho gifu
+// tr.: whether the cursor affects the gif that has just been drawn
 int Xcurs_ingif(int xz, int yz, int xe, int ye, int xmouse, int ymouse)
 {
-// xz,yz,xe,ye - obdelnik kresleneho gifu
-// xmouse, ymouse - pozice mysi
-// return : 0-kursor je mimo, 1-kursor je v gifu
-// kursor je velikosti 16 x 16 pixlu napevno: => prunik dvou rect
+// xz,yz,xe,ye - rectangle of drawn gif
+// xmouse, ymouse - mouse position 
+// return : 0-cursor is beyond, 1-cursor is in gif
+// cursor has fixed size of 16 x 16 pixels: => penetration dvou rect
 
    int xme, yme, ire = 0;
    xme = xmouse + 16 - 1;

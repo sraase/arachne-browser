@@ -205,8 +205,11 @@ if(helo==2)
    if ( *buffer != '3' ) goto quit;
   }
   while(buffer[3]=='-'); //continued message!
-
-  base64code((unsigned char *)url->user,AuthSMTPusername);
+//!!glennmcc: Sept 17, 2004
+// changed so that "email" will always get used for "mail from"
+//  base64code((unsigned char *)url->user,AuthSMTPusername);
+  base64code((unsigned char *)url->authuser,AuthSMTPusername);
+//!!glennmcc: end
   sprintf( str, AuthSMTPusername);
   outs(str);
   if(log!=-1)
@@ -335,6 +338,7 @@ else //begin else HELO
 
   //start SMTP
   sprintf( str, "MAIL FROM: <%s>", url->user);
+
   outs(str);
   if(log!=-1)
   {

@@ -486,7 +486,7 @@ char NeedImage(char reload, XSWAP *from)
        else {
 #endif
           //we will try to convert image, if there is enough space
-          //in $roura$.bat (means "pipe"), and if the image is already not
+	  //in $roura$.bat, (means "pipe") and if the image is already not
           //in converting queue:
           mode=make_cmd(command, &(p->buf[cmdlen]), HTTPdoc.URL, "\0","\0",
                         HTTPdoc.rawname, HTTPdoc.locname);
@@ -499,7 +499,7 @@ char NeedImage(char reload, XSWAP *from)
           if(f>=0)
    	  a_close(f);
 
-          if(maxmem && mode>maxmem || mode<=0)
+	  if(maxmem && mode>maxmem || mode<=0)
           maxmem=mode;
           converting++;
          }

@@ -1,4 +1,4 @@
-// Testovani ALT + TAB
+// Testing ALT + TAB
 #include <dos.h>
 #include <stdio.h>
 
@@ -6,7 +6,7 @@
 #define TABSCAN 0x0F
 #define EXTSCAN 0xE0
 
-// GLOBALY
+// GLOBALS
 unsigned char g_Scan=0,g_PrevScan=0;
 char g_Alt =0;
 
@@ -21,7 +21,7 @@ void ReleaseAltTab(void);
 void InstalPrtScr(void);
 void ReleasePrtScr(void);
 
-// Interni ppg.
+// Internal ppg.
 void STsetvect(int No, void interrupt (*fn) () )
 {
   disable();
@@ -55,19 +55,23 @@ void interrupt NewPrtScr()
 
 // propousti vsechny stisky klavesnice, pouze testuje <ALT>+<TAB>
 // Pozn: odkomentovanim AcceptKey(), lze nepropustit TAB po ALT
+// tr.: releases/lets pass all keys, only tests <ALT>+<TAB>
+//      note: by uncommenting AcceptKey(), you can hook TAB after ALT
 void interrupt NewKeyboard()
 {
   g_PrevScan = g_Scan;
   g_Scan = inportb(0x60);
   switch( g_Scan )
-  { case ALTSCAN      : g_Alt = g_PrevScan==EXTSCAN ? 2 : 1;  // stisk ALT levy|pravy
+  { case ALTSCAN      : g_Alt = g_PrevScan==EXTSCAN ? 2 : 1;  // press ALT left|right
 			break;
-    case ALTSCAN|0x80 : g_Alt = 0;  // uvolneni ALT
+    case ALTSCAN|0x80 : g_Alt = 0;  // release ALT
 			break;
-    case TABSCAN      : if(g_Alt)   // stisk TAB
-			{ g_AltTab = 1;   // Kombinace <ALT>+<TAB>
-			  //AcceptKey();  // polknu TAB ??
+    case TABSCAN      : if(g_Alt)   // press TAB
+                        { g_AltTab = 1;   // combination <ALT>+<TAB>
+                          //AcceptKey();  // polknu TAB ??
+                                      // tr.: do I swallow TAB ??
 			  //return;       // nevolam puvodni ??
+                                      // tr.: don't I call the original one ??
           ReleaseAltTab();
 			}
 			break;
@@ -77,15 +81,15 @@ void interrupt NewKeyboard()
   OldKeyboard();
 }
 
-// EXTERNI PPG:
-// Instalace :
+// EXTERNAL PPG:
+// Instalation :
 void InstalAltTab()
 {
   OldKeyboard = STgetvect(0x09);
   STsetvect(0x09, NewKeyboard);
 }
 
-// Deinstalace:
+// Deinstallation:
 void ReleaseAltTab()
 {
   STsetvect(0x09, OldKeyboard);
@@ -97,7 +101,7 @@ void InstalPrtScr()
   STsetvect(0x05, NewPrtScr);
 }
 
-// Deinstalace:
+// Deinstallation:
 void ReleasePrtScr()
 {
   STsetvect(0x05, OldPrtScr);

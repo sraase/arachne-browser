@@ -1,5 +1,6 @@
 /***********************************************************************/
 /* Funkce pro odkladani a zpetne nacitani bufferu do XMS nebo na disk  */
+// tr.: functions for saving and reloading of buffer in XMS or on disk
 /***********************************************************************/
 /*                                             (c) Jan Vlaciha 1994    */
 
@@ -82,25 +83,33 @@ void tempinit(char *path)
 //#define BUFDEBUG
 
 int h_xmove(XMOVE *p);      // umoznuje odkladat buffery liche delky
+ // tr.: makes it possible to save buffers of odd length
 
-//extern char scratchBase[60];  // scratch adresar
+//extern char scratchBase[60];  // scratch directory
 
 /***********************************************************************/
 /*              Odlozeni bufferu do XMS nebo na disk   		       */
+// tr.: saving buffer into XMS or to disk
 /***********************************************************************/
-// Parametry :  inbuf .... odkladany buffer
-//              lenbuf ... delka v bytech
-//              bb ..... pointer pro identifikaci (viz getIm)
+// Parameters:  inbuf .... buffer to save
+//              lenbuf ... length in bytes
+//              bb ..... pointer for identification (see getIm)
 // Return    :  1 ........ O.K.
-//              2 ........ chyba pri alokaci
-//              4 ........ chyba pri praci s XMS
-//              6 ........ chyba pri psani na disk
+//              2 ........ error while allocation
+//              4 ........ error while working with XMS
+//              6 ........ error while writing to disk
 
-// Funkce    :  Odlozi buffer do XMS nebo (kdyz neni XMS) na disk.
+// Function  :  Odlozi buffer do XMS nebo (kdyz neni XMS) na disk.
 //              Soubory na disku se poznaji podle pripony ._$B.
 //              Predpoklada se existence a nastaveni globalni promenne
 //              scratchBase se jmenem pracovniho adresare.
 //              Odkladat lze buffery do maximalni delky 64kB.
+// tr.: Buffer is saved into XMS or (if there is no XMS) to disk.
+//      Files on disk are marked with the extension ._$B.
+//      Program presupposes the existence and setting of a global
+//      variable scratchBase with the name of the working directory.
+//      Buffers can be saved up to a maximum length of 64kB.
+
 
 char DisableXMS=0;
 
@@ -124,7 +133,7 @@ Retry:
 
    if( mem == 1 )
    {
-     kby  = (lenbuf + 1023) / 1024;                   // z B na kB
+     kby  = (lenbuf + 1023) / 1024;                   // from B to kB
      bb->handle = alloc_xmem(kby);
      if ( bb->handle == -1)
      {
@@ -193,9 +202,10 @@ Ko:
 
 /***********************************************************************/
 /*             Zjisteni delky odlozeneho bufferu    		       */
+// tr.: get length of saved buffer
 /***********************************************************************/
-// Parametry :  bbuf ..... pointer pro identifikaci
-// Return    :  delka odlozeneho bufferu
+// Parameters:  bbuf ..... pointer for identification
+// Return    :  length of saved buffer
 
 unsigned int sizeBuf( struct T_buf_buf *bbuf )
 {
@@ -206,20 +216,24 @@ unsigned int sizeBuf( struct T_buf_buf *bbuf )
 
 /***********************************************************************/
 /*                  Cetba z odlozeneho bufferu   		       */
+// tr.: read from saved buffer
 /***********************************************************************/
-// Parametry :  outbuf ... odkladany buffer
-//              from ..... od ktereho bytu cist
-//              lenbuf ... vstup  - kolik bytu se ma precist
-//                         vystup - kolik bytu se skutecne precetlo
-//              bb ..... pointer pro identifikaci (viz getIm)
+// Parameters:  outbuf ... saved buffer
+//              from ..... from which byte to read
+//              lenbuf ... input  - how many bytes to read 
+//                         output - howe many bytes have actually been read
+//              bb ..... pointer for identification (see getIm)
 // Return    :  1 ........ O.K.
-//              2 ........ bbuf je NULL
-//              4 ........ chyba pri praci s XMS
-//              6 ........ chyba pri psani na disk
+//              2 ........ bbuf is NULL
+//              4 ........ error while working with XMS
+//              6 ........ error while writing to disk
 
-// Funkce    :  Nacte pozadovanou cast odlozeneho bufferu.
+// Function  :  Nacte pozadovanou cast odlozeneho bufferu.
 //              Nepodari-li se nacist pozadovanou delku,
 //              vrati se v lenbuf skutecne nactena delka.
+// tr.:  Reads requested part of the saved buffer. If it is not
+//       possible to read the requested length, lenbuf returns
+//       the length that has actually been read. 
 
 int fromBuf( char *outbuf, unsigned int from,
 	     unsigned int *lenbuf, struct T_buf_buf *bb )
@@ -279,7 +293,7 @@ int fromBuf( char *outbuf, unsigned int from,
        goto ErrRead;
      }
 
-     if ( from ) // posun
+     if ( from ) // shift
      {
        if( a_lseek( h, (long)from, SEEK_SET) < 0 )
        {
@@ -313,11 +327,12 @@ Ko:
 
 /***********************************************************************/
 /*                  Zruseni odlozeneho bufferu   		       */
+// tr.: Delete saved buffer
 /***********************************************************************/
-// Parametry :  bb ..... pointer pro identifikaci (viz getIm)
+// Parameters:  bb ..... pointer for identification (see getIm)
 // Return    :  1 ........ O.K.
-//              2 ........ bb je NULL
-//              6 ........ nepodarilo se zrusit
+//              2 ........ bb is NULL
+//              6 ........ failed to delete
 
 int delBuf( struct T_buf_buf *bb )
 {

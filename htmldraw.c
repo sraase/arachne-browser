@@ -8,7 +8,7 @@
 #include "html.h"
 #include "xanimgif.h"
 
-// ================== vykresleni jednoho HTML atomu: ======================
+// ================== drawing a single HTML atom: ======================
 
 void drawatom(struct HTMLrecord *atom, 
       int fromx, long fromy, int draw_x, int draw_y, int screen_x, int screen_y)
@@ -31,6 +31,7 @@ void drawatom(struct HTMLrecord *atom,
    if(atom->y-fromy<0l || atom->yy-fromy>draw_y)return;
 
    j=fromx-atom->x;  // j>0 --> nebude videt cely string
+              // tr.: j>0 --> the whole string will not be visible 
    max=atom->datalen;
 
    font=atom->data1;
@@ -149,6 +150,7 @@ void drawatom(struct HTMLrecord *atom,
       image=(struct picinfo *)ie_getswap(image_xswapadr);
       strcpy(image->filename,HTTPdoc.locname);
       swapmod=1; //zapsat ho uz trvale !!!
+        // tr.: write it already permanently/definetely!
      }
      else
       image=(struct picinfo *)ie_getswap(image_xswapadr);
@@ -169,7 +171,7 @@ void drawatom(struct HTMLrecord *atom,
      if(!ext || strcmpi(ext,".ikn")) //..... not Arachne icon file...
      //======================================================================
      {
-      //kvuli animaci
+      //because of animation
       image->html_x=atomx+border;
       image->html_y=atomy+border;
 
@@ -211,7 +213,7 @@ void drawatom(struct HTMLrecord *atom,
       if(drawanyimage(image)!=1)
       {
        if(!strstr((char *)strlwr(image->filename),".jpg"))
-        back=10; //cerveny ramecek
+        back=10; //red frame 
       }
       else
       {
@@ -268,7 +270,7 @@ void drawatom(struct HTMLrecord *atom,
    if(x1!=x0 || y1!=y0 || (y2-y1)<14 || atype==TD_BACKGROUND)
     return;
 
-   //kresleni alternativniho textu:
+   //drawing alternative text:
    htmlfont(SYSFONT,0);
    if(back==10)
     x_setcolor(14);
@@ -292,7 +294,7 @@ void drawatom(struct HTMLrecord *atom,
    if(x1<0)x1=0;
    if(y1<0)y1=0;
 
-   //ctverecek - LI, HR NOSHADE
+   //ctverecek - LI, HR NOSHADE (tr.: small square)
    if((atom->data1 && (atom->type==HR || atom->type==LI)) ||
       (atom->type==TD && atom->data2))  //data2=BGCOLOR...
    {
@@ -389,6 +391,7 @@ void drawatom(struct HTMLrecord *atom,
     if(y2<=y1+user_interface.scrollbarsize+5+fonty(SYSFONT,0) ||
        x2<=x1+user_interface.scrollbarsize+5+fontx(SYSFONT,0,' ') ||
        y2<=y1+40 || x2<=x1+40+5+fontx(SYSFONT,0,' ')) //dve rolovaci tlacitka vedle sebe...
+          // tr.: two scroll buttons side by side
      break;
 
     Cell3D((int)(screen_x+x1),(int)(screen_y+y1),
@@ -601,9 +604,9 @@ void drawatom(struct HTMLrecord *atom,
       txt[width]='\0';
      width=x_txwidth(txt);
      if(type==BUTTON)
-      x_setcolor(RGB(atom->R,atom->G,atom->B)); //barva textu
+      x_setcolor(RGB(atom->R,atom->G,atom->B)); //colour of text
      else
-      x_setcolor(0); //black (tlacitko)
+      x_setcolor(0); //black (button)
      //x_settextjusty(1,2); //this does not work in virtual screens! :-(
       x_text_ib((int)((x2+x1)/2-width/2+screen_x),(int)(screen_y+y1+1),
                (unsigned char *)txt);
@@ -631,7 +634,7 @@ void drawatom(struct HTMLrecord *atom,
 // --------------------------------------------------------------
 
 #ifdef VIRT_SCR
-//. Dump part of the virtual sscreen to the real screen
+//. Dump part of the virtual screen to the real screen
 void dumpvirtual(struct HTMLframe *frame,struct TMPframedata *htmldata, int fromx,long fromy)
 {
  if(!htmldata->usevirtualscreen)
@@ -696,6 +699,7 @@ void deallocvirtual(void)
    xv_cls_virt(0,i);
    allocatedvirtual[i]=0;
 //   printf("dealokuji %d|",i);
+// tr.: I deallocate %d
   }
  }
  while(i-->0);
@@ -799,7 +803,7 @@ void redrawHTML(char nomsg, char virt)
    char *fname="$0.obr";
    int   TypVirt = 0;  //HARO
 
-   //vynuluji virtualni obrazovku
+   //reset virtual screen to zero
    virtualxstart[htmldata->whichvirtual]=0;
    virtualystart[htmldata->whichvirtual]=0;
    virtualxend[htmldata->whichvirtual]=0l;
@@ -866,6 +870,7 @@ void redrawHTML(char nomsg, char virt)
      if(htmldata->whichvirtual>maxusedvirtual)
       maxusedvirtual=htmldata->whichvirtual;
 //     printf("alokuji %d|",htmldata->whichvirtual);
+// tr.: I allocate %d
     }
     else
     {
@@ -946,7 +951,7 @@ void redrawHTML(char nomsg, char virt)
   }
 #endif
 
-  //vykreslit pozadi
+  //draw background
 #ifdef HICOLOR
   if(xg_256 == MM_Hic)
   {
@@ -1110,7 +1115,7 @@ void redrawHTML(char nomsg, char virt)
  //turn on special XSWAP optimization for speed
  swapoptimize=0;
 
- activeatomptr=NULL; //pod mysi neni nic
+ activeatomptr=NULL; //there is nothing under mouse 
  htmlpulldown=0;
  p->restorehoveradr=IE_NULL;
  ie_killcontext(CONTEXT_TMPIMG);

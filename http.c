@@ -43,7 +43,10 @@ void makeexestr(char *exestr);
 int authenticated_http(struct Url *url,struct HTTPrecord *cache)
 {
  longword host=0;
- char str[IE_MAXLEN+2];
+//!!JdS 2004/2/15 {
+// char str[IE_MAXLEN+2];
+ char str[MAXARGBUF+2], cookiestr[MAXARGBUF+2];  // The '+2' is for "\r\n"
+//!!JdS 2004/2/15 }
  int count=0;
  char *ptr;
  char *querystring=NULL,*cachecontrol;
@@ -52,7 +55,7 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  char contentlength[80]="";
  char authorization[128]="";
  char acceptcharset[80]="";
- char cookiestr[2*IE_MAXLEN]="";
+// char cookiestr[2*IE_MAXLEN]="";  [JdS 2004/2/15]
  char *nocache="Cache-Control: no-cache\r\nPragma: no-cache\r\n";
  char *httpcommand="GET";
  int line;
@@ -77,7 +80,7 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
   free_socket();
 #endif
 
- /*create string with executable description - DOS, Linux, etc. Created only once*/  
+ /*create string with executable description - DOS, Linux, etc. Created only once*/
  if(!*exestr)
   makeexestr(exestr);
 
@@ -146,12 +149,12 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  find_keepalive_socket(pocitac);
  if(tcpip && !httpstub && strcmpi(sock_keepalive[socknum],pocitac))
  {
-  GlobalLogoStyle=0;		//SDL set resolve animation
+  GlobalLogoStyle=0;            //SDL set resolve animation
 
 /*
 #ifdef POSIX
 { //blocking version - not necessary, if non-blocking reslove_fn() implemented in asockets.h works
- struct hostent *phe;		 // host information entry
+ struct hostent *phe;            // host information entry
 
  if((phe = gethostbyname(pocitac)) == NULL)
  {
@@ -174,7 +177,10 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
  }
 
  i=0;
+ cookiestr[0]='\0';  //!!JdS 2004/2/15
  strlwr(url->host);
+
+/**** Start of superseded code [JdS 2004/3/2] ****
  while(i<cookies.lines)
  {
   ptr=ie_getline(&cookies,i);
@@ -183,11 +189,14 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
    strcpy(str,ptr);
    decompose_inetstr(str);
 
-   if(getvar("domain",&ptr) && strstr(url->host,ptr))
+   if(getarg("domain",&ptr) && strstr(url->host,ptr)) // getarg() was getvar() [JdS 2004/1/30]
    {
-    if(getvar("path",&ptr) && strstr(url->file,ptr))
+    if(getarg("path",&ptr) && strstr(url->file,ptr)) // getarg() was getvar() [JdS 2004/1/30]
     {
-     if(strlen(cookiestr)+strlen(str)+10<2*IE_MAXLEN)
+//!!JdS 2004/2/15 {
+//   if(strlen(cookiestr)+strlen(str)+10<2*IE_MAXLEN)
+     if(strlen(cookiestr)+strlen(str)+10<MAXARGBUF)
+//!!JdS 2004/2/15 }
      {
       if(cookiestr[0])
        strcat(cookiestr,"; ");
@@ -200,6 +209,35 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
   }
   i++;
  }//loop
+**** End of superseded code [JdS 2004/3/2] ****/
+
+/**** Start of newer cookie code [JdS 2004/3/2] ****/
+ while (i+CookieCrumbs<=cookies.lines)
+ {
+  //Piece together a cookie from crumbs in the 'cookies' jar
+  ie_getcookie(str,&cookies,i);
+  //If a cookie was found, check if it matches our domain and path
+  if (str[0])
+  {
+   decompose_inetstr(str);
+   if (getvar("domain",&ptr) && strstr(url->host,ptr))
+   {
+    if (getvar("path",&ptr) && strstr(url->file,ptr))
+    {
+     if (strlen(cookiestr)+strlen(str)+10<MAXARGBUF)
+     {
+      if (cookiestr[0])
+       strcat(cookiestr,"; ");
+      else
+       strcat(cookiestr,"Cookie: ");
+      strcat(cookiestr,str);
+     }
+    }
+   }
+  }
+  i += CookieCrumbs;
+ }//while
+/**** End of newer cookie code [JdS 2004/3/2] ****/
 
  if(cookiestr[0])
  {
@@ -246,7 +284,7 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
  {
   retry:
 
-  GlobalLogoStyle=2;	//SDL set connect animation
+  GlobalLogoStyle=2;    //SDL set connect animation
 
 #ifdef POSIX
   sin.sin_addr.s_addr = host;
@@ -297,7 +335,7 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
 
   sprintf(str,msg_con,pocitac,port);
   outs(str);
-  if (_ip_delay0( socket, delay, (sockfunct_t) TcpIdleFunc, &status ))		//SDL
+  if (_ip_delay0( socket, delay, (sockfunct_t) TcpIdleFunc, &status ))          //SDL
   {
    if(attempt==3)
     goto sock_err;
@@ -346,6 +384,8 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
 
  //odesilam formular metodou POST ?
  //(metodu GET jsem uz zmaknul jinde...)
+ // tr.: am I sending form by method POST ?
+ //      (method GET I have already done elsewhere)
 
  if(GLOBAL.postdata==2) //method==POST
  {
@@ -412,7 +452,7 @@ Host: %s%s\r\n\
   {
    outs(MSG_POST);
 
-#ifdef POSIX 
+#ifdef POSIX
    if(sock_puts( socknum, querystring)<0) //send HTTP reques....
    {
     outs(MSG_CLOSED);
@@ -422,10 +462,10 @@ Host: %s%s\r\n\
    while(postindex+512<ql)
    {
     /*this is needed only for WATTCP*/
-    while(sock_tbleft(socket)<512) 	//SDL
+    while(sock_tbleft(socket)<512)      //SDL
     {
      sock_tick(socket,&status);
-     xChLogoTICK(1); // animace loga
+     xChLogoTICK(1); // animation of logo
      if(GUITICK())
       goto post_aborted;
     }
@@ -434,7 +474,7 @@ Host: %s%s\r\n\
     if(!querystring)
      MALLOCERR();
 
-    sock_tick( socket, &status ); //posunu TCP/IP
+    sock_tick( socket, &status ); //I shift TCP/IP
     sock_fastwrite(socket, (unsigned char *)&querystring[postindex] ,512);
 
     postindex+=512;
@@ -442,10 +482,10 @@ Host: %s%s\r\n\
 
    if(postindex<ql)
    {
-    while(sock_tbleft(socket)<strlen(&querystring[postindex])) 	//SDL
+    while(sock_tbleft(socket)<strlen(&querystring[postindex]))  //SDL
     {
      sock_tick(socket,&status);
-     xChLogoTICK(1); // animace loga
+     xChLogoTICK(1); // animation of logo
      if(GUITICK())
       goto post_aborted;
     }
@@ -453,10 +493,10 @@ Host: %s%s\r\n\
     querystring=ie_getswap(GLOBAL.postdataptr);
     if(!querystring)
      MALLOCERR();
-    sock_tick( socket, &status ); //posunu TCP/IP
+    sock_tick( socket, &status ); //I shift TCP/IP
     sock_fastwrite( socket, (unsigned char *)&querystring[postindex] ,strlen(&querystring[postindex]));
    }
-   sock_tick( socket, &status ); //posunu TCP/IP
+   sock_tick( socket, &status ); //I shift TCP/IP
    sock_puts( socket, (unsigned char *)"\r\n");
    sprintf(str,MSG_SENT,ql);
    outs(str);
@@ -506,7 +546,7 @@ Host: %s%s\r\n\
 
    while(l++<500)
    {
-    xChLogoTICK(1); // animace loga
+    xChLogoTICK(1); // animation of logo
     GUITICK();
    }
 
@@ -553,9 +593,9 @@ Host: %s%s\r\n\
   do
   {
 #ifdef POSIX
-   xChLogoTICK(10); // animace loga
+   xChLogoTICK(10); // animation of logo
 #else
-   xChLogoTICK(1); // animace loga
+   xChLogoTICK(1); // animation of logo
 #endif
    asleep=time(NULL)-timer;
    if(GLOBAL.isimage)
@@ -575,15 +615,15 @@ Host: %s%s\r\n\
 #ifdef POSIX
    tv.tv_sec = 0;
    tv.tv_usec = 500;
-    
+
    FD_ZERO (&rfds);
    FD_ZERO (&efds);
    FD_SET (socknum, &rfds);
    FD_SET (socknum, &efds);
    select (socknum+1, &rfds, NULL, &efds, &tv);
 
-   
-   if (FD_ISSET (socknum, &efds) && errno!=EINTR) 
+
+   if (FD_ISSET (socknum, &efds) && errno!=EINTR)
    {
      outs(MSG_CLOSED);
      return 0;
@@ -598,7 +638,7 @@ Host: %s%s\r\n\
     }
     else count = 0;
    }
-   
+
    p->httplen+=count;
    p->buf[p->httplen]='\0';
    if(strstr(p->buf,"\r\n\r\n") || strstr(p->buf,"\r\r") || strstr(p->buf,"\n\n") || p->httplen>=p->buf)
@@ -661,7 +701,10 @@ analyse:
  {
   if(p->buf[count]=='\n')
   {
-   makestr(str,&(p->buf[line]),IE_MAXLEN);
+//!!JdS 2004/3/7 {
+// makestr(str,&(p->buf[line]),IE_MAXLEN);
+   makestr(str,&(p->buf[line]),MAXARGBUF);
+//!!JdS 2004/3/7 }
    ptr=strchr(str,'\r');
    if(ptr)*ptr='\0';
    ptr=strchr(str,'\n');
@@ -703,7 +746,7 @@ analyse:
     // ----------------------------------------------- Connection:
 
     else if((!strcmpi(str,"Connection") || !strcmpi(str,"Proxy-Connection"))
-             && !strncmpi(&ptr[2],"Keep-Alive",10))
+	     && !strncmpi(&ptr[2],"Keep-Alive",10))
     {
      willkeepalive=1;
     }
@@ -712,33 +755,48 @@ analyse:
 
     else if(!strcmpi(str,"Set-Cookie") && http_parameters.acceptcookies)
     {
-     char *pom1=NULL,*pom2=NULL,*p,*newcookie=NULL;
+//!!JdS 2004/2/15 {
+//   char *pom1=NULL,*pom2=NULL,*p,*newcookie=NULL;
+     char *p;
+//!!JdS 2004/2/15 }
      char domain[80],path[80];
 
      outs(&ptr[2]);
 
-     pom1=farmalloc(IE_MAXLEN);
-     pom2=farmalloc(IE_MAXLEN);
-     newcookie=farmalloc(IE_MAXLEN);
-     if(!pom1 || !pom2 || !newcookie)
-      memerr();
+//!!JdS 2004/2/15 {
+//   // Allow for independent control of pom* & newcookie size [JdS 2004/1/17]
+//   #define POMSIZE IE_MAXLEN
+//   #define COOKIESIZE IE_MAXLEN
+//   pom1=farmalloc(POMSIZE);         // Was (IE_MAXLEN) [JdS 2004/1/17]
+//   pom2=farmalloc(POMSIZE);         // Was (IE_MAXLEN) [JdS 2004/1/17]
+//   newcookie=farmalloc(COOKIESIZE); // Was (IE_MAXLEN) [JdS 2004/1/17]
+//   if(!pom1 || !pom2 || !newcookie)
+//    memerr();
+//
+//   makestr(pom1,&ptr[2],POMSIZE-1); // Was (,,IE_MAXLEN-1) [JdS 2004/1/17]
+//   strcpy(newcookie,pom1); //its safe to call strcpy
+//   decompose_inetstr(pom1);
+     makestr(cookiestr,&ptr[2],MAXARGBUF-1);
+     decompose_inetstr(&ptr[2]);
+//!!JdS 2004/2/15 }
 
-     makestr(pom1,&ptr[2],IE_MAXLEN-1);
-     strcpy(newcookie,pom1); //its safe to call strcpy
-     decompose_inetstr(pom1);
-
-     if(!getvar("path",&p))
+     if(!getvar("path",&p)) // getarg() was getvar() [JdS 2004/1/30]
      {
       //p=url->file;
-      strcat(newcookie,"; path=/");
+//!!JdS 2004/2/15 {
+//    joinstr(newcookie,COOKIESIZE,"; path=/"); // Was strcat() [JdS 2004/1/17]
+      joinstr(cookiestr,MAXARGBUF,"; path=/");
+//!!JdS 2004/2/15 }
      }
 
      makestr(path,p,79);
 
-     if(!getvar("domain",&p))
+     if(!getvar("domain",&p)) // getarg() was getvar() [JdS 2004/1/30]
      {
-      strcat(newcookie,"; domain=");
-
+//!!JdS 2004/2/15 {
+//    joinstr(newcookie,COOKIESIZE,"; domain="); // Was strcat() [JdS 2004/1/17]
+      joinstr(cookiestr,MAXARGBUF,"; domain=");
+//!!JdS 2004/2/15 }
       if(GLOBAL.redirection)
       {
        struct Url newurl;
@@ -749,44 +807,96 @@ analyse:
       else
        p=url->host;
 
-      strcat(newcookie,p);
+//!!JdS 2004/2/15 {
+//    joinstr(newcookie,COOKIESIZE,p); // Was strcat() [JdS 2004/1/17]
+      joinstr(cookiestr,MAXARGBUF,p);
+//!!JdS 2004/2/15 }
      }
 
      if(p!=domain)
       makestr(domain,p,79);
 
+/**** Start of superseded code [JdS 2004/3/3] ****
      cookies.y=0;
      while(cookies.y<cookies.lines)
      {
-      strcpy(pom2,ie_getline(&cookies,cookies.y));
-      decompose_inetstr(pom2);
+//!!JdS 2004/2/15 {
+//    strcpy(pom2,ie_getline(&cookies,cookies.y));
+//    decompose_inetstr(pom2);
+      strcpy(str,ie_getline(&cookies,cookies.y));
+      decompose_inetstr(str);
+//!!JdS 2004/2/15 }
+
+      getarg("domain",&p); // getarg() was getvar() [JdS 2004/1/30]
+      if(strstr(domain,p) && getarg("path",&p)) // getarg() was getvar() [JdS 2004/1/30]
+       if(!strcmp(path,p))
+       {
+//!!JdS 2004/2/15 {
+//      p=strchr(pom2,'=');
+//	if(p && !strncmp(newcookie,pom2,(int)(p-pom2)))
+	p=strchr(str,'=');
+	if(p && !strncmp(cookiestr,str,(int)(p-str)))
+//!!JdS 2004/2/15 }
+	{
+	 //replace old cookie with new cookie:
+	 ie_delline(&cookies,cookies.y);
+//!!JdS 2004/2/15 {
+//	 ie_insline(&cookies,cookies.y,newcookie);
+	 ie_insline(&cookies,cookies.y,cookiestr);
+//!!JdS 2004/2/15 }
+	 goto cont;
+	}
+       }
+
+      cookies.y++;
+     } //while
+
+     if(cookies.lines==cookies.maxlines)
+      ie_delline(&cookies,0);
+
+//!!JdS 2004/2/15 {
+//   ie_insline(&cookies,cookies.lines,newcookie);
+     ie_insline(&cookies,cookies.lines,cookiestr);
+//!!JdS 2004/2/15 }
+**** End of superseded code [JdS 2004/3/3] ****/
+
+/**** Start of newer cookie code [JdS 2004/3/6] ****/
+     cookies.y = 0;
+     while (cookies.y+CookieCrumbs <= cookies.lines)
+     {
+      ie_getcookie(str,&cookies,cookies.y);
+      decompose_inetstr(str);
 
       getvar("domain",&p);
       if(strstr(domain,p) && getvar("path",&p))
        if(!strcmp(path,p))
        {
-        p=strchr(pom2,'=');
-        if(p && !strncmp(newcookie,pom2,(int)(p-pom2)))
-        {
-         //replace old cookie with new cookie:
-         ie_delline(&cookies,cookies.y);
-         ie_insline(&cookies,cookies.y,newcookie);
-         goto cont;
-        }
+	p = strchr(str,'=');
+	if(p && !strncmp(cookiestr,str,(int)(p-str)))
+	{
+	 //replace old cookie with new cookie:
+//	 ie_delcookie(&cookies,cookies.y);
+//	 ie_inscookie(&cookies,cookies.y,cookiestr);
+	 ie_putcookie(&cookies,cookies.y,cookiestr);
+	 goto cont;
+	}
        }
 
-      cookies.y++;
-     }
+      cookies.y += CookieCrumbs;
+     } //while
 
-     if(cookies.lines==cookies.maxlines)
-      ie_delline(&cookies,0);
+     if (cookies.lines == cookies.maxlines)
+      ie_delcookie(&cookies,0);
 
-     ie_insline(&cookies,cookies.lines,newcookie);
+     ie_inscookie(&cookies,cookies.lines,cookiestr);
+/**** End of newer cookie code [JdS 2004/3/6] ****/
 
      cont:
-     farfree(newcookie);
-     farfree(pom2);
-     farfree(pom1);
+//!!JdS 2004/2/15 {
+//   farfree(newcookie);
+//   farfree(pom2);
+//   farfree(pom1);
+//!!JdS 2004/2/15 }
 
     }
 
@@ -844,7 +954,7 @@ analyse:
      outs(MSG_REDIR);
      url2str(url,GLOBAL.location);
      strcpy(Referer,GLOBAL.location);
-     AnalyseURL(&ptr[2],&newurl,GLOBAL_LOCATION_AS_BASEURL); //(plne zneni...)
+     AnalyseURL(&ptr[2],&newurl,GLOBAL_LOCATION_AS_BASEURL); //(full length/text...)
      url2str(&newurl,GLOBAL.location);
      GLOBAL.redirection=1;
     }
@@ -922,6 +1032,7 @@ Local: <A HREF=\"file:%s\">%s</A><HR>\n\
   }//end if disable .HTT files
  }
  //otevreni souboru kam zapisu vlastni prenaseny soubor
+ // tr.: open the file where I am going to write my own transferred file
 
  if(!httpstub)
  {
@@ -940,9 +1051,9 @@ Local: <A HREF=\"file:%s\">%s</A><HR>\n\
  else
   p->httplen-=count+1;
 
- if(p->httplen<0)           //hack pro hlavicky bez CR-LF ?
-  p->httplen=0; 
- if(count>4)             //aspon hlavicka HTTP/x.x_xxx_...
+ if(p->httplen<0)           //hack for header without CR-LF ?
+  p->httplen=0;
+ if(count>4)             //at least header HTTP/x.x_xxx_...
   memmove(p->buf,&(p->buf[count+1]),p->httplen);
 
  return 1;

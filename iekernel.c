@@ -80,8 +80,11 @@ int ie_swap(int newswap) //nastavi ten spravny bufer do pameti...
    return 1;
   }
 
-  if(swapstr==swap2 && (swapoptimize || swapcontext[newswap]<=swapcontext[which1] &&
-     swapcontext[newswap]<=swapcontext[which1]) ) //2 to 1
+  //!!JdS: 2004/1/5 {Revised the conditional expression for optimization ...}
+  if(swapstr==swap2 && (swapoptimize || swapcontext[newswap]>=swapcontext[which2]
+       && swapcontext[which1]>=swapcontext[which2]) ) //2 to 1
+//if(swapstr==swap2 && (swapoptimize || swapcontext[newswap]<=swapcontext[which1] &&
+//   swapcontext[newswap]<=swapcontext[which1]) ) //2 to 1
   {
    mod2=swapmod;
    swapstr=swap1;
@@ -90,8 +93,11 @@ int ie_swap(int newswap) //nastavi ten spravny bufer do pameti...
    swapmod=mod1;
   }
   else
-  if(swapstr==swap1 && (swapoptimize ||swapcontext[newswap]<=swapcontext[which2] &&
-     swapcontext[newswap]<=swapcontext[which2] || which2==-1)) //1 to 2
+  //!!JdS: 2004/1/5 {Revised the conditional expression for optimization ...}
+  if(swapstr==swap1 && (swapoptimize || swapcontext[newswap]>=swapcontext[which1]
+       && swapcontext[which2]>=swapcontext[which1] || which2==-1)) //1 to 2
+//if(swapstr==swap1 && (swapoptimize ||swapcontext[newswap]<=swapcontext[which2] &&
+//   swapcontext[newswap]<=swapcontext[which2] || which2==-1)) //1 to 2
   {
    mod1=swapmod;
    swapstr=swap2;

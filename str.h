@@ -25,6 +25,12 @@ char *pathstr(char *dest, char *src);
 // ==================================================================
 char *makestr(char *dest, char *src, int lim);
 
+// ==================================================================
+// joinstr() is an alternative to strcat() and strncat() that
+// incorporates a safety limit for the 'dest' string. Parameter
+// ordering is deliberately different to strncat().  !!JdS 2004/1/17
+// ==================================================================
+char *joinstr(char *dest, int lim, const char *src);
 
 #ifdef POSIX
 char *strlwr(char *str);

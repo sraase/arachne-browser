@@ -348,7 +348,11 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 
 //!!glennmcc: begin Apr 30, 2004 --- for Authenticated SMTP
   value=configvariable(&ARACHNEcfg,"AuthSMTPusername",NULL);
-  if(value) makestr(url->user,value,STRINGSIZE-1);
+//!!glennmcc: Sept 17, 2004
+// changed so that "email" will always get used for "mail from"
+//  if(value) makestr(url->user,value,STRINGSIZE-1);
+  if(value) makestr(url->authuser,value,STRINGSIZE-1);
+//!!glennmcc: end
   value=configvariable(&ARACHNEcfg,"AuthSMTPpassword",NULL);
   if(value) makestr(url->password,value,STRINGSIZE-1);
 //!!glennmcc: end

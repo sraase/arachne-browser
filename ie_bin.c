@@ -4,21 +4,27 @@
 #include "glflag.h"
 
 extern unsigned *swapidx; //uznavam i=0-MAXLS; 1023=error flag, empty line
+//!!JdS 2004/1/30 Corrected comments: 'IE_MAXSTART' replaced by 'IE_SWAPSTART'
 //toto pole je vzdy obsazeno ve swapstr, nesmi tedy obsahovat pointery mensi
-//nez IE_MAXSTART, ukazovalo by samo do sebe!!!
+//nez IE_SWAPSTART, ukazovalo by samo do sebe!!!
+// tr.: I acknowledge i=0-MAXLS; 1023=error flag, empty line
+//      this field is always occupied in swapstr, it must not contain pointers
+//      smaller than IE_SWAPSTART, otherwise it would point at itself!!!
 
-extern char *swapstr; //od adresy swapstr[IE_MAXSTART] zacina vlastni odkladani radku
+extern char *swapstr; //od adresy swapstr[IE_SWAPSTART] zacina vlastni odkladani radku
+  // tr.: from address swapstr[IE_SWAPSTART] begins the actual swapping of lines
 
-//extern int swapcount; //pocet swapu
+//extern int swapcount; //total number of swaps
 extern int swapnum; //cislo swapu, ktery je prave v ulozen v swapstr, 0-IE_MAXSWAP
-extern int swaplen[IE_MAXSWAP]; //delka vsech swapu v radkach
-extern unsigned swapsize[IE_MAXSWAP]; //delka vsech swapu v bytech
-extern int swapmod; //priznak modifikace
-extern int firstswap; //prvni swap, od ktereho se bude pridelovat volne misto
+  // no. of the swap that is about to be saved into swapstr, 0-IE_MAXSWAP
+extern int swaplen[IE_MAXSWAP]; //length of all swaps in lines
+extern unsigned swapsize[IE_MAXSWAP]; //length of all swaps in bytes
+extern int swapmod; //type of modification
+extern int firstswap; //first swap, from which starts allocation of free space
 
-//otevrit/nahrat z disku
+// open/load from disk
 //. Load binary structures from the disk.  Used only by cache.idx
-int ie_openbin(struct bin_file *fajl) //load, nebo open, 1. nebo 2.
+int ie_openbin(struct bin_file *fajl) //load, or open, 1. or 2.
 {
  int i,f=-1,rv;
 
@@ -75,7 +81,7 @@ int ie_openbin(struct bin_file *fajl) //load, nebo open, 1. nebo 2.
    fajl->lineadr[fajl->len]=ie_putswap(inbuf,linelen,CONTEXT_SYSTEM);
    fajl->linesize[fajl->len]=linelen;
    if(fajl->len>IE_MAXLINES)
-    {rv=5;goto exit_load;} //moc radku, moc velky soubor
+    {rv=5;goto exit_load;} //too many line, too large file
    fajl->len++;
   }//loop
 
@@ -97,7 +103,7 @@ int ie_savebin(struct bin_file *fajl)
  f = a_sopen( fajl->filename, O_WRONLY | O_BINARY | O_CREAT | O_TRUNC,
      SH_COMPAT | SH_DENYNONE, S_IREAD|S_IWRITE );
 #endif
- if ( f == -1 ) return 2; //chyba pri otevirani
+ if ( f == -1 ) return 2; //error while opening
 
  while(i<fajl->len)
  {
@@ -106,9 +112,9 @@ int ie_savebin(struct bin_file *fajl)
   {
    l=fajl->linesize[i];
    if(write(f,&l,sizeof(unsigned short))!=sizeof(unsigned short)) 
-    {a_close (f); return 4;} //chyba pri psani!
+    {a_close (f); return 4;} //write error!
    if(write(f,r,l)!=l) 
-    {a_close (f); return 4;} //chyba pri psani!
+    {a_close (f); return 4;} //write error!
   }//endif
   i++;
  }//loop
@@ -117,7 +123,7 @@ int ie_savebin(struct bin_file *fajl)
  return 1;
 }//end sub
 
-//smazat soubor z pameti:
+//delete file from memory:
 void ie_resetbin(struct bin_file *fajl)
 {
  int i=0;
@@ -133,9 +139,12 @@ void ie_resetbin(struct bin_file *fajl)
 }//end sub
 
 void ie_clearbin(struct bin_file *fajl) //kdyz je nemazat NULL, tak nic
+ // tr.: if nemazat (=not-delete) is NULL, then nothing
 {
  //tohle je udelany zatim provizorne!!!
  //tady se budou swapy ktere pati jenom jednomu souboru mazat kopmpletne...
+ // tr.: this is provisional for the moment
+ //      here those swaps belonging only to one file will be deleted entirely/completely
 
  ie_resetbin(fajl);
 

@@ -85,12 +85,14 @@ void MixVisiblePaletes(char writepal)
        i++;
       }
       //pocitaji se jenom GIFy a bitmapy:
+      // tr.: only GIFs and bitmaps are counted/calculated
       if(HTTPdoc.locname[0] &&
       (strstr(HTTPdoc.locname,".GIF") ||
        strstr(HTTPdoc.locname,".BMP")))
       {
        strcpy(obrazky[pocet].filename,HTTPdoc.locname);
        secidx[celkpocet++]=pocet; //u prvniho obrazku 0, u druheho 1;
+         // tr.: at the first picture 0, at the second 1
        pocet++;
       }
 
@@ -104,7 +106,7 @@ void MixVisiblePaletes(char writepal)
     else
      goto allobrazky;
 
-   }//endif nasel sem neco
+   }//endif nasel sem neco (tr.: endif I found something)
    else
     MALLOCERR();
 
@@ -120,11 +122,12 @@ void MixVisiblePaletes(char writepal)
  if(celkpocet>0)
  {
   if(!MixPal(obrazky,pocet,writepal)) //zkusim smichat palety...
+    // tr.: I try to mix the palette
    goto ven;
   while(i<celkpocet)
   {
 
-   //zrychlena verze
+   //zrychlena verze (tr.: accelerated version)
    imgatomptr=(struct HTMLrecord *)ie_getswap(atomadr[i]);
    if(imgatomptr && (imgatomptr->type==IMG || imgatomptr->type==BACKGROUND || imgatomptr->type==TD_BACKGROUND))
    {
@@ -182,7 +185,7 @@ int MixPal(struct picinfo *o, int n, char writepal)
  int npalout=0,npic=1,i=0;
  char str[80];
  int rv=1;
- //int Uloz;
+ //int Uloz; (tr.: Save it)
 
  sprintf(str,MSG_LDPAL,n );
  outs(str);
@@ -253,7 +256,7 @@ int MixPal(struct picinfo *o, int n, char writepal)
 extern char customerpalette[48];
 #endif
 
-//inicializace palety...
+//initialization of palette...
 void initpalette(void)
 {
  char paleta[48]={0,0,0, 0,0,40, 40,0,0, 0,40,0, 0,40,40, 40,0,40, 40,40,0,
@@ -316,6 +319,7 @@ int PresspalO (int multip, char *Palin[], int *Npalin, char  *palout,
                char *Savecols );
 
 //prida barvu nebo ji najde na obrazovce; vraci index
+// tr.: adds colour or finds it on the screen; returns index
 //. Translate RGB to integers for x_setcolor(.)
 int RGB256(unsigned char r,unsigned char g,unsigned char b)
 {
@@ -329,6 +333,8 @@ int RGB256(unsigned char r,unsigned char g,unsigned char b)
  int ret;
 
  //nepamatuju si uz tuhle barvu nahodou ? (99% pripadu - jo!)
+ // tr.: have'nt I seen this colour already before?
+ //      (in 99 percent of cases - yes)
 // if(!cgamode)
 // {
   ret=0;

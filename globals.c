@@ -61,7 +61,8 @@ char *ctrlbreak=MSG_BREAK;
 char *anykey=MSG_ANYKEY;
 #ifdef NOKEY
 //char *regkey="",reg=1;
-char *regkey="GPL  Version",reg=1;//!!glennmcc: Apr 06, 2003 --- GPL now
+//char *regkey="GPL  Version",reg=1;//!!glennmcc: Apr 06, 2003 --- GPL now
+char *regkey="v1.77;GPL,386+",reg=1;//!!glennmcc: Jun 02, 2004
 #else
 char regkey[KEYLEN+1]=MSG_UNREG,reg=0;
 #endif

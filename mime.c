@@ -29,7 +29,7 @@ int search_mime_cfg(char *rawmime, char *ext, char *cmd)
   if(!strncmpi(mime,"file/",5) && !strchr(mime,'*'))
   {
    //speed up built in etensions
-   extptr=strrchr(mime,'.'); //napr. mime=file/../blabla.htm
+   extptr=strrchr(mime,'.'); //e.g. mime=file/../blabla.htm
    if(extptr && strstr("HTM TXT GIF BMP IKN htm txt gif bmp ikn",&extptr[1]) )
     goto ret;
   }
@@ -64,11 +64,14 @@ int search_mime_cfg(char *rawmime, char *ext, char *cmd)
      }
      else
       extptr=outext; //v nouzi za prikaz povazuji priponu > will be err....
+             // tr.: in case of need/emergency I consider extension 
+             //      as a command > will be err....
     }
     pom=extptr;
-    extptr=outext; //ukazauju na priponu
-    outext=&pom[1]; // preskocim | pred cmd
-    goto mamji; //napr. mime=text/html
+    extptr=outext; // I point at extension
+    outext=&pom[1]; // I skip | before cmd
+    goto mamji; // e.g. mime=text/html
+                // tr.: ('mamji' means: I have got her, i.e. the extension)
    }
 
    if((!strncmpi(line,"file",4)||
@@ -82,16 +85,16 @@ int search_mime_cfg(char *rawmime, char *ext, char *cmd)
      extptr++;
      strlwr(extptr);
      strlwr(mime);
-     if(strstr(mime,extptr)) //napr. line=file/.jpg,extptr=.jpg,mime=file/xx.jpg
+     if(strstr(mime,extptr)) // e.g. line=file/.jpg,extptr=.jpg,mime=file/xx.jpg
      {
       if(*outext=='|')
       {
        viewer=1;
-       outext++; //preskoci | pred |cmd,
+       outext++; // skip | before |cmd,
       }
       else
       if( *outext=='>')
-       outext++; //preskoci > pred >EXT|cmd..
+       outext++; // skip > before >EXT|cmd..
       else
       if(!cmd)
       {
@@ -111,9 +114,11 @@ int search_mime_cfg(char *rawmime, char *ext, char *cmd)
 
 
  if(cmd) // zadny konverzni prikaz neni k dispozici, extenzi nechci...!
+   // tr.: there is no command available for conversion,
+   //      I do not want this extension
   return 0;
 
- extptr=strrchr(rawmime,'.'); //napr. mime=file/../blabla.htm
+ extptr=strrchr(rawmime,'.'); // e.g. mime=file/../blabla.htm
  if(extptr)
  {
   ret:

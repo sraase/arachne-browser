@@ -1,4 +1,5 @@
 /* Nastaveni palety pro 16 a 256 barev */
+/* tr.: Setting palettes for 16 and 256 colours */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -7,6 +8,7 @@
 #include "x_lopif.h"
 
 /*-------- Nastaveni cele palety (EGA/VGA) -----------*/
+/* tr.: Setting entire palette (EGA/VGA) -----------*/
 void x_palett(int npal, char *palette)
 {
   union REGS in,out;
@@ -17,6 +19,7 @@ void x_palett(int npal, char *palette)
 
 #if HI_COLOR
   if(xg_256 == MM_Hic)           // pouze kopie do xg_hipal
+     // tr.: only copy into xg_hipal
   {
      memcpy(xg_hipal, palette, 3*npal);
      for(i=0; i<npal; i++)
@@ -27,7 +30,7 @@ void x_palett(int npal, char *palette)
   }
 #endif
 
-  if(xg_mod == 0x10)             /* EGA paleta */
+  if(xg_mod == 0x10)             /* EGA palette */
   {
    if((xg_flag & 0x01) != 0)
      jak = 1;    /* Spec EGA pal */
@@ -47,13 +50,13 @@ void x_palett(int npal, char *palette)
    segreg.es = FP_SEG(xg_egapal);
    int86x(0x10,&in,&out,&segreg);
   }
-  else                           /* VGA paleta */
+  else                           /* VGA palette */
   {
   if(npal <= 16) npal = 17;
   in.h.ah = 0x10;
   in.h.al = 0x12;
-  in.x.bx = 0;                    /* od ktereho se zacne */
-  in.x.cx = npal;                 /* kolik registru */
+  in.x.bx = 0;                    /* from where to begin */
+  in.x.cx = npal;                 /* how many registers */
   in.x.dx = FP_OFF(palette);
   segreg.es = FP_SEG(palette);
   int86x(0x10,&in,&out,&segreg);

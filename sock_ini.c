@@ -46,7 +46,7 @@ char sock_init(void)
   outs("BOOTP failed\n");
   if ( !_survivebootp )
   sleep(5);
-// 	exit( 3 ); zmena pro arachne
+//      exit( 3 ); zmena pro arachne   (tr.: change for Arachne)
   return 0;
  }
  return 1;

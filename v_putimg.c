@@ -52,4 +52,4 @@ void mosaic_background(struct picinfo *gif,char *obuf,int yz,int imgx)
   notskipped=1;
  }
 
-}//end if pozadi
+}//end if background

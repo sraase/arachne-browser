@@ -84,6 +84,7 @@ void outs(char *str); //change browser status message
 
 #define MAXQUERY 60000    //maximum query length
 #define MAXARGNAMES 1024
+#define MAXARGS 100       //!!JdS 2004/1/27
 #define MAXNOBR 512       //maximum nobreak sections (visible frames -= 1)
 #define GUIPATH "gui/"
 #define MAXFRAMES 24
@@ -98,7 +99,7 @@ void outs(char *str); //change browser status message
 #ifdef XTVERSION
 #define MIN_MEMORY 75000l //minimal free dos memory to run (???)
 #else
-#define MIN_MEMORY 75000l //minimal free dos memory to run
+#define MIN_MEMORY 80000l //minimal free dos memory to run, was 75000 [JdS 2004/2/13]
 #endif
 #endif
 
@@ -112,7 +113,7 @@ void outs(char *str); //change browser status message
 #ifdef TELEMED
 #define MAXFRAMES 24      //TELEMED
 #else
-#define MAXFRAMES 9      //overlayed
+#define MAXFRAMES 9       //overlayed
 #endif
 #else
 #define MAXFRAMES 8       //static
@@ -120,6 +121,7 @@ void outs(char *str); //change browser status message
 #endif//maxframes
 
 #define MAXARGNAMES 256
+#define MAXARGS 25        //!!JdS 2004/1/27
 #define MAXNOBR 100       //maximum nobreak sections (visible frames -= 1)
 #define GUIPATH "system\\gui\\"
 
@@ -132,7 +134,7 @@ void outs(char *str); //change browser status message
 //structure which keeps information about single HTML atom
 struct HTMLrecord
 {
- int x,xx; //umisteni v ramecku x,y ... xx,yy
+ int x,xx; //localization in frame x,y ... xx,yy
  long y,yy;
  char type;     //ATOM type, see html.h
  char align;    //0...do not align - see html.h
@@ -407,7 +409,7 @@ long localdiskspace(void);
 long lastdiskspace(char *path);
 long updtdiskspace(char *path);
 // no longer used - file:cleancache.dgi is called instead...
-// void gumujcache(char dukladne);
+// void gumujcache(char thoroughly);
 char cacheisfull(void);
 int addhot(char *titleptr, char *urlptr);
 void inettime(char *tm);
@@ -424,6 +426,7 @@ void meminit(char arg);
 void memerr0(void);
 void memerr(void);
 void exitmsg(void);
+void badcookiesfile(void);  //!!JdS 2004/3/6
 void mallocerr(char *msg, char *file, int line);
 int exeisok(char *exename);
 
@@ -434,7 +437,7 @@ void RadioSwitch(int fromx, long fromy, XSWAP current,XSWAP formptr);
 void SelectSwitch(int x,long y,int key);
 void HideLink(char *hideURL);
 int ProcessLinks(char generateASF);
-int activeismap(int *dx, int *dy); //je aktivnim obrazkem klikatelna mapa ?
+int activeismap(int *dx, int *dy); //is the active picture a clickable map?
 char *activeislastinput(void);
 void activeurl(char *url);
 char *try2getURL(void);
@@ -459,9 +462,13 @@ void decompose_inetstr(char *str);
 
 //HTML tag argument manipulation
 int getvar(char *name,char **value);
+int getarg(char *name,char **value); //!!JdS [2004/1/30] Alternative to getvar()
 int searchvar(char *name);
+int searcharg(char *name); //!!JdS [2004/1/30] Alternative to searchvar()
 void putvarname(char *name,int size);
+void putargname(char *name); //!!JdS [2004/1/30] Alternative to putvarname()
 void putvarvalue(char *value,int size);
+void putargvalue(char *value); //!!JdS [2004/1/30] Alternative to putvarvalue()
 
 //frames
 void free_children(int parent);
@@ -578,12 +585,12 @@ extern char sock_keepalive[2][STRINGSIZE];
 extern int sock_datalen[2];
 extern int socknum;
 extern int status;
-//extern struct bin_file Tablelist; //indexed binarni structure
+//extern struct bin_file Tablelist; //indexed binary structure
 extern char nobr_overflow[MAXNOBR];
 extern struct ib_editor history;   //history.lst
 extern struct ib_editor cookies;   //cookies.lst
-extern struct ib_editor MIMEcfg;   //mime configurration - text file
-extern struct ib_editor ARACHNEcfg;//main configurration - text file
+extern struct ib_editor MIMEcfg;   //mime configuration - text file
+extern struct ib_editor ARACHNEcfg;//main configuration - text file
 extern struct ib_editor TOOLBARcfg;//toolbar
 extern struct ib_editor tmpeditor,*editorptr;//temporary IBASE editor pointer
 
@@ -594,7 +601,9 @@ extern char httpstub;            //is HTTP stub available ?
 extern char ipmode;
 extern char memory_model;          //LOW DOS memory management (0..4)
 extern int BUF;               //velikost vyrovnavaciho buferu
+                              // tr.: size of ??? buffer
 extern int loadrefresh;       //perioda prekreslovani (v bajtech) pro LAN TCP/IP
+                              // tr.: redrawing interval (in bytes) for LAN TCP/IP
 extern char noGUIredraw;
 
 #define fullscreen (arachne.GUIstyle & 4)
@@ -657,7 +666,7 @@ extern int thisx,thisy,thisxx,thisyy;
 extern int currentfont;
 extern char currentstyle;
 
-extern char *Iipal; //souhrnna paleta
+extern char *Iipal; //composite palette
 
 #ifdef VIRT_SCR
 extern int virtualxstart[MAXVIRTUAL];
@@ -672,7 +681,11 @@ extern int virtualIiNpal;
 #endif
 
 extern int argnamecount,argvaluecount;
+//!!JdS 2004/1/31 Alternative scheme to argnamecount, argvaluecount :
+extern int argvarcount;
 extern char *argnamestr,*argvaluestr;
+//!!JdS 2004/1/27 Alternative scheme to argnamestr, argvaluestr :
+extern char *argnameptr[MAXARGS], *argvalueptr[MAXARGS];
 extern long ppplogtime;
 
 extern struct Url baseURL;

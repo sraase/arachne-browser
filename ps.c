@@ -143,7 +143,7 @@ stroke\n",pt_x,pt_y,pt_xx,pt_y,pt_xx,pt_yy,pt_x,pt_yy);
        if(!p)
         MALLOCERR();
 
-       //docasne!!!
+       //docasne!!! (tr.: provisional)
        while(*p)
        {
         if(!show && *p!=' ')

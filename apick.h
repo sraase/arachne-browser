@@ -22,7 +22,7 @@ struct ArachnePick              //. This struct is stored in arachne.pck !!!!  R
                    // & 4 ...fullscreen (3rd bit set)
  char xSwap;       //see SWAP_DISK, SWAP_XMS, SWAP_EMS
  int mousex,mousey,framescount; //mouse x and y, number of frames
- int target;      //current target inside frameset.  The munber of frame. MAXFRAMES no of frame is adjustable
+ int target;      //current target inside frameset.  The number of frame. MAXFRAMES no of frame is adjustable
                                    // == 0 if there is no frame   _top : 0 frame
  int newframe;    //new frame to be loaded
 
@@ -37,10 +37,10 @@ struct ArachnePick              //. This struct is stored in arachne.pck !!!!  R
  int toolbarpage;
 };
 
-extern struct ArachnePick arachne; //autosave konfiguracni soubor
+extern struct ArachnePick arachne; //autosave configuration file
 
-int loadpick( char *exename); //nahrat autosave konfiguraci
-void savepick(void);           //ulozit autosave konfiguraci
+int loadpick( char *exename); //load autosave configuration
+void savepick(void);           //save autosave configuration
 
 #define mousex arachne.mousex
 #define mousey arachne.mousey

@@ -209,6 +209,7 @@ char processcell(struct HTMLtable *tab,long xsum,int maxx,long y,int *cellx)
    tab->realtdwidth[tab->x]=maxx;
 
    if(tab->y) //pokud nejsem na prvni radce, musim prekreslovat
+     // tr.: if I am not on the first line, I need to redraw
     rv=1;
   }
 
@@ -232,6 +233,7 @@ char processcell(struct HTMLtable *tab,long xsum,int maxx,long y,int *cellx)
    *cellx+=tab->realtdwidth[i];
 
    //mezera mezi policky
+   // tr.: space between fields
    if(i<tab->x)
     *cellx+=tab->cellspacing;
 
@@ -275,6 +277,7 @@ char processcell(struct HTMLtable *tab,long xsum,int maxx,long y,int *cellx)
   if(maxx-*cellx>0)
   {
    if(tab->y) //pokud nejsem na prvni radce, musim prekreslovat
+    // tr.: if I am not on the first line I need to redraw
     rv=1;
    *cellx=maxx;
   }
@@ -285,6 +288,7 @@ char processcell(struct HTMLtable *tab,long xsum,int maxx,long y,int *cellx)
  fixtracewidth(tab,maxx,tab->x,tab->xspan);
 
  if(tab->rowspan[tab->x]==1) //zarovnat radek tabulky ?
+    // tr.: align row of the table? 
  {
   if(y>tab->tdend)
    tab->tdend=y;
@@ -314,6 +318,7 @@ void newcell(struct HTMLtable *tab,int xspan,int yspan,int *tdx,long *tdy,int *w
  *tdy=tab->tdstart;
 
  //preskocit rowspan
+ // tr.: skip rowspan
  tab->x=determine_new_x(tab);
 
  if(xspan>1) //for multicolumn cells, reset shrink bits

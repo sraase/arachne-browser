@@ -1,7 +1,7 @@
 #include "arachne.h"
 
 #ifndef CUSTOMER
-char *VER="1.75";
+char *VER="1.77";
 
 //!!glennmcc: Begin Apr 06, 2003--- NOKEY==GPL now
 #ifndef NOKEY
@@ -14,8 +14,8 @@ char *beta=";beta";    //for other platforms, not even beta....
 #endif
 
 #else
-char *beta=";GPL";
-#endif//!!glennmcc: endif for '#ifdef NOKEY' above
+char *beta=";GPL,386+";//!!glennmcc: Jun 02, 2004 --- added ,386+
+#endif//!!glennmcc: endif for '#ifndef NOKEY' above
 
 #ifdef NOKEY//!!glennmcc: Apr 06,2003 --- NOKEY==GPL now
 char *copyright="";
@@ -26,4 +26,3 @@ char *copyright="Copyright (c)1996-2002 Michael Polak, Arachne Labs";
 char *homepage="http://arachne.cz/";
 
 #endif
-

@@ -13,7 +13,7 @@ int TcpIdleFunc(void)
 {
    if(GLOBAL.abort || GUITICK())
     return -1;
-   xChLogoTICK(GlobalLogoStyle); // animation loga
+   xChLogoTICK(GlobalLogoStyle); // animation of logo
    return 0;
 }
 
@@ -52,7 +52,7 @@ void draw_time_online(void)
  x_setcolor(2); //red
  htmlfont(1,0);
  x_text_ib(x_maxx()-4,x_maxy()-15,(unsigned char *)str);
- x_settextjusty(0,2);        // vzdycky psat pismo od leveho horniho rohu
+ x_settextjusty(0,2);        // always write text for upper left corner
 }
 //#endif //ULTRALIGHT
 
@@ -101,7 +101,7 @@ void xChLogo(char n)
 
 }//end sub
 
-void xChLogoTICK(char Style) // animace loga
+void xChLogoTICK(char Style) // animation of logo
 {
 #ifndef NOTCPIP
  Backgroundhttp();
@@ -171,7 +171,7 @@ void mouseoff(void)
 
 
 #ifndef TEXTONLY
-//totalni infomace o pameti...
+//total information on memory...
 char lastinfo=0;
 
 void MemInfoLine(char *text1,char *text2,int color,int *y)
@@ -182,7 +182,7 @@ void MemInfoLine(char *text1,char *text2,int color,int *y)
  x_settextjusty(2,2);
  x_text_ib(x_maxx()-4,*y,(unsigned char *)text2);
  *y+=fonty(0,NORMAL);
- x_settextjusty(0,2);        // vzdycky psat pismo od leveho horniho rohu
+ x_settextjusty(0,2);        //always write text for upper left corner
 }
 #endif
 

@@ -21,6 +21,7 @@ void memory_destroy(void)
 
 
 //chybove hlaseni na zacatku
+// tr.: error message at the beginning
 void memerr0(void)
 {
  x_grf_mod(3);
@@ -60,6 +61,16 @@ void cfgerr (struct ib_editor *f)
  memory_destroy();
  exit(EXIT_TO_DOS);
 }
+
+//!!JdS 2004/3/6 {
+void badcookiesfile ()
+{
+ x_grf_mod(3);
+ printf("Error: The 'cookies.lst' file is either broken or incompatible.");
+ memory_destroy();
+ exit(EXIT_TO_DOS);
+}
+//!!JdS 2004/3/6 }
 
 void mallocerr(char *msg, char *file , int line)
 {

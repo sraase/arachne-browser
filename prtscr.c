@@ -7,24 +7,24 @@ int PrintScreen2BMP(char virtscr)
 {
  struct
  {
-  short sigBMP;                  // Ze jde o BMP  "BM" -- File_header
-  long size;                       // Velikost souboru
-  long resWin;                    // Reserva Windows 4 bajty
-  long offBit;                     // Zacatek obrazu
+  short sigBMP;                  // that it is a BMP  "BM" -- File_header
+  long size;                       // size of file 
+  long resWin;                    // Reserve Windows 4 bytes
+  long offBit;                     // Beginning of picture
 
-  short  zn28;                       // Cislo 28 (delka) -- INFOHEADER
+  short  zn28;                       // No. 28 (length) -- INFOHEADER
   short  nic;
-  long  dx_bm;                      // pocet sloupcu
-  long  dy_bm;                      // pocet radku
-  short  rovin;                      // pocet rovin 1
-  short  bit_pix;                    // bitu na pixel
-  long compress;                   // komprese
-  long sizeimg;                    // velikost obrazu
-  long Xpelmet;                    // Rozliseni
+  long  dx_bm;                      // number of columns
+  long  dy_bm;                      // number of rows
+  short  rovin;                      // number of levels 1
+  short  bit_pix;                    // bits in pixel
+  long compress;                   // compression
+  long sizeimg;                    // size of picture
+  long Xpelmet;                    // resolution
   long Ypelmet;
-  long ClrUsed;                    // Pocet pouzitych barev
-  long CltImport;                  // Pocet dulezitych barev
- } bmp_hed;                          // Sum = 54bytu
+  long ClrUsed;                    // number of used colours
+  long CltImport;                  // number of important colours
+ } bmp_hed;                          // Sum = 54bytes
 
  unsigned char buf[4000];        //2*1600 + 4 + secure overhead
  int j,f,depth=8,max,zblo;
@@ -100,9 +100,9 @@ int PrintScreen2BMP(char virtscr)
  bmp_hed.dy_bm = y;
  bmp_hed.rovin = 1;
  bmp_hed.bit_pix = depth;
- bmp_hed.sizeimg = x*y;    // velikost obrazu
+ bmp_hed.sizeimg = x*y;    // size of picture
  if(depth != 24)
-  bmp_hed.ClrUsed = IiNpal;  // Pocet pouzitych barev
+  bmp_hed.ClrUsed = IiNpal;  // number of used colours
 
 #ifdef LINUX
  write(f, charhed,2);   

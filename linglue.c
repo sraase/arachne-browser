@@ -43,7 +43,7 @@ int SVGAx=799,SVGAy=599;
 
 #ifndef GGI
 //In SVGAlib, there is no need for screen flushing, but we need rather
-//sofisticated waitformouse and waitfor keyboard threads....
+//sophisticated waitformouse and waitfor keyboard threads....
 
 struct termios old_termios;
 
@@ -278,40 +278,40 @@ int xg_256;
 int xg_video_XMS=0; //real screen
 unsigned short xg_hival[256]; //hicolor values for palette
 int xg_hi16=1;    // mode : 16bit=1,15bit=0
-int xg_hipalmod=0;// x_setcolor(), x_setfill():0=index, 1=primo hicolor
+int xg_hipalmod=0;// x_setcolor(), x_setfill():0=index, 1=direct hicolor
 int xg_chrmod=1;
-unsigned char xg_hipal[768];  // Pal pro HiCol mode (nastavit pres x_setpal())
+unsigned char xg_hipal[768];  // Pal for HiCol mode (set through x_setpal())
 
-int xg_color;                 /* Nastavena barva (rect,text) */
-int xg_fillc;                 /* Nastavena barva pro x_bar() */
-int xg_wrt;                   /* 0=prepis, 1=XOR             */
-int xg_style;                 /* Definice cary               */
+int xg_color;                 /* Set colour (rect,text)      */
+int xg_fillc;                 /* Set colour for x_bar()      */
+int xg_wrt;                   /* 0=overwrite, 1=XOR          */
+int xg_style;                 /* Definition of line          */
 int xg_xr,xg_yr;              /* ratio                       */
 int xg_view[4];               /* Viewport                    */
-int xg_xfnt,xg_yfnt;          /* Velikost fontu v pixlech    */
-int xg_tjustx;                /* Zarovnani textu ve smeru X  */
-int xg_tjusty;                /* Zarovnani ve smeru Y        */
-int xg_clip;                  /* Zda orezavat ve viewportu   */
-int xg_fbyt;                  /* Pocet bytu na znak fontu    */
-int xg_flag;                  /* Priznaky: bit 0 - spec EGA pal */
-				     /*           bit 1 - aktivni patt */
-unsigned char xg_fonlen[256];  // Sirky znaku pro proporcni fonty
-long  int     xg_fonadr[256];  // Zacatky znaku pro prop. fonty
-unsigned char xg_foncon;       // Flag - konst/prop font [0/prumer]
-unsigned char xg_fonmem;       // Kde je font: 0-MEM(xg_fbuf),1-XMS,2-DISK
-int           xg_fonhan;       // Handle pro XMS/DISK
-unsigned int  xg_lbfnt;        // delka bufru s daty fontu
+int xg_xfnt,xg_yfnt;          /* Font size in pixels         */
+int xg_tjustx;                /* Aligning text in X direction*/
+int xg_tjusty;                /* Aligning text in Y direction*/
+int xg_clip;                  /* Whether to cut in viewport  */
+int xg_fbyt;                  /* Number of bytes in one char of the font */
+int xg_flag;                  /* Types: bit 0 - spec EGA pal */
+                              /*        bit 1 - aktive patt  */
+unsigned char xg_fonlen[256];  // Widths of chars for proportional fonts
+long  int     xg_fonadr[256];  // Beginning of chars for proportional fonts
+unsigned char xg_foncon;       // Flag - const/prop font [0/average]
+unsigned char xg_fonmem;       // Where is the font: 0-MEM(xg_fbuf),1-XMS,2-DISK
+int           xg_fonhan;       // Handle for XMS/DISK
+unsigned int  xg_lbfnt;        // length of buffer with font data 
 
-char *xg_fbuf;                /* bufffer na font                */
-int xg_fnt_zoo=1;      /* Pro zooming textu 1 | 2 */
-char xg_fnt_akt[64];  // Jmeno akt. fontu
+char *xg_fbuf;                /* font bufffer                 */
+int xg_fnt_zoo=1;      /* For zooming text 1 | 2 */
+char xg_fnt_akt[64];  // Name of active font
 
-int  xg_fnt_max;       // max pocet fontu v XMS
-int  xg_fnt_fre;       // prvni volny v tabulce
+int  xg_fnt_max;       // max number of fonts in XMS
+int  xg_fnt_fre;       // first free/available in table
 int  xg_fnt_xms;       // handle XMS
-long xg_fnt_xlen;      // celkova delka v XMS
-long xg_fnt_xoff;      // volne misto v XMS
-struct FNTXTAB *xg_fnt_xtab;   // tabulka fontu
+long xg_fnt_xlen;      // total length in XMS
+long xg_fnt_xoff;      // free space in XMS
+struct FNTXTAB *xg_fnt_xtab;   // font table 
 int   xg_31yn=0;      //ASCII 1 ... ASCII 31 interpreted as 1..31 pixel space
 
 //---------------------------------------------------------------------------
@@ -478,7 +478,7 @@ int x_getmaxcol(void)
 void x_palett(int len, char *paleta)
 {
  //set palette to array or (3 R-G-B bytes)*len
-  if(xg_256 == MM_Hic)           // pouze kopie do xg_hipal
+  if(xg_256 == MM_Hic)           // only a copy into xg_hipal
   {
    int i;
 
@@ -536,14 +536,16 @@ void z_bitbyte(unsigned char *buf1, unsigned char *buf2, int delka)
 
 // Prevod bufru s bytovym obrazem na Hi-color
 // Pozn: Predpoklada se, ze byla volana fce x_palett() s paletou obrazu.
+// tr.: Convert buffer with bitmap to Hi-color
+//      Note: provides that fce x_palett() has been called with palette of picture
 void xh_ByteToHi(unsigned char *Ibuf, unsigned char *Hi,
 		short Pixs, short Rows, short LenLine)
 {
-// Ibuf- (in) buffer s radky paletoveho obrazu (1B/pixel)
-// Hi  - (out)buffer s radky HiCol
-// Pixs- pixlu na radek
-// Rows- pocet radku (-Rows => Radky v Hi v opacnem poradi)
-// LenLine - delka Ibuf radku v Bytech
+// Ibuf- (in) buffer with rows of palette picture (1B/pixel)
+// Hi  - (out)buffer with rows HiCol
+// Pixs- pixels in a line
+// Rows- number of rows (-Rows => Rows in Hi in reverse order)
+// LenLine - length Ibuf of row/rows in Bytes
    int   i,j, Rows2;
    unsigned char *Ibufx;
    unsigned short  *Hix;
@@ -568,7 +570,7 @@ void xh_ByteToHi(unsigned char *Ibuf, unsigned char *Hi,
    }
 }
 
-// Prevod RGB (0..63) na Hi-color
+// Conversion RGB (0..63) to Hi-color
 unsigned short xh_RgbHiPal(unsigned char R, unsigned char G, unsigned char B)
 {
    if(xg_hi16 == 1)
@@ -629,7 +631,7 @@ int  xv_int_rea(int xs, int ys, int dx, int dy, char *buf)
 // GIF animations - hanimgif.c, needs to rework memory management....
 //---------------------------------------------------------------------------
 
-int  g_NumAnim=0;       // number of animaged GIFs
+int  g_NumAnim=0;       // number of animated GIFs
 
 int  XInitAnimGIF(int XmsKby)
 {
@@ -1002,7 +1004,7 @@ void WaitForEvent(struct timeval *tv) //waits for user input or whatever...
 //---------------------------------------------------------------------------
 */
 
-void graphicsinit(char *svgamode) //inicializace grafiky, mod dle X_LOPIF
+void graphicsinit(char *svgamode) //initialization of graphics, mode according to X_LOPIF
 {
 const short cur[32] =
 	 { 0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
@@ -1013,7 +1015,7 @@ const short cur[32] =
  
   xg_256=MM_Hic; //set Hicolor flag...
   initpalette();
-  x_settextjusty(0,2);  // vzdycky psat pismo od leveho horniho rohu
+  x_settextjusty(0,2);  // always write text from upper left corner
 
 #ifdef GGI
 // printf("Initializing GGI visual target.\n");
@@ -1056,6 +1058,6 @@ const short cur[32] =
  gl_setrgbpalette();
  gl_enableclipping();
 #endif
- x_defcurs( (short *)cur, (short *)&cur[16], 15); //myssii kursor
+ x_defcurs( (short *)cur, (short *)&cur[16], 15); //mouse kursor
 }
 

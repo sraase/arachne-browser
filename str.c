@@ -41,8 +41,22 @@ char *makestr(char *dest, char *src, int lim)
   *realdest='\0';
   return dest;
  }
- else 
+ else
   return src;
+}
+
+// ==================================================================
+// joinstr() is an alternative to strcat() and strncat() that
+// incorporates a safety limit for the 'dest' string. Parameter
+// ordering is deliberately different to strncat().  !!JdS 2004/1/17
+// ==================================================================
+
+char *joinstr(char *dest, int lim, const char *src)
+{
+ int used = strlen(dest) + 1;
+ if(lim>used && dest && src)
+  strncat(dest,src,lim-used);
+ return dest;
 }
 
 #ifdef POSIX

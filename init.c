@@ -26,7 +26,7 @@ void Initialize_Arachne(int argc,char **argv,struct Url *url)
 
 #ifndef NOKEY
 
- //registrace
+ //registration
  {
   char keyname[80];
   sprintf(keyname,"%sarachne.key",exepath);
@@ -140,17 +140,17 @@ if(!noGUIredraw && !strcmpi(arachne.graphics,"VGA"))
  x_cleardev();
 
 finfoload();                    //load font information
-if(ie_initswap()!=1)            //inicializace swapovaciho systemu ie_swap
+if(ie_initswap()!=1)            //initialization of swapping system ie_swap
  memerr0();
-init_bin();                     //inicializace pameti, konf. souboru, apod.
+init_bin();                     //initialization of memory, conf. files, etc.
 configure_user_interface();     //icons, hotkeys, scrollbuttons, font...
 init_xms();                     //font caching+animated GIFs
 
 #else           //LINUX, etc. - graphics mode information in arachne.conf
 
-if(ie_initswap()!=1)            //inicializace swapovaciho systemu ie_swap
+if(ie_initswap()!=1)            //initialization of swapping system ie_swap
  memerr0();
-init_bin();                     //inicializace pameti, konf. souboru, apod.
+init_bin();                     //initialization of memory, conf. files, etc.
 
 {
  char *ptr=configvariable(&ARACHNEcfg,"GraphicsMode",NULL);
@@ -202,7 +202,9 @@ MakeInputAtom(&TXTprompt,&tmpeditor,
 //initialization of certain global variables:
 
 GLOBAL.needrender=1;        //na zacatku potrebuju prekreslit
+                  // tr.: in the beginning I need to redraw
 GLOBAL.isimage=0;           //to co nactu po startu, to nebude inline...
+                  // tr.: what I load/read after start, will not be inline
 GLOBAL.nothot=0;
 GLOBAL.reload=NO_RELOAD;
 GLOBAL.postdata=0;
@@ -217,7 +219,7 @@ reset_tmpframedata();
 reset_frameset();
 AUTHENTICATION->proxy=0;
 
-//initialize BASE URL of default frame:
+//initialization BASE URL of default frame:
 ResetURL(&baseURL);
 ResetURL(url);
 
@@ -345,7 +347,7 @@ zoom();                     //calculate screen size
 RedrawALL();                //redraw screen
 if(tcpip || arachne.target!=0)
  DrawTitle(1);
-GUIInit();                  //inicialization of graphical user interface
+GUIInit();                  //initialization of graphical user interface
 }
 
 // *************************************************************************
@@ -356,7 +358,7 @@ int Terminate_Arachne(int returnvalue)
  deallocvirtual();
 #endif
 #ifdef XANIMGIF
- XCloseAnimGIF();  //HGIF 1x na konci
+ XCloseAnimGIF();  //HGIF 1x at the end
 #endif
 #ifndef POSIX
  x_fnt_cls();
@@ -397,13 +399,15 @@ bioskey_close();
  return(returnvalue);
 }
 
-//chybna konfigurace - moved to errors.c...
+//erroneous configuration - moved to errors.c...
 void cfgerr (struct ib_editor *f);
 
-//maximum number of lines in CFG files and number of cookies:
+//maximum number of lines in CFG files :
 #define LINES 256
 
-#define MAX_HTTP_COOKIES 64
+//maximum number of lines in cookies file :
+#define MAX_HTTP_COOKIES 64*CookieCrumbs
+//!!JdS 2004/3/6: Was: #define MAX_HTTP_COOKIES 64
 
 void init_bin(void)
 {
@@ -431,13 +435,15 @@ void init_bin(void)
 
  if(memory_model)
  {
-  BUF=4000;
+  BUF=4096; //!!JdS 2004/2/8: Increased from 4000 to 4096
+  //BUF=4000;
   x_fnt_alloc(SMALL_FONT_BUFFER);
   //we will temporarily need some more 21000 kB...
  }
  else
  {
-  BUF=2000;
+  BUF=2048; //!!JdS 2004/2/8: Increased from 2000 to 2048
+  //BUF=2000;
   x_fnt_alloc(BIG_FONT_BUFFER);
  }
 
@@ -452,7 +458,7 @@ void init_bin(void)
  //---ARACHNE.CFG
  strcpy(ARACHNEcfg.filename,acfg);
  ARACHNEcfg.killcomment=0;
- rc=ie_openf_lim(&ARACHNEcfg,CONTEXT_SYSTEM,LINES); //hlavni konfigurace
+ rc=ie_openf_lim(&ARACHNEcfg,CONTEXT_SYSTEM,LINES); //main configuration
  if(!ARACHNEcfg.lines)
  {
   ie_clearf(&ARACHNEcfg,0);
@@ -497,13 +503,13 @@ void init_bin(void)
  else if(rc!=1)
   cfgerr(&MIMEcfg);
 
- //---TOOLBAR.tb loading
+ //---toolbar.cfg loading
  ptr=configvariable(&ARACHNEcfg,"Toolbar",NULL);
  if(!ptr)
 #ifdef POSIX
-  strcpy(TOOLBARcfg.filename,"toolbar.tb");
+  strcpy(TOOLBARcfg.filename,"toolbar.cfg");
 #else
-  sprintf(TOOLBARcfg.filename,"%stoolbar.tb",exepath);
+  sprintf(TOOLBARcfg.filename,"%stoolbar.cfg",exepath);
 #endif
   else
   strcpy(TOOLBARcfg.filename,ptr);
@@ -520,7 +526,7 @@ void init_bin(void)
   ptr="history.lst";
  strcpy(history.filename,ptr);
  history.killcomment=0;
- rc=ie_openf_lim(&history,CONTEXT_SYSTEM,LINES); //historie - max. 256 radku
+ rc=ie_openf_lim(&history,CONTEXT_SYSTEM,LINES); //history - max. 256 lines
  if(rc==2)
   memerr0();
  if(history.lines==0)
@@ -533,7 +539,7 @@ void init_bin(void)
  if(!ptr)
   ptr="cache.idx";
  strcpy(HTTPcache.filename,ptr);
- HTTPcache.maxlines=256; //max 256 souboru v cache
+ HTTPcache.maxlines=256; //max 256 files in cache
  rc=ie_openbin(&HTTPcache);
  if(rc==2)
   memerr0();
@@ -550,6 +556,10 @@ void init_bin(void)
   ptr="cookies.lst";
  strcpy(cookies.filename,ptr);
  rc=ie_openf_lim(&cookies,CONTEXT_SYSTEM,MAX_HTTP_COOKIES);
+//!!JdS 2004/3/6 {
+ if ((cookies.lines/CookieCrumbs)*CookieCrumbs != cookies.lines)
+  badcookiesfile();
+//!!JdS 2004/3/6 }
  if(rc==2)
   memerr0();
  //---
@@ -607,7 +617,7 @@ if(!DisableXMS && user_interface.xms4allgifs)
  int ist;
   ist = mem_xmem( &dummy, &free);
   if(ist!=1 || free>=2*user_interface.xms4allgifs)
-   XInitAnimGIF( user_interface.xms4allgifs );  //HGIF 1x na zacatku
+   XInitAnimGIF( user_interface.xms4allgifs );  //HGIF 1x at the beginning
 }
 
 }

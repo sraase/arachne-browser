@@ -82,19 +82,20 @@ void USEMAParea(struct HTMLrecord *atom,char basetarget)
 
  if(getvar("HREF",&tagarg))
  {
-  //vlozit link:
+  //insert link:
   if(tagarg[0]!='#')
   {
    struct Url *url=farmalloc(sizeof(struct Url));
    if(!url)
     memerr();
-   AnalyseURL(tagarg,url,p->currentframe); //(plne zneni...)
+   AnalyseURL(tagarg,url,p->currentframe); //(full length...)
    url2str(url,tmpURL);
    tagarg=tmpURL;
    farfree(url);
   }
 
   //vyrobim si pointr na link, a od ted je vsechno link:
+  // tr.: I create a pointer to the link, and from now on is everything link: 
   addatom(atom,tagarg,strlen(tagarg),HREF,BOTTOM,target,0,IE_NULL,1);
   arealink=p->lastHTMLatom;
  }

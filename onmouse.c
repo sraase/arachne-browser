@@ -19,6 +19,10 @@ char *onmouse(int click)
  char ontoolbar=0;
  struct HTMLrecord *atomptr;
  int count=0;
+//!!glennmcc: Begin May 17, 2004
+// added to optionally goback or not on rightmouse click
+char *rmgb=0;
+//!!glennmcc: end
 
  if(mousey<p->htscrn_ytop && !customerscreen)
  {
@@ -250,21 +254,21 @@ char *onmouse(int click)
       if(realy+d>p->htscrn_ysize+p->htscrn_ytop && realy-p->htscrn_ytop>p->htscrn_ysize/2)
       {
        if(realy-d<p->htscrn_ytop)
-        d=(int)(realy+fonty(OPTIONFONT,0)-p->htscrn_ytop-3*FUZZYPIX);
+	d=(int)(realy+fonty(OPTIONFONT,0)-p->htscrn_ytop-3*FUZZYPIX);
        activeatom.y=activeatom.yy-d;
       }
       else
       {
        if(realy+d>p->htscrn_ysize+p->htscrn_ytop)
-        d=(int)(p->htscrn_ysize+p->htscrn_ytop-realy-3*FUZZYPIX);
+	d=(int)(p->htscrn_ysize+p->htscrn_ytop-realy-3*FUZZYPIX);
        activeatom.yy=activeatom.y+d;
       }
       mouseoff();
       drawatom(&activeatom,dx,dy,
-                p->htscrn_xsize+p->htscrn_xtop-p->htmlframe[activeatom.frameID].scroll.xtop,
-                p->htscrn_ysize+p->htscrn_ytop-p->htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
-                p->htmlframe[activeatom.frameID].scroll.xtop,
-                p->htmlframe[activeatom.frameID].scroll.ytop);  //frames...
+		p->htscrn_xsize+p->htscrn_xtop-p->htmlframe[activeatom.frameID].scroll.xtop,
+		p->htscrn_ysize+p->htscrn_ytop-p->htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
+		p->htmlframe[activeatom.frameID].scroll.xtop,
+		p->htmlframe[activeatom.frameID].scroll.ytop);  //frames...
       mouseon();
       htmlpulldown=1;//important flag - tells us that HTML visual is in special mode
      }
@@ -281,110 +285,110 @@ char *onmouse(int click)
      activeatomsave(&atomonmouse);
 
      if(atomonmouse.type!=INPUT ||
-        atomonmouse.data1!=SUBMIT && atomonmouse.data1!=TEXTAREA)
+	atomonmouse.data1!=SUBMIT && atomonmouse.data1!=TEXTAREA)
       activeatomcursor(1);
 
      textarea_only:
 
      if(click==4 && atomonmouse.type==INPUT &&
-        (atomonmouse.data1==TEXTAREA || atomonmouse.data1==TEXT
-         || atomonmouse.data1==PASSWORD))
+	(atomonmouse.data1==TEXTAREA || atomonmouse.data1==TEXT
+	 || atomonmouse.data1==PASSWORD))
       activeatomtick(ASCIICTRLV,0);
      else
      if(atomonmouse.type==INPUT &&
-        (atomonmouse.data1==TEXT || atomonmouse.data1==TEXTAREA))
+	(atomonmouse.data1==TEXT || atomonmouse.data1==TEXTAREA))
      {
       //goto mouse pointer:
       char textareamode=TEXTAREA_INIT;
       if(atomonmouse.data1==TEXT ||
-         (x<atomonmouse.xx-dx-2-user_interface.scrollbarsize &&
-          y<atomonmouse.yy-dy-2-user_interface.scrollbarsize))
+	 (x<atomonmouse.xx-dx-2-user_interface.scrollbarsize &&
+	  y<atomonmouse.yy-dy-2-user_interface.scrollbarsize))
       {
        long realatomy=atomonmouse.y+2-dy;
        int realatomx=atomonmouse.x+2-dx;
        int newx,newy;
 
        if(realatomy<0l)
-        realatomy=0l;
+	realatomy=0l;
        if(realatomx<0)
-        realatomx=0;
+	realatomx=0;
 
        activeatomcursor(0);
        editorptr=(struct ib_editor *)ie_getswap(activeatom.ptr);
        if(!editorptr)
-          goto exit_cursor; //non fatal error
+	  goto exit_cursor; //non fatal error
 //        MALLOCERR();
 
        newx=editorptr->zoomx+(x-realatomx)/fontx(SYSFONT,0,' ');
 
        if(atomonmouse.data1==TEXTAREA)
-        newy=editorptr->zoomy+(int)((y-realatomy)/fonty(SYSFONT,0));
+	newy=editorptr->zoomy+(int)((y-realatomy)/fonty(SYSFONT,0));
        else
-        newy=editorptr->y;
+	newy=editorptr->y;
 
        //...................................................doubleclick ?
        if(editorptr->x==newx && editorptr->y==newy)
        {
-        if(click==MOUSE_RELEASE)
-        {
-         activeatomcursor(1);
-         goto exit_cursor;
-        }
+	if(click==MOUSE_RELEASE)
+	{
+	 activeatomcursor(1);
+	 goto exit_cursor;
+	}
 
-        if(atomonmouse.data1==TEXTAREA)
-        {
-         if(click==2 && editorptr->blockflag==2) //right mouse button
-         {
-          activeatomtick(ASCIICTRLX,0); //clean line (URL, etc.)
-          goto exit_cursor;
-         }
-         else if(editorptr->blockflag==2) //mark start of block
-         {
-          editorptr->bbx=editorptr->bex=newx;
-          editorptr->bby=editorptr->bey=newy;
-          editorptr->blockflag=4;    //hide block, allow new marking by mouse
-          textareamode=TEXTAREA_SCROLL;
-         }
-         else
-         {
-          editorptr->blockflag=2; //block is highlighted
-          editorptr->bbx=0;
-          editorptr->bex=0;
-          editorptr->bby=newy;
-          editorptr->bey=newy+1;  //mark line
-          swapmod=1;
-          activeatomtick(ASCIICTRLC,0); //clean line (URL, etc.)
-          activeatomtick(CURSOR_SYNCHRO,TEXTAREA_SCROLL);
-          toolbar(1,1);
-          goto exit_cursor;
-         }
-        }
+	if(atomonmouse.data1==TEXTAREA)
+	{
+	 if(click==2 && editorptr->blockflag==2) //right mouse button
+	 {
+	  activeatomtick(ASCIICTRLX,0); //clean line (URL, etc.)
+	  goto exit_cursor;
+	 }
+	 else if(editorptr->blockflag==2) //mark start of block
+	 {
+	  editorptr->bbx=editorptr->bex=newx;
+	  editorptr->bby=editorptr->bey=newy;
+	  editorptr->blockflag=4;    //hide block, allow new marking by mouse
+	  textareamode=TEXTAREA_SCROLL;
+	 }
+	 else
+	 {
+	  editorptr->blockflag=2; //block is highlighted
+	  editorptr->bbx=0;
+	  editorptr->bex=0;
+	  editorptr->bby=newy;
+	  editorptr->bey=newy+1;  //mark line
+	  swapmod=1;
+	  activeatomtick(ASCIICTRLC,0); //clean line (URL, etc.)
+	  activeatomtick(CURSOR_SYNCHRO,TEXTAREA_SCROLL);
+	  toolbar(1,1);
+	  goto exit_cursor;
+	 }
+	}
        }
        else //close block?
        if(atomonmouse.data1==TEXTAREA && click==MOUSE_RELEASE &&
-          (editorptr->blockflag==2 || editorptr->blockflag==4))
+	  (editorptr->blockflag==2 || editorptr->blockflag==4))
        {
-         editorptr->bbx=editorptr->x;
-         editorptr->bby=editorptr->y;
-         editorptr->bex=newx;
-         editorptr->bey=newy;
-         editorptr->blockflag=2;
-         ie_xblockbeginend(editorptr);
-         textareamode=TEXTAREA_SCROLL;
+	 editorptr->bbx=editorptr->x;
+	 editorptr->bby=editorptr->y;
+	 editorptr->bex=newx;
+	 editorptr->bey=newy;
+	 editorptr->blockflag=2;
+	 ie_xblockbeginend(editorptr);
+	 textareamode=TEXTAREA_SCROLL;
        }
        else
        if (click==1 && editorptr->blockflag!=2) //left mouse ...
-        editorptr->blockflag=4; //... allow block marking
+	editorptr->blockflag=4; //... allow block marking
 
        editorptr->x=newx;
        editorptr->y=newy;
        swapmod=1;
        if(click==2)
        {
-        if(atomonmouse.data1!=TEXTAREA)
-         activeatomtick(ASCIICTRLY,0); //copy to clipboard
-        else if (editorptr->blockflag==2)
-         activeatomtick(ASCIICTRLC,0); //copy to clipboard
+	if(atomonmouse.data1!=TEXTAREA)
+	 activeatomtick(ASCIICTRLY,0); //copy to clipboard
+	else if (editorptr->blockflag==2)
+	 activeatomtick(ASCIICTRLC,0); //copy to clipboard
        }
       }
       activeatomtick(CURSOR_SYNCHRO,textareamode);
@@ -403,7 +407,7 @@ char *onmouse(int click)
     {
      //press button or INPUT TYPE=IMAGE
      if(atomonmouse.type==INPUT && atomonmouse.data1==SUBMIT ||
-        atomonmouse.type==IMG && atomonmouse.data1!=2) //not USEMAP!
+	atomonmouse.type==IMG && atomonmouse.data1!=2) //not USEMAP!
      {
       thisx=atomonmouse.x-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
       thisy=(int)(atomonmouse.y-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
@@ -481,52 +485,52 @@ char *onmouse(int click)
        atomptr=(struct HTMLrecord *)ie_getswap(atomonmouse.prev);
        if(atomptr->linkptr!=linkonmouse)
        {
-        struct TMPframedata *sheet;
+	struct TMPframedata *sheet;
 
-        if(sheetadr==IE_NULL)
-         sheet=&(p->tmpframedata[p->activeframe]);
-        else
-         sheet=(struct TMPframedata *)ie_getswap(sheetadr);
+	if(sheetadr==IE_NULL)
+	 sheet=&(p->tmpframedata[p->activeframe]);
+	else
+	 sheet=(struct TMPframedata *)ie_getswap(sheetadr);
 
-        if(sheet)
-        {
-         atomonmouse.R=sheet->hoverR;
-         atomonmouse.G=sheet->hoverG;
-         atomonmouse.B=sheet->hoverB;
-         atomonmouse.data2|=sheet->hoversetbits;
-         atomonmouse.data2-=(atomonmouse.data2&sheet->hoverresetbits);
-        }
+	if(sheet)
+	{
+	 atomonmouse.R=sheet->hoverR;
+	 atomonmouse.G=sheet->hoverG;
+	 atomonmouse.B=sheet->hoverB;
+	 atomonmouse.data2|=sheet->hoversetbits;
+	 atomonmouse.data2-=(atomonmouse.data2&sheet->hoverresetbits);
+	}
 
-        xx=atomonmouse.x-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
-        yy=(int)(atomonmouse.y-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
-        xxx=atomonmouse.xx-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
-        yyy=(int)(atomonmouse.yy-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
-        if(xx<p->htscrn_xtop)xx=p->htscrn_xtop;
-        if(yy<p->htscrn_ytop)yy=p->htscrn_ytop;
-        if(xxx>x_maxx())xxx=x_maxx();
-        if(yyy>x_maxy())yyy=x_maxy();
-        sz=(long)((long)(xxx-xx+1)*(long)(yyy-yy+1))+4*sizeof(int);
-        p->restorehoveradr=IE_NULL;
-        if(sz>0 && 2*sz<MAXHOVER)
-        {
-         char *buf=farmalloc((unsigned long)2*sz);
-         if(buf)
-         {
-          x_getimg(xx,yy,xxx,yyy,buf);
-          p->restorehoveradr=ie_putswap(buf,(unsigned)((long)(2l*sz)),CONTEXT_TMPIMG);
-          farfree(buf);
-         }
+	xx=atomonmouse.x-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
+	yy=(int)(atomonmouse.y-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
+	xxx=atomonmouse.xx-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
+	yyy=(int)(atomonmouse.yy-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
+	if(xx<p->htscrn_xtop)xx=p->htscrn_xtop;
+	if(yy<p->htscrn_ytop)yy=p->htscrn_ytop;
+	if(xxx>x_maxx())xxx=x_maxx();
+	if(yyy>x_maxy())yyy=x_maxy();
+	sz=(long)((long)(xxx-xx+1)*(long)(yyy-yy+1))+4*sizeof(int);
+	p->restorehoveradr=IE_NULL;
+	if(sz>0 && 2*sz<MAXHOVER)
+	{
+	 char *buf=farmalloc((unsigned long)2*sz);
+	 if(buf)
+	 {
+	  x_getimg(xx,yy,xxx,yyy,buf);
+	  p->restorehoveradr=ie_putswap(buf,(unsigned)((long)(2l*sz)),CONTEXT_TMPIMG);
+	  farfree(buf);
+	 }
 
-         p->restorehoverx=xx;
-         p->restorehovery=yy;
-         bigfonts_allowed();
-         drawatom(&atomonmouse,dx,dy,
-                   p->htscrn_xsize+p->htscrn_xtop-p->htmlframe[activeatom.frameID].scroll.xtop,
-                   p->htscrn_ysize+p->htscrn_ytop-p->htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
-                   p->htmlframe[activeatom.frameID].scroll.xtop,
-                   p->htmlframe[activeatom.frameID].scroll.ytop);  //frames...
-         bigfonts_forbidden();
-        }
+	 p->restorehoverx=xx;
+	 p->restorehovery=yy;
+	 bigfonts_allowed();
+	 drawatom(&atomonmouse,dx,dy,
+		   p->htscrn_xsize+p->htscrn_xtop-p->htmlframe[activeatom.frameID].scroll.xtop,
+		   p->htscrn_ysize+p->htscrn_ytop-p->htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
+		   p->htmlframe[activeatom.frameID].scroll.xtop,
+		   p->htmlframe[activeatom.frameID].scroll.ytop);  //frames...
+	 bigfonts_forbidden();
+	}
        }
       }
       atomptr=(struct HTMLrecord *)ie_getswap(linkonmouse);
@@ -587,7 +591,15 @@ char *onmouse(int click)
    return p->htmlframe[p->activeframe].cacheitem.URL;
   }
   else if(!ontoolbar)
-   return "arachne:back";
+//!!glennmcc: Begin May 17, 2004 -- only go back in history if
+// 'RightMouseGoesBack Yes' is in arachne.cfg
+ rmgb=configvariable(&ARACHNEcfg,"RightMouseGoesBack",NULL);
+ if(rmgb && toupper(*rmgb)=='Y') return "arachne:back";
+ else
+   return 0;
+// return "arachne:back"; //original line had no such option
+//!!glennmcc: end
+
  }
  else
  if(click==4 && !ontoolbar) //middle button

@@ -252,25 +252,25 @@ void ie_appendclip(char *ptr)
 
 int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int ietxt_max_y)
 
-//returns 0:shit happens            / nic se nedeje,
-//        1:set cursor+show status  / nastav kurzor
-//        2:redraw line             / prekresli radku
-//        3:redraw all              / prekresli vsechno
-//      4:roluj o radku nahoru
-//      5:roluj o radku dolu
-//      6:prekresli cele okno i s ramem
-//      7:"error"
-//     27:stisknuto Esc
-//101-110:stisknuto F1-F10
-//201-210:stisknuto ctrl+F1-F10 (jen kombinace, ktere maji vyznam)
-//301-...:special messages
+//returns 0:nothing  happens 
+//        1:set cursor+show status
+//        2:redraw line
+//        3:redraw all
+//        4:scroll one line up
+//        5:scroll one line down
+//        6:redraw the while window including frame
+//        7:"error"
+//       27:pressed Esc
+//  101-110:pressed F1-F10
+//  201-210:pressed ctrl+F1-F10 (only those combinations which have a meaning)
+//  301-...:special messages
 {
  char znak=klavesa & 0xFF;
  int l;
  char *ptr;
  int rv=1;
 
- if(fajl->aktrad!=fajl->y)//zapamatovani posledni opracovane radky
+ if(fajl->aktrad!=fajl->y)//remembering last processed line
  {
   if(fajl->aktrad>=0 && fajl->modrad) ie_putline(fajl,fajl->aktrad,fajl->rad);
   fajl->modrad=0;
@@ -357,28 +357,30 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
   return 0;
  }
 
- if (klavesa==LEFTARROW) //doleva
+ if (klavesa==LEFTARROW) //to the left
  {
   rv|=ie_blockstart(fajl,modifiers);
   if(fajl->x>0) fajl->x--;
 
   bacha_nalevo: //sem se skace z Backspace
+    // tr.: hereto jumping from Backspace
   if (fajl->x-fajl->zoomx<0) {fajl->zoomx=fajl->x;rv=3;}
   rv|=ie_blockend(fajl,modifiers);
   return rv;
  }
- else if (klavesa==RIGHTARROW) //doprava
+ else if (klavesa==RIGHTARROW) //to the right
  {
   rv|=ie_blockstart(fajl,modifiers);
   if(fajl->x<IE_MAXLEN) fajl->x++;
 
   bacha_napravo: //sem se skace z Backspace
+    // tr.: hereto jumping from Backspace
   if (fajl->x-fajl->zoomx>ietxt_max_x) {fajl->zoomx=fajl->x-ietxt_max_x;rv=3;}
   rv|=ie_blockend(fajl,modifiers);
   return rv;
  }
  else
- if (klavesa==UPARROW) //nahoru
+ if (klavesa==UPARROW) //up 
  {
   rv=1|ie_blockstart(fajl,modifiers);
   if (fajl->y>0)
@@ -394,7 +396,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
   return rv;
  }
  else
- if (klavesa==DOWNARROW) //dolu
+ if (klavesa==DOWNARROW) //down
  {
   rv=1|ie_blockstart(fajl,modifiers);
   if (fajl->y<fajl->lines-1)
@@ -516,31 +518,34 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
  else if (klavesa==0x5e00) //Ctrl+F1
   return 201;
  */
- if (znak==13) //enter - pridavani radky
+ if (znak==13) //enter - add line 
  {
-  if(fajl->lines>=IE_MAXLINES) return 7; //beee, moc radek!
+  if(fajl->lines>=IE_MAXLINES) return 7; //beeep, too many lines!
   if(fajl->aktrad>=0 && fajl->modrad) ie_putline(fajl,fajl->aktrad,fajl->rad);
-  if(fajl->x<=l) //...uvnitr radky
+  if(fajl->x<=l) //...within the line 
   {
    if(fajl->y==fajl->lines)
     //pridani radky, kdyz stojim na prazdne posledni radce
+    // tr.: adding line, when I stand on the empty last line 
     goto appendline;
    else
-    //rozdeleni radky
+    //divide line
     ie_insline(fajl,fajl->y+1,&(fajl->rad[fajl->x]));
   }
   else
   {
-    //pridani prazdne radky
+    //add empty line
    if(fajl->y==fajl->lines)
    {
     appendline:
     //pridani radky kdyz jsem na/za koncem fajlu
+    // tr.:  adding a line, when I am at/beyond the end of the file
     fajl->lines++;
     ie_putline(fajl,fajl->y+1,"\0");
    }
    else
     //pridani radky kdyz jsem uvnitr fajlu za koncem radky
+    // tr.: adding a line when I am within the file, but beyond the end of the line
     ie_insline(fajl,fajl->y+1,"\0");
   }//endif
   fajl->rad[fajl->x]='\0';
@@ -559,7 +564,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
   fajl->modrad=1;
   fajl->zoomx=0;
   if(fajl->y>fajl->zoomy+ietxt_max_y)fajl->zoomy++;
-  return 3;//prekresli vsechno
+  return 3;//redraw everything
  }
  else
  if (klavesa==INSERT) //Insert
@@ -574,6 +579,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
   {
    fajl->x++;
    return ie_key(fajl,BACKSPACE,modifiers,ietxt_max_x,ietxt_max_y); //finta
+    // tr.: trick
   }
   else
   if(fajl->x==l && fajl->y<fajl->lines-1)
@@ -606,7 +612,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
    int pomx;
 
    ptr=ie_getline(fajl,fajl->y-1);
-   if(strlen(ptr)+l>=IE_MAXLEN) return 9; //moc dlouha radka
+   if(strlen(ptr)+l>=IE_MAXLEN) return 9; //too long line
 
    pomx=strlen(ptr);
    strcpy(str,ptr);
@@ -786,7 +792,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
  else
  if (znak==10 || znak==24) return 999; //Ctrl+Enter, Ctrl+X
 
- if (znak<32 && znak>=0) return 0; //nedefinovana klavesa
+ if (znak<32 && znak>=0) return 0; //undefined key
 
  if(fajl->wordwrap && fajl->x>=ietxt_max_x-1 && znak!=' ' && fajl->x>=l && fajl->maxlines>1)
  {
@@ -808,6 +814,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
  }
 
  //pridani radky, pokud se nachazim za koncem souboru
+ // tr.: adding a line, if I am beyond the end of the file
  if(fajl->y==fajl->lines) fajl->lines++;
  if(l<IE_MAXLEN-1 && fajl->x<l && fajl->insert)
   memmove(&(fajl->rad[fajl->x+1]),&(fajl->rad[fajl->x]),l-fajl->x+1);
