@@ -1,0 +1,14 @@
+#define TOP_Y 0
+#define TOP_X 10
+#define BTN_HEIGHT 30
+#define BTN_WIDTH  25
+
+#define CLICK_1STLOOK_EMAIL      1001
+#define CLICK_1STLOOK_NOTES      1002
+#define CLICK_1STLOOK_TASKS      1003
+#define CLICK_1STLOOK_CALENDER   1004
+#define CLICK_1STLOOK_CONTACTS   1005
+#define CLICK_1STLOOK_FIRSTLOOK  1006
+#define CLICK_1STLOOK_VIEWFINDER 1007
+#define CLICK_1STLOOK_LOGO       1008       
+extern char _debugmsg[80];
