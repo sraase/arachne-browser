@@ -84,35 +84,42 @@ void ArachneTCPIP(void)
   {
    case MODE_NORMAL:
 
-   if(value[0]=='%' || value[0]=='$' )
-   {
-    char *ptr;
-    //enviroment
-    makestr(myIPstr,&value[1],19);
-    //vymazani zaverecneho '%'
-    ptr=strchr(&myIPstr[1],'%');
-    if(ptr)
-     *ptr='\0';
-    makestr(myIPstr,getenv(myIPstr),19);
-   }
-   else
-    makestr(myIPstr,value,19);
+    if(value[0]=='%' || value[0]=='$' )
+    {
+     char *ptr;
+     //enviroment
+     makestr(myIPstr,&value[1],19);
+     //vymazani zaverecneho '%'
+     ptr=strchr(&myIPstr[1],'%');
+     if(ptr)
+      *ptr='\0';
+     makestr(myIPstr,getenv(myIPstr),19);
+    }
+    else
+     makestr(myIPstr,value,19);
 
-   my_ip_addr = resolve( myIPstr );
-   break;
+    my_ip_addr = resolve( myIPstr );
+    break;
 
    case MODE_BOOTP:
-   //_bootpon = 1;
-   tcp_config_file( NULL );
-   break;
+    //_bootpon = 1;
+    tcp_config_file( NULL );
+    //!!JdS: 2003/12/7 {
+    //  If a dial-up connection, initialize 'ppplogtime' via PPPlog().
+    //  This allows the "Time Online" status display to function.
+    //  Note that PPPlog() has been rewritten to avoid side-effects.
+    //!!JdS: 2003/12/7 }
+    if(dialer)
+     PPPlog();  //failure is tolerable here
+    break;
 
 #ifndef NOETHERPPP
    case MODE_PPP:
-   if(!PPPlog())
-   {
-    errppp();
-    return;
-   }
+    if(!PPPlog())
+    {
+     errppp();
+     return;
+    }
 #endif
   }
 

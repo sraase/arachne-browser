@@ -277,7 +277,9 @@ void removespacesfrompath(char *path)
 
 void AnalyseURL(char *str,struct Url *url,int frame)
 {
- char *strbuf;
+ //!!glennmcc: Apr 22, 2004
+ //added *su below to remove a space or a . from the start of the protocol
+ char *strbuf,*su;
  char *ptr,*strptr;
  struct Url *base;
  char isfile=0;
@@ -389,6 +391,18 @@ if(http_parameters.https2http)
    strcpy(url->protocol,"http");
 }
 //!!glennmcc: end
+
+//glennmcc: begin Apr 22, 2004
+//added to remove a space or a . from the start of the protocol
+//fixes this..... <a href=" http://www.cisnet.com/glennmcc/">My page</a>
+//and this..... <a href=".http://www.cisnet.com/glennmcc/">My page</a>
+//I have only seen this on the web a few times.
+//But every time I have seen it....... It's a royal POS :((
+su=strstr(url->protocol," ");if(su)su+=1;else su=url->protocol;
+if(su)strcpy(url->protocol,su);
+su=strstr(url->protocol,".");if(su)su+=1;else su=url->protocol;
+if(su)strcpy(url->protocol,su);
+//!glennmcc: end (POS fixed)<g>
 
   if(!strcmpi(url->protocol,"http"))
    url->port=80;

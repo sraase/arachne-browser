@@ -341,6 +341,18 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
   value=configvariable(&ARACHNEcfg,"SMTPlog",NULL);
   if(value && toupper(*value)=='Y') log=1;
 
+//!!glennmcc: begin Nov 09, 2003 --- for Authenticated SMTP
+  value=configvariable(&ARACHNEcfg,"UseAuthSMTP",NULL);
+  if(value && toupper(*value)=='Y') helo=2;
+//!!glennmcc: end
+
+//!!glennmcc: begin Apr 30, 2004 --- for Authenticated SMTP
+  value=configvariable(&ARACHNEcfg,"AuthSMTPusername",NULL);
+  if(value) makestr(url->user,value,STRINGSIZE-1);
+  value=configvariable(&ARACHNEcfg,"AuthSMTPpassword",NULL);
+  if(value) makestr(url->password,value,STRINGSIZE-1);
+//!!glennmcc: end
+
   if(!url->user[0])
   {
    value=configvariable(&ARACHNEcfg,"eMail",NULL);
@@ -367,6 +379,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
   //SMTP upload is performed here:
 
   if(!xsendmail(url,helo,log))
+
   {
    sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_smtp.ah",sharepath,GUIPATH);
    return GOTO_ERROR;

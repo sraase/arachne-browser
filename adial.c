@@ -12,81 +12,89 @@
 #define LOGLEN 1000
 
 //analyza PPP logu -> ziskani IP adresy
+//!!JdS: 2003/12/7 {
+//  Rewritten so that 'ppplogtime' can also be initialized when
+//  using BOOTP via a dial-up connection. See also ArachneTCPIP().
+//!!JdS: 2003/12/7 }
 int PPPlog(void)
 {
  int f,i,j;
  char *p;
+ struct ftime ft;
+ struct time d_time;
+ struct date d_date;
 
  f=sopen("PPP.LOG",O_RDONLY|O_TEXT,SH_COMPAT, S_IREAD);
- if(f>=0)
+ if (f>=0)
  {
-  long l=a_filelength(f);
-  int plen;
-  struct ftime ft;
-  struct time d_time;
-  struct date d_date;
-  char buf[LOGLEN];
-
-  if(l>LOGLEN)
-   l=LOGLEN;
-  lseek(f,-l,SEEK_END);
-  i=read(f,buf,(int)l);
-  buf[i]='\0';
-
-  //puts(buf);
-  j=0;
-  p=configvariable(&ARACHNEcfg,"IP_Grab",NULL);
-  if(!p)
-   p="IP address set to";
-  plen=strlen(p);
-  while(j<i)
+  if (ipmode==MODE_PPP)
   {
-   if(!strncmp(&buf[j],p,plen))
+   long l=a_filelength(f);
+   int plen;
+   char buf[LOGLEN];
+
+   if (l>LOGLEN)
+    l=LOGLEN;
+   lseek(f,-l,SEEK_END);
+   i=read(f,buf,(int)l);
+   buf[i]='\0';
+
+   //puts(buf);
+   j=0;
+   p=configvariable(&ARACHNEcfg,"IP_Grab",NULL);
+   if (!p)
+    p="IP address set to";
+   plen=strlen(p);
+   while(j<i)
    {
-    char tecka=0;
-
-    p=strchr(&buf[j],'\n');
-    if(p)*p='\0';
-
-    outs(&buf[j]);
-    i=0;
-    j+=plen;
-    while(buf[j]==' ')j++;
-    while(i<19 &&
-          (buf[j+i]>='0' && buf[j+i]<='9' ||
-           buf[j+i]=='.' && tecka<3))
+    if (!strncmp(&buf[j],p,plen))
     {
-     myIPstr[i]=buf[j+i];
-     if(myIPstr[i]=='.')
-      tecka++;
-     i++;
+     char tecka=0;
+
+     p=strchr(&buf[j],'\n');
+     if (p)
+      *p='\0';
+
+     outs(&buf[j]);
+     i=0;
+     j+=plen;
+     while(buf[j]==' ')j++;
+     while(i<19 &&
+	   (buf[j+i]>='0' && buf[j+i]<='9' ||
+	    buf[j+i]=='.' && tecka<3))
+     {
+      myIPstr[i]=buf[j+i];
+      if (myIPstr[i]=='.')
+       tecka++;
+      i++;
+     }
+     myIPstr[i]='\0';
+     my_ip_addr = resolve(myIPstr);
+     break;
     }
-    myIPstr[i]='\0';
-    my_ip_addr = resolve(myIPstr);
-
-    //determine time online:
-
-    if(my_ip_addr)
-    {
-     getftime(f, &ft);
-     d_date.da_year=ft.ft_year+1980;     /* current year */
-     d_date.da_day=ft.ft_day;     /* day of the month */
-     d_date.da_mon=ft.ft_month;     /* month (1 = Jan) */
-     d_time.ti_min=ft.ft_min;   /* minutes */
-     d_time.ti_hour=ft.ft_hour;  /* hours */
-     d_time.ti_hund=0;  /* hundredths of seconds */
-     d_time.ti_sec=ft.ft_tsec*2;   /* seconds */
-     //ppplogtime is by default zero...
-     ppplogtime = dostounix(&d_date, &d_time);
-    }
-    close(f);
-
-    return (1);
+    j++;
    }
-   j++;
   }
+
+  //determine time online:
+  if (my_ip_addr || ipmode==MODE_BOOTP)
+  {
+   getftime(f, &ft);
+   d_date.da_year=ft.ft_year+1980;     /* current year */
+   d_date.da_day=ft.ft_day;     /* day of the month */
+   d_date.da_mon=ft.ft_month;     /* month (1 = Jan) */
+   d_time.ti_min=ft.ft_min;   /* minutes */
+   d_time.ti_hour=ft.ft_hour;  /* hours */
+   d_time.ti_hund=0;  /* hundredths of seconds */
+   d_time.ti_sec=ft.ft_tsec*2;   /* seconds */
+   //ppplogtime is by default zero...
+   ppplogtime = dostounix(&d_date, &d_time);
+  }
+
   close(f);
+  return(my_ip_addr || ipmode==MODE_BOOTP);
  }
+
  //puts(MSG_NOIP);
  return(0);
 }

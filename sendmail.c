@@ -51,11 +51,17 @@ void cutaddress(char *string)
 #define BUFLEN 512
 extern int reset_detected;
 
-int xsendmail(struct Url *url,char helo, char logfile)
+int xsendmail(struct Url *url, char helo, char logfile)
+
 {
  longword host;
  long length;
  char str[128],pom[128];
+
+//!!glennmcc Apr 30, 2004 -- for AuthSMTP
+ char AuthSMTPusername[128]="",AuthSMTPpassword[128]="";
+//!!glennmcc: end
+
  char buffer[BUFLEN];
  struct ffblk ff;
  char filename[80];
@@ -138,7 +144,7 @@ int xsendmail(struct Url *url,char helo, char logfile)
   write(log,"\r\n",2);
  }
 
- if(helo)
+ if(helo!=0)
  {
   //HELO protocol
   char *mydomain=strchr(url->user,'@');
@@ -146,6 +152,113 @@ int xsendmail(struct Url *url,char helo, char logfile)
    mydomain++; // xx@->yyy
   else
    mydomain=url->user;
+
+//!!glennmcc: begin Nov 09, 2003 --- EHLO == Authenticated SMTP
+//finally finished it on Apr 30, 2004 ;-)
+if(helo==2)
+{
+  sprintf( str, "EHLO %s", mydomain);
+  outs(str);
+  if(log!=-1)
+  {
+   write(log,str,strlen(str));
+   write(log,"\r\n",2);
+  }
+  sock_puts(socket,(unsigned char *)str);
+
+
+  do
+  {
+   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
+		    &status );		//SDL
+   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
+   outs(buffer);
+   if(log!=-1)
+   {
+    write(log,buffer,strlen(buffer));
+    write(log,"\r\n",2);
+   }
+   if ( *buffer != '2' ) goto quit;
+  }
+  while(buffer[3]=='-'); //continued message!
+
+  sprintf( str, "AUTH LOGIN");
+  outs(str);
+  if(log!=-1)
+  {
+   write(log,str,strlen(str));
+   write(log,"\r\n",2);
+  }
+  sock_puts(socket,(unsigned char *)str);
+
+  do
+  {
+   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
+		    &status );		//SDL
+   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
+   outs(buffer);
+   if(log!=-1)
+   {
+    write(log,buffer,strlen(buffer));
+    write(log,"\r\n",2);
+   }
+   if ( *buffer != '3' ) goto quit;
+  }
+  while(buffer[3]=='-'); //continued message!
+
+  base64code((unsigned char *)url->user,AuthSMTPusername);
+  sprintf( str, AuthSMTPusername);
+  outs(str);
+  if(log!=-1)
+  {
+   write(log,str,strlen(str));
+   write(log,"\r\n",2);
+  }
+  sock_puts(socket,(unsigned char *)str);
+
+  do
+  {
+   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
+		    &status );		//SDL
+   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
+   outs(buffer);
+   if(log!=-1)
+   {
+    write(log,buffer,strlen(buffer));
+    write(log,"\r\n",2);
+   }
+   if ( *buffer != '3' ) goto quit;
+  }
+  while(buffer[3]=='-'); //continued message!
+
+  base64code((unsigned char *)url->password,AuthSMTPpassword);
+  sprintf( str, AuthSMTPpassword);
+  outs(str);
+  if(log!=-1)
+  {
+   write(log,str,strlen(str));
+   write(log,"\r\n",2);
+  }
+  sock_puts(socket,(unsigned char *)str);
+
+  do
+  {
+   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
+		    &status );		//SDL
+   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
+   outs(buffer);
+   if(log!=-1)
+   {
+    write(log,buffer,strlen(buffer));
+    write(log,"\r\n",2);
+   }
+   if ( *buffer != '2' ) goto quit;
+  }
+  while(buffer[3]=='-'); //continued message!
+}
+else //begin else HELO
+{
+//!!glennmcc: end
 
   sprintf( str, "HELO %s", mydomain);
   outs(str);
@@ -171,6 +284,8 @@ int xsendmail(struct Url *url,char helo, char logfile)
   }
   while(buffer[3]=='-'); //continued message!
 
+}//!!glennmcc: end of else HELO
+
  }
 
  //do for all messages
@@ -190,7 +305,7 @@ int xsendmail(struct Url *url,char helo, char logfile)
    do
    {
     sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
- 		    &status );		//SDL
+		    &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
     if(log!=-1)

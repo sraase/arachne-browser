@@ -1,15 +1,16 @@
 
 //(c)1998 xChaos software
 
-#define URLSIZE 512
+#define URLSIZE 512 //(GPL version)
+//#define URLSIZE 480 //(UE version)
 #define MAXPALMIX 20
 
 struct picinfo
 {
  char URL[URLSIZE]; //url souboru s obrazkem
  char filename[80]; //jmeno souboru na lokalnim disku:
-                    //prazdne - je treba analyzovat URL
-                    //NUL - obrazek neni dostupny
+		    //prazdne - je treba analyzovat URL
+		    //NUL - obrazek neni dostupny
  char alt[80];      //alternativni popis, pokud obrazek neni v pameti
  int from_x,from_y; //odkud kreslit na _obrazovce_
  int pic_x,pic_y;   //odkud kreslit v ramci obrazku (v souradnicich _obrazovky_)
@@ -21,7 +22,7 @@ struct picinfo
  char palismap;     //paleta je pole indexu barev primo na obrazovce
  unsigned char pal[768];     //data palety
  int  npal;         //if palonly:     delka vracene palety
-                    //if not palonly: kolik barev smis zabrat
+		    //if not palonly: kolik barev smis zabrat
  char is_background;//ma obrazek vyplnit pozadi ? (pokud se bude kreslit)
  char is_animation; //je GIF animovany ?
  char sequence;     //ktery frame animovaneho gifu kreslit ?

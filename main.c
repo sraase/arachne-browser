@@ -320,7 +320,15 @@ IveGotNewUrl:
     char text[IE_MAXLEN+2];
 
 #ifndef NOTCPIP
-    if(user_interface.autodial && !httpstub && !GLOBAL_justrestarted)
+//!!glennmcc: May 6, 2004
+// added '&& !strstr(GLOBAL.location,"edit:")' to fix the bug of dialing
+// when a local file is edited with F4 and an 'external editor'
+// while 'offline' and Autodial is set to yes
+   if(user_interface.autodial && !httpstub
+     && !GLOBAL_justrestarted && !strstr(GLOBAL.location,"edit:"))
+   //status!=LOCAL) //1st attempt to fix completly disabled autodial :(
+//!!glennmcc: end
+
     {
      add2history(GLOBAL.location);
      strcpy(GLOBAL.location,"arachne:dialer");

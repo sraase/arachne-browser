@@ -763,6 +763,16 @@ void configure_user_interface(void)
   http_parameters.ignorebasehref=0;
 //!!glennmcc: end
 
+//!!glennmcc: begin Nov 09, 2003
+// added to optionally use 'auithenticated SMTP'
+// (defaults to No if "UseAuthSMTP Yes" line is not in Arachne.cfg)
+ value=configvariable(&ARACHNEcfg,"UseAuthSMTP",NULL);
+ if(value && toupper(*value=='Y'))
+  http_parameters.useauthsmtp=1;
+ else
+  http_parameters.useauthsmtp=0;
+//!!glennmcc: end
+
 }
 #endif
 #endif

@@ -121,7 +121,10 @@ int XCHdrawBMP(struct picinfo *bmp)
  if(type==4)
  {
   k=bmp->size_x%8;
-  linebytes=bmp->size_x/2;
+//!!glennmcc: May 07, 2004 -- Michal Tyc pointed out this error in rounding
+//which causes some BMPs to be 'skewed' when displayed
+  linebytes=(bmp->size_x+k)/2;
+//  linebytes=bmp->size_x/2;
  }
  else if(type==8)
  {

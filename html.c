@@ -2459,7 +2459,7 @@ knowsize:
         AnalyseURL(tagarg,&url,p->currentframe);
         url2str(&url,img->URL);
         init_picinfo(img);
-        img->URL[URLSIZE-1]='\0';
+	img->URL[URLSIZE-1]='\0';
        }
 
       if(getvar("HEIGHT",&tagarg) && yspan==1)

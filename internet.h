@@ -57,13 +57,19 @@ struct Http_parameters
 // added to optionally "ignore" <script> tag
 // (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
 char ignorejs;
-//!!glennmcc
+//!!glennmcc: end
 
 //!!glennmcc: begin July 14, 2003
 // added to optionally "ignore" <base href=> tag
 // (defaults to No if "IgnoreBaseHref Yes" line is not in Arachne.cfg)
 char ignorebasehref;
-//!!glennmcc
+//!!glennmcc: end
+
+//!!glennmcc: begin Nov 09, 2003
+// added to optionally use 'authenticated SMTP'
+// (defaults to No if "UseAuthSMTP Yes" line is not in Arachne.cfg)
+char useauthsmtp;
+//!!glennmcc: end
 
 };
 

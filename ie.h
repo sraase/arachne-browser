@@ -5,8 +5,8 @@
 // ========================================================================
 
 //!!glennmcc: Dec 10, 2002 --- increased to 800 for really looooonnnnggg cookies ;-)
-#define IE_MAXLEN 800  //to handle longer cookies
-//#define IE_MAXLEN 600  //to handle longer cookies
+#define IE_MAXLEN 800  //to handle longer cookies (GPL version)
+//#define IE_MAXLEN 600  //to handle longer cookies (UE version)
 #define IE_MAXLINES fajl->maxlines//!!10000 //32000
 #define IE_NULL 1023
 #define X_NULL IE_NULL
@@ -26,8 +26,8 @@
 #endif
 #else
 //!!glennmcc: Dec 09, 2002 --- increased to 33000u for really looooonnnnggg cookies ;-)
-#define IE_MAXSWAPLEN 33000u
-//#define IE_MAXSWAPLEN 28000u
+#define IE_MAXSWAPLEN 33000u //(GPL version)
+//#define IE_MAXSWAPLEN 28000u //(UE version)
 #endif
 #define XSWAP unsigned
 #endif //POSIX

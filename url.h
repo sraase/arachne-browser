@@ -8,7 +8,8 @@
 #ifndef __URL_H
 #define __URL_H
 
-#define URLSIZE 512
+#define URLSIZE 512 //(GPL version)
+//#define URLSIZE 480 //(UE version)
 #define PROTOCOLSIZE 11
 #define STRINGSIZE 48
 #define PASSWORDSIZE 16
