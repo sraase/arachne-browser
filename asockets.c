@@ -58,7 +58,6 @@ longword resolve_fn ( char *hostname, sockfunct_t fn )
    return 0;
   }
  }
-
  if(host==0)
  {
   long addr=inet_addr(hostname);
@@ -110,7 +109,7 @@ longword resolve_fn ( char *hostname, sockfunct_t fn )
   {
 #if defined (LINUX)
 // it is not really necessary to kill threads... it is safer...
-//   pthread_kill(thread,9);
+   pthread_cancel(thread);
 #elif defined (CLEMENTINE)
    destroythread (tid);
 #endif

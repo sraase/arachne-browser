@@ -3,14 +3,6 @@
 
 extern char graphics;
 
-/*
-#ifdef CALDERA
-#include "link.h"
-
-extern int panelcolour;
-extern int paneltextcolour;
-#endif // CALDERA
-*/
 void outch( char ch )          /* print character to stdio */
 {
 #ifdef POSIX
@@ -21,7 +13,6 @@ void outch( char ch )          /* print character to stdio */
 }
 extern char lasttime[32];
 
-void Box3D(int x1,int y1,int x2,int y2);
 void outs( char far *s)        /* print a ASCIIZ string to stdio */
 {
  if(fullscreen)

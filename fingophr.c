@@ -24,7 +24,6 @@ void xChLogoTICK(char Style); // animace loga
 void xChLogo(char n);                  // vykresleni prazdneho loga
 int  GUITICK(void);            // prekresleni mysi, vstup z klavesy, etc.
 void memerr(void);
-void get_extension(char *mime, char *ext);
 extern struct GLOBAL_FLAG GLOBAL;
 
 extern char tcpip;

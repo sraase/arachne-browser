@@ -21,7 +21,11 @@ int TcpIdleFunc(void)
 void timestr(char *str)
 {
 #ifdef POSIX
- strcpy(str,"00:00:00") ; //later...
+  time_t t=time(NULL);
+  struct tm *gt=gmtime(&t);
+
+ sprintf(str,"%2d:%02d:%02d",
+   gt->tm_hour, gt->tm_min, gt->tm_sec );
 #else
  struct  time t;
 
@@ -155,7 +159,7 @@ void MemInfoLine(char *text1,char *text2,int color,int *y)
  x_setcolor(color);
  x_settextjusty(2,2);
  x_text_ib(x_maxx()-4,*y,(unsigned char *)text2);
- *y+=fonty(0,NORMAL)-1;
+ *y+=fonty(0,NORMAL);
  x_settextjusty(0,2);        // vzdycky psat pismo od leveho horniho rohu
 }
 
@@ -165,7 +169,7 @@ int endvtoolbar(void)
   return 72;
  else
  if(x_maxy()>600 || x_maxx()<640 || arachne.GUIstyle)
-  return x_maxy()-14*(fonty(0,NORMAL)-1)-24;
+  return x_maxy()-14*fonty(0,NORMAL)-24;
  else
   return 472;
 }

@@ -156,6 +156,8 @@ void drawatom(struct HTMLrecord *atom,
     image->hPicInfo=image_xswapadr;
     if(image->filename[0] && !cgamode && !ignoreimages)
     {
+     char *ext=strrchr(image->filename,'.');
+
      image->from_x=image->pic_x=x0+screen_x+border;
      image->from_y=image->pic_y=(int)(y0+screen_y)+border;
      if(image->pic_x<screen_x+1)
@@ -163,7 +165,9 @@ void drawatom(struct HTMLrecord *atom,
      if(image->pic_y<screen_y+1)
       image->pic_y=screen_y+1;
 
-     if(!strstr(image->filename,".IKN") && !strstr(image->filename,".ikn"))
+     //======================================================================
+     if(!ext || strcmpi(ext,".ikn")) //..... not Arachne icon file...
+     //======================================================================
      {
       //kvuli animaci
       image->html_x=atomx+border;
@@ -203,14 +207,9 @@ void drawatom(struct HTMLrecord *atom,
       }
 
      image->IsInXms=0;
-#ifdef CALDERA
-      if(drawGIF(image,0)!=1)
-#else
-//      printf("[%s",image->filename);
-      if(drawGIF(image)!=1)
-#endif // CALDERA
+
+      if(drawanyimage(image)!=1)
       {
-//       printf("]");
        if(!strstr((char *)strlwr(image->filename),".jpg"))
         back=10; //cerveny ramecek
       }
@@ -227,7 +226,9 @@ void drawatom(struct HTMLrecord *atom,
        return;
       }
      }
-     else
+     //======================================================================
+     else //Arachne icon file - special case...
+     //======================================================================
      {
       if(image->from_x>=screen_x && image->from_x+image->size_x<screen_x+draw_x &&
          image->from_y>=screen_y && image->from_y+image->size_y<screen_y+draw_y)
@@ -466,47 +467,51 @@ void drawatom(struct HTMLrecord *atom,
      char vidimscroll=0;
      memcpy(&tmpeditor,editorptr,sizeof(struct ib_editor));
 
-     if(tmpeditor.lines>2*(y2-y1-4)/fonty(OPTIONFONT,0))
+     if(user_interface.scrollbarsize>3)
      {
-      struct ScrollBar scroll;
-      char resetstyle=0;
-
-      if(!user_interface.scrollbarstyle)
+      if(tmpeditor.lines>2*(y2-y1-4)/fonty(OPTIONFONT,0))
       {
-       user_interface.scrollbarstyle='N';
-       resetstyle=1;
-      }
-      scroll.xvisible=0;
-      scroll.yvisible=1;
-      ScrollInit(&scroll,
-                 (int)(x2-x1-user_interface.scrollbarsize-6),
-                 (int)(y2-y1-8),
-                 (int)(y2-y1-8),
-                 (int)(screen_x+x1+3),
-                 (int)(screen_y+y1+3),1,1);
-      ScrollButtons(&scroll);
-      if(scroll.scrollbarstyle)
-       vidimscroll=1;
-      if(resetstyle)
-       user_interface.scrollbarstyle=0;
-     }
+       struct ScrollBar scroll;
+       char resetstyle=0;
 
-     //2*40+~sizeof scratch.. grrr, constant value :(
-     if(x2>x1+user_interface.scrollbarsize && (/*y2-y1>100 || vadem*/ !vidimscroll))
-     {
-#ifdef CUSTOMER
-      x_setcolor(15);
-      x_line((int)(screen_x+x2-user_interface.scrollbarsize/2),(int)(screen_y+y1+14),
-             (int)(screen_x+x2-3),(int)(screen_y+y1+4));
-      x_setcolor(8);
-      x_line((int)(screen_x+x2-user_interface.scrollbarsize+3),(int)(screen_y+y1+4),
-             (int)(screen_x+x2-3),(int)(screen_y+y1+4));
-#else
-      Scratch3D((int)(screen_x+x2-user_interface.scrollbarsize+3),
-                (int)(screen_y+y1+(y2-y1)/2-1),
-                (int)(screen_x+x2-3));
-#endif
-     }
+       if(!user_interface.scrollbarstyle)
+       {
+        user_interface.scrollbarstyle='N';
+        resetstyle=1;
+       }
+
+       scroll.xvisible=0;
+       scroll.yvisible=1;
+       ScrollInit(&scroll,
+                  (int)(x2-x1-user_interface.scrollbarsize-6),
+                  (int)(y2-y1-8),
+                  (int)(y2-y1-8),
+                  (int)(screen_x+x1+3),
+                  (int)(screen_y+y1+3),1,1);
+       ScrollButtons(&scroll);
+       if(scroll.scrollbarstyle)
+        vidimscroll=1;
+       if(resetstyle)
+        user_interface.scrollbarstyle=0;
+      }
+
+      //2*40+~sizeof scratch.. grrr, constant value :(
+      if(x2>x1+user_interface.scrollbarsize && !vidimscroll)
+      {
+ #ifdef CUSTOMER
+       x_setcolor(15);
+       x_line((int)(screen_x+x2-user_interface.scrollbarsize/2),(int)(screen_y+y1+14),
+              (int)(screen_x+x2-3),(int)(screen_y+y1+4));
+       x_setcolor(8);
+       x_line((int)(screen_x+x2-user_interface.scrollbarsize+3),(int)(screen_y+y1+4),
+              (int)(screen_x+x2-3),(int)(screen_y+y1+4));
+ #else
+       Scratch3D((int)(screen_x+x2-user_interface.scrollbarsize+3),
+                 (int)(screen_y+y1+(y2-y1)/2-1),
+                 (int)(screen_x+x2-3));
+ #endif
+      }
+     }//end if invisible scrollbars...
 
      if(y2-y1<2*fonty(OPTIONFONT,0))
      {
@@ -517,7 +522,7 @@ void drawatom(struct HTMLrecord *atom,
      else
      {
       int l=tmpeditor.zoomy;
-      while(y1<y2-fonty(OPTIONFONT,0) && l<tmpeditor.lines)
+      while(y1<y2-fonty(OPTIONFONT,0)-4 && l<tmpeditor.lines)
       {
        putoptionline((int)(screen_x+x1+2),(int)(screen_y+y1+3),
                      x2-x1-user_interface.scrollbarsize,
@@ -1115,6 +1120,9 @@ void redrawHTML(char nomsg, char virt)
  XAnimateGifs();
 #endif
  mouseon();
+#ifdef GGI
+ Smart_ggiFlush();
+#endif
 }
 
 //===========================================================================
@@ -1177,11 +1185,7 @@ void html_background(char whichframe,
      }
 #endif
 
-#ifdef CALDERA
-     if(drawGIF(background,1)==1) // Ignore animation
-#else
-     if(drawGIF(background)==1)
-#endif // CALDERA
+     if(drawanyimage(background)==1)
      {
       farfree(background);
       return;

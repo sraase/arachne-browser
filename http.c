@@ -395,10 +395,7 @@ Host: %s%s\r\n\
 
    post_aborted:
    if(GLOBAL.gotolocation || GLOBAL.abort)
-   {
-    buf[0]='\0';
     goto abort;
-   }
 #endif
   }//endif posting querystring...
  }//endif tcpip
@@ -510,7 +507,9 @@ Host: %s%s\r\n\
    FD_SET (socknum, &efds);
    select (socknum+1, &rfds, NULL, &efds, &tv);
 
-   if (FD_ISSET (socknum, &efds)) {
+   
+   if (FD_ISSET (socknum, &efds) && errno!=EINTR) 
+   {
      outs(MSG_CLOSED);
      return 0;
    }
@@ -519,7 +518,7 @@ Host: %s%s\r\n\
    if(count<0)
    {
     if (errno != EAGAIN) {
-       outs(MSG_CLOSED);
+           outs(MSG_CLOSED);
        return 0;
     }
     else count = 0;

@@ -209,7 +209,7 @@ char externalprotocol(char *protocol,char *command)
 
  sprintf(str,"external/%s",protocol);
  ext[0] = '\0';
- return call_plugin(str, command, ext);
+ return search_mime_cfg(str, ext, command);
 }
 
 // Piiiiiiipnutiiiiiii =======================================
@@ -286,6 +286,19 @@ long localdiskspace(void)
 }
 #endif
 
+int paranoid_strncpy(char *dest,char *src,int max)
+{
+ int count=0;
+ while (count<max && *src)
+ {
+  if(!strchr("|;&>`\'\"",*src))
+   dest[count++]=*src;
+  src++;
+ }
+ dest[count]='\0';
+ return count;
+}
+
 //make cmd according to MIME.CFG:
 
 int make_cmd(char *in, char *out, char *url, char *computer, char *document, char *infile, char *outfile)
@@ -336,12 +349,11 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
    switch(toupper(*in))
    {
     case '1':
-    strcpy(out,infile);
-    out+=strlen(infile)-1;
+    out+=paranoid_strncpy(out,infile,80)-1;
     break;
     case '2':
-    strcpy(out,outfile);
-    out+=strlen(outfile)-1;
+    
+    out+=paranoid_strncpy(out,outfile,80)-1;
     break;
     case 'C':
     strcpy(out,HTTPcache.filename);
@@ -354,12 +366,10 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
     ie_savef(&history);
     break;
     case 'P':
-    strcpy(out,computer);
-    out+=strlen(computer)-1;
+    out+=paranoid_strncpy(out,computer,STRINGSIZE)-1;
     break;
     case 'D':
-    strcpy(out,document);
-    out+=strlen(document)-1;
+    out+=paranoid_strncpy(out,document,STRINGSIZE)-1;
     break;
     case 'I':
     strcpy(out,myIPstr);
@@ -380,8 +390,7 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
       {
        int l=strlen(pom);
        if(l>80)l=80;
-       strncpy(out,pom,l);
-       out+=l-1;
+       out+=paranoid_strncpy(out,pom,l)-1;
       }
       else
       {
@@ -403,8 +412,7 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
     }
     break;
     case 'U':
-    strcpy(out,url);
-    out+=strlen(url)-1;
+    out+=paranoid_strncpy(out,url,80)-1;
     break;
     case 'R':
     {
@@ -418,8 +426,10 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
     if(!user_interface.cache2temp)
      goto a;
     {
-     char temp[80];
+     char temp[80]="\0";
      tempinit(temp);
+     if(temp[0]=='\0')
+      goto a;
      strcpy(out,temp);
      out+=strlen(temp)-1;
     }

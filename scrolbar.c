@@ -1,7 +1,7 @@
 
 // ========================================================================
-// xChaos ScrollBar library - xChaos/Windows/NextStep style scrollbars !
-// (c)1997 xChaos software
+// Arachne Labs ScrollBar library - multiple style scrollbars
+// (c)1997-2000 Arachne Labs (patched by Bernie)
 // ========================================================================
 
 #include "scrolbar.h"
@@ -13,15 +13,15 @@
 // Note: this library doesn't care about turning mouse on/off
 
 void ScrollInit(struct ScrollBar *scroll,
-                int draw_x,
+		int draw_x,
                 int draw_y,
                 int max_y,
-                int xtop, int ytop, int total_x, long total_y)
+		int xtop, int ytop, int total_x, long total_y)
 {
-#ifdef CALDERA
- if(user_interface.scrollbarstyle==NO_SCROLL_BARS)
-  return;
-#endif // CALDERA
+ //!!Bernie:begin 00-07-09
+ scroll->max_xscrsz=draw_x;
+ scroll->max_yscrsz=max_y;
+//!!Bernie:end
  scroll->xsize=draw_x;
  scroll->ysize=draw_y;
  scroll->ymax=max_y;
@@ -34,64 +34,49 @@ void ScrollInit(struct ScrollBar *scroll,
  scroll->onscrolly=0;
 
  if(scroll->ymax>48 && (scroll->xsize>48 ||! scroll->xvisible)) /*40+4*/
-  scroll->scrollbarstyle=user_interface.scrollbarstyle;
+   scroll->scrollbarstyle=user_interface.scrollbarstyle;
  else
   scroll->scrollbarstyle='\0';
 
  if(scroll->scrollbarstyle)
  {
-  scroll->max_xscrsz=draw_x-40;
-  scroll->max_yscrsz=max_y-40;
+  scroll->max_xscrsz-=40;
+  scroll->max_yscrsz-=40;
+
+  scroll->x_decrease_gap=scroll->xtop;
+  scroll->y_decrease_gap=scroll->ytop;
+  scroll->x_increase_gap=scroll->xtop+20;
+  scroll->y_increase_gap=scroll->ytop+20;
 
   if(scroll->scrollbarstyle=='W')
   {
-   scroll->x_decrease_gap=scroll->xtop;
-   scroll->x_increase_gap=scroll->xtop+scroll->max_xscrsz+22;
-   scroll->y_decrease_gap=scroll->ytop;
-   scroll->y_increase_gap=scroll->ytop+scroll->max_yscrsz+23;
+   scroll->x_increase_gap+=scroll->max_xscrsz+2;
+   scroll->y_increase_gap+=scroll->max_yscrsz+3;
    scroll->gap=20;
   }
-  else
-  if(scroll->scrollbarstyle=='N')
-  {
-   scroll->x_decrease_gap=scroll->xtop;
-   scroll->x_increase_gap=scroll->xtop+20;
-   scroll->y_decrease_gap=scroll->ytop;
-   scroll->y_increase_gap=scroll->ytop+20;
+  else if(scroll->scrollbarstyle=='N')
    scroll->gap=39;
-  }
   else //experimental
   {
-   scroll->x_decrease_gap=scroll->xtop+scroll->max_xscrsz+2;
-   scroll->x_increase_gap=scroll->xtop+scroll->max_xscrsz+22;
-   scroll->y_decrease_gap=scroll->ytop+scroll->max_yscrsz+3;
-   scroll->y_increase_gap=scroll->ytop+scroll->max_yscrsz+23;
+   scroll->x_decrease_gap+=scroll->max_xscrsz+2;
+   scroll->x_increase_gap+=scroll->max_xscrsz+2;
+   scroll->y_decrease_gap+=scroll->max_yscrsz+3;
+   scroll->y_increase_gap+=scroll->max_yscrsz+3;
   }
  }
- else
- {
-  scroll->max_xscrsz=draw_x;
-  scroll->max_yscrsz=max_y;
- }//endif
+//!!Bernie:end
 }
 
 
 void ScrollButtons(struct ScrollBar *scroll)
 {
-/*
-#ifdef CALDERA
- if(user_interface.scrollbarstyle==NO_SCROLL_BARS)
+ if(user_interface.scrollbarstyle == 'C') //C = Clarence ;)
   return;
-#endif // CALDERA*/
+
  if(!scroll->scrollbarstyle || !scroll->yvisible)
   return;
  else
  {
-/*
-#ifdef HICOLOR
-  if(xg_256 == MM_Hic) initpalette();
-#endif
-*/
   //arrow up
   Box3Dv(scroll->xtop+scroll->xsize+1,scroll->y_decrease_gap,
         scroll->xtop+scroll->xsize+user_interface.scrollbarsize,scroll->y_decrease_gap+18);
@@ -136,10 +121,10 @@ void ScrollButtons(struct ScrollBar *scroll)
         scroll->x_increase_gap+18,scroll->ytop+scroll->ysize+user_interface.scrollbarsize);
   x_setcolor(15);
   x_line(scroll->x_increase_gap+14,scroll->ytop+scroll->ysize+user_interface.scrollbarsize/2,
-         scroll->x_increase_gap+4,scroll->ytop+scroll->ysize+user_interface.scrollbarsize-3);
+	 scroll->x_increase_gap+4,scroll->ytop+scroll->ysize+user_interface.scrollbarsize-3);
   x_setcolor(8);
   x_line(scroll->x_increase_gap+4,scroll->ytop+scroll->ysize+3 ,
-         scroll->x_increase_gap+4,scroll->ytop+scroll->ysize+user_interface.scrollbarsize-3);
+	 scroll->x_increase_gap+4,scroll->ytop+scroll->ysize+user_interface.scrollbarsize-3);
  }
 }
 
@@ -149,12 +134,9 @@ void ScrollDraw(struct ScrollBar *scroll,int fromx,long fromy)
  long pom;
  int zblo=0;
 
-/*
-#ifdef CALDERA
-if(user_interface.scrollbarstyle==NO_SCROLL_BARS)
- return;
-#endif // CALDERA
-*/
+ if(user_interface.scrollbarstyle == 'C') //C = Clarence ;)
+  return;
+
  if(!scroll->onscrollx)
  {
   if(scroll->total_y<=scroll->ysize || scroll->total_y==0)
@@ -230,8 +212,13 @@ if(user_interface.scrollbarstyle==NO_SCROLL_BARS)
  }
 
  if(scroll->onscrolly)
+ {
+#ifdef GGI
+  Smart_ggiFlush();
+#endif 
   return;
-
+ }
+ 
  if(!scroll->xvisible || scroll->total_x<=scroll->xsize || scroll->total_x==0)
  {
   scroll->xscrsz=scroll->max_xscrsz;
@@ -300,6 +287,9 @@ if(user_interface.scrollbarstyle==NO_SCROLL_BARS)
   x_line(xxx+7,yend,
          xxx+7,ystart);
  }
+#ifdef GGI
+  Smart_ggiFlush();
+#endif 
 
 }
 
@@ -308,35 +298,30 @@ int OnScrollButtons(struct ScrollBar *scroll)
  if(scroll->scrollbarstyle &&
     !scroll->onscrollx && !scroll->onscrolly)//scroll buttons
  {
-  if(scroll->yvisible)
+  if(scroll->yvisible && mousex>scroll->xtop+scroll->xsize &&
+     mousex<scroll->xtop+scroll->xsize+user_interface.scrollbarsize)
   {
-   if (mousex>scroll->xtop+scroll->xsize &&
-       mousey>scroll->y_decrease_gap &&
-       mousex<scroll->xtop+scroll->xsize+user_interface.scrollbarsize &&
-       mousey<scroll->y_decrease_gap+18)
+   if(mousey>scroll->y_decrease_gap &&
+      mousey<scroll->y_decrease_gap+18)
     return 1;
 
-   if (mousex>scroll->xtop+scroll->xsize &&
-       mousey>scroll->y_increase_gap &&
-       mousex<scroll->xtop+scroll->xsize+user_interface.scrollbarsize &&
-       mousey<scroll->y_increase_gap+18)
+   if(mousey>scroll->y_increase_gap &&
+      mousey<scroll->y_increase_gap+18)
     return 2;
   }
 
-  if(scroll->xvisible)
+  if(scroll->xvisible && mousey>scroll->ytop+scroll->ysize &&
+     mousey<scroll->ytop+scroll->ysize+user_interface.scrollbarsize)
   {
-   if (mousex>scroll->x_decrease_gap &&
-       mousey>scroll->ytop+scroll->ysize &&
-       mousex<scroll->x_decrease_gap+18 &&
-       mousey<scroll->ytop+scroll->ysize+user_interface.scrollbarsize)
-   return 3;
+   if(mousex<scroll->x_decrease_gap+18 &&
+      mousex>scroll->x_decrease_gap)
+    return 3;
 
-   if (mousex>scroll->x_increase_gap &&
-       mousey>scroll->ytop+scroll->ysize  &&
-       mousex<scroll->x_increase_gap+18 &&
-       mousey<scroll->ytop+scroll->ysize+user_interface.scrollbarsize)
-   return 4;
+   if(mousex<scroll->x_increase_gap+18 &&
+      mousex>scroll->x_increase_gap)
+    return 4;
   }//endif
+ //!!Bernie:end
  }
  return 0;
 }
@@ -344,32 +329,26 @@ int OnScrollButtons(struct ScrollBar *scroll)
 // Black zone of scroll bar
 int OnBlackZone(struct ScrollBar *scroll)
 {
- if(mousex>scroll->xtop+scroll->xsize &&
-    mousey>scroll->ytop+scroll->gap &&
-    mousex<scroll->xtop+scroll->xsize+user_interface.scrollbarsize &&
-    mousey<scroll->ytop+scroll->yscr)
-  return 1;
 
- if(mousex>scroll->xtop+scroll->xsize &&
-    mousey>scroll->ytop+scroll->yscr+scroll->yscrsz &&
-    mousex<scroll->xtop+scroll->xsize+user_interface.scrollbarsize &&
-    mousey<scroll->ytop+scroll->gap+scroll->max_yscrsz)
-  return 2;
-
- if(scroll->xvisible)
+ if(mousex>scroll->xtop+scroll->xsize && mousex<scroll->xtop+scroll->xsize+user_interface.scrollbarsize)
  {
-  if(mousey>scroll->ytop+scroll->ysize &&
-     mousex>scroll->xtop+scroll->gap &&
-     mousey<scroll->ytop+scroll->ysize+user_interface.scrollbarsize &&
-     mousex<scroll->xtop+scroll->xscr)
+  if(mousey>scroll->ytop+scroll->gap && mousey<scroll->ytop+scroll->yscr)
+   return 1;
+  if(mousey>scroll->ytop+scroll->yscr+scroll->yscrsz &&
+     mousey<scroll->ytop+scroll->gap+scroll->max_yscrsz)
+   return 2;
+ }
+ if(scroll->xvisible && mousey>scroll->ytop+scroll->ysize &&
+    mousey<scroll->ytop+scroll->ysize+user_interface.scrollbarsize)
+ {
+  if(mousex>scroll->xtop+scroll->gap && mousex<scroll->xtop+scroll->xscr)
    return 3;
-
-  if(mousey>scroll->ytop+scroll->ysize &&
-     mousex>scroll->xtop+scroll->xscr+scroll->xscrsz &&
-     mousey<scroll->ytop+scroll->ysize+user_interface.scrollbarsize &&
+  if(mousex>scroll->xtop+scroll->xscr+scroll->xscrsz &&
      mousex<scroll->xtop+scroll->gap+scroll->max_xscrsz)
    return 4;
  }
+//!!Bernie:end
+
  return 0;
 }
 

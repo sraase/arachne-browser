@@ -7,19 +7,16 @@
 #include "arachne.h"
 #include "pckbrd.h"
 
-#ifdef   GGI
-#include <ggi/ggi.h>
-#else
+#ifndef GGI
 #include <vga.h>
 #include <vgagl.h>
 #include <termios.h>
+#include <pthread.h>
 #endif
+
+#define FOREVER 3600 //60min * 60sec == one hour == close enough to forever..
 
 //#define TXTDEBUG
-
-#ifdef GGI
-extern ggi_visual_t ggiVis;
-#endif
 
 /* Glue functions for Linux */
 
@@ -45,7 +42,16 @@ int SVGAx=799,SVGAy=599;
 // Interface functions: bioskey_init(), bioskey_close(), bioskey().
 
 #ifndef GGI
+//In SVGAlib, there is no need for screen flushing, but we need rather
+//sofisticated waitformouse and waitfor keyboard threads....
+
 struct termios old_termios;
+
+//int WaitForKey_pipeline[2];
+//int CancelWaitForKey_pipeline[2];
+int WaitForMouse_pipeline[2];
+int MouseWasUpdatedInThread=0;
+
 #endif
 
 void bioskey_init(void)
@@ -71,14 +77,54 @@ if (tcsetattr(STDIN_FILENO, TCSANOW, &new_termios) < 0)
  perror("tcsetattr failed");
 else
  printf("Console switched to raw input mode.\n");
+
+//errr, this shouldn't be really located here, but it is SVGAlib/waitfor
+//key related, so let's keep it here for now...
+
+/*
+ stupid implementation ;)
+ if(pipe(WaitForKey_pipeline)<0)
+ perror("pipe failed.\n");
+
+ if(pipe(CancelWaitForKey_pipeline)<0)
+ perror("pipe failed.\n");
+*/
+ 
+if(pipe(WaitForMouse_pipeline)<0)
+ perror("pipe failed.\n");
+
 #endif
 }
 
-int buffered=0;
+int buffered=0,modifiers=0;
 
 int bioskey(int cmd)
 {
 #ifdef GGI
+ struct timeval tv={0,0};
+
+ if(cmd==2)
+  return modifiers;
+
+ if (ggiEventPoll(ggiVis, emKey, &tv) > 0)
+ {
+  if(cmd==1)
+   return 1;
+  else
+  {
+   ggi_event ev;
+
+   ggiEventRead(ggiVis, &ev, emKey);
+    
+   modifiers=ev.key.modifiers;
+    
+   if (ev.any.type == evKeyPress || ev.any.type == evKeyRepeat)
+   {
+    return ev.key.sym;
+   }//endif
+  }
+ }
+
  return 0;
 #else
  fd_set	readset;
@@ -100,7 +146,7 @@ int bioskey(int cmd)
  FD_ZERO(&readset);
  FD_SET(0, &readset);
                            	
- if (select(1, &readset, NULL, NULL, &t) <= 0) 
+ if (select(STDIN_FILENO+1, &readset, NULL, NULL, &t) <= 0)
  {
   return 0;
  }
@@ -119,12 +165,12 @@ int bioskey(int cmd)
 *  which signals an ANSI key.
 */
 
- if (select(1, &readset, NULL, NULL, &t) <= 0) 
+ if (select(STDIN_FILENO+1, &readset, NULL, NULL, &t) <= 0)
  {
   usleep(10000l);  /* wait 1/100th of a second */
  }
 
-if (select(1, &readset, NULL, NULL, &t) <= 0) 
+if (select(STDIN_FILENO+1, &readset, NULL, NULL, &t) <= 0)
 {
 /* Timed out : must have been plain escape key */
  return (int)buf[0];
@@ -456,6 +502,9 @@ void x_yncurs(int on, int x, int y, int col)
 void x_cleardev(void)
 {
 #ifdef GGI
+ ggiSetGCForeground (ggiVis, ggi_getcolor (0));
+ ggiFillscreen(ggiVis);
+ ggiSetGCForeground (ggiVis, ggi_getcolor (xg_color));
 #else
  vga_clear();
 #endif
@@ -472,24 +521,6 @@ void x_pal_1(int n_pal, char *pal_1)
  memcpy(&xg_hipal[3*n_pal],pal_1,3);
  xg_hival[n_pal] = xh_RgbHiPal(xg_hipal[3*n_pal], xg_hipal[3*n_pal+1], xg_hipal[3*n_pal+2]);
 }
-
-/*
-int x_fnt_load(char *fnt_file, int num, int mod)
-{
- //load font file 
- return 1;
-}
-
-void x_defcurs(int *screen, int *cursor, int color)
-{
- //define cursor shape
-}
-
-void x_cursor(int x, int y)
-{
- //move mouse cursor to x,y
-}
-*/
 
 int x_rea_svga(char *path, char *g_jmeno, int *mod)
 {
@@ -602,6 +633,7 @@ int  g_NumAnim=0;       // number of animaged GIFs
 
 int  XInitAnimGIF(int XmsKby)
 {
+ return 0;
  //call once at start
 }
 
@@ -612,11 +644,13 @@ void XCloseAnimGIF(void)
 
 int  XResetAnimGif(void)
 {
+ return 0;
  // when redrawing page
 }
 
 int  XAnimateGifs(void)
 {
+ return 0;
  //called from loop to animage GIFs
 }        
 
@@ -634,15 +668,35 @@ void XSetAnim1(void)
 //mouse interface
 //---------------------------------------------------------------------------
 
+int xg_mousebutton=0;
+#ifdef GGI
+int xg_mouserange_xmin;
+int xg_mouserange_xmax;
+int xg_mouserange_ymin;
+int xg_mouserange_ymax;
+#endif
+
  //initialize mouse
 int ImouseIni( int xmin, int ymin, int xmax, int ymax,
 		int xstart, int ystart)
 {
 #ifdef GGI
+ xg_mouserange_xmin=xmin;
+ xg_mouserange_xmax=xmax;
+ xg_mouserange_ymin=ymin;
+ xg_mouserange_ymax=ymax;
  return 1;
 #else
  mouse_init("/dev/mouse",vga_getmousetype(),10);
- mouse_setscale(60);
+
+ {
+  int mscale=60;
+  char *ptr=configvariable(&ARACHNEcfg,"SVGAlib_MouseScale",NULL);
+  if(ptr)
+   mscale=atoi(ptr);
+  mouse_setscale(mscale);
+ }
+
  mouse_setxrange(xmin,xmax);
  mouse_setyrange(ymin,ymax);
  mouse_setposition(xstart,ystart);
@@ -650,16 +704,57 @@ int ImouseIni( int xmin, int ymin, int xmax, int ymax,
 #endif
 }
 
-int xg_mousebutton=0;
 
 //read mouse coordinates and return mouse buttons status 0,1,2,4...
+
+
 int ImouseRead( int *xcurs, int *ycurs)
 {
 #ifdef GGI
- return 0;
-#else
- if(mouse_update())
+ struct timeval tv={0,0};
+
+ while (ggiEventPoll(ggiVis, emPointer, &tv) > 0)
  {
+  ggi_event ev;
+  int oldbutton=xg_mousebutton;
+  
+  ggiEventRead(ggiVis, &ev, emPointer);
+
+  if (ev.any.type == evPtrButtonPress)
+   xg_mousebutton = ev.pbutton.button; 
+
+  if (ev.any.type == evPtrButtonRelease)
+   xg_mousebutton = 0;
+  
+  if (ev.any.type == evPtrRelative)
+  {
+   *xcurs += ev.pmove.x;
+   *ycurs += ev.pmove.y;
+  }
+
+  if (ev.any.type == evPtrAbsolute)
+  {
+   *xcurs = ev.pmove.x;
+   *ycurs = ev.pmove.y;
+  } 
+  if(*xcurs<xg_mouserange_xmin)
+   *xcurs=xg_mouserange_xmin;
+  if(*xcurs>xg_mouserange_xmax)
+   *xcurs=xg_mouserange_xmax;
+  if(*ycurs<xg_mouserange_ymin)
+   *ycurs=xg_mouserange_ymin;
+  if(*ycurs>xg_mouserange_ymax)
+   *ycurs=xg_mouserange_ymax;
+
+  if(xg_mousebutton!=oldbutton) //otherwise we would catch mouse release event on slow PCs...
+   return xg_mousebutton;
+ }//loop
+ return xg_mousebutton;
+
+#else
+ if(MouseWasUpdatedInThread || mouse_update())
+ {
+  MouseWasUpdatedInThread=0;
   xg_mousebutton=mouse_getbutton();
   *xcurs=mouse_getx();
   *ycurs=mouse_gety();
@@ -696,17 +791,208 @@ void ImouseSet( int xstart, int ystart)
 void ImouseWait(void)
 {
 #ifdef GGI
+ struct timeval forever={FOREVER,0};  //one hour is like forever, for most CPUs
+ ggiEventPoll(ggiVis, emPointer, &forever);
 #else
  int dummy;
  while (ImouseRead(&dummy,&dummy))
-#endif
   usleep(10000); //don't let it eat all CPU time...
+#endif
 }
 
 #ifdef GGI
 ggi_mode origMode;
+
+ggi_visual_t ggiVis;
+
+struct timeval tv_lastflush={0,0};
+int Forced_ggiFlush_request=0;
+int Smart_ggiFlush_maxusec=0;
+
+void Smart_ggiFlush(void)
+{
+ struct timeval tv_current; 
+
+ gettimeofday(&tv_current,NULL);
+
+ if(Smart_ggiFlush_maxusec==0)
+ {
+  char *ptr=configvariable(&ARACHNEcfg,"GGI_MaxFrameRate",NULL);
+  if(ptr)
+   Smart_ggiFlush_maxusec=atoi(ptr);
+  if(!ptr || Smart_ggiFlush_maxusec<=0 || Smart_ggiFlush_maxusec>100)
+    Smart_ggiFlush_maxusec=10;
+  Smart_ggiFlush_maxusec=1000000/ Smart_ggiFlush_maxusec;
+ }
+
+ if(tv_current.tv_sec!=tv_lastflush.tv_sec || 
+   tv_current.tv_usec-tv_lastflush.tv_usec>Smart_ggiFlush_maxusec)
+ {
+  ggiFlush(ggiVis);
+  tv_lastflush.tv_sec=tv_current.tv_sec;
+  tv_lastflush.tv_usec=tv_current.tv_usec;
+  Forced_ggiFlush_request=0;
+ }
+ else
+  Forced_ggiFlush_request=1;
+}
+
+void Forced_ggiFlush(void)
+{
+ tv_lastflush.tv_sec--; //force flush by modifying last flush date...
+ Smart_ggiFlush();
+}
+
+void IfRequested_ggiFlush(void)
+{
+ if(Forced_ggiFlush_request)
+  Forced_ggiFlush();
+}
+
+#else
+
+
+void WaitForMouse_thread(void)
+{
+ mouse_waitforupdate();
+ MouseWasUpdatedInThread=1;
+ write(WaitForMouse_pipeline[1],"!",1);
+}
+
+/* This worked, but it was stupid!!!
+
+void WaitForKey_thread(void)
+{
+ pthread_t mousethread;
+ int term_thread=0,waitpipes;
+ fd_set readset;
+ struct timeval forever={FOREVER,0};
+ struct timeval now={0,0};
+ char dummy[2];
+
+ FD_ZERO(&readset);
+ FD_SET(STDIN_FILENO, &readset);
+ FD_SET(WaitForMouse_pipeline[0], &readset);
+
+ if(select(max(WaitForMouse_pipeline[0],STDIN_FILENO)+1, &readset, NULL, NULL, &now)<=0)
+ {
+  if(pthread_create(&mousethread,NULL,WaitForMouse_thread,NULL)!=0)
+  {
+   printf("Can't create mouse thread!\n");
+   return;
+  }
+  term_thread=1;
+
+  FD_ZERO(&readset);
+  FD_SET(STDIN_FILENO, &readset);
+  FD_SET(WaitForMouse_pipeline[0], &readset);
+  FD_SET(CancelWaitForKey_pipeline[0], &readset);
+
+  waitpipes=max(WaitForMouse_pipeline[0],CancelWaitForKey_pipeline[0]);
+  select(max(waitpipes,STDIN_FILENO)+1, &readset, NULL, NULL, &forever);
+ }
+
+ if(FD_ISSET(WaitForMouse_pipeline[0],&readset))
+  read(WaitForMouse_pipeline[0],&dummy,1);
+
+ if(FD_ISSET(CancelWaitForKey_pipeline[0],&readset))
+  read(CancelWaitForKey_pipeline[0],&dummy,1);
+ else
+  write(WaitForKey_pipeline[1],"!",1);
+
+ if(term_thread)
+  pthread_cancel(mousethread);
+}
+*/
+
+
+
+
 #endif
 
+/*
+//---------------------------------------------------------------------------
+//This is the main CPU saving function in Arachne. It is not used at all in
+//DOS, in Linux/SVGAlib, Linux/GGI and others 
+//---------------------------------------------------------------------------
+*/
+
+void WaitForEvent(struct timeval *tv) //waits for user input or whatever...
+{
+ struct timeval forever={FOREVER,0};  //one hour is like forever, for most CPUs
+ if(!tv)
+  tv=&forever;
+#ifdef GGI
+ IfRequested_ggiFlush();
+ ggiEventPoll(ggiVis, emPointer | emKey, tv);
+#else //SVGALIB
+/* old version of event polling: 
+ {
+  struct timeval now={0,0};
+  pthread_t keythread;
+  int term_thread=0;
+  fd_set readset;
+  char dummy[2];
+
+  FD_ZERO(&readset);
+  FD_SET(WaitForKey_pipeline[0], &readset);
+  if(select(WaitForKey_pipeline[0]+1, &readset, NULL, NULL, &now)<=0)
+  {
+   if(pthread_create(&keythread,NULL,WaitForKey_thread,NULL)!=0)
+   {
+    printf("Can't create keyboard thread!\n");
+    return;
+   }
+   term_thread=1;
+
+   FD_ZERO(&readset);
+   FD_SET(WaitForKey_pipeline[0], &readset);
+   select(WaitForKey_pipeline[0]+1, &readset, NULL, NULL, tv);
+  }
+
+  if(FD_ISSET(WaitForKey_pipeline[0],&readset))
+  {
+   read(WaitForKey_pipeline[0],&dummy,1);
+  }
+  else if(term_thread)
+   write(CancelWaitForKey_pipeline[1],"!",1);
+ }
+*/
+ {
+  struct timeval now={0,0};
+  pthread_t mousethread;
+  int term_thread=0;
+  fd_set readset;
+  char dummy[2];
+
+  FD_ZERO(&readset);
+  FD_SET(WaitForMouse_pipeline[0], &readset);
+  FD_SET(STDIN_FILENO, &readset);
+  if(select(max(STDIN_FILENO,WaitForMouse_pipeline[0])+1, &readset, NULL, NULL, &now)<=0)
+  {
+   if(pthread_create(&mousethread,NULL,WaitForMouse_thread,NULL)!=0)
+   {
+    printf("Can't create mouse thread!\n");
+    return;
+   }
+   term_thread=1;
+
+   FD_ZERO(&readset);
+   FD_SET(WaitForMouse_pipeline[0], &readset);
+   FD_SET(STDIN_FILENO, &readset);
+   select(max(STDIN_FILENO,WaitForMouse_pipeline[0])+1, &readset, NULL, NULL, tv);
+  }
+
+  if(FD_ISSET(WaitForMouse_pipeline[0],&readset))
+   read(WaitForMouse_pipeline[0],&dummy,1);
+  else if(term_thread)
+   pthread_cancel(mousethread);
+ }
+
+#endif
+}
+
+/*
 //---------------------------------------------------------------------------
 // graphicsinit() is graphics initialization function.
 // argument will be string describing resolution 
@@ -714,6 +1000,7 @@ ggi_mode origMode;
 // accesses "private" variable xg_256 because public API for detecting HiColor
 // modes is missing.. 
 //---------------------------------------------------------------------------
+*/
 
 void graphicsinit(char *svgamode) //inicializace grafiky, mod dle X_LOPIF
 {
@@ -723,18 +1010,22 @@ const short cur[32] =
 	   0x0000, 0x6000, 0x7000, 0x3800, 0x1C00, 0x0E00, 0x0700, 0x0018,
 	   0x07EC, 0x07EE, 0x001E, 0x03EE, 0x03EE, 0x001E, 0x00EC, 0x0002 };
 
- graphics=1;
-
+ 
   xg_256=MM_Hic; //set Hicolor flag...
   initpalette();
   x_settextjusty(0,2);  // vzdycky psat pismo od leveho horniho rohu
+
 #ifdef GGI
+// printf("Initializing GGI visual target.\n");
  ggiVis = ggiOpen (NULL);
  ggiGetMode (ggiVis, &origMode);
  ggiSetSimpleMode (ggiVis, 800, 600, 1, GT_16BIT);
+ SVGAx=799;
+ SVGAy=599;
+ ggiAddFlags(ggiVis,GGIFLAG_ASYNC);
 #else
-
  strupr(svgamode);
+// printf("Console switched to graphics mode.\n");
  if(strstr(svgamode,".I"))
  {
   vga_setmode(G640x480x64K);
@@ -766,5 +1057,6 @@ const short cur[32] =
  gl_enableclipping();
 #endif
  x_defcurs( (short *)cur, (short *)&cur[16], 15); //myssii kursor
+ graphics=1;
 }
 

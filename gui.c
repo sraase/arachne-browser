@@ -67,6 +67,9 @@ mammys:
   SecondsSleeping=0l; //pro screensaver
   justmoved=1;
   kbmouse=0;
+#ifdef GGI
+  Smart_ggiFlush();
+#endif
  }
  else
  if(lx==mousex && ly==mousey && justmoved)
@@ -193,7 +196,7 @@ void percentbar(int prc)
    sprintf(msg,"%d%%",prc);
 
    x_setfill(0,7); //sediva
-   x_bar(PERCENTBAR_X-110,x_maxy()-13,PERCENTBAR_X-140,x_maxy()-2);
+   x_bar(PERCENTBAR_X-140,x_maxy()-13,PERCENTBAR_X-110,x_maxy()-2);
    x_text_ib(PERCENTBAR_X-110,x_maxy()-15,(unsigned char *)msg);
  }
 

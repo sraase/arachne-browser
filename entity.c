@@ -1,5 +1,7 @@
 
-// HTML/2.0 entities (defined in system/fontinfo.bin)
+// ===============================================================================
+// HTML/2.0 entities (defined in <fontpaht>/fontinfo.bin)
+// ===============================================================================
 
 #include "arachne.h"
 
@@ -11,7 +13,7 @@ unsigned char HTMLentity(char *name)
  if(!strcmpi(name,"lt"))
   return '<';
  else
- if(!strcmpi(name,"rt")||!strcmpi(name,"gt"))
+ if(!strcmpi(name,"gt"))
   return '>';
  else
  if(!strcmpi(name,"amp"))
@@ -40,6 +42,9 @@ unsigned char HTMLentity(char *name)
  if(!strcmpi(name,"sp"))
   return ' ';
  else
+ if(!strcmpi(name,"nbsp"))
+  return 160;
+ else
   return name[0]; // "Aacute" -> 'A'
 
 }
@@ -51,23 +56,22 @@ void entity2str(char *str)
 
  while(i<l)
  {
-  if(str[i]=='&')
+  if(str[i]=='&' && !(i<l && str[i+1]==' '))
   {
    ptr=&str[++i];
    while(i<l && str[i]!=';') i++;
    str[i++]='\0';
    str[j]=HTMLentity(ptr);
+   if((unsigned char)str[j]==160) //&nbsp;
+    str[j]=' ';
   }
   else
    str[j]=str[i++];
 
-  if((unsigned char)str[j]==160 && ascii160hack)
-   str[j]=' ';
   j++;
  }//loop
  str[j]='\0';
 }
-
 
 
   /*

@@ -5,6 +5,10 @@
 // ========================================================================
 
 #include "x_lopif.h"  // LOPIF header file
+#ifdef GGI
+#include <ggi/ggi.h>  //for ggiFlush();
+extern ggi_visual_t ggiVis;
+#endif
 
 //LOPIF mouse
  int ImouseIni( int xmin, int ymin, int xmax, int ymax,
@@ -21,11 +25,23 @@ void initpalette(void);
 
 //----------------------------------------------------------------------------
 //basic graphical functions
-void Box3D(int x1,int y1,int x2,int y2);
-void Box3Dh(int x1,int y1,int x2,int y2);
+//!!Bernie:begin 00-07-08 (actually 00-06-29 <g>)
+//void Box3D(int x1,int y1,int x2,int y2);
+//void Box3Dh(int x1,int y1,int x2,int y2);
+//void Box3Dv(int x1,int y1,int x2,int y2);
+//void Cell3D(int x1,int y1,int x2,int y2,int col);
+void colorBox(int x1,int y1,int x2,int y2,int c1,int c2,int c3);
+#define Box3D(x1,y1,x2,y2) colorBox(x1,y1,x2,y2,15,8,7)
+#define Box3Dh(x1,y1,x2,y2) Box3Dv(x1,y1,x2,y2)
+#ifdef HICOLOR
 void Box3Dv(int x1,int y1,int x2,int y2);
-//void Box3D1pix(int x1,int y1,int x2,int y2);
 void Cell3D(int x1,int y1,int x2,int y2,int col);
+#else
+#define Box3Dv(x1, y1, x2, y2) colorBox(x1, y1, x2, y2, 15, 8, 7)
+#define Cell3D(x1, y1, x2, y2, col) colorBox(x1, y1, x2, y2, 8, 15, col)
+#endif
+//!!Bernie:end
+
 void htmlfont(int fnum, char style);
 
 //----------------------------------------------------------------------------
@@ -75,8 +91,10 @@ void bigfonts_forbidden(void);
 
 void InitIcons(void);
 void DrawIcons(void);
+
 void DrawIconLater(char *iconame,int x0, int y0);
 void DrawIconNow(char *iconame,int x0, int y0);
+void Putikonx(int x0, int y0, char *iconame, char noswap);
 
 //----------------------------------------------------------------------------
 //Font info structure

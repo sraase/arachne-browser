@@ -68,15 +68,13 @@ void LinkUSEMAPs(void)
  }//loop
 }
 
-void USEMAParea(char basetarget)
+void USEMAParea(struct HTMLrecord *atom,char basetarget)
 {
  char target=findtarget(basetarget);
  unsigned arealink=IE_NULL; // "NOHREF"
  char shape=RECT;
  int *array,maxcoord=4,n=0;
  char *ptr,*comma,*tagarg;
- struct HTMLrecord HTMLatom;
-
 
  if(getvar("HREF",&tagarg))
  {
@@ -93,7 +91,7 @@ void USEMAParea(char basetarget)
   }
 
   //vyrobim si pointr na link, a od ted je vsechno link:
-  addatom(&HTMLatom,tagarg,strlen(tagarg),HREF,BOTTOM,target,0,IE_NULL,1);
+  addatom(atom,tagarg,strlen(tagarg),HREF,BOTTOM,target,0,IE_NULL,1);
   arealink=lastHTMLatom;
  }
 
@@ -144,7 +142,7 @@ void USEMAParea(char basetarget)
  array[n]=-1;
  array[n+1]=-1;
 
- addatom(&HTMLatom,array,sizeof(int)*(n+2),AREA,BOTTOM,shape,0,arealink,1);
+ addatom(atom,array,sizeof(int)*(n+2),AREA,BOTTOM,shape,0,arealink,1);
  farfree(array);
 
 }

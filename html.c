@@ -21,7 +21,8 @@ int renderHTML(char source,char forced_html, char printing)
  char param,entity;
  int vallen,txtlen,entilen;
  char str[80];
- char uvozovky,apostrof,argument,comment,nolt,invisibletag,argspc,basetarget;
+ char uvozovky,apostrof,argument,comment,nolt,invisibletag,argspc;
+ int basetarget;
  int x;
  long y,currentbuttony;
  long tdheight=0;
@@ -32,7 +33,8 @@ int renderHTML(char source,char forced_html, char printing)
  char pre,charsize,nobr;
  char lastspace,lastentity,alreadyframe,notrefreshed;
  long lastredraw,lastredrawy;
- char nownobr,nbsp,boom,tabledepth,istd;
+ char nownobr,nbsp,boom,istd;
+ int tabledepth;
  int orderedlist[MAXTABLEDEPTH+2];  //0..unordered, >0...num, <0...nolist
  int nobr_x_anchor,currentbuttonx;
  struct Url url;
@@ -43,11 +45,11 @@ int renderHTML(char source,char forced_html, char printing)
  long clearleftstack[MAXTABLEDEPTH+2],clearrightstack[MAXTABLEDEPTH+2];
  long maxsumstack[MAXTABLEDEPTH+2];
  unsigned tableptrstack[MAXTABLEDEPTH+2];
- char fontstackdepth[MAXTABLEDEPTH+2];
- char centerdepth[MAXTABLEDEPTH+2];
+ int fontstackdepth[MAXTABLEDEPTH+2];
+ int centerdepth[MAXTABLEDEPTH+2];
  int tdwidth[MAXTABLEDEPTH+2];
- char emptyframeset;
- char previousframe;
+ int emptyframeset;
+ int previousframe;
  char noresize;
  long timer;
  int currentnobr=0;
@@ -64,16 +66,15 @@ int renderHTML(char source,char forced_html, char printing)
        currenttable[MAXTABLEDEPTH+2],currentcell[MAXTABLEDEPTH+2];
 
 
- // ---------------------------------------------------------------
- /* This function is called in following modes:
+// --------------------------------------------------------------------------
+/* This function is called in following modes:
 
     1) unknown HTML page - we don't know about frames, images, tables, etc.
     2) we known size of tables, without frames - accept URL
     3) we known size of frames - use URLs from frame table
     4) we known size of the frames and tables - use URLs from frame table
-
- */
- // ----------------------------------------------------------------
+*/
+// --------------------------------------------------------------------------
 
  GLOBAL.needrender=0;
  RENDER.willadjusttables=0;
@@ -342,7 +343,7 @@ int renderHTML(char source,char forced_html, char printing)
   }
   else
   {
-   if(drawGIF(img)==1)
+   if(drawanyimage(img)==1)
    {
     znamrozmerx=znamrozmery=1;
     cache->size=img->filesize;
@@ -407,10 +408,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
    frame->scroll.total_y=y+rowsize;
 
    if(!printing && (user_interface.quickanddirty  || noresize ||
-      !(GLOBAL.validtables==TABLES_UNKNOWN && RENDER.willadjusttables)))
+        !(GLOBAL.validtables==TABLES_UNKNOWN && RENDER.willadjusttables)))
    {
-    //rendering of distorted tables is disabled by user_interface.quickanddirty
-
     if(y>frame->posY+frame->scroll.ysize &&
        lastredrawy+fonty(basefont,0)<frame->posY+frame->scroll.ysize &&
        y!=lastredrawy &&
@@ -432,7 +431,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      notrefreshed=0;
     }
     else
-    {
+    { 
      ScrollInit(&frame->scroll,
                 frame->scroll.xsize,
                 frame->scroll.ymax,     //visible y
@@ -445,11 +444,13 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      if(frame->allowscrolling)
      {
       mouseoff();
+      if(notrefreshed)
+       ScrollButtons(&frame->scroll);
       ScrollDraw(&frame->scroll,frame->posX,frame->posY);
       mouseon();
      }
-    }
-   }
+    }//endif draw scrallbar
+   }//endif !printing (=hidden output)
 
    if(cache->size)
     prc=(int)(100*fpos/cache->size);
@@ -495,8 +496,8 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      percflag=loadrefresh;
      outs(str);
     }
-   }//endif
-  }
+   }//endif 
+  }//endif somethign to output
   percflag--;
 
   if(i==bflen)
@@ -583,8 +584,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     argvaluecount=0;
     goto loop;
    }
-   //Entity (&lt;,&rt; &copy ...)
-   if(!plaintext && buf[i]=='&')  //HTML entita zacina '&'
+
+   //Entity (&lt;,&jt; &copy ...)
+   if(buf[i]=='&' && !plaintext && (isalpha(buf[i+1]) || buf[i+1]=='#' || i==bflen))
+   //HTML entita zacina '&'
    //uvnitr tagu by byt nemela
    {
     entity=1;
@@ -599,12 +602,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     {
      entityname[entilen]='\0';
      if(entilen>0)
-     {
       buf[i]=(char)HTMLentity(entityname);
-      if(buf[i]==' ')
-       goto nbsp;
-
-     }
      else
       buf[i]='&';
      entity=0;
@@ -614,24 +612,25 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      entityname[entilen++]=buf[i];
      goto loop;
     }
-   }//endif
+   }//endif entity
 
-   if(ascii160hack && (unsigned char)buf[i]==160)
+   if((unsigned char)buf[i]==160) // ASCII 160 is ALWAYS nobreak space in HTML
    {
     buf[i]=' ';
-    nbsp:
     lastspace=0;
     lastentity=1;
     nbsp=1;
    }
 
+/*
+   we will show anything which may be in font set...
    if((unsigned char)buf[i]>128 && (unsigned char)buf[i]<160)
    {
     buf[i]=' ';
    }
-
+*/
    // <-----------------------------------------<--------<-----------mimo tag
-   if(!(buf[i]==' ' && lastspace) || pre)
+   if(buf[i]!=' ' || !lastspace || pre)
    {
     if(txtlen<BUF) text[txtlen++]=buf[i];
     if(!invisibletag)
@@ -755,7 +754,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     if(istextarea && tag!=TAG_SLASH_TEXTAREA ||
        istitle && tag!=TAG_SLASH_TITLE ||
        isselect && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION ||
-       isscript && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS)
+       isscript && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT && tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS)
      tag=0;
 
     switch(tag)
@@ -814,8 +813,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         url2str(&url,text);
         tagarg=text;
        }
-
-
+      
        //vyrobim si pointr na link, a od ted je vsechno link:
        addatom(&HTMLatom,tagarg,strlen(tagarg),HREF,align,target,removable,IE_NULL,1);
        currentlink=lastHTMLatom;
@@ -905,16 +903,15 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
          get_extension(HTTPdoc.mime,ext);
          //printf("image extension: %s\n",ext);
-         if(!strcmpi(ext,"GIF") ||
-            !strcmpi(ext,"BMP"))
+         if(strcmpi(ext,"IKN")) // != IKN
          {
-          if(drawGIF(img)==1)
+          if(drawanyimage(img)==1)
            znamrozmerx=znamrozmery=1;
           else
            failedGIF=1;
          }
          else
-         if(!strcmpi(ext,"IKN") && !cgamode)
+         if(!cgamode)
          {
           img->size_y=60;
           img->size_x=60;
@@ -1709,7 +1706,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         RENDER.willadjusttables=1;
        if(!strcmpi(tagarg,"LEFT"))
        {
-        if(!GLOBAL.validtables && thistable->fixedmax==0)
+        if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
         {
          thistable->maxwidth/=2;
          twidth/=2;
@@ -1719,7 +1716,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
        else
        if(!strcmpi(tagarg,"RIGHT") || !alignarg && (align & RIGHT))
        {
-        if(!GLOBAL.validtables && thistable->fixedmax==0)
+        if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
         {
          thistable->maxwidth/=2;
          twidth/=2;
@@ -1854,14 +1851,19 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
            //printf("tables out of sync");
 
          }
+
          if(tmptable)
          {
 
           // fix desired table cell width data:
+          // tabledepth>1 == we are wrapped in another table cell...
           if(xsum>maxsum)
            maxsum=xsum;
-          if(tdwidth[tabledepth] && tdwidth[tabledepth]<maxsum)
-           maxsum=tdwidth[tabledepth];
+          if(tabledepth>1)
+          {
+           if(tdwidth[tabledepth-1] && tdwidth[tabledepth-1]<maxsum)
+            maxsum=tdwidth[tabledepth-1];
+          }
 
           if(y<tdheight)
            y=tdheight;
@@ -1898,26 +1900,40 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
          if(calcwidth(tmptable) && GLOBAL.validtables==TABLES_UNKNOWN)
           RENDER.willadjusttables=1;
 
-         //return to previous state of reneding engine
-         maxsum=maxsumstack[tabledepth-1];
+         //----------------------------------------------------------------
+         //return to previous state of reneding engine - calc max. desired
+         //cell width - maxsum and xsum, where maxsum>=xsum ...
 
-         //consider total real width of inline table:
-         if(tmptable->fixedmax
-            && tmptable->maxwidth>maxsum)
-          maxsum=tmptable->maxwidth;
-
-         //consider total "desired width" of inline table:
          {
           long desired=2*border+tmptable->realwidth+tmptable->totalxsum;
 
           if(tmptable->fixedmax==PIXELS_FIXED_TABLE) //not percent specification!
-            desired=2*border+tmptable->maxwidth;
+          {
+           desired=2*border+tmptable->maxwidth;
+          }
 
           if(desired>maxsum)
            maxsum=desired;
          }
 
-         xsum=0;
+         switch(tmptable->fixedmax)
+         {
+          case PIXELS_FIXED_TABLE:
+          if(maxsumstack[tabledepth-1]>maxsum)
+           maxsum=maxsumstack[tabledepth-1];
+
+          if(tmptable->maxwidth>maxsum)
+           maxsum=tmptable->maxwidth;
+
+          default:
+          xsum=0;
+          break;
+
+          case PERCENTS_FIXED_TABLE:
+          xsum=maxsum;
+         }
+
+         //----------------------------------------------------------------
 
          //zapsani zavrene tabulky
          if(thistableadr==parenttableadr)
@@ -1932,8 +1948,10 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
          cellx=2*border+tmptable->realwidth;
          celly=tmptable->tdend+tmptable->cellspacing+border;
+
+         //dirty fix of desired width - should be already ok, but just
          if(cellx>maxsum)
-           maxsum=cellx;
+           xsum=maxsum=cellx;
 
          if(closeatom(currenttable[tabledepth],cellx,celly)
             && tabalign && !GLOBAL.validtables)
@@ -2350,7 +2368,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
            *percstr='\0';
            perc=atoi(widthstr);
           }
-          else
+          else //special case, <BODY NORESIZE> onlye...
           {
            width=try2getnum(widthstr,tmptable->maxwidth-tmptable->cellspacing);
            if(percstr)
@@ -3032,6 +3050,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      break;
 
      case TAG_SLASH_SCRIPT:
+     case TAG_SLASH_NOSCRIPT:
      case TAG_SLASH_NOFRAMES:
      isscript=0;
 //     case TAG_SLASH_HEAD:
@@ -3114,7 +3133,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
 
      if(tag==TAG_SLASH_SELECT) //</SELECT> - end of select tag
      {
-      int dx=maxoption+space(SYSFONT)+user_interface.scrollbarsize+7;
+      int dx=maxoption+space(SYSFONT)+user_interface.scrollbarsize+11;
       int oldright=right;
       isselect=0;
       invisibletag=0;
@@ -3143,10 +3162,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
         }
        }
       }
+
+      xshift(&x,space(0));
       if(x>=oldright && !pre && !nownobr && !nobr)
        goto br;
-      else
-       xshift(&x,space(0));
+
      }
      else
      if(tag==TAG_SLASH_OPTION) //</OPTION> - end of option tag
@@ -3600,8 +3620,6 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      // * * * * * * * * * * implementation of CSIM - client side imagemaps
 
      case TAG_MAP:
-     case TAG_SLASH_MAP:
-
      HTMLatom.x=x;
      HTMLatom.y=y;
      HTMLatom.xx=x;
@@ -3614,7 +3632,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      break;
 
      case TAG_AREA:
-     USEMAParea(basetarget);
+     USEMAParea(&HTMLatom,basetarget);
      break;
 
      // * * * * * * * * * * * * * * * * * * * * * * * * * * * * end of CSIM

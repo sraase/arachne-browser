@@ -15,7 +15,6 @@ struct Fontstack
  char rgb[3*MAXFONTSTACK+1];
 };
 
-
 //HTML stream prototypes
 int openHTML(struct HTTPrecord *cache,char source);
 int readHTML(struct HTTPrecord *cache,char source);
@@ -29,9 +28,9 @@ void MixVisiblePaletes(char writepal);
 int MixPal(struct picinfo *o,int n,char writepal);
 
 //frame management
-void addframeset(char xflag, char *empty, char framewantborder);
+void addframeset(char xflag, int *empty, char framewantborder);
 char findfreeframe(void);
-char findtarget(char basetarget);
+int findtarget(int basetarget);
 //void resetframeborder(struct HTMLframe *frame, char shift);
 
 #define DONT_WANT_FRAMEBORDER 0
@@ -69,11 +68,11 @@ int space(char font);
 
 //external treatment of certain tags outside renderHTML:
 void METAtag(void);
-void USEMAParea(char basetarget);
+void USEMAParea(struct HTMLrecord *atom,char basetarget);
 void BodyArachne(struct TMPframedata *html);
 
 #define CONSOLEWIDTH user_interface.printerwidth
-#define OPTIONFONT (1+user_interface.fontshift)
+#define OPTIONFONT (2+user_interface.fontshift)
 #define BUTTONFONT (3+user_interface.fontshift)
 
 extern char title_ok;
@@ -272,6 +271,8 @@ xsum=0;
 #define TAG_BUTTON         59
 #define TAG_SLASH_BUTTON   1059
 #define TAG_ARACHNE_BONUS  888
+#define TAG_NOSCRIPT       60
+#define TAG_SLASH_NOSCRIPT 1060
 
 //AREA shapes:
 

@@ -10,14 +10,14 @@
 
 //start of frames
 //============================================================================
-void addframeset(char xflag, char *emptyframe, char framewantborder)
+void addframeset(char xflag, int *emptyframe, char framewantborder)
 {
  char *startptr=text,*endptr;
  int velikost[MAXFRAMES];
  struct ScrollBar *from;
- char fromframe,newframecount=0,border=1,starcount=0;
+ int fromframe,newframecount=0,border=1,starcount=0;
  int vsechno,zbytek,i;
- char prevframe,newframe=findfreeframe();
+ int prevframe,newframe=findfreeframe();
 
  if(newframe>=MAXFRAMES-1 || newframe<1)
   return;
@@ -69,10 +69,8 @@ void addframeset(char xflag, char *emptyframe, char framewantborder)
   else
   {
    velikost[newframecount]=try2getnum(startptr,vsechno);
-   /*
-   if(!strchr(startptr,'%') && xflag)
-    velikost[newframecount]+=user_interface.scrollbarsize;
-    */
+   if(velikost[newframecount]>vsechno)
+    velikost[newframecount]=vsechno;
 
    if(!endptr && !starcount || velikost[newframecount]>zbytek)
     velikost[newframecount]=zbytek;
@@ -85,6 +83,9 @@ void addframeset(char xflag, char *emptyframe, char framewantborder)
   else
    startptr=NULL;
  }//loop
+
+ if(zbytek<0)
+  zbytek=0;
 
  if(starcount)
  {
@@ -114,15 +115,19 @@ void addframeset(char xflag, char *emptyframe, char framewantborder)
    htmlframe[newframe].scroll.ymax=from->ymax-2*border;
    htmlframe[newframe].scroll.xtop=from->xtop+zbytek+border;
    htmlframe[newframe].scroll.ytop=from->ytop+border;
+   if(velikost[i]<=0)
+    htmlframe[newframe].hidden=1;
   }
   else
   {
    htmlframe[newframe].scroll.xsize=from->xsize-2*border;
    if(htmlframe[fromframe].allowscrolling)
     htmlframe[newframe].scroll.xsize+=user_interface.scrollbarsize;
-   htmlframe[newframe].scroll.ymax=velikost[i]-3; // 3 - reserver for neighbour
+   htmlframe[newframe].scroll.ymax=velikost[i]-3; // 3 - reserve for neighbour
    htmlframe[newframe].scroll.xtop=from->xtop+border;
    htmlframe[newframe].scroll.ytop=from->ytop+zbytek+border;
+   if(velikost[i]<=3)
+    htmlframe[newframe].hidden=1;
   }
 
   zbytek+=velikost[i++];
@@ -165,7 +170,7 @@ void resetframeborder(struct HTMLframe *frame, char shift)
 */
 //this will "deallocate" child frames of specified parent frame
 
-void free_children(char parent)
+void free_children(int parent)
 {
  int i=0;
 
@@ -184,13 +189,13 @@ void free_children(char parent)
  htmlframe[parent].hidden=0;
 }
 
-void delete_children(char parent)
+void delete_children(int parent)
 {
  int i=0;
  struct Url url;
  XSWAP writeadr;
  unsigned status;
- char found;
+ int found;
 
  while(i<MAXFRAMES)
  {

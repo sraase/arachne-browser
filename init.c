@@ -53,6 +53,7 @@ void Initialize_Arachne(int argc,char **argv,struct Url *url)
  }
 #endif
 
+#ifndef POSIX
  if(argc>1 && argv[1][0]=='-')
  {
   if(argv[1][1]=='s')
@@ -77,15 +78,14 @@ void Initialize_Arachne(int argc,char **argv,struct Url *url)
 #endif
 #endif
 
-#ifndef POSIX
   else
   if(argv[1][2]=='g')
   {
    x_setnomode(1);
    noGUIredraw=1;
   }
-#endif
  }
+#endif
 
  grsetup=loadpick(argv[0]);     //try to load ARACHE.PCK (defines exepath too)
 
@@ -93,12 +93,14 @@ if(argc>1)
 {
  if(argv[1][0]=='-')
  {
+#ifndef POSIX 
   if(argv[1][1]=='d')
   {
    detectgraphics();
    grsetup=askgraphics();
   }
   else
+#endif  
   if(argv[1][1]=='x')
   {
    tcpip=-1; //setup mode
@@ -171,11 +173,6 @@ bioskey_init();//switch terminal to raw mode
 #endif
 
 
-#ifdef POSIX
-#else
-#endif
-
-
  InitInput(&tmpeditor,"","",1,CONTEXT_SYSTEM);//URL input prompt
 if(fonty(SYSFONT,0)==14)
  MakeInputAtom(&URLprompt,&tmpeditor,50,-21,htscrn_xsize,-3);
@@ -188,6 +185,7 @@ InitInput(&tmpeditor,"","",1,CONTEXT_SYSTEM);//text input prompt
 MakeInputAtom(&TXTprompt,&tmpeditor,
               64,htscrn_ysize/2,
               htscrn_xsize-128,htscrn_ysize/2+fonty(SYSFONT,0)+4);
+
 
 //initialization of certain global variables:
 
@@ -525,12 +523,12 @@ void init_bin(void)
  rc=ie_openbin(&HTTPcache);
  if(rc==2)
   memerr0();
-#ifdef CLEMTEST
-// printf("HTTPcache.len=%d\n",HTTPcache.len);
-#else
+
+/*
+ this won't be performed automaticaly any more...
  if(rc!=1 || HTTPcache.len==0)
   gumujcache(0);
-#endif  
+*/
 
  //---COOKIES.LST
  ptr=configvariable(&ARACHNEcfg,"CookieFile",NULL);

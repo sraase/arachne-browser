@@ -22,9 +22,9 @@ struct ArachnePick              //. This struct is stored in arachne.pck !!!!  R
                    // & 4 ...fullscreen (3rd bit set)
  char xSwap;       //see SWAP_DISK, SWAP_XMS, SWAP_EMS
  int mousex,mousey,framescount; //mouse x and y, number of frames
- char target;      //current target inside frameset.  The munber of frame. MAXFRAMES no of frame is adjustable
+ int target;      //current target inside frameset.  The munber of frame. MAXFRAMES no of frame is adjustable
                                    // == 0 if there is no frame   _top : 0 frame
- char newframe;    //new frame to be loaded
+ int newframe;    //new frame to be loaded
 
  long cachesize;   //size of HTTP cache - not yet implemented
  int history;      //current pointer to history file history.lst
@@ -34,7 +34,7 @@ struct ArachnePick              //. This struct is stored in arachne.pck !!!!  R
  char backtrace_target[MAXBACKTRACE]; //trace targets of clicks
  char title[MAXTITLELEN];             //main title of the entire frameset
  long pagetime;
- char toolbarpage;
+ int toolbarpage;
 };
 
 extern struct ArachnePick arachne; //autosave konfiguracni soubor

@@ -228,7 +228,7 @@ struct TMPframedata
 
  //for virtual screen mechanism:
  char usevirtualscreen;
- char whichvirtual;
+ int whichvirtual;
  char bgproperties;
 };
 
@@ -277,7 +277,7 @@ void drawframeborder(char i);
 
 //picinfo methods:
 void init_picinfo(struct picinfo *img);
-int drawGIF(struct picinfo *gif);
+int drawanyimage(struct picinfo *image);
 
 //general graphics and HTML related prototypes
 int RGB(unsigned char r,unsigned char g,unsigned char b);
@@ -295,7 +295,8 @@ int cgiquery(unsigned char *in,unsigned char *out,char http);
 void process_form(char cgi, XSWAP formID);
 
 //get extension asociated with MIME type, according to MIME.CFG
-void get_extension(char *mime, char *ext);
+int search_mime_cfg(char *rawmime, char *ext, char *cmd);
+#define get_extension(mime,ext) search_mime_cfg(mime,ext,NULL)
 
 //alternate display when frames are disabled
 void NoMozzillaFrames(int *x,long *y, int rowsize);
@@ -365,7 +366,6 @@ void finfoload(void);  //load font info
 
 //"task management" system for 16bit DOS (640 KB limit)
 int willexecute(char *cmd); //cmd will be executed...
-int call_plugin(char *mime, char *command, char *newext);
 char externalprotocol(char *protocol, char *command);
 int make_cmd(char *in, char *out, char *url, char *computer, char *document, char *infile, char *outfile);
 void copy(char *from,char *to);
@@ -384,7 +384,8 @@ void add2history(char *URL);
 long localdiskspace(void);
 long lastdiskspace(char *path);
 long updtdiskspace(char *path);
-void gumujcache(char dukladne);
+// no longer used - file:cleancache.dgi is called instead...
+// void gumujcache(char dukladne);
 char cacheisfull(void);
 int addhot(char *titleptr, char *urlptr);
 void inettime(char *tm);
@@ -408,7 +409,7 @@ int exeisok(char *exename);
 char *onmouse(int click);
 char gotonextlink( int *x, int *y , char back, char asc);
 void RadioSwitch(int fromx, long fromy, XSWAP current,XSWAP formptr);
-void SelectSwitch(int x,long y);
+void SelectSwitch(int x,long y,int key);
 void HideLink(char *hideURL);
 int ProcessLinks(char generateASF);
 int activeismap(int *dx, int *dy); //je aktivnim obrazkem klikatelna mapa ?
@@ -440,8 +441,8 @@ void putvarname(char *name,int size);
 void putvarvalue(char *value,int size);
 
 //frames
-void free_children(char parent);
-void delete_children(char parent);
+void free_children(int parent);
+void delete_children(int parent);
 void reset_tmpframedata(void);
 void reset_frameset(void);
 
@@ -472,10 +473,10 @@ extern struct TMPframedata *tmpframedata;
 //number of frames [0..MAXFRAMES-1] - arachne.framescount
 
 //frame Arachne currently writes to:
-extern char currentframe;
+extern int currentframe;
 
 //frame currently slected (activated) by user:
-extern char activeframe,oldactive;
+extern int activeframe,oldactive;
 
 // ========================================================================
 
@@ -572,6 +573,7 @@ extern char hotkeys;             //allow hotkeys ?
 extern char htmlmsg[100];        //For tag <ARACHNE MSG="....">
 
 extern char htmlpulldown;
+extern int htmlsavex,htmlsavey;
 extern char meminfovisible;
 extern char activeistextwindow;
 
@@ -644,7 +646,7 @@ extern long virtualystart[MAXVIRTUAL];
 extern int virtualxend[MAXVIRTUAL];
 extern long virtualyend[MAXVIRTUAL];
 extern char allocatedvirtual[MAXVIRTUAL];
-extern char maxusedvirtual;
+extern int maxusedvirtual;
 extern XSWAP virtualpalhandle;
 extern XSWAP virtualfirstonscr,virtuallastonscr;
 extern int virtualIiNpal;

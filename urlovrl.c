@@ -88,10 +88,12 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
    var+=10;
    t=time(NULL)+var;
    sprintf(fname,"%ld.*",t);
+   cacheitem->locname[0]='\0';
 
    if(user_interface.cache2temp && !strncmpi(cacheitem->URL,"file:",5))
     tempinit(cacheitem->locname);
-   else
+
+   if(cacheitem->locname[0]=='\0')
    {
     ptr=configvariable(&ARACHNEcfg,"CachePath",NULL);
     if(!ptr)
@@ -219,7 +221,7 @@ void UpdateInCache(XSWAP cacheadr, struct HTTPrecord *store)
 
  cacheptr=(struct HTTPrecord *)ie_getswap(cacheadr);
  if(!cacheptr)
-   MALLOCERR();
+  MALLOCERR();
 
  store->lastseen=time(NULL);
  memcpy(cacheptr,store,sizeof(struct HTTPrecord));
@@ -363,8 +365,8 @@ char NeedImage(char reload, XSWAP from)
       }
       else//conversion only
       if(GLOBAL.nowimages!=IMAGES_SEEKCACHE &&
-          (call_plugin(HTTPdoc.mime, command, ext)==1 ||
-           type==EMBED && call_plugin(HTTPdoc.mime, command, ext)==2) &&
+          (search_mime_cfg(HTTPdoc.mime, ext,command)==1 ||
+           type==EMBED && search_mime_cfg(HTTPdoc.mime, ext, command)==2) &&
           willconvert<MAXCONV)
        imageptr[willconvert++]=IMGatom;
      }
@@ -399,7 +401,7 @@ char NeedImage(char reload, XSWAP from)
 
     // if raw=.JPG AND loc=.JPG then ...
     if(!strcmp(HTTPdoc.locname,HTTPdoc.rawname) &&
-       call_plugin(HTTPdoc.mime, command, ext)==1
+       search_mime_cfg(HTTPdoc.mime, ext, command)==1
        || type==EMBED)
     {
      if(!ie_getswap(uptr))
@@ -535,7 +537,7 @@ char NeedImage(char reload, XSWAP from)
  return 0; //nic nepotrebuju...
 }
 
-#ifndef CLEMTEST
+/* Obsolete - moved to DGI script ....
 
 //clear cache:
 void gumujcache(char dukladne)
@@ -599,9 +601,8 @@ killheaders:
  if(dukladne<2 && !headers) //kill remaining .htt files from "cache\headers\"
  {
   headers=1;
-  strcat(path,"headers\\");
+  strcat(path,"headers\\*.*");
   strcpy(str,path);
-  strcat(str,"*.*");
   goto killheaders;
  }
 
@@ -634,3 +635,4 @@ killheaders:
 
 #endif //CLEMTEST
 
+*/

@@ -8,6 +8,13 @@
 
 #include "arachne.h"
 #include "internet.h"
+#ifdef LINUX
+#include <errno.h>
+#elif defined (CLEMENTINE)
+#include <clementine/errno.h>
+extern int posixErrNo;
+#define errno posixErrNo
+#endif
 
 #define BACKBUF 2048
 #define TCP_IDDLE 1000
@@ -74,7 +81,7 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
   FD_SET (sockfd, &efds);
   select (sockfd+1, &rfds, NULL, &efds, &tv);
 
-  if (FD_ISSET (sockfd, &efds)) closed = 1;
+  if (FD_ISSET (sockfd, &efds) && errno!=EINTR) closed = 1;
 
   count=read(sockfd, buf, BUF);
   if (!count) closed = 1;
@@ -177,7 +184,8 @@ void Backgroundhttp(void)
      goto sock_err;
    }
 #ifdef POSIX
-  if (count<0 ||FD_ISSET (GLOBAL.back_socknum, &efds))  //socket error
+  if (count<0 ||
+  (FD_ISSET (GLOBAL.back_socknum, &efds) && errno!=EINTR))  //socket error
    goto sock_err;
 #else
    kbhit(); //to allow break (?)

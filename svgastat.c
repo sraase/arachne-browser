@@ -44,6 +44,7 @@ void colorBox1pix(int x1,int y1,int x2,int y2,int c1,int c2,int c3)
 }
 
 */
+
 #ifdef HICOLOR
 
 #define NEWCOL 18
@@ -132,25 +133,29 @@ void shades2(int x1,int y1,int x2,int y2,int c3)
  x_setfill(0,c3);
  x_bar(x1+2,y1+2,x2-2,y2-2);
 }
+
 #endif
 
 
+/*
 void Box3D(int x1,int y1,int x2,int y2)
 {
  colorBox(x1,y1,x2,y2,15,8,7);
 }
-
-void Box3Dv(int x1,int y1,int x2,int y2)
-{
+*/
 #ifdef HICOLOR
+void Box3Dv(int x1,int y1,int x2,int y2 )
+{
+
  if(xg_256 == MM_Hic)
   shades(x1,y1,x2,y2);
  else
-#endif
  colorBox(x1,y1,x2,y2,15,8,7);
 // colorBox1pix(x1,y1,x2,y2,15,8,7);
 }
+#endif
 
+/*
 void Box3Dh(int x1,int y1,int x2,int y2)
 {
 #ifdef HICOLOR
@@ -163,33 +168,28 @@ void Box3Dh(int x1,int y1,int x2,int y2)
 }
 
 
-/*
+
 void Box3D1pix(int x1,int y1,int x2,int y2)
 {
  colorBox1pix(x1,y1,x2,y2,15,8,7);
 }
 */
+#ifdef HICOLOR
 void Cell3D(int x1,int y1,int x2,int y2,int col)
 {
-#ifdef HICOLOR
  if(xg_256 == MM_Hic)
   shades2(x1,y1,x2,y2,col);
  else
-#endif
  colorBox(x1,y1,x2,y2,8,15,col);
 }
+#endif
 
-#ifdef CALDERA
-void Box3DDown(int x1,int y1,int x2,int y2)
-{
- colorBox(x1,y1,x2,y2,8,15,7);
-}
-#endif // CALDERA
-
+/*
 void ColourBox3D(int x1,int y1,int x2,int y2, int nColour)
 {
  colorBox(x1,y1,x2,y2,15,8,nColour);
 }
+*/
 
 void Scratch3D(int x1,int y,int x2)
 {

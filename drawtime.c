@@ -9,12 +9,9 @@ long SecondsSleeping=0l; //for screensaver
 char lasttime[32];   //for screensaver
 
 
-#ifndef ULTRALIGHT
-
 //Draw time
 void clock_and_timer(char *wait) //kresleni casu a screensaver
 {
-#ifndef CALDERA
 #ifndef POSIX
  struct  time t;
 #endif 
@@ -22,6 +19,7 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
 
  timestr(cas2);
  if (strcmp(lasttime,cas2) == 0 ) return;
+
 #ifndef CLEMTEST
 #ifndef AGB
  if((ScreenSaver>0l||lasttime[0]=='*') && SecondsSleeping>(long)ScreenSaver*60l)
@@ -70,7 +68,17 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
    //----------------------------screensaver
    mouseoff();
    x_cleardev();
+#ifdef LINUX
+
+#define RND(X) (random()*X)
+
+   srandom(time(NULL));
+#else
+
+#define RND(X) random(X)
+
    randomize();
+#endif
 
    value=configvariable(&ARACHNEcfg,"ScreenSaverColors",NULL);
    if(value && *value=='1')
@@ -93,30 +101,30 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
    j=0;
    while(j<cerfs) //deklarace car
    {
-    xx[j]=100+random(fullscr[2]-200);
-    yy[j]=100+random(fullscr[3]-200);
+    xx[j]=100+RND(fullscr[2]-200);
+    yy[j]=100+RND(fullscr[3]-200);
 
     if(*value=='C')
-     x2[j]=10+random(fullscr[3]/3);
+     x2[j]=10+RND(fullscr[3]/3);
     else
     {
-     x2[j]=120+random(fullscr[2]-240);
-     y2[j]=120+random(fullscr[3]-240);
+     x2[j]=120+RND(fullscr[2]-240);
+     y2[j]=120+RND(fullscr[3]-240);
     }
 
     if(*value=='R')
-     {xs[j]=random(2);if(xs[j]==0)xs[j]=-1;}
+     {xs[j]=RND(2);if(xs[j]==0)xs[j]=-1;}
     else
-     {xs[j]=random(3);if(xs[j]==2)xs[j]=-1;}
-    ys[j]=random(2);if(ys[j]==0)ys[j]=-1;
+     {xs[j]=RND(3);if(xs[j]==2)xs[j]=-1;}
+    ys[j]=RND(2);if(ys[j]==0)ys[j]=-1;
 
-    xs2[j]=random(2);if(xs2[j]==0)xs2[j]=-1;
+    xs2[j]=RND(2);if(xs2[j]==0)xs2[j]=-1;
     if(*value=='R')
-     {ys2[j]=random(2);if(ys2[j]==0)ys2[j]=-1;}
+     {ys2[j]=RND(2);if(ys2[j]==0)ys2[j]=-1;}
     else
-     {ys2[j]=random(3);if(ys2[j]==2)ys2[j]=-1;}
-    col[j]=barva[random(6)];
-    pom=random(MAX_TRACK-10)+10;
+     {ys2[j]=RND(3);if(ys2[j]==2)ys2[j]=-1;}
+    col[j]=barva[RND(6)];
+    pom=RND(MAX_TRACK-10)+10;
     tracklen[j]=pom;
     trackcnt[j]=1; //odsud se bude cist
     trackbuf[j]=0; //sem se bude zapisovat
@@ -140,7 +148,11 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
     if(wait!=NULL)
     {
 #ifdef POSIX
-     strcpy(cas2,"00:00:00"); //temporary - will use ctime() later !!!
+     time_t t=time(NULL);
+     struct tm *gt=gmtime(&t);
+    
+     sprintf(cas2,"%2d:%02d:%02d",
+      gt->tm_hour, gt->tm_min, gt->tm_sec );
 #else
      gettime(&t);
      sprintf(cas2,"%2d:%02d:%02d", t.ti_hour, t.ti_min, t.ti_sec );
@@ -148,18 +160,23 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
      if(strstr(wait,cas2)!=NULL)break;
     }//endif
 
+#ifndef LINUX
     if(g_PrtScr)
     {
      g_PrtScr = 0;
      PrintScreen2BMP(0);
      goto out;
     }
-
+#endif
+    
     //mazani stopy
     x_setcolor(0);
+#ifndef LINUX    
     if(*value=='C')
      x_circle(xtr[j][trackcnt[j]],ytr[j][trackcnt[j]],xt2[j][trackcnt[j]]);
-    else if(*value=='R')
+    else
+#endif    
+    if(*value=='R')
      x_rect(xtr[j][trackcnt[j]],ytr[j][trackcnt[j]],xt2[j][trackcnt[j]],yt2[j][trackcnt[j]]);
     else
      x_line(xtr[j][trackcnt[j]],ytr[j][trackcnt[j]],xt2[j][trackcnt[j]],yt2[j][trackcnt[j]]);
@@ -172,9 +189,12 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
 
     //kresleni nove cary
     x_setcolor(col[j]);
+#ifndef LINUX
     if(*value=='C')
      x_circle(xx[j],yy[j],x2[j]);
-    else if(*value=='R')
+    else 
+#endif
+    if(*value=='R')
      x_rect(xx[j],yy[j],x2[j],y2[j]);
     else
      x_line(xx[j],yy[j],x2[j],y2[j]);
@@ -254,37 +274,40 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
  }
   SecondsSleeping=0l;
  }//endif screensaver
-#endif //not AGB
-#endif //not CLEMTEST
+#endif// AGB
+#endif// CLEMTEST
 
+#ifndef GGI //it doesn't make sense to show time in X11 app..
  if(!fullscreen)
  {
   x_setfill(0,7); //sediva
   if(mousey>x_maxy()-30 && mousex>x_maxx()-230)
    mouseoff();
- #ifndef AGB
  #ifdef CUSTOMER
   x_bar(x_maxx()-56,x_maxy()-13,x_maxx()-2,x_maxy()-2);
- #else
-  x_bar(x_maxx()-206,x_maxy()-13,x_maxx()-156,x_maxy()-2);
- #endif//CUSTOMER
- #else
-  x_bar(x_maxx()-56,x_maxy()-13,x_maxx()-2,x_maxy()-2);
- #endif//AGB
   x_setcolor(0); //cerna
   htmlfont(1,0);
- #ifndef AGB
- #ifdef CUSTOMER
   x_text_ib( x_maxx()-56,x_maxy()-15,(unsigned char *)cas2);
+
+ #elif AGB
+
+  x_bar(x_maxx()-56,x_maxy()-13,x_maxx()-2,x_maxy()-2);
+  x_setcolor(0); //cerna
+  htmlfont(1,0);
+  x_text_ib( x_maxx()-56,x_maxy()-15,(unsigned char *)cas2);
+
  #else
+
+  x_bar(x_maxx()-206,x_maxy()-13,x_maxx()-156,x_maxy()-2);
+  x_setcolor(0); //cerna
+  htmlfont(1,0);
   x_text_ib( x_maxx()-206,x_maxy()-15,(unsigned char *)cas2);
- #endif//CUSTOMER
- #else
-  x_text_ib( x_maxx()-56,x_maxy()-15,(unsigned char *)cas2);
- #endif//AGB
+
+ #endif
   if(mousey>x_maxy()-30 && mousex>x_maxx()-230)
    mouseon();
  }
+#endif
 
  if(lasttime[0]) //not if time redraw was forced!
  {
@@ -296,11 +319,6 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
  }
 
  strcpy(lasttime,cas2);
-#endif // CALDERA
 }//end sub
 
-#ifdef CALDERA
-#pragma warn +par
-#endif // CALDERA
 
-#endif

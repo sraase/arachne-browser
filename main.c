@@ -254,6 +254,7 @@ IveGotNewUrl:
     sprintf(buf,"telnet %s\n",url.host);
 
 #ifdef POSIX
+   printf("Executing command:\n%s\n",buf);
    system(buf);
    goto Wait4Orders;
 #else
@@ -310,8 +311,8 @@ IveGotNewUrl:
   if(!strcmpi(url.protocol,"http"))
   //------------------------------------------------------------------------
   {
-
    proxy:
+
    if(!httpstub)
    {
     html_source=HTTP_HTML;
@@ -534,7 +535,7 @@ IveGotNewUrl:
  //----------------------------------------------------------- plugin?
  tryplugin:
  //------------------------------------------------------------------------
-//. Arachne does not supports jpeg, so we have to rely on plugin
+ //. Arachne does not support jpeg, so we have to rely on plugin
 
  if(!GLOBAL.isimage)
  {
@@ -560,7 +561,7 @@ IveGotNewUrl:
    weird=(strstr("HTM TXT",ext)==NULL);
   }
 
-  plugin=call_plugin(cacheitem->mime, command,ext);
+  plugin=search_mime_cfg(cacheitem->mime, ext, command);
 
 #ifndef NOTCPIP
   //download on background:
@@ -637,7 +638,6 @@ IveGotNewUrl:
     if(mode>0 && farcoreleft()>(long)((long)mode+10l)*1024)
 #endif
     {
-//     struct ffblk ff;
      sprintf(str,MSG_CONV,oldmime,ext,MSG_DELAY2,ctrlbreak);
      outs(str);
 
@@ -999,7 +999,9 @@ Wait4Orders:
   ie_savebin(&HTTPcache);
  if(user_interface.logoiddle)
   xChLogo('0');
-
+#ifdef GGI
+ IfRequested_ggiFlush();
+#endif
 
 //-------------------------------------------------------------------------
 ReadScriptLine:
@@ -1037,15 +1039,36 @@ ReadScriptLine:
 #endif
 
 #ifdef JAVASCRIPT
-  JSchecktimeouts(); //JavaScript timeouts will be handled there...
+ JSchecktimeouts(); //JavaScript timeouts will be handled there...
+#endif
+
+#ifdef GGI
+ Smart_ggiFlush();
 #endif
 
 #ifdef POSIX
-//  usleep(100); //We don't need all CPU time...
+ //redraw is special global flag of GUITICK() system...
+ //if justmoved is true or mys ("mouse") is nonzero, we have to do something
+ if(!redraw && mys==0 && !justmoved)
+#ifdef GGI
+  WaitForEvent(NULL);//NULL pointer means >>wait forever for mouse or keystroke<<
+                     //later, timeval structure with time limit will be passed,
+                     //considering  animation, JavaScript and redirection timouts,
+                     //and also DrawTime function - used in fullscreen version...                   
+#else
+ {
+  struct timeval tv={0,500000};
+  WaitForEvent(&tv); //NULL pointer means >>wait forever for mouse or keystroke<<
+                     //later, timeval structure with time limit will be passed,
+                     //considering  animation, JavaScript and redirection timouts,
+                     //and also DrawTime function - used in fullscreen version...                   
+ }                 
+#endif
+
 #endif
 
 #ifndef NOTCPIP
-#ifndef POSIX
+#ifdef WATTCP
   if(tcpip)
    tcp_tick(NULL);
 
@@ -1113,12 +1136,13 @@ ReadScriptLine:
     arachne.target=activeframe;
    }
 
-   if(GLOBAL.timeout && tcpip)
-    GLOBAL.reload=RELOAD_NEW_LOCATION;
-
    if(GLOBAL.timeout)
-    arachne.target=GLOBAL.refreshtarget;
-
+   {
+    if(tcpip)
+     GLOBAL.reload=RELOAD_NEW_LOCATION;
+    else
+     arachne.target=GLOBAL.refreshtarget; //??? I forgot what is this ;-)
+   }
    goto IveGotNewUrl;
   }
   else
@@ -1203,8 +1227,10 @@ userend:
 
  arachne.target=0; //!!!
  arachne.scriptline=0;
+#ifdef MSDOS
  if(!tcpip)
   unlink("PPP.LOG");
+#endif
  if(fullscreen)
   arachne.GUIstyle-=4;
  goto end;

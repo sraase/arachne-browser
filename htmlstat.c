@@ -192,10 +192,8 @@ int FastTagDetect(char *tagname)
    return TAG_AREA;
   if(!strcmp(ptr,"DDRESS"))
    return TAG_I;
-#ifndef CALDERA
   if(!strcmp(ptr,"RACHNE"))
    return TAG_ARACHNE_BONUS;
-#endif
   break;
 
   case 'T':   //second most frequend tag: <TABLE>, <TD>, etc.
@@ -328,6 +326,8 @@ int FastTagDetect(char *tagname)
    return TAG_NOBR;
   if(!strcmp(ptr,"OFRAMES"))
    return TAG_NOFRAMES;
+  if(!strcmp(ptr,"OSCRIPT"))
+   return TAG_NOSCRIPT;
   break;
 
   case 'O':
@@ -406,9 +406,9 @@ char closeatom(XSWAP adr,int deltax,long absy)
 
 
 
-char findtarget(char basetarget)
+int findtarget(int basetarget)
 {
- char target=basetarget;
+ int target=basetarget;
  char *tagarg;
 
  if(arachne.framescount && getvar("TARGET",&tagarg))

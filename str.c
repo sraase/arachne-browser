@@ -31,10 +31,14 @@ char *pathstr(char *dest, char *src)
 
 char *makestr(char *dest, char *src, int lim)
 {
- if(lim>=0 && dest)
+ if(lim>=0 && dest && src)
  {
-  strncpy(dest,src,lim);
-  dest[lim]='\0';
+  char *realdest=dest;
+  int i=0;
+  
+  while(*src && i++<lim)
+   *(realdest++)=*(src++); 
+  *realdest='\0';
   return dest;
  }
  else 

@@ -7,7 +7,6 @@
 #include "arachne.h"
 
 char *FONTERR=MSG_FNTERR;
-int GrErrorLevel=EXIT_GRAPHICS_ERROR;
 
 void err(char *text, char * msg)
 {
@@ -234,8 +233,6 @@ setmode:
  x_setcolor(15); //bila!
  x_charmod(1);
 
- GrErrorLevel=EXIT_RESOLUTION_ERROR;
-
  return;
 
  //========================================================================
@@ -244,7 +241,7 @@ setmode:
  GrError:
  x_grf_mod(3);
  puts(MSG_VERR1);
- exit(GrErrorLevel);
+ exit(EXIT_GRAPHICS_ERROR);
 
 /*
   x_grf_mod(3);  //chyba pri otevirani grafiky >>
@@ -378,8 +375,10 @@ void finfoload(void)
   fontinferr:
   err(FONTERR,fntinf);
  }
+/* always!!
  if(!strcmp(finf->entity[32],"nbsp"))
   ascii160hack=1;
+*/
 }
 
 

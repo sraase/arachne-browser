@@ -15,21 +15,22 @@ char *ARACHNEPICK="arachne.pck";
 
 #ifndef MINITERM
 
+
+#ifndef POSIX
 int askgraphics(void)
 {
 int i;
   puts(MSG_VGASEL);
-  puts("0. VGA (recommended) [Enter]");
-  puts("1. EGA (historical)");
-  puts("2. CGA (experimental)");
+  puts(MSG_VGAVGA);
+  puts(MSG_VGAEGA);
+  puts(MSG_VGACGA);
   printf(MSG_VIDEO);
 
   vga:
-#ifdef POSIX
-  i=getchar();
-#else
   i=getch();
-#endif
+  if (i==27)
+   return -1;
+
   if (i=='1')
   {
    strcpy(arachne.graphics,"EGA");
@@ -50,7 +51,7 @@ int i;
   }
 
 }
-
+#endif
 
 int loadpick( char *exename) //nahrat konfiguraci
 {
@@ -95,7 +96,7 @@ int loadpick( char *exename) //nahrat konfiguraci
   sprintf(dotarachne,"%.60s/.arachne/",str1);
 
  sprintf(ARACHNEPICK,"%sruntime-data.bin",dotarachne);
- sprintf(CLIPBOARDNAME,"%clip.tmp",dotarachne);
+ sprintf(CLIPBOARDNAME,"%sclipboard",dotarachne);
 #endif
 
 #ifdef POSIX
@@ -130,17 +131,20 @@ int loadpick( char *exename) //nahrat konfiguraci
 #ifndef POSIX
 
   puts(MSG_MEMSEL);
-  puts("0. XMS (recommended) [Enter]");
-  puts("1. EMS (for XT/AT)");
-  puts("2. Disk (last choice)");
+  puts(MSG_MEMXMS);
+  puts(MSG_MEMEMS);
+  puts(MSG_MEMDSK);
 
   printf(MSG_MEMORY);
   mem:
-#ifdef POSIX
-  i=getchar();
-#else
   i=getch();
-#endif
+
+  if(i==27)
+  {
+   printf("\n\n");
+   exit(EXIT_ABORT_SETUP);
+  }
+
   if (i=='1')
    arachne.xSwap=1;
   else if (i=='2')
@@ -150,6 +154,12 @@ int loadpick( char *exename) //nahrat konfiguraci
 
   printf("\n");
   rv=askgraphics();
+
+  if(rv==-1)
+  {
+   printf("\n\n");
+   exit(EXIT_ABORT_SETUP);
+  }
 #endif
  }//endif first start
 
@@ -352,8 +362,13 @@ void configure_user_interface(void)
  value=configvariable(&ARACHNEcfg,"AltSysFont",NULL);
  if(value && *value!='0')
  {
+  char x = atoi(value);
+  if(x < 0)
+   x = 0;
+  else if(x > 2)/*Will not lock up in 640*480*/
+   x = 2;
+  user_interface.bigfnum = (unsigned char) x;
   user_interface.bigfont=1;
-  user_interface.bigfnum=atoi(value);
   user_interface.bigstyle=FIXED;
  }
 
@@ -486,11 +501,13 @@ void configure_user_interface(void)
  else
   user_interface.autodial=0;
 
+#if defined(MSDOS) && !defined(XTVERSION)
  value=configvariable(&ARACHNEcfg,"VFAT",NULL);
  if(value && toupper(*value)=='Y')
   user_interface.vfat=1;
  else
   user_interface.vfat=0;
+#endif
 
  value=configvariable(&ARACHNEcfg,"KeepHTT",NULL);
  if(value && toupper(*value)=='N')
@@ -500,6 +517,15 @@ void configure_user_interface(void)
 
  user_interface.virtualysize=0;
  user_interface.smooth=0;
+
+#ifdef GGI
+ value=configvariable(&ARACHNEcfg,"GGI_FastScroll",NULL);
+ if(value && toupper(*value)=='N')
+  user_interface.ggifastscroll=0;
+ else
+  user_interface.ggifastscroll=1;
+#endif
+
 #ifdef VIRT_SCR
  value=configvariable(&ARACHNEcfg,"VirtualScreen",NULL);
  if(value)
@@ -522,20 +548,16 @@ void configure_user_interface(void)
   user_interface.screenmode=0; //default = A...Auto
  }
 
-
 #endif
 
-/*
- value=configvariable(&ARACHNEcfg,"Buttons",NULL);
- if(value)
-  {strncpy(user_interface.buttons,value,8);user_interface.buttons[8]='\0';}
- else
-  strcpy(user_interface.buttons,"buttons");
-*/
 
  value=configvariable(&ARACHNEcfg,"ScrollBarStyle",NULL);
  if(value && *value!='A')
+ {
   user_interface.scrollbarstyle=*value; //W[indoze],N[extStep],X[experimental]
+  if(*value=='C')
+   user_interface.scrollbarsize=0; //no scrollbars
+ }
  else
   user_interface.scrollbarstyle=0; //default = A...Arachne
 
@@ -562,6 +584,10 @@ void configure_user_interface(void)
   user_interface.logoiddle=atoi(value);
  else
   user_interface.logoiddle=2000;
+
+#ifdef GGI
+ user_interface.logoiddle*=3; //to avoid unecessary GGI framebuffer flushing...
+#endif
 
  value=configvariable(&ARACHNEcfg,"MinDiskSpace",NULL);
  if(value)

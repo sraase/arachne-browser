@@ -270,7 +270,7 @@ int activeatomtick(int key,char textareacmd)
     case 123:WriteFileBox();return 0;
     case 107:SearchInTextBox();return 0;
     case 127:SearchInTextarea(1);return 0;
-    case 301:outs("Block written.");return 0;
+    case 301:outs(MSG_BLCKWR);return 0;
    }
   }//end if special event ocured (Arachne GUI bindings...)
 
@@ -543,6 +543,7 @@ int ProcessLinks(char generateASF)
  int count=0,asf;
  struct HTMLrecord *atomptr;
  struct HTTPrecord HTTPdoc;
+ char oldhref[URLSIZE] = "\0";
 
  mouseoff();
 
@@ -571,8 +572,16 @@ int ProcessLinks(char generateASF)
 
    if(generateASF)
    {
-    write(asf,href,strlen(href));
-    write(asf,"\n",1);
+    char *str;
+    str = strrchr(href, '#');
+    if(str)
+     href[(int)(str - href)] = '\0';
+    strcat(href, "\n");
+    if(!strncmpi(href, "mailto:", 6))
+     continue;
+    if(strcmp(oldhref, href) != 0)
+     write(asf,href,strlen(href));
+    strcpy(oldhref, href);
    }
    else
    {
@@ -640,8 +649,14 @@ void activeatomcursor(char cursor)
 {
  //have to be optimized!!!
 
- if(htmlpulldown || activeistextwindow && activeatomptr!=&TXTprompt)
+ if(htmlpulldown || (activeistextwindow && activeatomptr!=&TXTprompt))
  {
+  if(htmlpulldown && htmlsavex!=-1)
+  {
+   ImouseSet(htmlsavex,htmlsavey);
+   hidehighlight();
+  }
+
   if(arachne.framescount)
   {
    activeframe=0;
@@ -734,6 +749,9 @@ void activeatomcursor(char cursor)
     x_text_ib((int)xc,(int)yc,(unsigned char *)zn);
    }
    mouseon();
+#ifdef GGI
+  Smart_ggiFlush();
+#endif 
   }
   else
    MALLOCERR();
@@ -806,7 +824,7 @@ char *gotoactiveatom(char asc, XSWAP *formID)
 //---------------------------- <SELECT> ---------------------------- begin
 
 // Pull down select
-void SelectSwitch(int x,long y) //x coord will be maybe used in future
+void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
 {
  int selected;
  long selecty=activeatom.y;
@@ -815,7 +833,7 @@ void SelectSwitch(int x,long y) //x coord will be maybe used in future
 
  if(selecty<fromy)
   selecty=fromy;
- selected=(int)(y-selecty)/fonty(OPTIONFONT,0)*2;
+ selected=(int)(y-selecty-1)/fonty(OPTIONFONT,0)*2;
  editorptr=(struct ib_editor *)ie_getswap(activeatom.ptr);
  if(editorptr)
  {
@@ -824,6 +842,8 @@ void SelectSwitch(int x,long y) //x coord will be maybe used in future
   int rows;
   long realy=activeatom.y;
   long realyy=activeatom.yy;
+  int onscreen_x=(int)(activeatom.x-fromx+htmlframe[activeatom.frameID].scroll.xtop);
+  int onscreen_xx=(int)(activeatom.xx-fromx+htmlframe[activeatom.frameID].scroll.xtop);
 
   if(realy-fromy+htmlframe[activeatom.frameID].scroll.ytop<htscrn_ytop)
    realy=htmlframe[activeatom.frameID].scroll.ytop-htscrn_ytop+fromy;
@@ -831,67 +851,155 @@ void SelectSwitch(int x,long y) //x coord will be maybe used in future
    realyy=htscrn_ytop+htscrn_ysize-htmlframe[activeatom.frameID].scroll.ytop+fromy;
 
   rows=2*(int)((realyy-realy-4)/fonty(OPTIONFONT,0));
+  if(selected>rows)
+   selected=rows;
 
   selected+=editorptr->zoomy;
 
   if(activeatom.yy-activeatom.y<2*fonty(OPTIONFONT,0))
-   singleline=1;
-
-  if((tmpeditor.lines>=rows) && !singleline)
   {
-   struct ScrollBar scroll;
-   char resetstyle=0;
-   int sw;
+   singleline=1;
+   if(key)
+    return;
+  }
 
-   if(!user_interface.scrollbarstyle)
+  if((editorptr->lines>=rows) && !singleline || key)
+  {
+   int sw=0;
+   if(key==0 && user_interface.scrollbarsize>3)
    {
-    user_interface.scrollbarstyle='N';
-    resetstyle=1;
+    struct ScrollBar scroll;
+    char resetstyle=0;
+
+    if(!user_interface.scrollbarstyle)
+    {
+     user_interface.scrollbarstyle='N';
+     resetstyle=1;
+    }
+    scroll.xvisible=0;
+    scroll.yvisible=1;
+    ScrollInit(&scroll,
+               (int)(activeatom.xx-activeatom.x-user_interface.scrollbarsize-6),
+               (int)(realyy-realy-8),
+               (int)(realyy-realy-8),
+               onscreen_x+3,
+               (int)(realy+3-fromy+htmlframe[activeatom.frameID].scroll.ytop),1,1);
+
+    sw=OnScrollButtons(&scroll);
+    if(resetstyle)
+     user_interface.scrollbarstyle=0;
+
    }
-   scroll.xvisible=0;
-   scroll.yvisible=1;
-   ScrollInit(&scroll,
-              (int)(activeatom.xx-activeatom.x-user_interface.scrollbarsize-6),
-              (int)(realyy-realy-8),
-              (int)(realyy-realy-8),
-              (int)(activeatom.x+3-fromx+htmlframe[activeatom.frameID].scroll.xtop),
-              (int)(realy+3-fromy+htmlframe[activeatom.frameID].scroll.ytop),1,1);
 
-//test:      ScrollButtons(&scroll);
-   sw=OnScrollButtons(&scroll);
-   if(resetstyle)
-    user_interface.scrollbarstyle=0;
-   switch(sw)
+   if(sw || key)
    {
-    case 2:if(rows+tmpeditor.zoomy<tmpeditor.lines)
-            tmpeditor.zoomy+=rows;                   //down
-           goto draw;
+    if(sw==2 || key==PAGEDOWN || (key==DOWNARROW && editorptr->x==editorptr->zoomy+rows-2))
+    {
+     if(rows+editorptr->zoomy<editorptr->lines)
+            editorptr->zoomy+=rows;                   //down
+      else
+       editorptr->x=editorptr->zoomy+rows-2;
+     if(key==DOWNARROW)
+      key=PAGEDOWN; //not UPARROW  || DOWNARROW
+    }
+    else
+    if(sw==1 || key==PAGEUP || (key==UPARROW && editorptr->x==editorptr->zoomy))
+    {
+     editorptr->zoomy-=rows;                          //up
+     if(key==UPARROW)
+      key=PAGEUP; //not UPARROW  || DOWNARROW
+    }
+    else
+    if(key==ENDKEY)
+    {
+     editorptr->x=editorptr->zoomy+rows-2;
+    }
+    else
+    if(key==HOMEKEY)
+    {
+     editorptr->x=editorptr->zoomy;
+    }
 
-    case 1:tmpeditor.zoomy-=rows;                    //up
-      draw:if(tmpeditor.zoomy<0)
-            tmpeditor.zoomy=0;
+    if(editorptr->zoomy<0)
+    {
+     editorptr->zoomy=0;
+     editorptr->x=0;
+    }
 
-           editorptr=(struct ib_editor *)ie_getswap(activeatom.ptr);
-           if(editorptr)
-           {
-            memcpy(editorptr,&tmpeditor,sizeof(struct ib_editor));
-            swapmod=1;
-           }
-           else
-            MALLOCERR();
+    swapmod=1; //editorptr was updated.
 
-           mouseoff();
-           drawatom(&activeatom,fromx,fromy,
-                     htscrn_xsize+htscrn_xtop-htmlframe[activeatom.frameID].scroll.xtop,
-                     htscrn_ysize+htscrn_ytop-htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
-                     htmlframe[activeatom.frameID].scroll.xtop,
-                     htmlframe[activeatom.frameID].scroll.ytop);  //frames...
-           mouseon();
-           return;
+    if(key)
+    {
+     if(key==CURSOR_SYNCHRO)
+     {
+      if(editorptr->x==selected)
+       return;
+      else if(x>onscreen_xx-user_interface.scrollbarsize-4)
+      {
+       hidehighlight();
+       return;
+      }
+      else
+       editorptr->x=selected;
+     }
+     if(key==DOWNARROW && htmlsavex!=-1)
+      editorptr->x+=2;
+     else
+     if(key==UPARROW)
+      editorptr->x-=2;
+
+     if(editorptr->x<editorptr->zoomy)
+      editorptr->x=editorptr->zoomy;
+
+     if(editorptr->x>editorptr->zoomy+rows-2)
+      editorptr->x=editorptr->zoomy+rows-2;
+
+     if(editorptr->x>editorptr->lines-2)
+      editorptr->x=editorptr->lines-2;
+
+     if(key!=CURSOR_SYNCHRO) // mouse event, not key event...
+     {
+      if(htmlsavex==-1)
+      {
+       htmlsavex=mousex;
+       htmlsavey=mousey;
+      }
+
+      mousey=(int)(realy-fromy+htmlframe[activeatom.frameID].scroll.ytop)+
+              fonty(OPTIONFONT,0)*(editorptr->x-editorptr->zoomy+2)/2;
+      mousex=onscreen_xx-user_interface.scrollbarsize-4;
+      ImouseSet( mousex, mousey);
+     }
+
+     //nice highlight...
+     hidehighlight();
+     thisx=onscreen_x+3;
+     thisxx=onscreen_xx-user_interface.scrollbarsize-1;
+     thisy=(int)(realy-fromy+htmlframe[activeatom.frameID].scroll.ytop)+
+             fonty(OPTIONFONT,0)*(editorptr->x-editorptr->zoomy)/2+3;
+     thisyy=thisy+fonty(OPTIONFONT,0)+1;
+
+     if(key!=PAGEUP && key!=PAGEDOWN)
+     {
+      showhighlight();
+      return;
+     }
+    }
+
+    mouseoff();
+    drawatom(&activeatom,fromx,fromy,
+              htscrn_xsize+htscrn_xtop-htmlframe[activeatom.frameID].scroll.xtop,
+              htscrn_ysize+htscrn_ytop-htmlframe[activeatom.frameID].scroll.ytop, //select window can overwrite other
+              htmlframe[activeatom.frameID].scroll.xtop,
+              htmlframe[activeatom.frameID].scroll.ytop);  //frames...
+    mouseon();
+    if(key)
+     showhighlight();
+    return;
    }
   }//endif ?scroll?
 
-  if(!singleline && x>activeatom.xx-user_interface.scrollbarsize-4)
+  if(!singleline && x>onscreen_xx-user_interface.scrollbarsize-4)
   {
    activeatomcursor(0);
    return;
@@ -899,6 +1007,10 @@ void SelectSwitch(int x,long y) //x coord will be maybe used in future
 
   if(selected<0 || selected>=editorptr->lines)
    return;
+
+  editorptr=(struct ib_editor *)ie_getswap(activeatom.ptr);
+  if(!editorptr)
+   MALLOCERR();
 
   memcpy(&tmpeditor,editorptr,sizeof(struct ib_editor));
   if(!activeatom.data2) //not multiple
@@ -917,7 +1029,7 @@ void SelectSwitch(int x,long y) //x coord will be maybe used in future
   }
 
   tmpeditor.y=selected;
-  ptr=ie_getline(&tmpeditor,tmpeditor.y);
+  ptr=ie_getline(&tmpeditor,selected);
   if(activeatom.data2 && *ptr=='1') //multiple and selected ?
    *ptr='0';
   else

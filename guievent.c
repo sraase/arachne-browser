@@ -214,16 +214,10 @@ int togglefullscreen(void)
  return 1;
 }
 
-int erasecache(int sw)
+int erasecache(void)
 {
-#ifndef CLEMTEST
- gumujcache(sw);
-#endif
- if(GLOBAL.abort)
-  return 0;
-
  MemInfo(NORMAL);
- strcpy(GLOBAL.location,"arachne:restart");
+ strcpy(GLOBAL.location,"file:clearcache.dgi");
  arachne.target=0;
  return gotoloc();
 }
@@ -524,6 +518,9 @@ int GUIEVENT(int key, int mouse)
   }
   else if(asc==27) //Esc = abort
   {
+   if(htmlpulldown)
+    activeatomcursor(0);
+   else
    if(activeistextwindow)
     redraw=2;
    else
@@ -535,9 +532,8 @@ int GUIEVENT(int key, int mouse)
      GLOBAL.abort=ABORT_TRANSFER;
     else
      GLOBAL.abort=ABORT_PROGRAM;
-    
-    return escape();
 
+    return escape();
    }
   }
   else if(asc==9) //Tab = nextatom
@@ -549,11 +545,33 @@ int GUIEVENT(int key, int mouse)
   else if(key==CTRLRIGHT) //[->]
    return gotonextpage();
   else if(key==PAGEUP || asc=='B') //PgUp, B
-   return scrollpageup(0);
-  else if(key==PAGEDOWN || asc==32) //PgDn,Space
-   return scrollpagedown(0);
-  else if((key==0x4700 || (unsigned)key==0x8400))//home
   {
+   if(htmlpulldown) //pass key to <SELECT> widget
+   {
+    SelectSwitch(0,0,key);
+    return 0;
+   }
+   else
+    return scrollpageup(0);
+  }
+  else if(key==PAGEDOWN || asc==32) //PgDn,Space
+  {
+   if(htmlpulldown) //pass key to <SELECT> widget
+   {
+    SelectSwitch(0,0,key);
+    return 0;
+   }
+   else
+    return scrollpagedown(0);
+  }
+  else if((key==HOMEKEY || (unsigned)key==0x8400))//home
+  {
+   if(htmlpulldown) //pass key to <SELECT> widget
+   {
+    SelectSwitch(0,0,key);
+    return 0;
+   }
+   else
    if(shift()) //shift+home
     return scrollleft();
    else if(htmlframe[activeframe].posY>0)
@@ -562,8 +580,14 @@ int GUIEVENT(int key, int mouse)
     redraw=2;
    }
   }
-  else if((key==0x4f00 || key==0x7600))//end
+  else if((key==ENDKEY || key==0x7600))//end
   {
+   if(htmlpulldown) //pass key to <SELECT> widget
+   {
+    SelectSwitch(0,0,key);
+    return 0;
+   }
+   else
    if(shift()) //shift+end
     return scrollright();
    else if(htmlframe[activeframe].posY<htmlframe[activeframe].scroll.total_y-htmlframe[activeframe].scroll.ysize &&
@@ -605,8 +629,14 @@ int GUIEVENT(int key, int mouse)
     return GUI_MOUSE;
    }
   }
-  else if(key==0x4800)//nahoru = arrow up
+  else if(key==UPARROW)//nahoru = arrow up
   {
+   if(htmlpulldown && !shift()) //pass key to <SELECT> widget
+   {
+    SelectSwitch(0,0,key);
+    return 0;
+   }
+
    if(scrolllock())
     return mouse2previouslink(mouse,asc);
    else if(user_interface.smooth && !shift())
@@ -619,8 +649,14 @@ int GUIEVENT(int key, int mouse)
     return GUI_MOUSE;
    }
   }
-  else if(key==0x5000)//dolu = arrow down
+  else if(key==DOWNARROW)//dolu = arrow down
   {
+   if(htmlpulldown && !shift()) //pass key to <SELECT> widget
+   {
+    SelectSwitch(0,0,key);
+    return 0;
+   }
+
    if(scrolllock())
     return mouse2nextlink(mouse,asc);
    else if(user_interface.smooth && !shift())
@@ -633,7 +669,7 @@ int GUIEVENT(int key, int mouse)
    return GUI_MOUSE;
    }
   }
-  else if(key==0x3b00)//F1
+  else if(key==F1) //F1 key
    return gotohelppage();
   else if(key==0x3d00 || key==27136)//F3, Alt+F3
   {
@@ -907,7 +943,7 @@ int GUIEVENT(int key, int mouse)
      return 0;
     }
 
-    if(vga16mode && !vgamono)
+    if(!vgamono)
     {
      if(!strcmpi(arachne.graphics,"VGA"))
       strcpy(arachne.graphics,"VGAMONO");
@@ -918,7 +954,7 @@ int GUIEVENT(int key, int mouse)
        strcpy(ptr,".M");
      }
     }
-    else if(vgamono)
+    else
     {
      char *ptr=strstr(arachne.graphics,".M");
      if(ptr)
@@ -966,9 +1002,6 @@ int GUIEVENT(int key, int mouse)
 
     Deallocmem();
     ChangeZoom(0,0,1);
-    GLOBAL.nothot=1;
-    GLOBAL.needrender=1;
-    GLOBAL.validtables=0; //tabulky je potreba prepocitat!!!
     return 1;
    }
    else if(asc=='+') //increase resolution
@@ -980,9 +1013,6 @@ int GUIEVENT(int key, int mouse)
     }
     Deallocmem();
     ChangeZoom(0,1,0);
-    GLOBAL.nothot=1;
-    GLOBAL.needrender=1;
-    GLOBAL.validtables=0; //tabulky je potreba prepocitat!!!
     return 1;
    }
    else if(asc=='*') //toggle fullscreen
@@ -1022,7 +1052,11 @@ int GUIEVENT(int key, int mouse)
    }
 
 #ifndef NOPS
+#ifdef LINUX
+   if(key==ASCIICTRLP) //Ctrl+P
+#else
    if(key==0x1900) //Alt+P
+#endif   
    {
     saveasps();
     sprintf(GLOBAL.location,"file:%s%sps.ah",sharepath,GUIPATH);
@@ -1091,9 +1125,6 @@ int GUIEVENT(int key, int mouse)
      return togglefullscreen();
     Deallocmem();
     ChangeZoom(1,0,0);
-    GLOBAL.nothot=1;
-    GLOBAL.needrender=1;
-    GLOBAL.validtables=0; //tabulky je potreba prepocitat!!!
     return 1;
    }
 #endif
@@ -1123,13 +1154,10 @@ int GUIEVENT(int key, int mouse)
    if(key==0x6e00)//Alt+F7 - search engine
     return gotosearchpage();
 #endif
-#ifndef CLEMTEST
-   else if(key==F8)//F8 - gumujcache
-   {
-    gumujcache(1);
-    return 0;
-   }
-#endif
+
+   else if(key==F8)//F8 - clean cache
+    return erasecache();
+
    else if(key==REDRAW_KEY)//F5 or F9
     return repaint();
 #ifndef AGB
@@ -1167,6 +1195,9 @@ int GUIEVENT(int key, int mouse)
 submit:
 
    x_cursor (mousex,mousey);
+#ifdef GGI
+  Smart_ggiFlush();
+#endif
    if(link)
    {
     int maptype, dx, dy;
@@ -1184,6 +1215,8 @@ submit:
 #endif
     if(!strncmpi(GLOBAL.location,"arachne:",8))
     {
+/*
+ this is now implemented ratherr as file:clearcache.dgi in MIME.CFG
      if(!strncmpi(&GLOBAL.location[8],"kill-cache",10))
       return erasecache(1);
      else
@@ -1203,6 +1236,7 @@ submit:
       }
      }
      else
+*/
      if(!strncmpi(&GLOBAL.location[8],"fullscreen",10))
       return togglefullscreen();
      else
@@ -1569,9 +1603,6 @@ submit:
      case CLICK_ZOOM://zoom
 #ifndef AGB
      ChangeZoom(1,0,0);
-     GLOBAL.nothot=1;
-     GLOBAL.needrender=1;
-     GLOBAL.validtables=0; //tabulky je potreba prepocitat!!!
      return 1;
 #else
      return repaint();
@@ -1612,8 +1643,14 @@ submit:
     {
      //=====================================================================
      //scroll buttons
+#ifdef GGI
+     if( !user_interface.smooth && !htmlframe[i].hidden && htmlframe[i].allowscrolling )
+#else
+
      if((!tmpframedata[i].usevirtualscreen || !user_interface.smooth)
       && !htmlframe[i].hidden && htmlframe[i].allowscrolling )
+
+#endif
      {
       int s=OnScrollButtons(&htmlframe[i].scroll);
 
@@ -1622,19 +1659,16 @@ submit:
        mouseoff();
        activeframe=i;
        drawactiveframe();
-      }
+       ImouseWait(); //msg for Bernie: don't forget, that s may be 0...
 
-      switch(s)
-      {
-       case 1: ImouseWait();
-               return scrollpageup(1);           //up
-       case 2: ImouseWait();
-               return scrollpagedown(1);         //down
-       case 3: ImouseWait();
-               return scrollleft();              //left
-       case 4: ImouseWait();
-               return scrollright();             //right
-      }//end switch
+       switch(s)
+       {
+        case 1: return scrollpageup(1);           //up
+        case 2: return scrollpagedown(1);         //down
+        case 3: return scrollleft();              //left
+        case 4: return scrollright();             //right
+       }//end switch
+      }//end if OnScrollButton
      }
      //=====================================================================
      //black zone in scroll bars
@@ -1647,22 +1681,22 @@ submit:
        mouseoff();
        activeframe=i;
        drawactiveframe();
-      }
+       ImouseWait();
 
-      switch(s)
-      {
-       case 1: ImouseWait();return scrollpageup(0);
-       case 2: ImouseWait();return scrollpagedown(0);
-       case 3: ImouseWait();
-               htmlframe[activeframe].posX=0;
-               redraw=2;
-               break;
-       case 4: ImouseWait();
-               htmlframe[activeframe].posX=htmlframe[activeframe].scroll.total_x-htmlframe[activeframe].scroll.xsize;
-               if(htmlframe[activeframe].posX<0)
-                htmlframe[activeframe].posX=0;
-               redraw=2;
-      }//end switch
+       switch(s)
+       {
+        case 1: return scrollpageup(0);
+        case 2: return scrollpagedown(0);
+        case 3: htmlframe[activeframe].posX=0;
+                redraw=2;
+                break;
+        case 4: htmlframe[activeframe].posX=htmlframe[activeframe].scroll.total_x-htmlframe[activeframe].scroll.xsize;
+                if(htmlframe[activeframe].posX<0)
+                 htmlframe[activeframe].posX=0;
+                redraw=2;
+       }//end switch
+      }//end if OnBlackZone...
+
      }
     }
     while(i++<arachne.framescount); //[0...3]
@@ -1694,14 +1728,52 @@ submit:
      activeframe=i;
      drawactiveframe();
      redraw=1;
+
+#ifdef GGI
+    if(user_interface.ggifastscroll)
+     redrawHTML(REDRAW_NO_MESSAGE,REDRAW_VIRTUAL);
+
+    else
+
+     ScrollDraw(&htmlframe[activeframe].scroll,htmlframe[activeframe].posX,
+                 htmlframe[activeframe].posY);
+#endif
+
 #ifdef VIRT_SCR
      Try2DumpActiveVirtual();
 #endif
+
+#ifndef GGI
      ScrollDraw(&htmlframe[activeframe].scroll,htmlframe[activeframe].posX,
                 htmlframe[activeframe].posY);
-
+#endif
      scrolledframe=i;
     }
+
+#ifdef GGI
+    if(user_interface.smooth)
+    {
+     scrollbarbutton=OnScrollButtons(&htmlframe[i].scroll);
+     if(scrollbarbutton)
+     {
+      activeframe=i;
+      mouseoff();
+      if(redraw)
+       redrawHTML(REDRAW_WITH_MESSAGE,REDRAW_VIRTUAL);
+      else
+      if(arachne.framescount)
+       drawactiveframe();
+      mouseon();
+      switch(scrollbarbutton)
+      {
+       case 1: return smothup();
+       case 2: return smothdown();
+       case 3: return smothleft();
+       case 4: return smothright();
+      }//end switch
+     }
+    }
+#else
 
 #ifdef VIRT_SCR
     if(user_interface.smooth)
@@ -1710,9 +1782,9 @@ submit:
      if(scrollbarbutton)
      {
       activeframe=i;
+      mouseoff();
       if(redraw)
       {
-       mouseoff();
        Try2DumpActiveVirtual();
        ScrollDraw(&htmlframe[activeframe].scroll,htmlframe[activeframe].posX,
                   htmlframe[activeframe].posY);
@@ -1723,28 +1795,21 @@ submit:
               htmlframe[activeframe].scroll.xsize,htmlframe[activeframe].scroll.ysize,
               htmlframe[activeframe].scroll.xtop,htmlframe[activeframe].scroll.ytop);
 */
-       mouseon();
       }
       else
       if(arachne.framescount)
-      {
-       mouseoff();
        drawactiveframe();
-       mouseon();
-      }
+      mouseon();
       switch(scrollbarbutton)
       {
-       case 1:
-              return smothup();
-       case 2:
-              return smothdown();
-       case 3:
-              return smothleft();
-       case 4:
-              return smothright();
+       case 1: return smothup();
+       case 2: return smothdown();
+       case 3: return smothleft();
+       case 4: return smothright();
       }//end switch
      }
     }
+#endif
 #endif
 
    }

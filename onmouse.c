@@ -95,12 +95,18 @@ char *onmouse(int click)
      activeatom.x-dx<=x && activeatom.xx-dx>=x &&
      activeatom.y-dy<=y && activeatom.yy-dy>=y)
   {
-   if(!click || click==MOUSE_RELEASE)
+   if(click==MOUSE_RELEASE)
     goto nolink;
-   SelectSwitch(x+dx,y+dy);
+
+   if(click)
+    SelectSwitch(x+dx,y+dy,0); //0==no key event passed to <SELECT> tag
+   else
+    SelectSwitch(x+dx,y+dy,CURSOR_SYNCHRO); //let's render nice highlight
    lastonmouse=IE_NULL;
    return NULL;
   }
+  else
+   hidehighlight();
  }
 
  if(click && click!=MOUSE_RELEASE && arachne.framescount>0)
@@ -238,19 +244,19 @@ char *onmouse(int click)
       MALLOCERR();
      if(activeatom.yy-activeatom.y<editorptr->lines/2*fonty(OPTIONFONT,0))
      {
-      int d=4+fonty(OPTIONFONT,0)*(editorptr->lines/2);
+      int d=6+fonty(OPTIONFONT,0)*(editorptr->lines/2);
       long realy=activeatom.y-dy+htmlframe[activeatom.frameID].scroll.ytop;
 
       if(realy+d>htscrn_ysize+htscrn_ytop && realy-htscrn_ytop>htscrn_ysize/2)
       {
        if(realy-d<htscrn_ytop)
-        d=(int)(realy+fonty(OPTIONFONT,0)-htscrn_ytop-FUZZYPIX);
+        d=(int)(realy+fonty(OPTIONFONT,0)-htscrn_ytop-3*FUZZYPIX);
        activeatom.y=activeatom.yy-d;
       }
       else
       {
        if(realy+d>htscrn_ysize+htscrn_ytop)
-        d=(int)(htscrn_ysize+htscrn_ytop-realy-FUZZYPIX);
+        d=(int)(htscrn_ysize+htscrn_ytop-realy-3*FUZZYPIX);
        activeatom.yy=activeatom.y+d;
       }
       mouseoff();
@@ -260,10 +266,10 @@ char *onmouse(int click)
                 htmlframe[activeatom.frameID].scroll.xtop,
                 htmlframe[activeatom.frameID].scroll.ytop);  //frames...
       mouseon();
-      htmlpulldown=1;
+      htmlpulldown=1;//important flag - tells us that HTML visual is in special mode
      }
      else
-      SelectSwitch(x+dx,y+dy);
+      SelectSwitch(x+dx,y+dy,0);
      activeatomptr=NULL;
      goto exit_cursor;
     }

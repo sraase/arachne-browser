@@ -11,19 +11,6 @@
 char *getShortname(char *longname); //for Windows 9x VFAT ...
 #endif
 
-int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *cacheitemadr, unsigned *status, char quicksearch);
-
-// Cache stores data in an array of HTTPrecords
-int SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *cacheitemadr, unsigned *status)
-{
- return meta_SearchInCache(absURL,cacheitem,cacheitemadr,status,0);
-}
-
-int QuickSearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *cacheitemadr, unsigned *status)
-{
- return meta_SearchInCache(absURL,cacheitem,cacheitemadr,status,1);
-}
-
 int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *cacheitemadr, unsigned *status, char quicksearch)
 {
  //cache je inicializovana jinde..
@@ -107,7 +94,7 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
   strcpy(cacheitem->rawname,cacheitem->locname);
 
   //printf("local filename is : %s\n", cacheitem->locname);
-  if(call_plugin(cacheitem->mime, dummy,ext)==1) //convert only!
+  if(search_mime_cfg(cacheitem->mime, ext, dummy)==1) //convert only!
    *status=VIRTUAL;
   else
   {

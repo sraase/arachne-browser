@@ -37,7 +37,9 @@ struct uiface
  char multitasking;
  int refresh;
  char killadds;
- char vfat;
+#if defined(MSDOS) && !defined(XTVERSION)
+char vfat;
+#endif
  long expire_static;
  long expire_dynamic;
  char quickanddirty;
@@ -49,6 +51,9 @@ struct uiface
  int xms4allgifs; //KB
  long xms4onegif; //bytes
  char nohtt;
+#ifdef GGI
+int ggifastscroll;
+#endif
 };
 
 extern struct uiface user_interface;

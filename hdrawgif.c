@@ -98,11 +98,11 @@ unsigned char g_rT=0,g_gT=0,g_bT=2;  // RGB pro transp. color
 #define MAX_SAVEGIF 40000L
 
 #ifdef MSDOS
-#define MAX_BYTES    4096
-#define MAX_PIXELS   2048
+#define MAX_BYTES    2400
+#define MAX_PIXELS   1200
 #else
-#define MAX_BYTES    10000
-#define MAX_PIXELS   5000
+#define MAX_BYTES    16000
+#define MAX_PIXELS   8000
 #endif
 
 int (*g_DrawFce)(struct picinfo *gif, int Flags, char *pal,
@@ -131,14 +131,13 @@ void init_picinfo(struct picinfo *img)
 
 
 // ------------- haro -----------------------
-//int drawGIF(struct picinfo *gif,int hPicInfo, int *ModPic)
 int drawGIF(struct picinfo *gif)
 {
 //picinfo (in/out) - jmeno gifu a kam nakreslit
 //hPicinfo(in) - handle picinfo (jen pro anim.gify)
 //ModPic  (out)- zda uchovat zmeny v picinfo
 //   char   drive[8], dir[80], name[16], ext[8];
-   char *ext;
+//   char *ext;
    struct GIFGLB GifGlb;
    struct GIFIMG GifImg;
    int    ist, mark, interlac, NumImg = 0;
@@ -163,13 +162,16 @@ int drawGIF(struct picinfo *gif)
    //basebackg=-1; //mp!!
 
 //   fnsplit(gif->filename, drive, dir, name, ext);
+
+/* //no longer needed - drawGIF is always called from drawanyimage()
+
    ext=strrchr(gif->filename,'.');
    if(ext && strcmpi(ext,".bmp") == 0)
    { // Kresli bmp
      ist = XCHdrawBMP(gif);
      return( ist );
    }
-
+*/
 /*
 #ifdef XANIMGIF
    if(gif->palonly==0 && gif->sizeonly==0 && gif->IsInXms)
@@ -1255,7 +1257,9 @@ int draw_gif(struct picinfo *gif , int cod_start,int interlac,
     i--;
 
     do
-    { obuf[obufx]=ostack[i];
+    {
+      if(obufx<MAX_PIXELS)
+       obuf[obufx]=ostack[i];
       obufx++;
 
       if(obufx >= dx)   // Konec radku
@@ -1291,10 +1295,12 @@ int draw_gif(struct picinfo *gif , int cod_start,int interlac,
    End_d:
    if(done == 0) goto HLAVNI_CYKL;
 
+/*
+ ????
    if(obufx > 0)
    {;
    }
-
+*/
    ire = 1;
 
    Free:

@@ -29,9 +29,12 @@ void generateps(void)
  int psfixedfontsize[7]={0,6,7,8,9,10,12};
  int realfontsize;
  struct HTMLrecord *atomptr;
+#ifdef POSIX
+ int f = a_open( POSTSCRIPT, O_RDWR | O_TEXT | O_CREAT | O_TRUNC, S_IREAD|S_IWRITE );
+#else
  int f = a_sopen( POSTSCRIPT, O_RDWR | O_TEXT | O_CREAT | O_TRUNC,
 		  SH_COMPAT | SH_DENYNONE, S_IREAD|S_IWRITE );
-
+#endif
  if(f<0)
   return;
 

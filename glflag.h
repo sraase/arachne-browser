@@ -174,6 +174,7 @@ struct GLOBAL_FLAG
 #define EXIT_GRAPHICS_ERROR   16
 #define EXIT_RESOLUTION_ERROR 8
 #define EXIT_CONTINUE_SETUP   4
+#define EXIT_ABORT_SETUP      2
 #define EXIT_ABNORMAL         0
 
 #define TABLES_UNKNOWN    0

@@ -139,6 +139,9 @@ void DrawIconLater(char *iconame,int x0, int y0)
 void DrawIconNow(char *iconame,int x0, int y0)
 {
   Putikonx(x0, y0, iconame, 1);
+#ifdef GGI
+  Smart_ggiFlush();
+#endif
 }
 
 //##----------- Vykresleni ikon v seznamu a jeho zruseni
@@ -233,6 +236,9 @@ void DrawIcons(void)
   }
 
   if(bi1 != NULL) farfree(bi1);
+#ifdef GGI
+  Smart_ggiFlush();
+#endif
   freeinkons();
 }
 
@@ -765,9 +771,10 @@ void Putikonx(int x0, int y0, char *iconame, char noswap)
   unsigned int Off = 0;
 #ifdef HICOLOR
   unsigned short int   *biHi = NULL;
+  int i;
 #endif
   int      JeVinx, AddInx, InxDel, UpIcnMem;
-  int      Transp, i;      // Transparentni ikony
+  int      Transp;      // Transparentni ikony
 
   // -------------------------------------------------
 #ifdef POSIX

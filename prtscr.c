@@ -27,11 +27,12 @@ int PrintScreen2BMP(char virtscr)
  } bmp_hed;                          // Sum = 54bytu
 
  unsigned char buf[4000];        //2*1600 + 4 + secure overhead
- int i,j,f,depth=8,max,zblo;
+ int j,f,depth=8,max,zblo;
  long x,y,offbit;
  unsigned long fsize;
 #ifdef HICOLOR
  unsigned char *RGBquadbuf;
+ int i;
 #endif
  char *charhed=(char *)&bmp_hed;
 
@@ -107,7 +108,7 @@ int PrintScreen2BMP(char virtscr)
  write(f, charhed,2);   
  write(f, charhed+4,52); // ????????????????? gcc deforms struct size ???
 #else
- i=write(f, &bmp_hed,54);
+ write(f, &bmp_hed,54);
 #endif
 
  if(depth !=24)//write BMP palette
@@ -119,7 +120,7 @@ int PrintScreen2BMP(char virtscr)
    buf[2]=Iipal[3*j]<<2;
    buf[1]=Iipal[3*j+1]<<2;
    buf[0]=Iipal[3*j+2]<<2;
-   i=write(f,buf,4);
+   write(f,buf,4);
    j++;
   }//loop
  }//end if write palette

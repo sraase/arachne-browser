@@ -195,11 +195,7 @@ int MixPal(struct picinfo *o, int n, char writepal)
  {
   o[i].palonly=1;
   o[i].sizeonly=0;
-#ifdef CALDERA
-  if(drawGIF(&o[i],0)==1)
-#else
-  if(drawGIF(&o[i])==1)
-#endif //  CALDERA
+  if(drawanyimage(&o[i])==1)
   {
    npalout+=o[i].npal;
    Palin[npic]=(char *)o[i].pal;

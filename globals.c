@@ -40,10 +40,10 @@ struct TMPframedata *tmpframedata=NULL; //allocate MAXFRAMES*sizeof(.)+1!
 //number of frames [0..MAXFRAMES-1] is in arachne.framescount
 
 //frame Arachne currently writes to:
-char currentframe=0;
+int  currentframe=0;
 
 //frame currently slected (activated) by user:
-char activeframe=0,oldactive=0;
+int activeframe=0,oldactive=0;
 
 // ========================================================================
 
@@ -125,6 +125,7 @@ char noGUIredraw=0;
 char htmlmsg[100]="\0";
 
 char htmlpulldown=0;
+int htmlsavex=-1,htmlsavey;
 char activeistextwindow=0;
 char meminfovisible=0;
 
@@ -188,7 +189,7 @@ long virtualystart[MAXVIRTUAL];
 int virtualxend[MAXVIRTUAL];
 long virtualyend[MAXVIRTUAL];
 char allocatedvirtual[MAXVIRTUAL];
-char maxusedvirtual=0;
+int maxusedvirtual=0;
 XSWAP virtualpalhandle=IE_NULL;
 XSWAP virtualfirstonscr=IE_NULL,virtuallastonscr=IE_NULL;
 int virtualIiNpal;
@@ -198,7 +199,6 @@ int argnamecount=0,argvaluecount=0;
 char *argnamestr=NULL,*argvaluestr=NULL;
 
 long ppplogtime=0;
-char ascii160hack=0;
 
 char GlobalLogoStyle;		//SDL
 

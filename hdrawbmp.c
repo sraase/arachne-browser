@@ -105,7 +105,7 @@ int XCHdrawBMP(struct picinfo *bmp)
  if(*(long *)&buf[1]!=40l || i!=41) //takovou bitmapu bohuzel neumim || eof
  {
 #ifdef POSIX
-  printf("Unsupported BMP markers %d, %d",*(long *)&buf[1],i);
+  printf("Unsupported BMP marker %d or header size %d!=41...\n",*(long *)&buf[1],i);
 #endif
   goto err;
  }

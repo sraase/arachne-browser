@@ -152,13 +152,3 @@ int search_mime_cfg(char *rawmime, char *ext, char *cmd)
 
 }
 
-void get_extension(char *mime, char *ext)
-{
- search_mime_cfg(mime,ext, NULL);
-}
-
-int call_plugin(char *mime, char *command, char *newext)
-{
- return search_mime_cfg(mime, newext, command);
-}
-

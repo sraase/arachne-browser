@@ -59,8 +59,13 @@ extern struct AUTH_STRUCT *AUTHENTICATION;
 
 void AnalyseURL(char *str,struct Url *url,int frame);
 void ResetURL(struct Url *url);
-int SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *cacheitemadr, unsigned *status);
-int QuickSearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *cacheitemadr, unsigned *status);
+//!!Bernie:begin 00-07-09
+//int SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *cacheitemadr, unsigned *status);
+//int QuickSearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *cacheitemadr, unsigned *status);
+int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *cacheitemadr, unsigned *status, char quicksearch);
+#define SearchInCache(absURL,cacheitem,cacheitemadr,status) meta_SearchInCache(absURL,cacheitem,cacheitemadr,status,0)
+#define QuickSearchInCache(absURL,cacheitem,cacheitemadr,status) meta_SearchInCache(absURL,cacheitem,cacheitemadr,status,1)
+//!!Bernie:end
 XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char newfilename);
 void UpdateInCache(XSWAP cacheadr, struct HTTPrecord *store);
 void DeleteFromCache(XSWAP cacheadr);

@@ -11,7 +11,7 @@
 #include "a_io.h"
 #include "pckbrd.h"
 
-//**********  cut block ****************
+//**********  cut block ****************/
 void ie_cutblock(struct ib_editor *fajl)
 {
  if(fajl->blockflag & 2)
@@ -94,7 +94,7 @@ void ie_cutblock(struct ib_editor *fajl)
  }
 }
 
-//********** copy block ****************
+//********** copy block ****************/
 void ie_copyblock(struct ib_editor *fajl)
 {
  if(fajl->blockflag & 2)
@@ -290,7 +290,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
   fajl->aktrad=-1;
   switch(toupper(znak))
   {
-   //***** end block *****
+   // ***** end block *****
    case 'K':
    fajl->bey=fajl->y;
    fajl->bex=fajl->x;
@@ -300,7 +300,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
     fajl->blockflag=0; //invisible
    return 3;
 
-   //***** begin block *****
+   // ***** begin block *****
    case 'B':
    fajl->bby=fajl->y;
    fajl->bbx=fajl->x;
@@ -311,7 +311,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
     fajl->blockflag=0; //invisible
    return 3;
 
-   //***** hide block *****
+   // ***** hide block *****
    case 'H':
    if(fajl->blockflag & 2)
    {
@@ -330,13 +330,13 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
    }
    return rv;
 
-   //***** del block *****
+   // ***** del block *****
    case 'Y':
    ie_cutblock(fajl);
    rv=3;
    goto zoom_synchro;
 
-   //***** move block *****
+   // ***** move block *****
    case 'M':
    case 'V':
    ie_copyblock(fajl);
@@ -345,7 +345,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
    rv=3;
    goto zoom_synchro;
 
-   //***** copy block *****
+   // ***** copy block *****
    case 'C':
    ie_copyblock(fajl);
    ie_insblock(fajl,CLIPBOARDNAME);
@@ -481,7 +481,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
   if(fajl->zoomx>fajl->cols-ietxt_max_x)fajl->zoomx=fajl->cols-ietxt_max_x;
   goto retpg2;
  }
- else if (klavesa==(int)0x8400) //Ctrl+PgUp
+ else if (klavesa==(int)0x8400 || (klavesa==PAGEUP && modifiers==CTRLKEY)) //Ctrl+PgUp
  {
   ie_blockstart(fajl,modifiers);
   fajl->y=0;
@@ -491,7 +491,7 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
   ie_blockend(fajl,modifiers);
   return 3;
  }
- else if (klavesa==0x7600) //Ctrl+PgDn
+ else if (klavesa==0x7600 || (klavesa==PAGEDOWN && modifiers==CTRLKEY)) //Ctrl+PgDn
  {
   ie_blockstart(fajl,modifiers);
   fajl->y=fajl->lines-1;

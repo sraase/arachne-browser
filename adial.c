@@ -158,24 +158,39 @@ char *ArachneDIAL(void)
      int f=a_open("pppdrc.cfg",O_TEXT|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
      if(f!=-1)
      {
-      char base[80]="\0",COM[20]="\0";
-      value=configvariable(&ARACHNEcfg,"Base",NULL);
-      if(value && toupper(*value)!='D')
-       sprintf(base,"base %s\n",value);
+      char *base,*default_base[4]={"0x3f8","0x2f8","0x3e8","0x2e8"};
+      char *irq,*default_irq[4]={"4","3","4","3"};
+      int port=0;
+
+      value=configvariable(&ARACHNEcfg,"Port",NULL);
+      if(value)
+       port=atoi(value)-1;
+
+      if(port>=0 && port<4)
+      {
+       irq=default_irq[port];
+       base=default_base[port];
+      }
       else
-       sprintf(COM,"COM%.1s\n",configvariable(&ARACHNEcfg,"Port",NULL));
+      {
+       irq=configvariable(&ARACHNEcfg,"Irq",NULL);
+       base=configvariable(&ARACHNEcfg,"Base",NULL);
+      }
       sprintf(buf,"\
-%s%s\n\
-irq %s\n%s\
+%s\n\
+irq %s\n\
+base %s\n\
 modem\n\
 crtscts\n\
 asyncmap 0\n\
 namsrv %s\n\
+namsrv %s\n\
 user \"%s\"\n\
-passwd \"%s\"\n",COM,
+passwd \"%s\"\n",
       configvariable(&ARACHNEcfg,"Speed",NULL),
-      configvariable(&ARACHNEcfg,"Irq",NULL),base,
+      irq,base,
       configvariable(&ARACHNEcfg,"NameServer",NULL),
+      configvariable(&ARACHNEcfg,"AltNameServer",NULL),
       configvariable(&ARACHNEcfg,"PPPusername",NULL),
       configvariable(&ARACHNEcfg,"PPPpassword",NULL));
       write(f,buf,strlen(buf));

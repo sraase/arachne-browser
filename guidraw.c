@@ -263,7 +263,8 @@ void PaintTitle(void)    // vykresleni nazvu stranky
   {
    Box3D(0,htscrn_ytop-25,x_maxx()-152,htscrn_ytop-2);
    URLprompt.xx=x_maxx()-152-user_interface.scrollbarsize;
-   Scratch3D(URLprompt.xx+3,htscrn_ytop-13,x_maxx()-155);
+   if(user_interface.scrollbarsize>3)
+    Scratch3D(URLprompt.xx+3,htscrn_ytop-13,x_maxx()-155);
   }
   else
   {
@@ -313,6 +314,7 @@ void RedrawALL()                       // redraw entire user interface
  MemInfo(NORMAL);
  noGUIredraw=0;
  global_nomouse=0;
+ lasthisx=-1;
  //turn on special XSWAP optimization for speed
  swapoptimize=0;
 }
@@ -386,6 +388,9 @@ void ChangeZoom(char style, char plus, char minus)
 #else
  savepick();
 #endif
+ GLOBAL.nothot=1;
+ GLOBAL.needrender=1;
+ GLOBAL.validtables=0; //tabulky je potreba prepocitat!!!
 }
 
 void statusmsg(void)
@@ -603,7 +608,7 @@ void putoptionline(int x,int y,int limit,struct ib_editor *fajl,int line,char mu
   else
   {
    x_setfill(0,0);
-   x_bar(x+3,y+3,x+space(SYSFONT)-1,y+fonty(OPTIONFONT,0)-5);
+   x_bar(x+3,y+4,x+space(SYSFONT)-1,y+fonty(OPTIONFONT,0)-6);
   }
  }
 }
@@ -650,6 +655,9 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
  mouseon();
 #endif //CUSTOMER
  title_ok=1;
+#ifdef GGI
+  Smart_ggiFlush();
+#endif 
 }
 
 
@@ -659,12 +667,16 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
 // Only for overlay, when the mouse on a button, it pops up a little to indicate that it is active
 void hidehighlight(void)
 {
- if(lastonbutton>9 && lastonbutton<CLICK_SPECIAL)
+ if((lastonbutton>9 && lastonbutton<CLICK_SPECIAL || htmlpulldown) && lasthisx>=0)
  {
   mouseoff();
   x_setcolor(7);
   x_rect(lasthisx,lasthisy,lasthisxx,lasthisyy);
   mouseon();
+  lasthisx=-1;
+#ifdef GGI
+  Forced_ggiFlush();
+#endif 
  }
 }
 
@@ -683,6 +695,9 @@ void showhighlight(void)
  x_line(lasthisxx,lasthisy,lasthisxx,lasthisyy);
  x_line(lasthisx,lasthisyy,lasthisxx,lasthisyy);
  mouseon();
+#ifdef GGI
+ Forced_ggiFlush();
+#endif 
 }
 
 void onlinehelp(int b)
@@ -870,6 +885,9 @@ void onlinehelp(int b)
   if(lastonbutton)
    defaultmsg();
   // ?b=0;
+#ifdef GGI
+  Smart_ggiFlush();
+#endif 
  }
 
 }

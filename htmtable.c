@@ -468,7 +468,7 @@ char calcwidth(struct HTMLtable *tab)
      (tab->totalxsum>0 || tab->fixedmax))
    return 1;
 
-   i=1;
+  i=1;
   while(i<=tab->columns)
   {
    if(tab->xsum[i]>tab->realtdwidth[i] && tab->xsum[i])
@@ -553,7 +553,7 @@ void expand(struct HTMLtable *tab)
     if(delta<0  || delta+tab->realwidth>tab->maxwidth+FUZZYPIX)
      delta=0;
 
-    //for tables with undefined width, where delat is bigger than necessary
+    //for tables with undefined width, where delta is bigger than necessary
     if(tab->fixedmax==0 && delta>tab->xsum[i])
      delta=(int)tab->xsum[i];
 

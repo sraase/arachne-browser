@@ -70,10 +70,10 @@ void generateprt(void)
  char radka[IE_MAXLEN+2], *ptr;
  struct HTMLrecord *atomptr;
 
- printf("Console width is: %d\n\n",CONSOLEWIDTH);
+/* printf("Console width is: %d\n\n",CONSOLEWIDTH);
 #ifndef CLEMENTINE
  fflush(stdout);
-#endif
+#endif*/
  
  ie_openf_lim(&txt,CONTEXT_TMP,MAXLINES2PRINT);
  strcpy(txt.filename,PRINTFNAME);

@@ -30,7 +30,7 @@ void XSetAnim1(void)
   if(!pPicInf)                       // pokud se nepovede, tak "Fatal Error"
    MALLOCERR();
 
-  //po "dumpvirtual" zarucene vykreslen frejm 0...
+  //po volani "dumpvirtual" zarucene vykreslen frejm 0...
   pPicInf->NextImg = 0;   // nastaveni na zacatek
   g_TableAnim[i].NextAnim= 0l;   //mp!!: pri nejblizsi prilezitosti prekreslit
   swapmod=1;
