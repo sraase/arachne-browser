@@ -33,7 +33,7 @@ void zoommsg(void)
 
 extern char egamode,cgamode,vga16mode,vgamono;
 
-//-------------------- global variable (IBASE, X_LOPIF) ---------------
+//-------------------- globalni promenne (IBASE, X_LOPIF) ---------------
 
 //char commBase[64];
 //char scratchBase[64];
@@ -45,7 +45,7 @@ char *vgadetected=NULL;
 void detectgraphics(void)
 //===========================================================================
 {
- //char Grafmode[30];  //requested graphical mode -
+ //char Grafmode[30];  //pozadovany graf.mod -
  int i;
 
  vgadetected=farmalloc(30);
@@ -63,7 +63,7 @@ void graphicsinit(char *svgamode)
 //===========================================================================
 {
 
-char *ptr,Grafmode[30];  //requested graphical mode -
+char *ptr,Grafmode[30];  //pozadovany graf.mod -
 int irc,gmode;
 const short cur[32] =
 	 { 0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
@@ -189,7 +189,7 @@ strcpy(svgamode,Grafmode);
 */
 setmode:
 
-  // Setting graphical mode
+  // Nastaveni grafickeho modu
   if(!strcmpi(Grafmode,"VGAMONO"))
   {
    strcpy(Grafmode,"VGA");
@@ -217,7 +217,7 @@ setmode:
     goto GrError;
   }
 
-  x_defcurs( (short *)cur, (short *)&cur[16], 15); //mouse cursor
+  x_defcurs( (short *)cur, (short *)&cur[16], 15); //myssii kursor
 
  if(!strcmpi(Grafmode,"EGA"))
   egamode=1;
@@ -230,13 +230,13 @@ setmode:
 
  initpalette();
 
- x_setcolor(15); //white!
+ x_setcolor(15); //bila!
  x_charmod(1);
 
  return;
 
  //========================================================================
- //error while opening graphic >>
+ //chyba pri otevirani grafiky >>
  //========================================================================
  GrError:
  x_grf_mod(3);
@@ -244,7 +244,7 @@ setmode:
  exit(EXIT_GRAPHICS_ERROR);
 
 /*
-  x_grf_mod(3);  //error while opening graphic >>
+  x_grf_mod(3);  //chyba pri otevirani grafiky >>
 
   puts(MSG_VERR1);
   puts(MSG_VERR2);
@@ -280,7 +280,7 @@ void finfo(void)
    htmlfont(f,style);
    finf->y[f-1][style]=x_txheight("A");
 
-   //corrections apply to font Arial !!!
+   //korekce jsou pro font Arial !!!
    if(style==0)
    {
     if(f>2)finf->y[f-1][style]--;

@@ -6,7 +6,7 @@
 
 #include "arachne.h"
 
-//velikost stacku
+//velikost stacku (tr.: size of stack)
 unsigned _stklen=65500u;
 
 #ifdef OVRL
@@ -52,6 +52,7 @@ char *fntinf="system\\fontinfo.bin";
 
 
 //char *buf=NULL;            //univerzalni buffer vstup vystup
+                         // tr.: universal buffer input output
 char *msg_con=MSG_CON;
 char *msg_errcon=MSG_ERRCON;
 char *msg_askdns=MSG_ASKDNS;
@@ -62,7 +63,7 @@ char *anykey=MSG_ANYKEY;
 #ifdef NOKEY
 //char *regkey="",reg=1;
 //char *regkey="GPL  Version",reg=1;//!!glennmcc: Apr 06, 2003 --- GPL now
-char *regkey="v1.77;GPL,386+",reg=1;//!!glennmcc: Jun 02, 2004
+char *regkey="v1.79;GPL,386+",reg=1;//!!glennmcc: Jun 02, 2004
 #else
 char regkey[KEYLEN+1]=MSG_UNREG,reg=0;
 #endif
@@ -94,26 +95,29 @@ int socknum;
 
 int status; //for WATTCP
 
-//struct bin_file Tablelist; //obsolete binary structurers
+//struct bin_file Tablelist; //obsolete binary structures
 struct bin_file HTTPcache;   //binary cache database
 char nobr_overflow[MAXNOBR];
-struct ArachnePick arachne; //autosave konfiguracni soubor
+struct ArachnePick arachne; //autosave configuration file
 char title_ok=0;
 struct ib_editor history;   //historie "TADYJSEM.BYL"
+            // tr.: "I have been here already"
 struct ib_editor cookies;
-struct ib_editor MIMEcfg;   //mimekonfigurace
-struct ib_editor ARACHNEcfg;//hlavni konfigurace
+struct ib_editor MIMEcfg;   //mime configuration
+struct ib_editor ARACHNEcfg;//main configuration
 struct ib_editor TOOLBARcfg;//toolbar
 struct ib_editor tmpeditor,*editorptr;//ukazatel na jeden vyskyt IBASE editoru
+         // tr.: pointer to one occurence  of the IBASE editor
 struct uiface user_interface; //user controled variables
 
-char myIPstr[20]="0.0.0.0";           //moje IP adresa
-char tcpip=0;               //je k dispozici TCP/IP ?
-char httpstub=0;            //je k dispozici TCP/IP ?
+char myIPstr[20]="0.0.0.0";           // my IP address
+char tcpip=0;               // is TCP/IP available?
+char httpstub=0;            // is TCP/IP available?
 char ipmode=MODE_NORMAL;
 char memory_model=0;        //memory_model=1 ... optimum performance
 int BUF;                    //work buffer size for p->buf and p->text
 int loadrefresh=1000;       //perioda prekreslovani (v bajtech) pro LAN TCP/IP
+    // tr.: period of redrawing/overwriting (in Bytes) for LAN TCP/IP
 char noGUIredraw=0;
 
 char htmlmsg[100]="\0";
@@ -130,7 +134,8 @@ char *setupdoc="file:%soptions.htm";
 
 //global palette
 int    IiNpal=0;   //delka souhrnne palety --> vynulovat pri Clrscr apod.!
-char   *Iipal; //souhrnna paleta
+            // tr.: length of composite palette --> erase at Clrsrc etc.!
+char   *Iipal; //souhrnna paleta (tr.: composite palette)
 
 //this is just optimization flag for IKN library
 char neediknredraw;
@@ -148,7 +153,7 @@ char *cachepath="CACHE\\";
 #endif
 char *hotlist="hotlist.htm";
 
-//globar variables for GUI
+//global variables for GUI
 char egamode=0,cgamode=0,vga16mode=0,vgamono=0,ignoreimages=0;
 char fixedfont=0;
 int ikn=0;
@@ -176,11 +181,15 @@ int virtualIiNpal;
 #endif
 
 int argnamecount=0,argvaluecount=0;
+//!!JdS 2004/1/31 Alternative scheme to argnamecount, argvaluecount :
+int argvarcount=0;
 char *argnamestr=NULL,*argvaluestr=NULL;
+//!!JdS 2004/1/31 Alternative scheme to argnamestr, argvaluestr :
+char *argnameptr[MAXARGS], *argvalueptr[MAXARGS];
 
 long ppplogtime=0;
 
-char GlobalLogoStyle;		//SDL
+char GlobalLogoStyle;      //SDL
 
 struct Url baseURL;
 
@@ -197,3 +206,4 @@ char rgbcacheidx;
 #ifndef XTVERSION
 int lasthisx,lasthisy,lasthisxx,lasthisyy;
 #endif
+

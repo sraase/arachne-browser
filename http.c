@@ -19,7 +19,7 @@ extern int posixErrNo;
 
 #define HTTP_QUICK_CONNECT 6   //first quick connect attempt (seconds)
 #define HTTP_ASLEEP        60  //timeout for "empty documents" (esp. via proxy)
-                               //...for images, timeouts are divided by 2
+			       //...for images, timeouts are divided by 2
 
 struct Http_parameters http_parameters;
 
@@ -220,9 +220,9 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
   if (str[0])
   {
    decompose_inetstr(str);
-   if (getvar("domain",&ptr) && strstr(url->host,ptr))
+   if (getarg("domain",&ptr) && strstr(url->host,ptr))
    {
-    if (getvar("path",&ptr) && strstr(url->file,ptr))
+    if (getarg("path",&ptr) && strstr(url->file,ptr))
     {
      if (strlen(cookiestr)+strlen(str)+10<MAXARGBUF)
      {
@@ -269,7 +269,7 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
   char tmp[128];
   sprintf(str,"%s:%s",
           configvariable(&ARACHNEcfg,"ProxyUsername",NULL),
-          configvariable(&ARACHNEcfg,"ProxyPassword",NULL));
+	  configvariable(&ARACHNEcfg,"ProxyPassword",NULL));
   base64code((unsigned char *)str,tmp);
   sprintf(str,"Proxy-authorization: Basic %s\r\n",tmp);
   strcat(authorization,str);
@@ -325,7 +325,7 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
   */
 
 #else
-  status=tcp_open( socket, locport(), host, port, NULL );
+  status=tcp_open(socket, locport(), host, port, NULL );
   if (status!=1)
   {
    sprintf(str,msg_errcon,pocitac);
@@ -335,7 +335,7 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
 
   sprintf(str,msg_con,pocitac,port);
   outs(str);
-  if (_ip_delay0( socket, delay, (sockfunct_t) TcpIdleFunc, &status ))          //SDL
+  if (_ip_delay0(socket, delay, (sockfunct_t) TcpIdleFunc, &status ))          //SDL
   {
    if(attempt==3)
     goto sock_err;
@@ -439,13 +439,13 @@ Host: %s%s\r\n\
  if(tcpip && !httpstub)    //if TCP/IP is enabled
  {
 #ifdef POSIX
-  if(sock_puts( socknum, p->buf)<0) //send HTTP reques....
+  if(sock_puts(socknum, p->buf)<0) //send HTTP reques....
   {
    outs(MSG_CLOSED);
    return 0;
   }
 #else
-  sock_puts( socket, (unsigned char *)p->buf); //send HTTP reques....
+  sock_puts(socket, (unsigned char *)p->buf); //send HTTP reques....
 #endif
 
   if(querystring)           //if query string has to be posted
@@ -453,7 +453,7 @@ Host: %s%s\r\n\
    outs(MSG_POST);
 
 #ifdef POSIX
-   if(sock_puts( socknum, querystring)<0) //send HTTP reques....
+   if(sock_puts(socknum, querystring)<0) //send HTTP reques....
    {
     outs(MSG_CLOSED);
     return 0;
@@ -474,7 +474,7 @@ Host: %s%s\r\n\
     if(!querystring)
      MALLOCERR();
 
-    sock_tick( socket, &status ); //I shift TCP/IP
+    sock_tick(socket, &status ); //I shift TCP/IP
     sock_fastwrite(socket, (unsigned char *)&querystring[postindex] ,512);
 
     postindex+=512;
@@ -493,11 +493,11 @@ Host: %s%s\r\n\
     querystring=ie_getswap(GLOBAL.postdataptr);
     if(!querystring)
      MALLOCERR();
-    sock_tick( socket, &status ); //I shift TCP/IP
-    sock_fastwrite( socket, (unsigned char *)&querystring[postindex] ,strlen(&querystring[postindex]));
+    sock_tick(socket, &status ); //I shift TCP/IP
+    sock_fastwrite(socket, (unsigned char *)&querystring[postindex] ,strlen(&querystring[postindex]));
    }
-   sock_tick( socket, &status ); //I shift TCP/IP
-   sock_puts( socket, (unsigned char *)"\r\n");
+   sock_tick(socket, &status ); //I shift TCP/IP
+   sock_puts(socket, (unsigned char *)"\r\n");
    sprintf(str,MSG_SENT,ql);
    outs(str);
 
@@ -507,7 +507,9 @@ Host: %s%s\r\n\
 #endif
   }//endif posting querystring...
  }//endif tcpip
-/*
+//!!glennmcc: begin Oct 17, 2004 -- re-enable HTTPSTUB
+//(this entire section had been commented-out)
+// /*
  else //httpstub = non TCP/IP stuf ========================================
  {
   int f,l;
@@ -525,13 +527,16 @@ Host: %s%s\r\n\
   if (f>=0)
   {
    write(f,p->buf ,strlen(p->buf));
-   if(poststring)
+//!!glennmcc Oct 17, 2004 -- commented-out to prevent compiler errors
+/*
+   if(*poststring)
    {
     querystring=ie_getswap(GLOBAL.postdataptr);
     if(!querystring)
      MALLOCERR();
     write(f, querystring,strlen(querystring));
    }
+*/
    close(f);
   }
   outs("Waiting for http/stub answer...");
@@ -559,7 +564,8 @@ Host: %s%s\r\n\
   if(f)
   {
    p->httplen=a_read(f,p->buf,BUF-1);
-   p->buf[httplen]='\0';
+//!!glennmcc Oct 17, 2004 -- commented-out to prevent compiler errors
+//   p->buf[httplen]='\0';
    close(f);
   }
 
@@ -570,7 +576,8 @@ Host: %s%s\r\n\
 
   goto analyse;
  } // ====================================================================
-*/
+// */
+//!!glennmcc: end Oct 17, 2004 -- re-enable HTTPSTUB
 
  //let's initialize this session.
  p->httplen=0;
@@ -644,11 +651,11 @@ Host: %s%s\r\n\
    if(strstr(p->buf,"\r\n\r\n") || strstr(p->buf,"\r\r") || strstr(p->buf,"\n\n") || p->httplen>=p->buf)
     header_done=1;
 #else
-   if (sock_dataready( socket ))
+   if (sock_dataready(socket ))
    {
     if(p->httplen+256<BUF)
     {
-     count=sock_fastread( socket, (unsigned char *)&(p->buf[p->httplen]), 256);
+     count=sock_fastread(socket, (unsigned char *)&(p->buf[p->httplen]), 256);
      p->httplen+=count;
      p->buf[p->httplen]='\0';
      if(strstr(p->buf,"\r\n\r\n") || strstr(p->buf,"\r\r") || strstr(p->buf,"\n\n"))
@@ -656,7 +663,7 @@ Host: %s%s\r\n\
     }
     else
     {
-     count=sock_fastread( socket, (unsigned char *)str, 256);
+     count=sock_fastread(socket, (unsigned char *)str, 256);
      str[count]='\0';
      if(strstr(str,"\r\n\r\n") || strstr(str,"\r\r") || strstr(str,"\n\n"))
       header_done=1;
@@ -780,7 +787,7 @@ analyse:
      decompose_inetstr(&ptr[2]);
 //!!JdS 2004/2/15 }
 
-     if(!getvar("path",&p)) // getarg() was getvar() [JdS 2004/1/30]
+     if(!getarg("path",&p)) // getarg() was getvar() [JdS 2004/1/30]
      {
       //p=url->file;
 //!!JdS 2004/2/15 {
@@ -791,7 +798,7 @@ analyse:
 
      makestr(path,p,79);
 
-     if(!getvar("domain",&p)) // getarg() was getvar() [JdS 2004/1/30]
+     if(!getarg("domain",&p)) // getarg() was getvar() [JdS 2004/1/30]
      {
 //!!JdS 2004/2/15 {
 //    joinstr(newcookie,COOKIESIZE,"; domain="); // Was strcat() [JdS 2004/1/17]
@@ -867,8 +874,8 @@ analyse:
       ie_getcookie(str,&cookies,cookies.y);
       decompose_inetstr(str);
 
-      getvar("domain",&p);
-      if(strstr(domain,p) && getvar("path",&p))
+      getarg("domain",&p);
+      if(strstr(domain,p) && getarg("path",&p))
        if(!strcmp(path,p))
        {
 	p = strchr(str,'=');
@@ -920,27 +927,27 @@ analyse:
        while(*ptr)
        {
         if(!strncmpi(ptr,"realm=",6))
-        {
+	{
          char *realm;
-         ptr+=6;
+	 ptr+=6;
          realm=ptr;
          if(*ptr=='\"')
-         {
+	 {
           ptr++;
-          realm=ptr;
+	  realm=ptr;
           while (*ptr && *ptr!='\"')ptr++;
           *ptr='\0';
          }
          if(!strcmpi(AUTHENTICATION->host,url->host) &&
             !strcmp(AUTHENTICATION->realm,realm))
-           AUTHENTICATION->flag=AUTH_OK;
+	   AUTHENTICATION->flag=AUTH_OK;
          else
-         {
+	 {
           makestr(AUTHENTICATION->realm,realm,79);
           strcpy(AUTHENTICATION->host,url->host);
-         }
+	 }
         }
-        ptr++;
+	ptr++;
        }//loop
       }
      }//endif
@@ -1065,7 +1072,7 @@ Local: <A HREF=\"file:%s\">%s</A><HR>\n\
 #ifdef POSIX
  close(socknum);
 #else
- sock_close( socket );
+ sock_close(socket );
  closing[socknum]=1;
 #endif
  sock_keepalive[socknum][0]='\0';
@@ -1107,7 +1114,7 @@ void closehttp(struct HTTPrecord *cache)
 #ifdef POSIX
   close(socknum);
 #else
-  sock_close( socket );
+  sock_close(socket );
   closing[socknum]=1;
 #endif
  }
@@ -1160,6 +1167,11 @@ void Download(struct HTTPrecord *cache)
  char dl[80],str[80];
  int rd=1, prc=0;
 
+//!!glennmcc: Nov 17, 2004 -- include bytes/sec rate
+//!!glennmcc: Nov 21, 2004 -- added time remaining
+long starttime=time(NULL), elapsedtime, heta, meta, seta;
+//!!glennmcc: end
+
  if(cache->handle!=-1)
   fpos=a_filelength(cache->handle);
 
@@ -1175,13 +1187,33 @@ void Download(struct HTTPrecord *cache)
   strcpy(dl,MSG_DOWNLD);
 
 #ifndef POSIX
-  if (!sock_dataready( socket ) || rd==0)
+  if (!sock_dataready(socket ) || rd==0)
   {
 #endif
    if (cache->knowsize && cache->size>0)
    {
     prc=(int)(100*fpos/cache->size);
-    sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);
+
+//!!glennmcc: Nov 17, 2004 -- include bytes/sec rate
+//!!glennmcc: Nov 21, 2004 -- added time remaining
+elapsedtime=(time(NULL)-starttime);
+if(elapsedtime>1 && prc<99)
+{
+//if(prc>5){ //uncomment to start calculating only after 5%
+heta=(cache->size-fpos)/(fpos/(int)(elapsedtime))/3600;//hours
+meta=((cache->size-fpos)/(fpos/(int)(elapsedtime))-(heta*3600))/60;
+seta=(cache->size-fpos)/(fpos/(int)(elapsedtime))-(heta*3600)-(meta*60);
+//}else{heta=0;meta=0;seta=0;} //uncomment to start calculating only after 5%
+sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size,fpos/(int)(elapsedtime),heta,meta,seta);
+}
+else
+{
+heta=0;meta=0;seta=0;
+sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size,fpos/1,heta,meta,seta);
+}
+//    sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);
+//!!glennmcc: end
+
     outs(str);
     percentbar(prc);
     if(fpos>=cache->size)

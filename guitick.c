@@ -237,9 +237,9 @@ void MemInfo(char forced)
 
 #ifndef POSIX
  //DOS memory
- value=farcoreleft()>>10;
+ value=farcoreleft();//>>10; //!!glennmcc Oct 09, 2004 don't round off to KB
  sprintf(str,"%4lu",value);
- if(value<50 || memory_model==0)
+ if(value<50000l || memory_model==0)
  {
   color=2;
   strcat(str,"[!!!]");
@@ -255,7 +255,7 @@ void MemInfo(char forced)
   color=0;
   strcat(str,"[?]");
  }
- MemInfoLine("Dos memory (KB)",str,color,&y);
+ MemInfoLine("Dos mem (bytes)",str,color,&y);//!!glennmcc Oct 09, 2004 don't round off to KB
 
  //XMS used
  sprintf(str,"%5lu",mem_all_xmem());

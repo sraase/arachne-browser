@@ -101,7 +101,7 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
   }
   else
   {
-   xChLogoTICK(1); // animation of logo + Backgroundhttp();
+   xChLogoTICK(1); // animace loga + Backgroundhttp();
    if(iddle%TCP_IDDLE==0)
    {
     if(!tcp_tick(socket))
@@ -114,7 +114,7 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
    iddle++;
   }//endif
 #else
-  xChLogoTICK(10); // animation of logo
+  xChLogoTICK(10); // animace loga
 #endif
  }//loop
 
@@ -138,7 +138,7 @@ void Backgroundhttp(void)
  int closed=0;
 #endif
 
-  GLOBAL.backgroundimages=BACKGROUND_RUNNING; //"semafor" (tr.: traffic light)
+  GLOBAL.backgroundimages=BACKGROUND_RUNNING; //"semafor"
   status=GLOBAL.back_status;
 
 #ifdef GGI
@@ -212,7 +212,7 @@ void Backgroundhttp(void)
   outs(MSG_CLOSE);
 #else
   sockmsg(status,GLOBAL.back_socknum);
-  //terminate
+  //ukonceni
   GLOBAL.back_status=status;
   status=pushstatus;
   sock_keepalive[GLOBAL.back_socknum][0]='\0';
@@ -325,7 +325,7 @@ int webserver(void)
   while( (websocket->datalen) > 1024)
   {
    sock_tick(websocket,&status);
-   //xChLogoTICK(1); // animation of logo
+   //xChLogoTICK(1); // animace loga
    //if(GUITICK())
   }
 

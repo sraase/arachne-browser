@@ -227,7 +227,13 @@ int xpopdump(struct Url *url,char dele,char logfile)
 
 	//make filename
 	maketime:
-	sprintf(fname,"%ld.CNM",starttime+process);
+//!!glennmcc: Nov 10, 2004 --- HEX names instead of decimal
+//sprintf(fname,"%ld.CNM",starttime+process);
+//!!glennmcc: Nov 11, 2004 -- begin at Annnnnnn.CNM
+//it is 4nnnnnnn.CNM right now so we need to add
+//60000000 hex which is 1610612736 dec
+//	sprintf(fname,"%lx.CNM",starttime+process);
+	sprintf(fname,"%lx.CNM",starttime+process+1610612736l);
 
 	 makename:
 	 strcpy(str,configvariable(&ARACHNEcfg,"MailPath",NULL));
@@ -239,20 +245,22 @@ int xpopdump(struct Url *url,char dele,char logfile)
 	 if(!findfirst(str,&ff,0))
 	 {
 	  fname[8]++;
-	  if(fname[8]>'9')
+//!!glennmcc: Nov 10, 2004 --- HEX names instead of decimal
+//	  if(fname[8]>'9')
+	  if(fname[8]>'F')
 	  {
 	   starttime=time(NULL);
 	   goto maketime;
 	  }
 	  else
 	   goto makename;
-         }
+	 }
 
 	f = a_fast_open( str , O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE );
-        if (f<0 )
+	if (f<0 )
 	{
 	 outs(MSG_ERROPN);
-         goto quit;
+	 goto quit;
         }
 
        sock_mode( socket, TCP_MODE_BINARY );

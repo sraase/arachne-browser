@@ -62,7 +62,11 @@ Notes for translators:
 #define MSG_CLOSE  "Closing connection..."
 #define MSG_CLOSED "Connection closed."
 #define MSG_DOWNLD "Downloading file ("
-#define MSG_X_OF_Y "%s%ld of %ld bytes ) ..."
+//!!glennmcc: Nov 17, 2004 -- include bytes/sec rate
+//!!glennmcc: Nov 21, 2004 -- added time remaining
+#define MSG_X_OF_Y "%s%ld of %ld bytes @ %ld bytes/sec. - time remaining %ld:%ld:%ld )"
+//#define MSG_X_OF_Y "%s%ld of %ld bytes -- @ %ld bytes/sec. ) ..."
+//#define MSG_X_OF_Y "%s%ld of %ld bytes ) ..."
 #define MSG_BYTESR "%s%ld bytes read) ..."
 #define MSG_MISOBJ "%d objects missing, "
 #define MSG_DISK   "Loading page from disk"

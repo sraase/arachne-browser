@@ -213,7 +213,7 @@ void process_form(char cgi, XSWAP formID)
 	  o=configvariable(&ARACHNEcfg,"Organization",NULL);
 	  if(o)
 	   sprintf(org,"Organization: %s\n",o);
-	  sprintf(str,"From: \"%s\" <%s>\n%sDate: %s %s\nX-Mailer: Arachne V%s%s\n",
+	  sprintf(str,"From: \"%s\" <%s>\n%sDate: %s %s\nX-Mailer: Arachne v%s%s\n",
 		      configvariable(&ARACHNEcfg,"PersonalName",NULL),
 		      configvariable(&ARACHNEcfg,"eMail",NULL),
 		      org,

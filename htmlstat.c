@@ -34,6 +34,25 @@ int getvar(char *name,char **value)
  return 0;
 }
 
+// Alternative to getvar()              [JdS 2004/1/28]
+// getarg() reads value of a "variable" of a given name
+int getarg(char *name,char **value)
+{
+ int i=0;
+
+ while(i<argvarcount)
+ {
+  if(!strcmpi(argnameptr[i],name))
+  {
+   *value=argvalueptr[i];
+   return 1;
+  }
+  i++;
+ }
+
+ return 0;
+}
+
 int searchvar(char *name)
 {
  int i=0,nameidx=0;
@@ -46,6 +65,22 @@ int searchvar(char *name)
   nameidx+=*(int*)(&argnamestr[nameidx]);
   i++;
  }
+ return 0;
+}
+
+// Alternative to searchvar()            [JdS 2004/1/28]
+// searcharg() searches for a "variable" of a given name
+int searcharg(char *name)
+{
+ int i=0, l=strlen(name);
+
+ while(i<argvarcount)
+ {
+  if(!strncmpi(argnameptr[i],name,l))
+   return 1;
+  i++;
+ }
+
  return 0;
 }
 
@@ -69,7 +104,18 @@ void putvarname(char *name,int size)
  }
 }
 
-// putvarname() sets new variable value (putvarname must be called first)
+// Alternative to putvarname()   [JdS 2004/1/28]
+// putargname() sets new "variable" name pointer
+// Needs to be followed by putargvalue() to update argvarcount
+void putargname(char *name)
+{
+ if(argvarcount<MAXARGS)
+ {
+  argnameptr[argvarcount]=name;
+ }
+}
+
+// putvarvalue() sets new variable value (putvarname must be called first)
 void putvarvalue(char *value,int size)
 {
  int idx=0,i=argvaluecount;
@@ -88,6 +134,17 @@ void putvarvalue(char *value,int size)
   argvaluecount++;
  }
 
+}
+
+// Alternative to putvarvalue()    [JdS 2004/1/28]
+// putargvalue() sets new "variable" value pointer
+void putargvalue(char *value)
+{
+ if(argvarcount<MAXARGS)
+ {
+  argvalueptr[argvarcount]=value;
+  argvarcount++;
+ }
 }
 
 //converts hexadecimal character to decimal value
@@ -585,7 +642,7 @@ void alignrow(int x,long y,int islist)
     atomptr->yy=atomptr->y;
     atomptr->y-=vsize;
    }
-   swapmod=1; //zapsal jsem do swapovane pameti!
+   swapmod=1; //I have written to swapped memory!
   }
 
   if(atomptr->align & CENTER) //ALIGN=CENTER
@@ -593,7 +650,7 @@ void alignrow(int x,long y,int islist)
    xhop=(p->docRight-x)/2;
    atomptr->x+=xhop;
    atomptr->xx+=xhop;
-   swapmod=1; //zapsal jsem do swapovane pameti!
+   swapmod=1; //I have written to swapped memory!
   }
   else
   if(atomptr->align & RIGHT) //ALIGN=RIGHT
@@ -601,7 +658,7 @@ void alignrow(int x,long y,int islist)
    xhop=(p->docRight-x);
    atomptr->x+=xhop;
    atomptr->xx+=xhop;
-   swapmod=1; //zapsal jsem do swapovane pameti!
+   swapmod=1; //I have written to swapped memory!
   }
 
   if(atomptr->align & SUP) //ALIGN=SUP
@@ -609,7 +666,7 @@ void alignrow(int x,long y,int islist)
    vsize=fonty((int)atomptr->data1,atomptr->data2)/3;
    atomptr->y-=vsize;
    atomptr->yy-=vsize;
-   swapmod=1; //zapsal jsem do swapovane pameti!
+   swapmod=1; //I have written to swapped memory!
   }
 
   if(atomptr->align & SUB) //ALIGN=SUB
@@ -617,7 +674,7 @@ void alignrow(int x,long y,int islist)
    vsize=fonty((int)atomptr->data1,atomptr->data2)/3;
    atomptr->y+=vsize;
    atomptr->yy+=vsize;
-   swapmod=1; //zapsal jsem do swapovane pameti!
+   swapmod=1; //I have written to swapped memory!
   }
 
   atomptr->align=0;

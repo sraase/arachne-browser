@@ -593,13 +593,15 @@ char *rmgb=0;
   else if(!ontoolbar)
 //!!glennmcc: Begin May 17, 2004 -- only go back in history if
 // 'RightMouseGoesBack Yes' is in arachne.cfg
+//!!glennmcc: Dec 19, 2004 -- changed to goback by default
+//now it _will_ goback unless we say "No"
  rmgb=configvariable(&ARACHNEcfg,"RightMouseGoesBack",NULL);
- if(rmgb && toupper(*rmgb)=='Y') return "arachne:back";
+// if(rmgb && toupper(*rmgb)=='Y') return "arachne:back";
+ if(!rmgb || toupper(*rmgb)!='N') return "arachne:back";
  else
    return 0;
 // return "arachne:back"; //original line had no such option
 //!!glennmcc: end
-
  }
  else
  if(click==4 && !ontoolbar) //middle button
