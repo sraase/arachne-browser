@@ -174,7 +174,7 @@ void inputatom(char *msg1,char *msg2)
  x_setcolor(0);
  htmlfont(BOXTEXT);
  {
-  int colormap[5]={8,-1,-1,15,7};
+  int colormap[5]={15,-1,-1,8,7};
   decorated_text(TXTprompt.x,p->htscrn_ytop+(int)(TXTprompt.y-fonty(BOXTEXT)-2),msg1,colormap);
  }
 

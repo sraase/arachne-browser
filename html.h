@@ -149,6 +149,9 @@ p->xsum=0;
 #define AREA   12
 #define EMBED  13
 
+//!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
+#define BGSOUND 14
+
 //special HTML atoms:
 #define STYLESHEET    97
 #define DECORATION    98
@@ -288,6 +291,9 @@ p->xsum=0;
 #define TAG_LINK           62
 #define TAG_STYLE          63
 #define TAG_SLASH_STYLE    1063
+
+//!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
+#define TAG_BGSOUND          64
 
 #define TAG_SPECIAL_A_HOVER 98
 #define TAG_ARACHNE_BONUS   99

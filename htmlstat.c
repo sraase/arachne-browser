@@ -261,6 +261,9 @@ int FastTagDetect(char *tagname)
    return TAG_BLOCKQUOTE;
   if(!strcmp(ptr,"UTTON"))
    return TAG_BUTTON;
+//!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
+  if(!strcmp(ptr,"GSOUND"))
+   return TAG_BGSOUND;
   break;
 
   case 'C':

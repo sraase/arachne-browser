@@ -336,7 +336,7 @@ int renderHTML(struct Page *p)
 
  ScrollInit(&frame->scroll,
             frame->scroll.xsize,
-            frame->scroll.ymax,   //visible y
+	    frame->scroll.ymax,   //visible y
             frame->scroll.ymax,   //max y
             frame->scroll.xtop,
             frame->scroll.ytop,
@@ -466,7 +466,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     else
     { 
      ScrollInit(&frame->scroll,
-                frame->scroll.xsize,
+		frame->scroll.xsize,
                 frame->scroll.ymax,     //visible y
                 frame->scroll.ymax,     //max y
                 frame->scroll.xtop,
@@ -706,36 +706,36 @@ knowsize:
       {
        xsize=x-HTMLatom.x;
        if(xsize<p->docRight-p->docLeft && !pre && !nownobr && !nobr /*&&
-          (HTMLatom.x!=p->docLeft || GLOBAL.validtables)*/ || p->docRight<p->docRightEdge)
+	  (HTMLatom.x!=p->docLeft || GLOBAL.validtables)*/ || p->docRight<p->docRightEdge)
        {
-        // <------------------------------------------------odsunout cely atom
-        alignrow(HTMLatom.x,y,orderedlist[listdepth]);
-        y+=p->sizeRow;
+	// <------------------------------------------------odsunout cely atom
+	alignrow(HTMLatom.x,y,orderedlist[listdepth]);
+	y+=p->sizeRow;
 
-        //kdyz jsou levy a pravy okraj moc blizko u sebe...
-        if(xsize>p->docRight-p->docLeft)
-         clearall(&y);
+	//kdyz jsou levy a pravy okraj moc blizko u sebe...
+	if(xsize>p->docRight-p->docLeft)
+	 clearall(&y);
 
-        p->sizeTextRow=p->sizeRow=fonty(font,style);
-        x=p->docLeft+xsize;
-        HTMLatom.x=p->docLeft;
-        HTMLatom.y=y;
-        HTMLatom.xx=x;
-        HTMLatom.yy=y+p->sizeRow;
-        addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
-        HTMLatom.x=x;
-        HTMLatom.y=y;
-        txtlen=0;
-        lastspcpos=0;
-        lastspcx=x;
-        nownobr=nobr;
+	p->sizeTextRow=p->sizeRow=fonty(font,style);
+	x=p->docLeft+xsize;
+	HTMLatom.x=p->docLeft;
+	HTMLatom.y=y;
+	HTMLatom.xx=x;
+	HTMLatom.yy=y+p->sizeRow;
+	addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
+	HTMLatom.x=x;
+	HTMLatom.y=y;
+	txtlen=0;
+	lastspcpos=0;
+	lastspcx=x;
+	nownobr=nobr;
        }
        else
        {
-        p->docRight+=charsize;
-        //during second pass, certain <NOBR> elements will be treated as <BR>
-        if(nobr)
-         boom=1;
+	p->docRight+=charsize;
+	//during second pass, certain <NOBR> elements will be treated as <BR>
+	if(nobr)
+	 boom=1;
        }
       }
       else
@@ -768,7 +768,8 @@ knowsize:
      }
     }//endif viditelny text
 
-    if(in==' ' && !nbsp || in=='/') //wrap also long unix pathnames !
+//    if(in==' ' && !nbsp|| in=='/') //wrap also long unix pathnames !
+    if(in==' ' && !nbsp)//!!glennmcc: Apr 06, 2003---do not wrap long pathnames---// || in=='/') //wrap also long unix pathnames !
     {
      lastspcpos=txtlen;
      lastspcx=x;//-fontx(font,' ');
@@ -814,12 +815,12 @@ knowsize:
     if(insidetag)
     {
      if((insidetag==TAG_TEXTAREA && tag!=TAG_SLASH_TEXTAREA) ||
-        (insidetag==TAG_TITLE && tag!=TAG_SLASH_TITLE) ||
-        (insidetag==TAG_STYLE && tag!=TAG_SLASH_STYLE) ||
-        (insidetag==TAG_SELECT && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
+	(insidetag==TAG_TITLE && tag!=TAG_SLASH_TITLE) ||
+	(insidetag==TAG_STYLE && tag!=TAG_SLASH_STYLE) ||
+	(insidetag==TAG_SELECT && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
 	(insidetag==TAG_OPTION && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
-        (insidetag==TAG_SCRIPT && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT &&
-         tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS))
+	(insidetag==TAG_SCRIPT && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT &&
+	 tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS))
       tag=0;
     }
 
@@ -879,26 +880,26 @@ knowsize:
        char target;
 
        if(!strncmpi(tagarg,"mailto:",7))
-        target=findtarget(0);
+	target=findtarget(0);
        else
-        target=findtarget(basetarget);
+	target=findtarget(basetarget);
 
        //vlozit link:
        if(tagarg[0]!='#')
        {
-        AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
-        url2str(&url,text);
-        if(strstr(text,"&amp;"))
-         entity2str(text);
-        tagarg=text;
+	AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+	url2str(&url,text);
+	if(strstr(text,"&amp;"))
+	 entity2str(text);
+	tagarg=text;
        }
 
        pushfont(font,style,&HTMLatom,&fontstack);
        sheet=locatesheet(htmldata,&tmpsheet,stylesheetadr);
        if(sheet->usehover)
-        HTMLatom.R=1;
+	HTMLatom.R=1;
        else
-        HTMLatom.R=0;
+	HTMLatom.R=0;
 
        //vyrobim si pointr na link, a od ted je vsechno link:
        addatom(&HTMLatom,tagarg,strlen(tagarg),HREF,align,target,removable,sheet->myadr,1);
@@ -907,7 +908,7 @@ knowsize:
        style|=sheet->ahrefsetbits;
        style-=(style&sheet->ahrefresetbits);
        if(sheet->ahreffontsize!=-1)
-        font=sheet->ahreffontsize;
+	font=sheet->ahreffontsize;
        HTMLatom.R=sheet->linkR;
        HTMLatom.G=sheet->linkG;
        HTMLatom.B=sheet->linkB;
@@ -963,7 +964,7 @@ knowsize:
       {
        imglink=currentlink;
        if(imglink!=IE_NULL)
-        border=1;
+	border=1;
       }
 
       if(getvar("SRC",&tagarg) && tagarg[0])
@@ -976,32 +977,32 @@ knowsize:
        url2str(&url,img->URL);
 
        //printf("Image URL is: %s\n",img->URL);
-       
+
        if(QuickSearchInCache(&url,&HTTPdoc,&dummy,&status))
        {
-        strcpy(img->filename,HTTPdoc.locname);
+	strcpy(img->filename,HTTPdoc.locname);
 
-        if(img->filename[0])
-        {
-         img->sizeonly=1;
+	if(img->filename[0])
+	{
+	 img->sizeonly=1;
 
-         get_extension(HTTPdoc.mime,ext);
-         //printf("image extension: %s\n",ext);
-         if(strcmpi(ext,"IKN")) // != IKN
-         {
-          if(drawanyimage(img)==1)
-           znamrozmerx=znamrozmery=1;
-          else
-           failedGIF=1;
-         }
-         else
-         if(!cgamode)
-         {
-          img->size_y=60;
-          img->size_x=60;
-          znamrozmerx=znamrozmery=1;
+	 get_extension(HTTPdoc.mime,ext);
+	 //printf("image extension: %s\n",ext);
+	 if(strcmpi(ext,"IKN")) // != IKN
+	 {
+	  if(drawanyimage(img)==1)
+	   znamrozmerx=znamrozmery=1;
+	  else
+	   failedGIF=1;
 	 }
-        }//endif nasel jsem neco
+	 else
+	 if(!cgamode)
+	 {
+	  img->size_y=60;
+	  img->size_x=60;
+	  znamrozmerx=znamrozmery=1;
+	 }
+	}//endif nasel jsem neco
        }
       }
       else
@@ -1012,18 +1013,18 @@ knowsize:
       if(getvar("ALIGN",&tagarg))
       {
        if(!strcmpi(tagarg,"TOP"))
-        imgalign = imgalign | TOP;
+	imgalign = imgalign | TOP;
        else
        if(!strcmpi(tagarg,"MIDDLE"))
-        imgalign = imgalign | MIDDLE;
+	imgalign = imgalign | MIDDLE;
        else
        if(!strcmpi(tagarg,"RIGHT"))
-        imgright=1;
+	imgright=1;
        else
        if(!strcmpi(tagarg,"LEFT"))
-        imgleft=1;
+	imgleft=1;
        else
-        imgalign = imgalign | BOTTOM;
+	imgalign = imgalign | BOTTOM;
       }
       else
        imgalign = imgalign | BOTTOM;
@@ -1045,9 +1046,9 @@ knowsize:
       if(getvar("BORDER",&tagarg))
       {
        if(*tagarg)
-        border=(char)atoi(tagarg);
+	border=(char)atoi(tagarg);
        else
-        border=1;
+	border=1;
       }
 
       if(getvar("HEIGHT",&tagarg))
@@ -1055,8 +1056,8 @@ knowsize:
        int i=try2getnum(tagarg,frame->scroll.ysize);
        if((!znamrozmery || i!=img->size_y) && !egamode && !vga16mode)
        {
-        img->resize_y=i;
-        img->resize_x=img->size_x;
+	img->resize_y=i;
+	img->resize_x=img->size_x;
        }
        img->size_y=i;
        znamrozmery=1;
@@ -1070,9 +1071,9 @@ knowsize:
        i=try2getnum(tagarg,max);
        if((!znamrozmerx || i!=img->size_x) && !egamode && !vga16mode)
        {
-        img->resize_x=i;
-        if(!img->resize_y)
-         img->resize_y=img->size_y;
+	img->resize_x=i;
+	if(!img->resize_y)
+	 img->resize_y=img->size_y;
        }
        img->size_x=i;
        znamrozmerx=1;
@@ -1109,39 +1110,39 @@ knowsize:
       if(imgleft)
       {
        if(x>p->docLeft)
-        HTMLatom.y=y+p->sizeRow;
+	HTMLatom.y=y+p->sizeRow;
        else
        {
-        HTMLatom.y=y;
-        x+=img->size_x;
+	HTMLatom.y=y;
+	x+=img->size_x;
        }
        HTMLatom.x=p->docLeft;
        p->docLeft+=img->size_x;
        HTMLatom.xx=p->docLeft;
        HTMLatom.yy=HTMLatom.y+img->size_y;
        if(HTMLatom.yy>p->docClearLeft)
-        p->docClearLeft=HTMLatom.yy;
+	p->docClearLeft=HTMLatom.yy;
 
        if(p->docLeft>p->docRight)
-        clearall(&y);
+	clearall(&y);
 
        imgalign=0; //a hlavne tady: rikam, ze uz s tim nebudu hejbat !!!
       }
       else if(imgright)
       {
        if(p->docLeft+img->size_x>p->docRight)
-        clearall(&y);
+	clearall(&y);
 
        if(p->docRight-img->size_x<x)
        {
-        clearall(&y);
-        x=p->docLeft;
+	clearall(&y);
+	x=p->docLeft;
        }
 
        if(p->docLeft+img->size_x>p->docRight)
        {
-        p->docRight+=img->size_x;
-        p->docRightEdge=p->docRight;
+	p->docRight+=img->size_x;
+	p->docRightEdge=p->docRight;
        }
 
        HTMLatom.xx=p->docRight+1;
@@ -2621,7 +2622,7 @@ knowsize:
           if(thistableadr==parenttableadr)
 	   tmptable=thistable;
           else
-          {
+	  {
            tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
            //printf("tables out of sync");
           }
@@ -3409,6 +3410,11 @@ knowsize:
       }
       //printf("background image=%s\n",img->URL);
      }
+//!!glennmcc: begin Jan 3, 2003
+//use arachne.cfg values if either bgcolor= or text= is missing from <body>
+if(getvar("BGCOLOR",&tagarg) && getvar("TEXT",&tagarg))
+{
+//(closing '}' below)
      if(getvar("BGCOLOR",&tagarg))
      {
       try2readHTMLcolor(tagarg,&htmldata->backR,&htmldata->backG,&htmldata->backB);
@@ -3418,14 +3424,18 @@ knowsize:
      {
       try2readHTMLcolor(tagarg,&htmldata->textR,&htmldata->textG,&htmldata->textB);
      }
-     else if (htmldata->backR<8 && htmldata->backG<8 && htmldata->backB<8 &&
+
+//!!glennmcc: also... always use CFG color no matter what bgcolor might be
+
+/*     else if (htmldata->backR<8 && htmldata->backG<8 && htmldata->backB<8 &&
 	      htmldata->backgroundptr==IE_NULL )
      {
       htmldata->textR=255;
       htmldata->textG=255;
       htmldata->textB=255;
      }
-
+*/
+}//!!glennmcc: end
 
      if(getvar("LINK",&tagarg))
      {
@@ -3612,6 +3622,8 @@ knowsize:
      // * * * * * * * * * * * * * * * * * * * * * * * * * * * * end of CSIM
 
      case TAG_EMBED:
+//!!glennmcc: Jan 19, 2003 added support for 'BGSOUND'
+     case TAG_BGSOUND:
      if(getvar("SRC",&tagarg) || getvar("FILENAME",&tagarg))// && !strncmpi(cache->URL,"file",4))
 //!!glennmcc: Oct 30, 2002... re-enabled embed for remote pages
 //by commenting out " && !strncmpi(cache->URL,"file",4))" on line above
@@ -3624,6 +3636,8 @@ knowsize:
        addatom(&HTMLatom,img,sizeof(struct picinfo),EMBED,BOTTOM,0,0,IE_NULL,0);
      }
      break;
+
+//!!glennmcc: begin Jan 19, 2003
 
      case TAG_ARACHNE_BONUS:
 
@@ -3679,7 +3693,7 @@ knowsize:
     if(!param && in!=' ' && taglen<sizeof(tagname))
     {
      tagname[taglen++]=in;
-     if(taglen==3 && !strncmp(tagname,"!--",3))
+     if(taglen==3 && !strncmp(tagname,"!--",3))//||(tag=script)
 //        insidetag!=TAG_TEXTAREA && insidetag!=TAG_STYLE && insidetag!=TAG_SCRIPT)
      {
       comment=1;

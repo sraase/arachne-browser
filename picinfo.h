@@ -1,7 +1,7 @@
 
 //(c)1998 xChaos software
 
-#define URLSIZE 256
+#define URLSIZE 512
 #define MAXPALMIX 20
 
 struct picinfo

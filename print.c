@@ -216,7 +216,7 @@ void generateprt(void)
    strncpy(&radka[CONSOLEWIDTH-16],"...",3);
   }
   strncpy(radka,arachne.title,l);
-  sprintf(&radka[CONSOLEWIDTH-12],"Arachne %s",VER);
+  sprintf(&radka[CONSOLEWIDTH-17],"Arachne %s",VER);
   ie_insline(&txt,0,radka);
  }
  {

@@ -274,7 +274,7 @@ void PaintTitle(void)    // vykresleni nazvu stranky
  }
  else
  {
-  int colormap[5]={8,-1,-1,15,7};
+  int colormap[5]={15,-1,-1,8,7};
   char buf[64];
   char *title;
 

@@ -335,7 +335,9 @@ char NeedImage(char reload, XSWAP *from)
    else
    currentHTMLatom=atomptr->next;
   type=atomptr->type;
-  if(type==IMG || type==EMBED || type==BACKGROUND ||
+
+//!!glennmcc: Jan 19, 2003 -- added support for 'BGSOUND'
+  if(type==IMG || type==EMBED || type==BGSOUND || type==BACKGROUND ||
      type==TD_BACKGROUND || type==STYLESHEET)
   {
    if(atomptr->yy>p->htmlframe[atomptr->frameID].posY &&
@@ -402,9 +404,12 @@ char NeedImage(char reload, XSWAP *from)
     }
     else//conversion only
     if(GLOBAL.nowimages!=IMAGES_SEEKCACHE && type!=STYLESHEET &&
-        (search_mime_cfg(HTTPdoc.mime, ext,command)==1 ||
-         type==EMBED && search_mime_cfg(HTTPdoc.mime, ext, command)==2) &&
-        willconvert<MAXCONV)
+	(search_mime_cfg(HTTPdoc.mime, ext,command)==1 ||
+	 type==EMBED && search_mime_cfg(HTTPdoc.mime, ext, command)==2 //)
+//!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
+	|| type==BGSOUND && search_mime_cfg(HTTPdoc.mime, ext, command)==2)
+
+	&& willconvert<MAXCONV)
      imageptr[willconvert++]=IMGatom;
    }//endif
 
@@ -453,7 +458,9 @@ char NeedImage(char reload, XSWAP *from)
     // if raw=.JPG AND loc=.JPG then ...
     if(!strcmp(HTTPdoc.locname,HTTPdoc.rawname) &&
        search_mime_cfg(HTTPdoc.mime, ext, command)==1
-       || type==EMBED)
+       || type==EMBED //)
+//!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
+       || type==BGSOUND)
     {
      if(!ie_getswap(uptr))
      {
