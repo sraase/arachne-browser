@@ -753,6 +753,16 @@ void configure_user_interface(void)
   http_parameters.ignorejs=0;
 //!!glennmcc: end
 
+//!!glennmcc: begin July 14, 2003
+// added to optionally "ignore" <base href=> tag
+// (defaults to No if "IgnoreBaseHref Yes" line is not in Arachne.cfg)
+ value=configvariable(&ARACHNEcfg,"IGNOREBASEHREF",NULL);
+ if(value && toupper(*value=='Y'))
+  http_parameters.ignorebasehref=1;
+ else
+  http_parameters.ignorebasehref=0;
+//!!glennmcc: end
+
 }
 #endif
 #endif

@@ -2588,7 +2588,7 @@ knowsize:
          if(caption)
          {
           xspan=tmptable->columns-tmptable->x;
-          if(xspan<=0)
+	  if(xspan<=0)
            xspan=1;
          }
 
@@ -2627,7 +2627,7 @@ knowsize:
            //printf("tables out of sync");
           }
           if(tmptable)
-          {
+	  {
            if(tmptable->x-xspan+1<MAXROWSPANTD)
            {
             tmptable->closerowspan[tmptable->x-xspan+1]=p->lastHTMLatom;
@@ -2640,7 +2640,7 @@ knowsize:
          }
          //!rowspan end!
         }
-        else
+	else
          MALLOCERR();
        }
        else
@@ -2914,7 +2914,7 @@ knowsize:
       //allowed only for local or forced-html documents
       if(searchvar("ARACHNE") &&
 	 (!strncmpi(cache->URL,"file",4) || !strncmpi(cache->URL,"mailto",4)
-          || !strncmpi(cache->URL,"about",4) || !strncmpi(cache->URL,"gui",3)
+	  || !strncmpi(cache->URL,"about",4) || !strncmpi(cache->URL,"gui",3)
 	  || p->forced_html))
        CheckArachneFormExtensions(cache,value, &checked);
 
@@ -3254,13 +3254,13 @@ knowsize:
        editorptr=(struct ib_editor *)ie_getswap(currenttextarea);
        if(editorptr)
        {
-        char *ptr;
+	char *ptr;
         memcpy(&tmpeditor,editorptr,sizeof(struct ib_editor));
 	ptr=ie_getline(&tmpeditor,0);
         if(ptr)
         {
 	 ptr[0]='1';
-         swapmod=1;
+	 swapmod=1;
         }
        }
       }
@@ -3495,6 +3495,13 @@ if(getvar("BGCOLOR",&tagarg) && getvar("TEXT",&tagarg))
      break;
 
      case TAG_BASE: //<BASE>
+//!!glennmcc: begin July 14, 2003
+// added to optionally "ignore" <base href="> tag
+// (defaults to No if "IgnoreBaseHref Yes" line is not in Arachne.cfg)
+if(!http_parameters.ignorebasehref || !strncmpi(cache->URL,"file",4)){
+//!!glennmcc: added July 15, 2003  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+//do not ignore if URL is 'local'
+//!!glennmcc: end
 
      if(getvar("HREF",&tagarg))
      {
@@ -3514,9 +3521,10 @@ if(getvar("BGCOLOR",&tagarg) && getvar("TEXT",&tagarg))
       {
        SetInputAtom(&URLprompt,frame->cacheitem.URL);
        if(!p->rendering_target)
-        DrawTitle(0);
+DrawTitle(0);
       }
      }
+}//!!glennmcc: ending '}' of "IgnoreBaseHref"
 
      basetarget=findtarget(p->currentframe);
 

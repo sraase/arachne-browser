@@ -59,6 +59,12 @@ struct Http_parameters
 char ignorejs;
 //!!glennmcc
 
+//!!glennmcc: begin July 14, 2003
+// added to optionally "ignore" <base href=> tag
+// (defaults to No if "IgnoreBaseHref Yes" line is not in Arachne.cfg)
+char ignorebasehref;
+//!!glennmcc
+
 };
 
 extern struct Http_parameters http_parameters;
