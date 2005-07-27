@@ -20,10 +20,16 @@ int analysewheel(int mys)
  {
   int key=0;
 
-  if(wheel & 0x08)
-  {
-   wheel^=0x0f;
-   wheel++;
+//!!laaaca: Begin Mar 19, 2005 -- fix wheel-up bug
+      if (wheel < 0)
+      {
+	 wheel = -wheel;
+//  if(wheel & 0x08)
+//  {
+//   wheel^=0x0f;
+//   wheel++;
+//!!laaaca: end
+
    if(!htmlpulldown && !activeatomptr)
     smothup(2*wheel);
    else if(htmlpulldown || (activeatomptr->type==INPUT && activeatomptr->data1==TEXTAREA))

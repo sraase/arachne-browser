@@ -9,9 +9,10 @@ unsigned char HTMLentity(char *name)
 {
  if(*name=='#')
 //!!glennmcc: begin Dec 29, 2004 -- 'fix' for punctuation in numeric code format
+//!!glennmcc: Mar 27, 2005 -- added 8222 == "
  if(!strcmpi(name,"#146") || !strcmpi(name,"#8217")) return atoi("39"); else // 39== '
  if(!strcmpi(name,"#8216")) return atoi("96"); else // 96== `
- if(!strcmpi(name,"#8220") || !strcmpi(name,"#8221")) return atoi("34"); else // 34== "
+ if(!strcmpi(name,"#8220") || !strcmpi(name,"#8221") || !strcmpi(name,"#8222")) return atoi("34"); else // 34== "
  if(!strcmpi(name,"#8211")) return atoi("45"); else // 45== -
  if(atoi(&name[1])>255) return atoi("127"); else // 127==
 //!!glennmcc: end
@@ -52,7 +53,10 @@ unsigned char HTMLentity(char *name)
   return 'r';
  else
  if(!strcmpi(name,"middot"))
-  return 127;
+//!!glennmcc: Jun 12, 2005
+  return 183;
+//  return 127;
+//!!glennmcc: end
  else
  if(!strcmpi(name,"sp"))
   return ' ';
@@ -71,7 +75,14 @@ void entity2str(char *str)
 
  while(i<l)
  {
-  if(str[i]=='&' && !(i<l && str[i+1]==' '))
+//!!glennmcc: Mar 06, 2005 -- fix '&' and '&amp;' in URL bug
+//http://www.cisnet.com/glennmcc/testing_&_symbol/&-amp-bug.htm
+  if(str[i]=='&' && !(i<l && str[i+1]==' ') &&
+    (str[i+2]==';' || str[i+3]==';' || str[i+4]==';' ||
+     str[i+5]==';' || str[i+6]==';')
+    )
+//  if(str[i]=='&' && !(i<l && str[i+1]==' '))//original line
+//!!glennmcc: end
   {
    ptr=&str[++i];
    while(i<l && str[i]!=';') i++;

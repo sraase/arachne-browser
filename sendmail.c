@@ -144,7 +144,8 @@ int xsendmail(struct Url *url, char helo, char logfile)
   write(log,"\r\n",2);
  }
 
- if(helo!=0)
+ if(helo)
+// if(helo!=0)
  {
   //HELO protocol
   char *mydomain=strchr(url->user,'@');

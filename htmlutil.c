@@ -294,7 +294,16 @@ void METAtag(void)
  {
   struct Url url;
   char text[URLSIZE+1];
-  if(!strcmpi(tagarg,"REFRESH"))
+//!!glennmcc: begin May 24, 2005
+// added to optionally "ignore" <meta http-equiv="refresh"> tag
+//(defaults to No if "IgnoreRefresh Yes" line is not in Arachne.cfg)
+char *ignore="No";
+char *lengthen="No";//for LengthenShortRefresh below
+if(configvariable(&ARACHNEcfg,"IgnoreRefresh",NULL))
+{strcpy(ignore,configvariable(&ARACHNEcfg,"IgnoreRefresh",NULL));}
+if(!strcmpi(tagarg,"REFRESH") && !strncmpi(ignore,"N",1))
+//  if(!strcmpi(tagarg,"REFRESH")) //original line
+//!!glennmcc: end
   {
    if(getvar("CONTENT",&tagarg))
    {
@@ -302,6 +311,19 @@ void METAtag(void)
     if(ptr)
     {
      *ptr='\0';
+
+//!!glennmcc: begin May 25, 2005
+//most 'malicious' refreshes use 0 seconds
+//therefore increasing to 60 seconds when less than 10
+//will give the user time to hit ESC before being redirected
+//(defaults to No if "LengthenShortRefresh Yes" line is not in Arachne.cfg)
+//if(configvariable(&ARACHNEcfg,"LengthenShortRefresh",NULL))
+//{
+strcpy(lengthen,configvariable(&ARACHNEcfg,"LengthenShortRefresh",NULL));
+//}
+if(atoi(tagarg)<10 && !strncmpi(lengthen,"Y",1)) GLOBAL.secondsleft=60; else
+//!!glennmcc: end
+
      GLOBAL.secondsleft=atoi(tagarg);
      //printf("%d",GLOBAL.secondsleft);
      ptr=strchr(&ptr[1],'=');

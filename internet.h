@@ -65,10 +65,8 @@ char ignorejs;
 char ignorebasehref;
 //!!glennmcc: end
 
-//!!glennmcc: begin Nov 09, 2003
-// added to optionally use 'authenticated SMTP'
-// (defaults to No if "UseAuthSMTP Yes" line is not in Arachne.cfg)
-char useauthsmtp;
+//!!glennmcc: July 14, 2005
+char alwaysusecfgcolors;
 //!!glennmcc: end
 
 };

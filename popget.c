@@ -18,11 +18,11 @@
     merchantability or fitness for a particular purpose.
 
 	Erick Engelke                   or via E-Mail
-        Faculty of Engineering
+	Faculty of Engineering
 	University of Waterloo          Erick@development.watstar.uwaterloo.ca
-        200 University Ave.,
+	200 University Ave.,
         Waterloo, Ont., Canada
-        N2L 3G1
+	N2L 3G1
 
 ******************************************************************************/
 
@@ -261,7 +261,7 @@ int xpopdump(struct Url *url,char dele,char logfile)
 	{
 	 outs(MSG_ERROPN);
 	 goto quit;
-        }
+	}
 
        sock_mode( socket, TCP_MODE_BINARY );
        thisfile=0l;
@@ -273,24 +273,51 @@ int xpopdump(struct Url *url,char dele,char logfile)
        {
 	sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
 			 &status );		//SDL
-        len=sock_fastread( socket, (unsigned char*)buffer, POP3BUFSIZE );
-        buffer[len]='\0';
+	len=sock_fastread( socket, (unsigned char*)buffer, POP3BUFSIZE );
+	buffer[len]='\0';
 	if(log!=-1)
-        {
-         write(log,buffer,strlen(buffer));
+	{
+	 write(log,buffer,strlen(buffer));
 	}
 	read+=len;
-        locallength-=len;
+	locallength-=len;
 
-        if(thisfile==0l && buffer[0]=='\n')
-        {
+
+	if(thisfile==0l && buffer[0]=='\n')
+	{
 	 ptr=&buffer[1];
 	 len--;
-        }
-        else
+	}
+	else
 	 ptr=buffer;
 
-        //treat special situations:
+//!!glennmcc: May 21, 2005 -- force "done" at end of message
+//to fix the 'freeze-up' problem on certain SPAM emails
+//the next 3 lines were used during my testing
+//sprintf(str,MSG_GET2, process,locallength,count,totallength,MSG_GET3 );
+//sprintf(str,"\n buffer = %d \n",strlen(buffer));
+//outs(str);
+
+//this first attempt on May 21 caused many aborted downloads of 'good' emails
+//if(locallength<1) done=1;
+
+//!!glennmcc: Jun 15, 2005 -- trying something different
+//if(locallength<1 && (strstr(ptr,"\n.\r") || strstr(ptr,"\n.\n"))) done=1;
+
+//!!glennmcc: Jun 22, 2005 -- that still did not work correctly,
+// here's another method for 'force done'
+//if(strlen(buffer)<1) done=1;
+
+//!!glennmcc: Jun 27, 2005 -- This one finally works correctly :))
+if(locallength<1 &&
+   (
+    strstr(ptr,"\r\n\0\r\n.\r\n")
+    || strstr(ptr,"\n\0\n.\n")
+   )
+  ) done=1;
+//!!glennmcc: end
+
+	//treat special situations:
 	if(lastchar[1]=='.' && lastchar[0]=='\n' &&
 	   (ptr[0]=='\n' || ptr[0]=='\r') ||
 	   lastchar[1]=='\n' && ptr[0]=='.' &&
@@ -301,6 +328,8 @@ int xpopdump(struct Url *url,char dele,char logfile)
 	}
 	else
 	{
+//!!glennmcc:
+// this next section had already been commented-out by Michael Polak
 /*
 	 while(len>2 &&
 	       (ptr[len-1]=='\n' || ptr[len-1]=='\r' || ptr[len-1]=='.'))
@@ -314,20 +343,21 @@ int xpopdump(struct Url *url,char dele,char logfile)
 	   break;
 	  }
 	 }
-
 */
+
+
 	 if(strstr(ptr,"\n.\r") || strstr(ptr,"\n.\n"))
 	 {
 	  char *dot=strrchr(ptr,'.');
 	  if(dot)
 	   *dot='\0';
 	  done=1;
-
 	 }
 
+/*
+//!!glennmcc: May 21, 2005 -- this old fix is no longer needed :)
 //!!glennmcc: begin Aug 07, 2004
 //fix the 'freeze-up' problem on certain SPAM emails
-if (process==locallength) done=1;
     {
      strcpy(str,configvariable(&ARACHNEcfg,"FreezeUpString",NULL));
        if(strlen(str)>1 && strstr(ptr,str))
@@ -342,6 +372,7 @@ else
 	 }
     }
 //!!glennmcc: end
+*/
 
 	}
 
@@ -356,17 +387,19 @@ else
 	 lastchar[0]='\0';
 
 	if(len)
-         write(f,ptr,len);
+	 write(f,ptr,len);
 
-        thisfile+=len;
+	thisfile+=len;
 
 //        if(read % 512l == 0l) //kresleni tycky kazdy 1 kB
 	 percentbar((int)(100*read/totallength));
-
        }
-       while (!done /*&& locallength>0*/);
+	while (!done /*&& locallength>0*/);
 
-       write(f,"\n",1);
+//!!glennmcc: May 21, 2005 -- do not add a LF
+//I don't understand why it was doing that to begin with. ???
+//       write(f,"\n",1);
+//!!glennmcc: end
 
        sock_mode( socket, TCP_MODE_ASCII );
 

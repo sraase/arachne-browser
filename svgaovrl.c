@@ -351,6 +351,7 @@ void finfo(void)
   write(f,finf,sizeof(struct Finf));
   a_close(f);
   puts(fntinf);
+  exit(EXIT_TO_DOS);//!!glennmcc: Jun 13, 2005
  }
  else
  {

@@ -165,6 +165,7 @@ void mouseon(void)
  {
 //!!glennmcc: added 'Select test' Feb 18, 2005
 //calling onmouse(0) while in a <SELECT> tag causes a crash
+#ifndef NOKEY
 if(activeatom.data1!=SELECT)
   {
    if(onmouse(0))
@@ -173,6 +174,7 @@ if(activeatom.data1!=SELECT)
    x_yncurs(1,mousex,mousey,user_interface.darkmouse);
   }
   else
+#endif
 //the following original single line will still be used if <SELECT>
   x_yncurs(1,mousex,mousey,15);
  }
@@ -273,7 +275,7 @@ void MemInfo(char forced)
   color=0;
   strcat(str,"[?]");
  }
- MemInfoLine("Dos mem (bytes)",str,color,&y);//!!glennmcc Oct 09, 2004 don't round off to KB
+ MemInfoLine("Dos mem",str,color,&y);//!!glennmcc Oct 09, 2004 don't round off to KB
 
  //XMS used
  sprintf(str,"%5lu",mem_all_xmem());

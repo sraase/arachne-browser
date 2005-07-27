@@ -102,12 +102,13 @@ void ProcessSingleCSSItem(char *variable,char *value, char *objmap,struct TMPfra
   sheet->hoverresetbits|=(resetbits&(UNDERLINE|ITALIC));
   if(text){sheet->hoverR=textR;sheet->hoverG=textG;sheet->hoverB=textB;}
 //!!glennmcc: Mar 05, 2005
-//default to a contast from both link color & background color
+//default to a contrast from both link color & background color
   else
+    if(sheet->hoverR!=textR) //!!glennmcc: added Mar 23, 2005
       {
-       sheet->hoverR=(sheet->backR + sheet->linkR) / 2;
-       sheet->hoverG=(sheet->backG + sheet->linkG) / 2;
-       sheet->hoverB=(sheet->backB + sheet->linkB) / 2;
+       sheet->hoverR=(sheet->backR + sheet->linkR +100) / 2;
+       sheet->hoverG=(sheet->backG + sheet->linkG +100) / 2;
+       sheet->hoverB=(sheet->backB + sheet->linkB +100) / 2;
        }
 //!!glennmcc: end
  }
@@ -242,7 +243,7 @@ int ParseCSS(struct TMPframedata *sheet,XSWAP cssadr, char *classfilter)
                if(!strcmpi(&variable[1],classfilter))
                {
                 if(!classenabled && !ch)
-                 setalltags=1;
+		 setalltags=1;
                 classenabled=1;
                }
                else
@@ -255,7 +256,7 @@ int ParseCSS(struct TMPframedata *sheet,XSWAP cssadr, char *classfilter)
              if(variable[0]!='/' && classenabled)
              {
               setalltags=0;
-              objmap[FastTagDetect(variable)]=1;
+	      objmap[FastTagDetect(variable)]=1;
              }
 
              i=0;
@@ -268,7 +269,7 @@ int ParseCSS(struct TMPframedata *sheet,XSWAP cssadr, char *classfilter)
              {
               ch=checkhover(variable,objmap,classfilter,classenabled);
               if(variable[0]=='.' && classfilter[0] && !strcmpi(&variable[1],classfilter))
-              {
+	      {
                if(!ch)
                 setalltags=1;
                classenabled=1;
@@ -281,7 +282,7 @@ int ParseCSS(struct TMPframedata *sheet,XSWAP cssadr, char *classfilter)
              mode++;
             }
             else
-            if(mode==2 && c=='}')
+	    if(mode==2 && c=='}')
             {
              i=0;
              memset(objmap,0,TAG_LAST);
@@ -307,7 +308,7 @@ int ParseCSS(struct TMPframedata *sheet,XSWAP cssadr, char *classfilter)
             else
             if(c==';' || (c=='}' && !quote))  //end variable
             {
-             value[i]='\0';
+	     value[i]='\0';
              if(classenabled)
              {
               if(setalltags)
@@ -320,7 +321,7 @@ int ParseCSS(struct TMPframedata *sheet,XSWAP cssadr, char *classfilter)
               memset(objmap,0,TAG_LAST);
               setalltags=0;
               if(classfilter[0])
-               classenabled=0;
+	       classenabled=0;
               else
                classenabled=1; //no class filter applies
               mode=0;

@@ -268,7 +268,7 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
  {
   char tmp[128];
   sprintf(str,"%s:%s",
-          configvariable(&ARACHNEcfg,"ProxyUsername",NULL),
+	  configvariable(&ARACHNEcfg,"ProxyUsername",NULL),
 	  configvariable(&ARACHNEcfg,"ProxyPassword",NULL));
   base64code((unsigned char *)str,tmp);
   sprintf(str,"Proxy-authorization: Basic %s\r\n",tmp);
@@ -459,10 +459,14 @@ Host: %s%s\r\n\
     return 0;
    }
 #else
-   while(postindex+512<ql)
+//!!glennmcc Jul 16, 2005 -- fix intermitant posting problem
+// by sending 16 byte chunks instead of 512 bytes
+   while(postindex+16<ql)
+// while(postindex+512<ql)
    {
     /*this is needed only for WATTCP*/
-    while(sock_tbleft(socket)<512)      //SDL
+    while(sock_tbleft(socket)<16)      //SDL
+//  while(sock_tbleft(socket)<512)      //SDL
     {
      sock_tick(socket,&status);
      xChLogoTICK(1); // animation of logo
@@ -475,9 +479,12 @@ Host: %s%s\r\n\
      MALLOCERR();
 
     sock_tick(socket, &status ); //I shift TCP/IP
-    sock_fastwrite(socket, (unsigned char *)&querystring[postindex] ,512);
+    sock_fastwrite(socket, (unsigned char *)&querystring[postindex] ,16);
+//  sock_fastwrite(socket, (unsigned char *)&querystring[postindex] ,512);
 
-    postindex+=512;
+    postindex+=16;
+//  postindex+=512;
+//!!glennmcc: end
    }//loop
 
    if(postindex<ql)
@@ -931,12 +938,12 @@ analyse:
          char *realm;
 	 ptr+=6;
          realm=ptr;
-         if(*ptr=='\"')
+	 if(*ptr=='\"')
 	 {
           ptr++;
 	  realm=ptr;
           while (*ptr && *ptr!='\"')ptr++;
-          *ptr='\0';
+	  *ptr='\0';
          }
          if(!strcmpi(AUTHENTICATION->host,url->host) &&
             !strcmp(AUTHENTICATION->realm,realm))
@@ -944,7 +951,7 @@ analyse:
          else
 	 {
           makestr(AUTHENTICATION->realm,realm,79);
-          strcpy(AUTHENTICATION->host,url->host);
+	  strcpy(AUTHENTICATION->host,url->host);
 	 }
         }
 	ptr++;
@@ -1197,7 +1204,7 @@ long starttime=time(NULL), elapsedtime, heta, meta, seta;
 //!!glennmcc: Nov 17, 2004 -- include bytes/sec rate
 //!!glennmcc: Nov 21, 2004 -- added time remaining
 elapsedtime=(time(NULL)-starttime);
-if(elapsedtime>1 && prc<99)
+if((int)elapsedtime>0)// && prc<99)
 {
 //if(prc>5){ //uncomment to start calculating only after 5%
 heta=(cache->size-fpos)/(fpos/(int)(elapsedtime))/3600;//hours
@@ -1208,8 +1215,7 @@ sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size,fpos/(int)(elapsedtime),heta,meta,set
 }
 else
 {
-heta=0;meta=0;seta=0;
-sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size,fpos/1,heta,meta,seta);
+sprintf(str,"waiting for data...");
 }
 //    sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);
 //!!glennmcc: end

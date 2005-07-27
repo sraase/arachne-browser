@@ -7,6 +7,8 @@
 #include "arachne.h"
 
 //velikost stacku (tr.: size of stack)
+//!!glennmcc: July 16, 2005 -- bad idea... it causes many, many crashes :(
+//unsigned _stklen=32750u;//!!glennmcc: July 09, 2005 -- reduced stack size
 unsigned _stklen=65500u;
 
 #ifdef OVRL
@@ -63,7 +65,7 @@ char *anykey=MSG_ANYKEY;
 #ifdef NOKEY
 //char *regkey="",reg=1;
 //char *regkey="GPL  Version",reg=1;//!!glennmcc: Apr 06, 2003 --- GPL now
-char *regkey="v1.83;GPL,386+",reg=1;
+char *regkey="v1.85;GPL,386+",reg=1;
 #else
 char regkey[KEYLEN+1]=MSG_UNREG,reg=0;
 #endif

@@ -559,7 +559,7 @@ if (cache->knowsize)goto knowsize;
    {
     retry=0;
    }
-   if(retry>24000)
+   if(retry>32000)
    {
     retry=0;
     goto exitloop;
@@ -1172,7 +1172,7 @@ knowsize:
           y+=p->sizeRow;
           x=p->docLeft;
           p->sizeRow=0; //!hned spravim
-         }
+	 }
          else clearall(&y);
         }
        }
@@ -1488,6 +1488,44 @@ knowsize:
       try2readHTMLcolor(tagarg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
      }
 
+//!!glennmcc: July 16, 2005 -- bad idea :(
+/*
+//!!glennmcc: July 14, 2005
+//if bgcolor and font color match eachother, use a contrasting color for font
+if (
+    htmldata->backR==HTMLatom.R &&
+    htmldata->backG==HTMLatom.G &&
+    htmldata->backB==HTMLatom.B
+   )
+   {
+    if (HTMLatom.R<127)
+    {
+     HTMLatom.R+=127;
+    }
+    else
+    {
+     HTMLatom.R-=127;
+    }
+    if (HTMLatom.G<127)
+    {
+     HTMLatom.G+=127;
+    }
+    else
+    {
+     HTMLatom.G-=127;
+    }
+    if (HTMLatom.B<127)
+    {
+     HTMLatom.B+=127;
+    }
+    else
+    {
+     HTMLatom.B-=127;
+    }
+   }
+//!!glennmcc: end -- July 14, 2005
+*/
+
      if(getvar("3D",&tagarg))
      {
       if(tagarg[0]=='2')
@@ -1579,7 +1617,7 @@ knowsize:
         hralign=RIGHT;
        else
        if(!strcmpi(tagarg,"LEFT"))
-        hralign=LEFT;
+	hralign=LEFT;
       }
 
       if(getvar("WIDTH",&tagarg))
@@ -1735,7 +1773,7 @@ knowsize:
 
       //HTML/4.0 attribute: should table border be visible ?
       if(getvar("FRAME",&tagarg) && border &&
-        (toupper(tagarg[0])=='V' || toupper(tagarg[0])=='N' )) // FRAME="VOID"
+	(toupper(tagarg[0])=='V' || toupper(tagarg[0])=='N' )) // FRAME="VOID"
        border=-1;
 
       //let's do this only for NEW tables:
@@ -1748,7 +1786,7 @@ knowsize:
        if(fixedfont)
        {
         thistable->cellspacing=FIXEDFONTY;
-        thistable->cellpadding=0;
+	thistable->cellpadding=0;
        }
        else
        {
@@ -1826,7 +1864,7 @@ knowsize:
        if(!strcmpi(tagarg,"RIGHT") || !alignarg && (align & RIGHT))
        {
         if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
-        {
+	{
          thistable->maxwidth/=2;
          twidth/=2;
         }
@@ -1969,7 +2007,7 @@ knowsize:
        atomptr=(struct HTMLrecord *)ie_getswap(currenttable[tabledepth]);
        if(atomptr)
        {
-        XSWAP parenttableadr=atomptr->linkptr;
+	XSWAP parenttableadr=atomptr->linkptr;
 
         tblstart=atomptr->x;
         tblystart=atomptr->y;
@@ -1995,7 +2033,7 @@ knowsize:
             p->maxsum=tdwidth[tabledepth-1];
           }
 
-          if(y<tdheight)
+	  if(y<tdheight)
            y=tdheight;
 
           if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,
@@ -2008,7 +2046,7 @@ knowsize:
            closeatom(currentcell[tabledepth],cellx,y);
          }
          else
-          MALLOCERR();
+	  MALLOCERR();
         }
 
         //spocitam sirku a zjistim posledni udaje
@@ -2021,7 +2059,7 @@ knowsize:
         }
 
         if(tmptable)
-        {
+	{
          XSWAP closeptrs[MAXROWSPANTD+1];
          long start=tmptable->tdstart,end;
          int padding=tmptable->cellpadding;
@@ -2034,7 +2072,7 @@ knowsize:
 
          //----------------------------------------------------------------
          //return to previous state of reneding engine - calc max. desired
-         //cell width - p->maxsum and p->xsum, where p->maxsum>=p->xsum ...
+	 //cell width - p->maxsum and p->xsum, where p->maxsum>=p->xsum ...
 
          {
           long desired=2*border+tmptable->realwidth+tmptable->totalxsum;
@@ -2073,7 +2111,7 @@ knowsize:
          {
           tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
           if(tmptable)
-          {
+	  {
            memcpy(tmptable,thistable,sizeof(struct HTMLtable));
           }
          }
@@ -2086,7 +2124,7 @@ knowsize:
          if(cellx>p->maxsum)
            p->xsum=p->maxsum=cellx;
 
-         if(closeatom(currenttable[tabledepth],cellx,celly)
+	 if(closeatom(currenttable[tabledepth],cellx,celly)
             && tabalign && !GLOBAL.validtables)
           RENDER.willadjusttables=1;
          if(tblstart+cellx>frame->scroll.total_x)
@@ -2099,7 +2137,7 @@ knowsize:
          tablerow(start,end,parenttableadr,padding);
         }
         else
-         MALLOCERR();
+	 MALLOCERR();
        }
        else
         MALLOCERR();
@@ -2164,7 +2202,7 @@ knowsize:
          else
           p->docLeft=p->docLeftEdge;
 
-        }
+	}
         else
         if(tabalign==RIGHT && cellx+FUZZYPIX<frame->scroll.total_x)
 	{
@@ -2177,7 +2215,7 @@ knowsize:
          }
          else
           p->docRight=p->docRightEdge;
-        }
+	}
        }
 
        //clear left and right ... AFTER returning to <TABLE ALIGN=.....>
@@ -2190,7 +2228,7 @@ knowsize:
        if(p->docClearLeft && y>=p->docClearLeft)
        {
         if(orderedlist[listdepth]==0)p->docLeft=p->docLeftEdge;
-        p->docClearLeft=0;
+	p->docClearLeft=0;
        }
 
        if(!GLOBAL.validtables && (tabalign==LEFT || tabalign==RIGHT || tabalign==CENTER))
@@ -2255,7 +2293,7 @@ knowsize:
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
            //printf("tables out of sync");
-        }
+	}
         if(tmptable)
         {
 	 if(bgcolor[0])
@@ -2268,7 +2306,7 @@ knowsize:
           if(tmptable->usetablebg)
           {
            thistable->userowbg=1;
-           tmptable->rowbgR=tmptable->tablebgR;
+	   tmptable->rowbgR=tmptable->tablebgR;
            tmptable->rowbgG=tmptable->tablebgG;
            tmptable->rowbgB=tmptable->tablebgB;
 	  }
@@ -2281,7 +2319,7 @@ knowsize:
           swapmod=1;
 
          if(currentcell[tabledepth]!=IE_NULL)
-         {
+	 {
 
           // fix desired table cell width data:
 	  if(p->xsum>p->maxsum)
@@ -2294,7 +2332,7 @@ knowsize:
 
           if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
             RENDER.willadjusttables=1;
-          if(thistableadr!=parenttableadr)
+	  if(thistableadr!=parenttableadr)
            swapmod=1;
 
 	  if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
@@ -2307,7 +2345,7 @@ knowsize:
          MALLOCERR();
 
         if(thistableadr==parenttableadr)
-         tmptable=thistable;
+	 tmptable=thistable;
         else
         {
 	 tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
@@ -2320,7 +2358,7 @@ knowsize:
 
          if(tmptable->x) //prvni <TR> ignorovat!
          {
-          fixrowspan(tmptable,0,closeptrs);
+	  fixrowspan(tmptable,0,closeptrs);
           end=tmptable->tdend;
           tmptable->y++;
 	  tmptable->x=0;
@@ -2489,7 +2527,7 @@ knowsize:
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-           //printf("tables out of sync");
+	   //printf("tables out of sync");
         }
         if(tmptable)
 	{
@@ -2502,7 +2540,7 @@ knowsize:
          }
          else
          if(!bgcolor && tmptable->userowbg)
-         {
+	 {
           HTMLatom.R=tmptable->rowbgR;
           HTMLatom.G=tmptable->rowbgG;
 	  HTMLatom.B=tmptable->rowbgB;
@@ -2515,7 +2553,7 @@ knowsize:
          if(widthstr[0])
          {
           char *percstr=strchr(widthstr,'%');
-          if(percstr && !noresize) //noresize is hack for <BODY NORESIZE>
+	  if(percstr && !noresize) //noresize is hack for <BODY NORESIZE>
           {
            *percstr='\0';
 	   perc=atoi(widthstr);
@@ -2528,7 +2566,7 @@ knowsize:
             width-=tmptable->cellspacing;
            }
           }
-         }
+	 }
 
          if(width<=0 || perc)
 	 {
@@ -2554,7 +2592,7 @@ knowsize:
           // fix desired table cell width data:
           if(p->xsum>p->maxsum)
            p->maxsum=p->xsum;
-          if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
+	  if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
            p->maxsum=tdwidth[tabledepth];
 
 	  if(y<tdheight)
@@ -2567,7 +2605,7 @@ knowsize:
 
           if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
            closeatom(currentcell[tabledepth],cellx,y);
-         }
+	 }
          //ok, cell closed. -------------------------------------------
         }
 	else
@@ -2580,7 +2618,7 @@ knowsize:
 
         if(thistableadr==parenttableadr)
          tmptable=thistable;
-        else
+	else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
 	   //printf("tables out of sync");
@@ -2606,7 +2644,7 @@ knowsize:
 
          tdheight=y+newtdheight;
 
-         if(caption) //nadpis
+	 if(caption) //nadpis
           border=0;
 
 	 if(p->docRight-p->docLeft<FUZZYPIX) //v uzkych sloupcich nedelat bordel!
@@ -2619,7 +2657,7 @@ knowsize:
 
          currentcell[tabledepth]=p->lastHTMLatom;
          //!rowspan fix!
-         if(yspan>1)
+	 if(yspan>1)
          {
           if(thistableadr==parenttableadr)
 	   tmptable=thistable;
@@ -2632,7 +2670,7 @@ knowsize:
 	  {
            if(tmptable->x-xspan+1<MAXROWSPANTD)
            {
-            tmptable->closerowspan[tmptable->x-xspan+1]=p->lastHTMLatom;
+	    tmptable->closerowspan[tmptable->x-xspan+1]=p->lastHTMLatom;
             if(thistableadr!=parenttableadr)
              swapmod=1;
 	   }
@@ -2931,7 +2969,7 @@ knowsize:
        {
         if(value[i]==' ' && spccount>2)
 	{
-         spc=1;
+	 spc=1;
          spccount++;
         }
 	else
@@ -2996,7 +3034,7 @@ knowsize:
 
        if(tag!=TAG_BUTTON)
        {
-        int ygap=(int)(HTMLatom.yy-HTMLatom.y)+2;
+	int ygap=(int)(HTMLatom.yy-HTMLatom.y)+2;
         if(p->sizeRow<ygap)
          p->sizeRow=ygap;
 	if(p->sizeTextRow<ygap)
@@ -3414,24 +3452,29 @@ if(http_parameters.ignorejs && http_parameters.ignorejs!=2){insidetag=0;}else
       }
       //printf("background image=%s\n",img->URL);
      }
+
+//!!glennmcc: July 14, 2005 -- use a new config setting to over-ride instead
+//"AlwaysUseCFGcolors Yes" will over-ride 'bgcolor' , 'text' and 'link'
 //!!glennmcc: begin Jan 3, 2003
 //use arachne.cfg values if either bgcolor= or text= is missing from <body>
-if(getvar("BGCOLOR",&tagarg) && getvar("TEXT",&tagarg))
-{
-//(closing '}' below)
-     if(getvar("BGCOLOR",&tagarg))
+//if(getvar("BGCOLOR",&tagarg) && getvar("TEXT",&tagarg))
+//{//(closing '}' below)//no onger needed... commented-out
+
+     if(getvar("BGCOLOR",&tagarg) && !http_parameters.alwaysusecfgcolors)
      {
       try2readHTMLcolor(tagarg,&htmldata->backR,&htmldata->backG,&htmldata->backB);
      }
 
-     if(getvar("TEXT",&tagarg))
+     if(getvar("TEXT",&tagarg) && !http_parameters.alwaysusecfgcolors)
      {
       try2readHTMLcolor(tagarg,&htmldata->textR,&htmldata->textG,&htmldata->textB);
      }
 
-//!!glennmcc: also... always use CFG color no matter what bgcolor might be
-
-/*     else if (htmldata->backR<8 && htmldata->backG<8 && htmldata->backB<8 &&
+//!!glennmcc: Jan 3, 2003
+//always use CFG color for text when it is missing from <body>
+//no matter what bgcolor might be
+/*
+     else if (htmldata->backR<8 && htmldata->backG<8 && htmldata->backB<8 &&
 	      htmldata->backgroundptr==IE_NULL )
      {
       htmldata->textR=255;
@@ -3439,12 +3482,50 @@ if(getvar("BGCOLOR",&tagarg) && getvar("TEXT",&tagarg))
       htmldata->textB=255;
      }
 */
-}//!!glennmcc: end
+//}//!!glennmcc: end -- Jan 3, 2003
 
-     if(getvar("LINK",&tagarg))
+     if(getvar("LINK",&tagarg) && !http_parameters.alwaysusecfgcolors)
      {
       try2readHTMLcolor(tagarg,&htmldata->linkR,&htmldata->linkG,&htmldata->linkB);
      }
+//!!glennmcc: July 16, 2005 -- bad idea :(
+/*
+//!!glennmcc: July 14, 2005
+//if bgcolor and link match eachother, use a contrasting color for link
+if (
+    htmldata->backR==htmldata->linkR &&
+    htmldata->backG==htmldata->linkG &&
+    htmldata->backB==htmldata->linkB
+   )
+   {
+    if (htmldata->linkR<127)
+    {
+     htmldata->linkR+=127;
+    }
+    else
+    {
+     htmldata->linkR-=127;
+    }
+    if (htmldata->linkG<127)
+    {
+     htmldata->linkG+=127;
+    }
+    else
+    {
+     htmldata->linkG-=127;
+    }
+    if (htmldata->linkB<127)
+    {
+     htmldata->linkB+=127;
+    }
+    else
+    {
+     htmldata->linkB-=127;
+    }
+   }
+//!!glennmcc: end -- July 14, 2005
+*/
+
 #ifdef VLINK
      if(getvar("VLINK",&tagarg))
      {

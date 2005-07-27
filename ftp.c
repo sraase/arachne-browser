@@ -79,7 +79,12 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
  outs(buffer);
 //  printf("FTP daemon said>");
 //  puts(buffer);
- if ( *buffer != '3' ) goto quit;
+
+//!!glennmcc: May 11, 2005
+//removed due to the fact that not all sites use '3'
+//see additional info below with respect to anonymous password
+// if ( *buffer != '3' ) goto quit;
+//!!glennmcc: end
 
  //open cache filename:
 
@@ -106,7 +111,7 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
  else
  {
   if(url->user[0] && !strcmp(url->host,AUTHENTICATION->host)
-                  && !strcmp(AUTHENTICATION->realm,"$ftp"))
+		  && !strcmp(AUTHENTICATION->realm,"$ftp"))
    ptr=AUTHENTICATION->password;
   else
   {
@@ -120,6 +125,12 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
   }
  }
 
+//!!glennmcc: May 11, 2005
+//some sites do not require a password after 'anonymous'
+//therefer, this entire block is now within this 'if()' so that
+//the password (email address), will only be sent if asked for
+if (strstr(buffer,"sword"))
+{
  sprintf( str, "PASS %s", ptr);
  sock_puts(socket,(unsigned char *)str);
  do
@@ -144,6 +155,7 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
   }
  }
  while(buffer[3]=='-' || buffer[0]==' '); //continued message!
+}//!!glennmcc: end May 11, 2005
 
  //ask server where we have to connect:
 
@@ -210,9 +222,14 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
    do
    {
     sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-                     &status );		//SDL
+		     &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
+//!!glennmcc: Apr 08, 2005 -- commented-out this block
+// to fix the problem of 'broken dir listing' when the
+// 'FTP welcome message' contains linefeeds
+// such as at ftp://ftp.cdrom.com/.2/simtelnet/
+/*
     if ( *buffer != '2' && buffer[0]!=' ')
     {
      write(cache->handle,buffer,strlen(buffer));
@@ -220,13 +237,20 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
      goto quit;
     }
     else if (buffer[3]=='-' || buffer[0]==' ')
+*/
+//!!glennmcc: end
     {
      strcat(buffer,"\r\n");
      rv=1;
      write(cache->handle,buffer,strlen(buffer));
     }
    }
-   while(buffer[3]=='-' || buffer[0]==' '); //continued message!
+//!!glennmcc: Apr 08, 2005 -- added a test for !=' ' which is also
+// needed for the same fix at ftp://ftp.cdrom.com/.2/simtelnet/
+   while(buffer[3]=='-' || buffer[3]!=' ' || buffer[0]==' '); //continued message!
+//   while(buffer[3]=='-' || buffer[0]==' '); //continued message!
+//!!glennmcc: end
+
   }
   strcpy(cache->mime,"ftp/list");
   sprintf( str, "LIST");

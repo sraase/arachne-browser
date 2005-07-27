@@ -622,7 +622,15 @@ dy -= FRAME.ytop - p->htscrn_ytop;
 //  atom on the left unless it is right off the screen (0). NB this will only
 //  work when the HTML window is always hard on the left margin of the screen!
 x1 = 0;
+//Ray: Mar 11, 2005
+// This allows *visible* part of over long link to hover.
+//!!glennmcc: Mar 12, 2005 -- removed due to <font size="greater than 3"> bug
+//!!glennmcc: Mar 13, 2005 -- fixed it... see below
+if(FRAME.xtop>p->htscrn_xtop)
+x2 = p->htscrn_xsize + p->htscrn_xtop;
+else
 x2 = atomonmouse.xx + FRAME.xtop;
+//Ray: end
 
 y1 = (int)(atomonmouse.y  + FRAME.ytop - p->htmlframe[atomptr->frameID].posY);
 y2 = (int)(atomonmouse.yy + FRAME.ytop - p->htmlframe[atomptr->frameID].posY);
@@ -631,16 +639,20 @@ y2 = (int)(atomonmouse.yy + FRAME.ytop - p->htmlframe[atomptr->frameID].posY);
 if (y2 > p->htscrn_ysize + p->htscrn_ytop)
 	 y2 = p->htscrn_ysize + p->htscrn_ytop;
 
-		sz = (long)((x2 - x1 + 1) * (y2 - y1 + 1) + 4 * sizeof(int));
-		if (sz > 0 && 2 * sz < MAXHOVER)
-		{              			// RAY: typecast made same form as one below.
-			char *buf = malloc((unsigned)((long)(2L * sz)));
-			if (buf)
-			{
-				x_getimg(x1, y1, x2, y2, buf);
-//				p->restorehoveradr = IE_NULL; // Moved from a few lines up.
-				p->restorehoveradr =
-					ie_putswap(buf, (unsigned)((long)(2L * sz)), CONTEXT_TMPIMG);
+	sz = (long)((x2 - x1 + 1) * (y2 - y1 + 1) + 4 * sizeof(int));
+//!!glennmcc: Mar 13, 2005 -- fixes <font size="greater than 3"> bug (see above)
+	if (sz > 0 && sz < MAXHOVER)
+//	if (sz > 0 && 2 * sz < MAXHOVER)
+//!!glennmcc: end
+
+	{// RAY: typecast made same form as one below.
+	char *buf = malloc((unsigned)((long)(2L * sz)));
+	if (buf)
+	{
+	x_getimg(x1, y1, x2, y2, buf);
+//	p->restorehoveradr = IE_NULL; // Moved from a few lines up.
+	p->restorehoveradr =
+	ie_putswap(buf, (unsigned)((long)(2L * sz)), CONTEXT_TMPIMG);
 				free(buf);
 			}
 			p->restorehoverx = x1;

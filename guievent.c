@@ -219,7 +219,7 @@ int togglefullscreen(void)
  GLOBAL.nothot=1;
  GLOBAL.needrender=1;
  GLOBAL.validtables=0; //tabulky je potreba prepocitat!!!
-                       //tr.: tables need to be recalculated/converted
+		       //tr.: tables need to be recalculated/converted
  return 1;
 }
 
@@ -482,6 +482,15 @@ int gotonewspage(void)
  sprintf(GLOBAL.location,"file:%snews.htm",exepath);
  arachne.target=0;
  return gotoloc();
+}
+//!!glennmcc: end
+
+//!!glennmcc: begin Jun 12, 2005 -- alternate font page
+int gotoaltfontpage(void)
+{
+ sprintf(GLOBAL.location,"file:%salt-font.htm",exepath);
+ arachne.target=0;
+  return gotoloc();
 }
 //!!glennmcc: end
 
@@ -1294,6 +1303,13 @@ else if(key==11264)
       return repaint();
      }
 //!!glennmcc: end
+
+//!!glennmcc: begin Jun 12, 2005
+//Alternate font page --- Alt+F
+else if(key==8448)
+    return gotoaltfontpage();
+//!!glennmcc: end
+
 
 #endif
    else if(key>=0x5400 && key<=0x5d00 /* &&reg*/)

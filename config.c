@@ -358,11 +358,37 @@ void configure_user_interface(void)
 //moved to config.c to make it configurable via CursorType in arachne.cfg
 const short cur2[32] =
 	 {
+//!!glennmcc: July 27, 2005 -- small mod to arrow by 'un-named SRC'
+	   0x1FFF, 0x0FFF, 0x07FF, 0x03FF, 0x01FF, 0x00FF, 0x007F, 0x003F,
+	   0x001F, 0x01FF, 0x10FF, 0x30FF, 0x787F, 0xF87F, 0xFC3F, 0xFFFF,
+	   0x4000, 0x6000, 0x7000, 0x7800, 0x7C00, 0x7E00, 0x7F00, 0x7F80,
+	   0x7C00, 0x6C00, 0x4600, 0x0600, 0x0300, 0x0300, 0x0180, 0x0000 };
+/*
+The above extends the shaft (tail) and removes the bottom line.
+The below is all that is needed in line 3 to fix the "bump" on
+the right side if the tail fix is not desired:
+
+0x4000, 0x6000, 0x7000, 0x7800, 0x7C00, 0x7E00, 0x7F00, 0x7F80,
+					   ^
+*/
+
+/*
+// Andrej Cuckov 'arrow'
 	   0x1FFF, 0x0FFF, 0x07FF, 0x03FF, 0x01FF, 0x00FF, 0x007F, 0x003F,
 	   0x001F, 0x01FF, 0x10FF, 0x30FF, 0x787F, 0xF87F, 0xFC7F, 0x0000,
 	   0x4000, 0x6000, 0x7000, 0x7800, 0x7C00, 0x7F00, 0x7F00, 0x7F80,
 	   0x7C00, 0x6C00, 0x4600, 0x0600, 0x0300, 0x0300, 0x0000, 0x0000 };
-//the next block  of data is the original cursor
+*/
+
+//!!glennmcc: July 27, 2005 -- Alternate 'cross' courtesy of 'un-named SRC'
+const short cur1[32] =
+	 {
+	   0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0x0001, 0x0101,
+	   0x0001, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFFFF,
+	   0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0xFEFE,
+	   0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0000 };
+
+//the next block  of data is the original 'hand' cursor
 const short cur[32] =
 	 {
 	   0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
@@ -376,6 +402,9 @@ x_defcurs( (short *)cur, (short *)&cur[16], 15); //original 'Hand' cursor
 else
 if(toupper(*value)=='A')
 x_defcurs( (short *)cur2, (short *)&cur2[16], 15); // new 'Arrow' cursor
+else
+if(toupper(*value)=='C')
+x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
 //!!glennmcc:end
 
  value=configvariable(&ARACHNEcfg,"SmallIcons",NULL);
@@ -790,14 +819,14 @@ x_defcurs( (short *)cur2, (short *)&cur2[16], 15); // new 'Arrow' cursor
   http_parameters.ignorebasehref=0;
 //!!glennmcc: end
 
-//!!glennmcc: begin Nov 09, 2003
-// added to optionally use 'auithenticated SMTP'
-// (defaults to No if "UseAuthSMTP Yes" line is not in Arachne.cfg)
- value=configvariable(&ARACHNEcfg,"UseAuthSMTP",NULL);
+//!!glennmcc: begin July 14, 2005
+//added to optionally always use arachne.cfg html colors in the <body> tag
+//(defaults to No if "AlwaysUseCFGcolors Yes" line is not in Arachne.cfg)
+ value=configvariable(&ARACHNEcfg,"AlwaysUseCFGcolors",NULL);
  if(value && toupper(*value=='Y'))
-  http_parameters.useauthsmtp=1;
+  http_parameters.alwaysusecfgcolors=1;
  else
-  http_parameters.useauthsmtp=0;
+  http_parameters.alwaysusecfgcolors=0;
 //!!glennmcc: end
 
 }

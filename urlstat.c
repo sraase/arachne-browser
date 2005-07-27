@@ -622,15 +622,18 @@ char *ptr=configvariable(&ARACHNEcfg,"Mail2Hist",NULL);
    if(!strcmpi(ptr,"No"))
      {
 //!!glennmcc: Jan 16, 2005 -- also don't add any of the mail files themselves
-      if(strstr(URL,".CNM") || strstr(URL,".TBS") ||
-	 strstr(URL,".MES") || strstr(URL,".SNT")
+      if(strstr(URL,".cnm") || strstr(URL,".tbs") ||
+	 strstr(URL,".mes") || strstr(URL,".snt")
 	) return;
      }
 #endif
 //!!glennmcc: end
 
 //!!glennmcc: Jan 05, 2005 -- do not add smtp: or pop3: into history.lst
-  if(strstr(URL,"smtp:") || strstr(URL,"pop3:")) return;
+//!!glennmcc: Apr 08, 2005 -- still add them via the send button or get button
+//when currently offline and dialing must be done before sending or receiving
+  if((strstr(URL,"smtp:")&&strlen(URL)!=10) || (strstr(URL,"pop3:")&&strlen(URL)!=11)) return;
+//  if(strstr(URL,"smtp:") || strstr(URL,"pop3:")) return;
 //!!glennmcc: end
 
 //!!glennmcc: Jan 13, 2005 -- also don't add the some of the mail .DGIs
