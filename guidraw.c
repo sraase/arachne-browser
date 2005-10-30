@@ -451,7 +451,10 @@ void statusmsg(void)
 
  Box3D(x_maxx()-150,x_maxy()-15,x_maxx(),x_maxy());
  x_setcolor(0);
- htmlfont(1,0);
+//!!glennmcc: Aug 22, 2005
+//prevent fontshift from causing regkey to over-run the online timer
+ htmlfont(1-user_interface.fontshift,0);
+// htmlfont(1,0);
  x_text_ib(x_maxx()-146,x_maxy()-15,(unsigned char *)regkey);
 
  if(httpstub)
@@ -686,7 +689,9 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
  }
 
 
- htmlfont(3,0);
+//!!glennmcc: Aug 22, 2005 -- maintain size independant of fontshift
+ htmlfont(3-user_interface.fontshift,0);
+// htmlfont(3,0);
 
  if(arachne.GUIstyle==STYLE_SMALL1)
  {
@@ -855,14 +860,23 @@ void onlinehelp(int b)
   case CLICK_ZOOM:
   outs(MSG_ZOOM);
   break;
-  case CLICK_ABOUT:
+
+//!!glennmcc: Sep 30, 2005
+//moveing 'Up one Level' function to 'URL' instead of 'Arachne ver#'
+//still will go up only when remote.. nothing will happen when local
 //!!glennmcc: Feb 03, 2005 -- up one level if remote 'about:' if local
+  case CLICK_UPLEVEL:
 if(!strstr(GLOBAL.location,"file:"))
    {
     outs("Up one level");
     break;
    }
+else
+//  outs("about:");
+  break;
 //!!glennmcc: end
+
+  case CLICK_ABOUT:
   outs("about:");
   break;
 

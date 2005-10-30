@@ -174,7 +174,8 @@ void Backgroundhttp(void)
      if (GLOBAL.back_knowsize && GLOBAL.back_size>0)
      {
       int prc=(int)(100*fpos/GLOBAL.back_size);
-      sprintf(str,MSG_X_OF_Y,MSG_BACKGR,fpos,GLOBAL.back_size);
+//      sprintf(str,MSG_X_OF_Y_BASIC,MSG_BACKGR,fpos,GLOBAL.back_size); //JdS
+    sprintf(str,MSG_X_OF_Y,MSG_BACKGR,fpos,GLOBAL.back_size);
       outs(str);
       percentbar(prc);
      }

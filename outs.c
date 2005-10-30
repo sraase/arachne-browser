@@ -23,7 +23,9 @@ void outs( char far *s)        /* print a ASCIIZ string to stdio */
   char str[105], *ptr;
   int l;
 
-  htmlfont(1,0);
+//!!glennmcc: Aug 22, 2005 -- maintain size independant of fontshift
+ htmlfont(1-user_interface.fontshift,0);
+//  htmlfont(1,0);
   l=x_charmax((unsigned char *)s,x_maxx()-200);
   if(l>100)
    l=100;

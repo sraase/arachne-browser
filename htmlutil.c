@@ -288,22 +288,18 @@ void HTTPcharset(char *charset)
 
 void METAtag(void)
 {
- char *tagarg;
+ char *tagarg, *value;
+ int MinRedirect;
 
  if(getvar("HTTP-EQUIV",&tagarg))
  {
   struct Url url;
   char text[URLSIZE+1];
-//!!glennmcc: begin May 24, 2005
-// added to optionally "ignore" <meta http-equiv="refresh"> tag
-//(defaults to No if "IgnoreRefresh Yes" line is not in Arachne.cfg)
-char *ignore="No";
-char *lengthen="No";//for LengthenShortRefresh below
-if(configvariable(&ARACHNEcfg,"IgnoreRefresh",NULL))
-{strcpy(ignore,configvariable(&ARACHNEcfg,"IgnoreRefresh",NULL));}
-if(!strcmpi(tagarg,"REFRESH") && !strncmpi(ignore,"N",1))
-//  if(!strcmpi(tagarg,"REFRESH")) //original line
-//!!glennmcc: end
+  //JdS 2005/8/10 {
+  //An implementation of glennmcc's "IgnoreRefresh" scheme ...
+  value = configvariable(&ARACHNEcfg,"IgnoreRefresh",NULL);
+  if (!strcmpi(tagarg,"REFRESH") && !(value && toupper(*value)=='Y'))
+  //JdS 2005/8/10 }
   {
    if(getvar("CONTENT",&tagarg))
    {
@@ -311,20 +307,17 @@ if(!strcmpi(tagarg,"REFRESH") && !strncmpi(ignore,"N",1))
     if(ptr)
     {
      *ptr='\0';
-
-//!!glennmcc: begin May 25, 2005
-//most 'malicious' refreshes use 0 seconds
-//therefore increasing to 60 seconds when less than 10
-//will give the user time to hit ESC before being redirected
-//(defaults to No if "LengthenShortRefresh Yes" line is not in Arachne.cfg)
-//if(configvariable(&ARACHNEcfg,"LengthenShortRefresh",NULL))
-//{
-strcpy(lengthen,configvariable(&ARACHNEcfg,"LengthenShortRefresh",NULL));
-//}
-if(atoi(tagarg)<10 && !strncmpi(lengthen,"Y",1)) GLOBAL.secondsleft=60; else
-//!!glennmcc: end
-
      GLOBAL.secondsleft=atoi(tagarg);
+//JdS 2005/8/10 {
+//Give the user enough time to stop "undesirable redirects" ...
+     value = configvariable(&ARACHNEcfg,"ShortestRefresh",NULL);
+     if (value)
+      MinRedirect = atoi(value);
+     else
+      MinRedirect = 2;
+     if (GLOBAL.secondsleft < MinRedirect)
+      GLOBAL.secondsleft = MinRedirect;
+//JdS 2005/8/10 }
      //printf("%d",GLOBAL.secondsleft);
      ptr=strchr(&ptr[1],'=');
      if(ptr)
@@ -332,7 +325,7 @@ if(atoi(tagarg)<10 && !strncmpi(lengthen,"Y",1)) GLOBAL.secondsleft=60; else
       ptr++;
       if(ptr[0]!='#')
       {
-       AnalyseURL(ptr,&url,p->currentframe); //(plne zneni...)
+       AnalyseURL(ptr,&url,p->currentframe); //(full length)
        url2str(&url,text);
        ptr=text;
       }
@@ -344,8 +337,8 @@ if(atoi(tagarg)<10 && !strncmpi(lengthen,"Y",1)) GLOBAL.secondsleft=60; else
    }
   }
   else
-  if(/* this depends whether HTTP header should have prioroty over META: !RENDER.translatecharset &&*/ 
-      !strcmpi(tagarg,"CONTENT-TYPE")) 
+  if(/* this depends whether HTTP header should have prioroty over META: !RENDER.translatecharset &&*/
+      !strcmpi(tagarg,"CONTENT-TYPE"))
   /* real HTTP header or user-forced charset has higher priority */
   {
    if(getvar("CONTENT",&tagarg))
@@ -374,7 +367,7 @@ void LINKtag(XSWAP *stylesheetadr)
    struct Url url;
    char text[URLSIZE];
 
-   AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+   AnalyseURL(tagarg,&url,p->currentframe); //(full length)
    url2str(&url,text);
    if(strstr(text,"&amp;"))
     entity2str(text);
@@ -407,7 +400,7 @@ void FRAMEtag(int *emptyframeset,int *previousframe)
 
  if(!getvar("SRC",&tagarg))
   tagarg="NUL";
- AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+ AnalyseURL(tagarg,&url,p->currentframe); //(full length)
  url2str(&url,text);
 
  newframe_target=*emptyframeset;
@@ -789,6 +782,7 @@ void Deallocmem(void)
    currentHTMLatom=atomptr->prev;
    if(atomptr->type==INPUT)
    //dealokovat pripadny vyskyt ibase editoru:
+   // tr.: deallocate if the ibase editor occurs:
    {
     editorptr=(struct ib_editor *)ie_getswap(atomptr->ptr);
     if(editorptr)
@@ -846,10 +840,11 @@ void DummyFrame(struct Page *p,int *x, long *y)
   HTMLatom.xx=*x;
   HTMLatom.yy=*y+p->sizeRow;
   //vlozit link:
-  AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+  AnalyseURL(tagarg,&url,p->currentframe); //(full length)
   url2str(&url,str);
 
   //vyrobim si pointr na link, a od ted je vsechno link:
+  // tr.: I create a pointer to the link, and from now on everything is link
   addatom(&HTMLatom,str,strlen(str),HREF,BOTTOM,0,0,IE_NULL,1);
   currentlink=p->lastHTMLatom;
 

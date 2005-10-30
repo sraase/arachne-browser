@@ -7,8 +7,11 @@
 #include "arachne.h"
 #include "internet.h" //because of background tasks...
 #include "gui.h"
-#include "html.h"//!!glennmcc: Feb 18, 2005 -- for 'Select test' in mouseon()
 #include "xanimgif.h"
+
+#ifdef EXP//experimental
+#include "html.h"//!!glennmcc: Feb 18, 2005 -- for 'Select test' in mouseon()
+#endif
 
 int TcpIdleFunc(void)
 {
@@ -53,7 +56,7 @@ void draw_time_online(void)
  x_setcolor(2); //red
  htmlfont(1,0);
  x_text_ib(x_maxx()-4,x_maxy()-15,(unsigned char *)str);
- x_settextjusty(0,2);        // always write text for upper left corner
+ x_settextjusty(0,2);        // always write text from upper left corner
 }
 //#endif //ULTRALIGHT
 
@@ -165,7 +168,7 @@ void mouseon(void)
  {
 //!!glennmcc: added 'Select test' Feb 18, 2005
 //calling onmouse(0) while in a <SELECT> tag causes a crash
-#ifndef NOKEY
+#ifdef EXP//experimental
 if(activeatom.data1!=SELECT)
   {
    if(onmouse(0))
@@ -201,7 +204,9 @@ void MemInfoLine(char *text1,char *text2,int color,int *y)
  x_setcolor(color);
  x_settextjusty(2,2);
  x_text_ib(x_maxx()-4,*y,(unsigned char *)text2);
- *y+=fonty(0,NORMAL);
+//!!glennmcc: Aug 22, 2005 -- prevent fontshift >1 from messing-up meminfo
+ *y+=fonty(0-user_interface.fontshift,NORMAL);
+// *y+=fonty(0,NORMAL);
  x_settextjusty(0,2);        //always write text for upper left corner
 }
 #endif
@@ -338,40 +343,8 @@ void MemInfo(char forced)
   moreinfo:
 
   MemInfoLine("Profile",configvariable(&ARACHNEcfg,"Profile",NULL),0,&y);
-//!!glennmcc: Jan 26, 2005 -- show status of https2Http status and IgnoreJS
-//instead of PersonalName and eMail
-  if (http_parameters.https2http>1)
-    {
-     if (http_parameters.https2http==3)
-     MemInfoLine("Https2Http","Toggled Yes",0,&y);//3==toggled Yes
-     else
-     MemInfoLine("Https2Http","Toggled No",0,&y);//2==toggled No
-    }
-    else
-    {
-     if (http_parameters.https2http)
-     MemInfoLine("Https2Http","Yes",0,&y);//1==default or Yes in CFG
-     else
-     MemInfoLine("Https2Http","No",0,&y);//0==No in CFG
-    }
-
-  if (http_parameters.ignorejs>1)
-    {
-     if (http_parameters.ignorejs==3)
-     MemInfoLine("IgnoreJS","Toggled Yes",0,&y);//3==toggled Yes
-     else
-     MemInfoLine("IgnoreJS","Toggled No",0,&y);//2==toggled No
-    }
-    else
-    {
-     if (http_parameters.ignorejs)
-     MemInfoLine("IgnoreJS","Yes",0,&y);//1==Yes in CFG
-     else
-     MemInfoLine("IgnoreJS","No",0,&y);//0==default or No in CFG
-    }
-//  MemInfoLine("",configvariable(&ARACHNEcfg,"PersonalName",NULL),0,&y);
-//  MemInfoLine("",configvariable(&ARACHNEcfg,"eMail",NULL),0,&y);
-//!!glennmcc: end
+  MemInfoLine("",configvariable(&ARACHNEcfg,"PersonalName",NULL),0,&y);
+  MemInfoLine("",configvariable(&ARACHNEcfg,"eMail",NULL),0,&y);
   y++;
   x_setcolor(8);
   x_line(x_maxx()-147,y,x_maxx()-4,y);
@@ -381,7 +354,13 @@ void MemInfo(char forced)
   y++;
   x_setcolor(8);
   x_line(x_maxx()-147,y,x_maxx()-4,y);
-  MemInfoLine("Local IP",myIPstr,0,&y);
+//!!JdS 2005/08/16 {
+//Fix the useless "0.0.0.0" IP address info. display ...
+//  MemInfoLine("Local IP",myIPstr,0,&y); //original line
+  sprintf(str,"%ld.%ld.%ld.%ld", my_ip_addr>>24, (my_ip_addr>>16)&0xFF,
+              (my_ip_addr>>8)&0xFF, my_ip_addr&0xFF);
+  MemInfoLine("Local IP",str,0,&y);
+//!!JdS 2005/08/16 }
   lastinfo=0;
  }
 

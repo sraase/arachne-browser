@@ -386,9 +386,7 @@ void AnalyseURL(char *str,struct Url *url,int frame)
 //!!glennmcc: begin Dec 09, 2001
 // added to fix "HTTPS verifying images" loop by trying HTTP instead
 //!!glennmcc: begin Dec 11,2001---- made it configurable y/n
-//!!glennmcc: Jan 24, 2005 -- 2==toggled off via togglehttps2http()
-if(http_parameters.https2http && http_parameters.https2http!=2)
-//if(http_parameters.https2http)
+if(http_parameters.https2http)
 {
   if(!strcmpi(url->protocol,"https"))
    strcpy(url->protocol,"http");
@@ -615,7 +613,7 @@ void add2history(char *URL)
  {
 //!!glennmcc: Feb 25, 2005
 //Mail2Hist caused more problems than it's worth, it's time to trash it :(
-#ifndef NOKEY
+#ifdef EXP//experimental
 //!!glennmcc: Jan 29, 2005 -- made it configurable
 char *ptr=configvariable(&ARACHNEcfg,"Mail2Hist",NULL);
    if(!ptr) ptr="Yes";
@@ -632,8 +630,11 @@ char *ptr=configvariable(&ARACHNEcfg,"Mail2Hist",NULL);
 //!!glennmcc: Jan 05, 2005 -- do not add smtp: or pop3: into history.lst
 //!!glennmcc: Apr 08, 2005 -- still add them via the send button or get button
 //when currently offline and dialing must be done before sending or receiving
-  if((strstr(URL,"smtp:")&&strlen(URL)!=10) || (strstr(URL,"pop3:")&&strlen(URL)!=11)) return;
-//  if(strstr(URL,"smtp:") || strstr(URL,"pop3:")) return;
+  if((strstr(URL,"smtp:")&&strlen(URL)!=10) ||
+     (strstr(URL,"pop3:")&&strlen(URL)!=11) ||
+//!!glennmcc: Sep 09, 2005 -- also don't add textedit.ah
+      strstr(URL,"textedit.ah")
+    ) return;
 //!!glennmcc: end
 
 //!!glennmcc: Jan 13, 2005 -- also don't add the some of the mail .DGIs

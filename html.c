@@ -4,6 +4,9 @@
 // (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
+// !!JdS 2004/12/02 : Replaced image-input atom subtype literal
+// constants with token symbols (which are now defined in 'html.h').
+
 #include "arachne.h"
 #include "html.h"
 #include "internet.h"
@@ -267,6 +270,7 @@ int renderHTML(struct Page *p)
  if((!strcmpi(ext,"HTM") || p->forced_html) && !GLOBAL.source)
  {
   //formatovani a barvy v HTML dokumentu:
+  // tr.: formatting and colours in HTML document
   x=frame->marginwidth;
   y=frame->marginheight;
   plaintext=0;
@@ -324,6 +328,7 @@ int renderHTML(struct Page *p)
 
 #ifdef VIRT_SCR
  //vynuluji virtualni obrazovku
+ //tr.: set virtual screen to zero, erase virtual screen
  virtualxstart[htmldata->whichvirtual]=0;
  virtualystart[htmldata->whichvirtual]=0;
  virtualxend[htmldata->whichvirtual]=0;
@@ -336,17 +341,18 @@ int renderHTML(struct Page *p)
 
  ScrollInit(&frame->scroll,
             frame->scroll.xsize,
-	    frame->scroll.ymax,   //visible y
+            frame->scroll.ymax,   //visible y
             frame->scroll.ymax,   //max y
             frame->scroll.xtop,
             frame->scroll.ytop,
-	    frame->scroll.xsize,0);//total x,y
+            frame->scroll.xsize,0);//total x,y
  ScrollButtons(&frame->scroll);
 
  if(!GLOBAL.isimage && GLOBAL.validtables==TABLES_UNKNOWN && p->html_source==HTTP_HTML)
   redrawHTML(REDRAW_WITH_MESSAGE,REDRAW_SCREEN);
 
  //-----pouze obrazek ------------------
+ //tr.: only picture
  if(*ext && strstr(imageextensions,ext) && !p->forced_html)
  {
   int znamrozmerx=0,znamrozmery=0;
@@ -429,7 +435,8 @@ int renderHTML(struct Page *p)
  }
 
 loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
-  if((percflag & 0x1ff) == 0x1ff ) //kazdych 512
+           //tr.: own (or separate) cycle - analyzis of HTML and plain/text
+  if((percflag & 0x1ff) == 0x1ff ) //kazdych 512 (tr.: for every 512)
    if(!p->rendering_target && GUITICK())
     if(GLOBAL.gotolocation || GLOBAL.abort)
      goto exitloop;
@@ -464,15 +471,15 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      notrefreshed=0;
     }
     else
-    { 
+    {
      ScrollInit(&frame->scroll,
-		frame->scroll.xsize,
+                frame->scroll.xsize,
                 frame->scroll.ymax,     //visible y
                 frame->scroll.ymax,     //max y
                 frame->scroll.xtop,
-		frame->scroll.ytop,
+                frame->scroll.ytop,
                 frame->scroll.total_x,  //total x
-		frame->scroll.total_y); //total y
+                frame->scroll.total_y); //total y
 
      if(frame->allowscrolling)
      {
@@ -504,6 +511,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
      percflag=2l*user_interface.logoiddle+plaintext*12000l;
      ikniddle=user_interface.logoiddle;
      xChLogoTICK(1); // animace loga pri nacitani souboru...
+     //tr.: animation of logo while loading file
     }
     else
      percflag=4000l+plaintext*12000l;
@@ -559,7 +567,7 @@ if (cache->knowsize)goto knowsize;
    {
     retry=0;
    }
-   if(retry>32000)
+   if (retry>32000) //was 24000
    {
     retry=0;
     goto exitloop;
@@ -573,6 +581,7 @@ knowsize:
    in=(unsigned char)p->buf[i];
 
   //text/html ignoruje konce radku, uvnitr <PRE> nebo text/plain ne:
+  //tr.: ignores end of line, but not in <PRE> or text/plain
   if(in<' ')
   {
    if((insidetag==TAG_TEXTAREA || insidetag==TAG_STYLE) &&
@@ -608,10 +617,11 @@ knowsize:
   }//endif
 
   //......................................................zpracovani 1 znaku
+  //tr.: processing 1 character
   if(!tag)
   {
    endoftag=0;
-   if(in=='<' && !plaintext) //zacatek HTMLtagu
+   if(in=='<' && !plaintext) //zacatek HTMLtagu (tr.: start of HTML tag)
    {
     HTMLatom.xx=x;
      HTMLatom.y=y;
@@ -649,9 +659,11 @@ knowsize:
    }
 
    //Entity (&lt;,&jt; &copy ...)
+   //tr.: entities
    if(in=='&' && !plaintext && (isalpha(p->buf[i+1]) || p->buf[i+1]=='#' || i==bflen))
    //HTML entita zacina '&'
    //uvnitr tagu by byt nemela
+   //tr.: HTML entita begins with &, this should not happen within TAG
    {
     entity=1;
     entilen=0;
@@ -659,7 +671,7 @@ knowsize:
     goto loop;
    }
    else
-   if(entity)       //vnitrek entity
+   if(entity)       //vnitrek entity, tr.: within an entity
    {
     if(entilen>8 || in==';' || in==' ')
     {
@@ -675,7 +687,7 @@ knowsize:
      entityname[entilen++]=in;
      goto loop;
     }
-   }//endif entity
+   }//endif entity (tr.: entities)
 
    if((unsigned char)in==160) // ASCII 160 is ALWAYS nobreak space in HTML
    {
@@ -693,6 +705,7 @@ knowsize:
    }
 */
    // <-----------------------------------------<--------<-----------mimo tag
+   //tr.: outside of tag
    if(in!=' ' || !lastspace || pre)
    {
     if(txtlen<BUF) text[txtlen++]=in;
@@ -706,41 +719,44 @@ knowsize:
       {
        xsize=x-HTMLatom.x;
        if(xsize<p->docRight-p->docLeft && !pre && !nownobr && !nobr /*&&
-	  (HTMLatom.x!=p->docLeft || GLOBAL.validtables)*/ || p->docRight<p->docRightEdge)
+          (HTMLatom.x!=p->docLeft || GLOBAL.validtables)*/ || p->docRight<p->docRightEdge)
        {
-	// <------------------------------------------------odsunout cely atom
-	alignrow(HTMLatom.x,y,orderedlist[listdepth]);
-	y+=p->sizeRow;
+        // <------------------------------------------------odsunout cely atom
+        // tr.: move out the entire atom
+        alignrow(HTMLatom.x,y,orderedlist[listdepth]);
+        y+=p->sizeRow;
 
-	//kdyz jsou levy a pravy okraj moc blizko u sebe...
-	if(xsize>p->docRight-p->docLeft)
-	 clearall(&y);
+        //kdyz jsou levy a pravy okraj moc blizko u sebe...
+        //tr.: if left and right margins are too close to each other
+        if(xsize>p->docRight-p->docLeft)
+         clearall(&y);
 
-	p->sizeTextRow=p->sizeRow=fonty(font,style);
-	x=p->docLeft+xsize;
-	HTMLatom.x=p->docLeft;
-	HTMLatom.y=y;
-	HTMLatom.xx=x;
-	HTMLatom.yy=y+p->sizeRow;
-	addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
-	HTMLatom.x=x;
-	HTMLatom.y=y;
-	txtlen=0;
-	lastspcpos=0;
-	lastspcx=x;
-	nownobr=nobr;
+        p->sizeTextRow=p->sizeRow=fonty(font,style);
+        x=p->docLeft+xsize;
+        HTMLatom.x=p->docLeft;
+        HTMLatom.y=y;
+        HTMLatom.xx=x;
+        HTMLatom.yy=y+p->sizeRow;
+        addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
+        HTMLatom.x=x;
+        HTMLatom.y=y;
+        txtlen=0;
+        lastspcpos=0;
+        lastspcx=x;
+        nownobr=nobr;
        }
        else
        {
-	p->docRight+=charsize;
-	//during second pass, certain <NOBR> elements will be treated as <BR>
-	if(nobr)
-	 boom=1;
+        p->docRight+=charsize;
+        //during second pass, certain <NOBR> elements will be treated as <BR>
+        if(nobr)
+         boom=1;
        }
       }
       else
       {
        // <---------------------------------------------------------novy radek
+       //tr. new line
        //!!!text[lastspcpos-1]='\0';
        text[lastspcpos-1]='\0';
        text[txtlen]='\0';
@@ -766,7 +782,7 @@ knowsize:
        lastspcx=0;
       }
      }
-    }//endif viditelny text
+    }//endif viditelny text (tr.: visible text)
 
 //    if(in==' ' && !nbsp|| in=='/') //wrap also long unix pathnames !
     if(in==' ' && !nbsp)//!!glennmcc: Apr 06, 2003---do not wrap long pathnames---// || in=='/') //wrap also long unix pathnames !
@@ -786,11 +802,12 @@ knowsize:
      nbsp=0;
     }
 
-   }//konec zpracovani jednoho znaku
+   }//konec zpracovani jednoho znaku (tr.: end of processing of 1 char.)
 
   }
   else
   //................................................zpracovani vnitrku tagu
+  //tr.: processing tag content
   {
    if (in=='>' && !uvozovky && (nolt || !(comment && strncmp(pom,"--",2))))
    {
@@ -815,12 +832,12 @@ knowsize:
     if(insidetag)
     {
      if((insidetag==TAG_TEXTAREA && tag!=TAG_SLASH_TEXTAREA) ||
-	(insidetag==TAG_TITLE && tag!=TAG_SLASH_TITLE) ||
-	(insidetag==TAG_STYLE && tag!=TAG_SLASH_STYLE) ||
-	(insidetag==TAG_SELECT && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
-	(insidetag==TAG_OPTION && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
-	(insidetag==TAG_SCRIPT && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT &&
-	 tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS))
+        (insidetag==TAG_TITLE && tag!=TAG_SLASH_TITLE) ||
+        (insidetag==TAG_STYLE && tag!=TAG_SLASH_STYLE) ||
+        (insidetag==TAG_SELECT && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
+        (insidetag==TAG_OPTION && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
+        (insidetag==TAG_SCRIPT && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT &&
+         tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS))
       tag=0;
     }
 
@@ -833,6 +850,7 @@ knowsize:
      PARAGRAPH;
      p->sizeTextRow=p->sizeRow=0; //fonty(font,style); //?p->sizeRow?
      invisibletag=0; //paragraf ukonci chybny option, title, apod.
+     //tr.: paragraph will be terminated by wrong option, title, etc.
      //align=basealign[tabledepth];
      {
       int reset=0;
@@ -851,7 +869,7 @@ knowsize:
 
      alignset:
      x=p->docLeft;
-     lastspace=1;//mazat mezery
+     lastspace=1;//mazat mezery (tr.: erase spaces)
      if(getvar("ALIGN",&tagarg))
      {
 //       basealign[tabledepth]=align;
@@ -880,35 +898,39 @@ knowsize:
        char target;
 
        if(!strncmpi(tagarg,"mailto:",7))
-	target=findtarget(0);
+        target=findtarget(0);
        else
-	target=findtarget(basetarget);
+        target=findtarget(basetarget);
 
        //vlozit link:
+       //tr.: insert link
        if(tagarg[0]!='#')
        {
-	AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
-	url2str(&url,text);
-	if(strstr(text,"&amp;"))
-	 entity2str(text);
-	tagarg=text;
+        AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+        //tr.: entire, full, complete version/text
+        url2str(&url,text);
+        if(strstr(text,"&amp;"))
+         entity2str(text);
+        tagarg=text;
        }
 
        pushfont(font,style,&HTMLatom,&fontstack);
        sheet=locatesheet(htmldata,&tmpsheet,stylesheetadr);
        if(sheet->usehover)
-	HTMLatom.R=1;
+        HTMLatom.R=1;
        else
-	HTMLatom.R=0;
+        HTMLatom.R=0;
 
        //vyrobim si pointr na link, a od ted je vsechno link:
+       //tr.: I create a pointer for link, and from now on
+       //     everything will be a link
        addatom(&HTMLatom,tagarg,strlen(tagarg),HREF,align,target,removable,sheet->myadr,1);
        currentlink=p->lastHTMLatom;
 
        style|=sheet->ahrefsetbits;
        style-=(style&sheet->ahrefresetbits);
        if(sheet->ahreffontsize!=-1)
-	font=sheet->ahreffontsize;
+        font=sheet->ahreffontsize;
        HTMLatom.R=sheet->linkR;
        HTMLatom.G=sheet->linkG;
        HTMLatom.B=sheet->linkB;
@@ -957,14 +979,14 @@ knowsize:
 
       if(input_image) //   ...  INPUT TYPE=IMAGE
       {
-       ismap=4;
+       ismap=IMG_INPUT;
        imglink=currentform;
       }
       else
       {
        imglink=currentlink;
        if(imglink!=IE_NULL)
-	border=1;
+        border=1;
       }
 
       if(getvar("SRC",&tagarg) && tagarg[0])
@@ -980,29 +1002,29 @@ knowsize:
 
        if(QuickSearchInCache(&url,&HTTPdoc,&dummy,&status))
        {
-	strcpy(img->filename,HTTPdoc.locname);
+        strcpy(img->filename,HTTPdoc.locname);
 
-	if(img->filename[0])
-	{
-	 img->sizeonly=1;
+        if(img->filename[0])
+        {
+         img->sizeonly=1;
 
-	 get_extension(HTTPdoc.mime,ext);
-	 //printf("image extension: %s\n",ext);
-	 if(strcmpi(ext,"IKN")) // != IKN
-	 {
-	  if(drawanyimage(img)==1)
-	   znamrozmerx=znamrozmery=1;
-	  else
-	   failedGIF=1;
-	 }
-	 else
-	 if(!cgamode)
-	 {
-	  img->size_y=60;
-	  img->size_x=60;
-	  znamrozmerx=znamrozmery=1;
-	 }
-	}//endif nasel jsem neco
+         get_extension(HTTPdoc.mime,ext);
+         //printf("image extension: %s\n",ext);
+         if(strcmpi(ext,"IKN")) // != IKN
+         {
+          if(drawanyimage(img)==1)
+           znamrozmerx=znamrozmery=1;
+          else
+           failedGIF=1;
+         }
+         else
+         if(!cgamode)
+         {
+          img->size_y=60;
+          img->size_x=60;
+          znamrozmerx=znamrozmery=1;
+         }
+        }//endif nasel jsem neco (tr.: I have found something)
        }
       }
       else
@@ -1013,18 +1035,18 @@ knowsize:
       if(getvar("ALIGN",&tagarg))
       {
        if(!strcmpi(tagarg,"TOP"))
-	imgalign = imgalign | TOP;
+        imgalign = imgalign | TOP;
        else
        if(!strcmpi(tagarg,"MIDDLE"))
-	imgalign = imgalign | MIDDLE;
+        imgalign = imgalign | MIDDLE;
        else
        if(!strcmpi(tagarg,"RIGHT"))
-	imgright=1;
+        imgright=1;
        else
        if(!strcmpi(tagarg,"LEFT"))
-	imgleft=1;
+        imgleft=1;
        else
-	imgalign = imgalign | BOTTOM;
+        imgalign = imgalign | BOTTOM;
       }
       else
        imgalign = imgalign | BOTTOM;
@@ -1032,12 +1054,12 @@ knowsize:
 
       if(getvar("ISMAP",&tagarg))
       {
-       ismap=ismap|1;
+       ismap=ismap|IMG_ISMAP;
       }
 
       if(getvar("USEMAP",&tagarg))
       {
-       ismap=2;
+       ismap=IMG_USEMAP;
        addatom(&HTMLatom,tagarg,strlen(tagarg),USEMAP,align,0,0,IE_NULL,1);
        imglink=p->lastHTMLatom;
        search4maps=1;
@@ -1046,9 +1068,9 @@ knowsize:
       if(getvar("BORDER",&tagarg))
       {
        if(*tagarg)
-	border=(char)atoi(tagarg);
+        border=(char)atoi(tagarg);
        else
-	border=1;
+        border=1;
       }
 
       if(getvar("HEIGHT",&tagarg))
@@ -1057,8 +1079,8 @@ knowsize:
        if(i<2)i=2;//!!glennmcc: Feb 15, 2005 -- fixes 'sticky mouse'
        if((!znamrozmery || i!=img->size_y) && !egamode && !vga16mode)
        {
-	img->resize_y=i;
-	img->resize_x=img->size_x;
+        img->resize_y=i;
+        img->resize_x=img->size_x;
        }
        img->size_y=i;
        znamrozmery=1;
@@ -1073,9 +1095,9 @@ knowsize:
        if(i<2)i=2;//!!glennmcc: Feb 15, 2005 -- fixes 'sticky mouse'
        if((!znamrozmerx || i!=img->size_x) && !egamode && !vga16mode)
        {
-	img->resize_x=i;
-	if(!img->resize_y)
-	 img->resize_y=img->size_y;
+        img->resize_x=i;
+        if(!img->resize_y)
+         img->resize_y=img->size_y;
        }
        img->size_x=i;
        znamrozmerx=1;
@@ -1108,43 +1130,45 @@ knowsize:
        GLOBAL.needrender=1; //we don't know all image sizes...
 
       //vlastni vlozeni obrazku:
+      //tr.: own/separate inserting of picture
 
       if(imgleft)
       {
        if(x>p->docLeft)
-	HTMLatom.y=y+p->sizeRow;
+        HTMLatom.y=y+p->sizeRow;
        else
        {
-	HTMLatom.y=y;
-	x+=img->size_x;
+        HTMLatom.y=y;
+        x+=img->size_x;
        }
        HTMLatom.x=p->docLeft;
        p->docLeft+=img->size_x;
        HTMLatom.xx=p->docLeft;
        HTMLatom.yy=HTMLatom.y+img->size_y;
        if(HTMLatom.yy>p->docClearLeft)
-	p->docClearLeft=HTMLatom.yy;
+        p->docClearLeft=HTMLatom.yy;
 
        if(p->docLeft>p->docRight)
-	clearall(&y);
+        clearall(&y);
 
        imgalign=0; //a hlavne tady: rikam, ze uz s tim nebudu hejbat !!!
+       //tr.: and mainly here: I tell you, that I won't do any more changes
       }
       else if(imgright)
       {
        if(p->docLeft+img->size_x>p->docRight)
-	clearall(&y);
+        clearall(&y);
 
        if(p->docRight-img->size_x<x)
        {
-	clearall(&y);
-	x=p->docLeft;
+        clearall(&y);
+        x=p->docLeft;
        }
 
        if(p->docLeft+img->size_x>p->docRight)
        {
-	p->docRight+=img->size_x;
-	p->docRightEdge=p->docRight;
+        p->docRight+=img->size_x;
+        p->docRightEdge=p->docRight;
        }
 
        HTMLatom.xx=p->docRight+1;
@@ -1156,11 +1180,14 @@ knowsize:
         p->docClearRight=HTMLatom.yy;
 
        imgalign=0; //a hlavne tady: rikam, ze uz s tim nebudu hejbat !!!
+       //tr.: and mainly here: I tell you, that I won't do any more changes
       }
       else
       {
        //normalni - misto jednoho atomu
+       //tr.: normal - location of on atom
        //nevejde se nam tam ?
+       //tr.: does not fit into there?
        if(x+img->size_x>p->docRight)
        {
         if(!pre && !nownobr)
@@ -1171,8 +1198,8 @@ knowsize:
           alignrow(x,y,orderedlist[listdepth]);
           y+=p->sizeRow;
           x=p->docLeft;
-          p->sizeRow=0; //!hned spravim
-	 }
+          p->sizeRow=0; //!hned spravim (tr.: I will repair it immediately)
+         }
          else clearall(&y);
         }
        }
@@ -1194,9 +1221,10 @@ knowsize:
 
       addatom(&HTMLatom,img,sizeof(struct picinfo),IMG,imgalign,ismap,border,imglink,imgright);
       //imgright=1 --> neposouvat pravy okraj!!!
+      //tr.: do not move the right margin
 
       nownobr=nobr;
-      lastspace=1;//mazat mezery
+      lastspace=1;//mazat mezery (tr. erase spaces)
      }
      break;
 
@@ -1248,7 +1276,7 @@ knowsize:
      linebreak:
      p->sizeTextRow=p->sizeRow=fonty(font,style); //?p->sizeRow?
      x=p->docLeft;
-     lastspace=1;//mazat mezery
+     lastspace=1;//mazat mezery (tr. spaces)
      HTMLatom.x=x;
      HTMLatom.y=y;
      break;
@@ -1481,50 +1509,13 @@ knowsize:
         font=atoi(tagarg);
       if(font<1)font=1;
       if(font>8)font=8; //! tady do budoucna pocitam s rozsirenim jako Netscape!
+      //here, for the future I plan extension/improvement like/similar Netscape
      }
 
      if(getvar("COLOR",&tagarg))
      {
       try2readHTMLcolor(tagarg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
      }
-
-//!!glennmcc: July 16, 2005 -- bad idea :(
-/*
-//!!glennmcc: July 14, 2005
-//if bgcolor and font color match eachother, use a contrasting color for font
-if (
-    htmldata->backR==HTMLatom.R &&
-    htmldata->backG==HTMLatom.G &&
-    htmldata->backB==HTMLatom.B
-   )
-   {
-    if (HTMLatom.R<127)
-    {
-     HTMLatom.R+=127;
-    }
-    else
-    {
-     HTMLatom.R-=127;
-    }
-    if (HTMLatom.G<127)
-    {
-     HTMLatom.G+=127;
-    }
-    else
-    {
-     HTMLatom.G-=127;
-    }
-    if (HTMLatom.B<127)
-    {
-     HTMLatom.B+=127;
-    }
-    else
-    {
-     HTMLatom.B-=127;
-    }
-   }
-//!!glennmcc: end -- July 14, 2005
-*/
 
      if(getvar("3D",&tagarg))
      {
@@ -1555,7 +1546,7 @@ if (
 
      case TAG_SLASH_BASEFONT: // </basefont>
 
-     htmldata->basefontsize=3; //normalni velikost
+     htmldata->basefontsize=3; //normalni velikost (tr.: normal size)
      // continue...
 
      case TAG_SLASH_FONT:
@@ -1617,7 +1608,7 @@ if (
         hralign=RIGHT;
        else
        if(!strcmpi(tagarg,"LEFT"))
-	hralign=LEFT;
+        hralign=LEFT;
       }
 
       if(getvar("WIDTH",&tagarg))
@@ -1773,7 +1764,7 @@ if (
 
       //HTML/4.0 attribute: should table border be visible ?
       if(getvar("FRAME",&tagarg) && border &&
-	(toupper(tagarg[0])=='V' || toupper(tagarg[0])=='N' )) // FRAME="VOID"
+        (toupper(tagarg[0])=='V' || toupper(tagarg[0])=='N' )) // FRAME="VOID"
        border=-1;
 
       //let's do this only for NEW tables:
@@ -1786,7 +1777,7 @@ if (
        if(fixedfont)
        {
         thistable->cellspacing=FIXEDFONTY;
-	thistable->cellpadding=0;
+        thistable->cellpadding=0;
        }
        else
        {
@@ -1841,9 +1832,9 @@ if (
        if(HTMLatom.xx>p->docRight &&
           (GLOBAL.validtables!=TABLES_UNKNOWN || thistable->fixedmax==PIXELS_FIXED_TABLE))
         clearall(&y);
-    
-// we dont really want this....    
-//      if(HTMLatom.xx>p->docRight) 
+
+// we dont really want this....
+//      if(HTMLatom.xx>p->docRight)
 //       p->docRight=HTMLatom.xx;
 
       alignarg=getvar("ALIGN",&tagarg);
@@ -1864,7 +1855,7 @@ if (
        if(!strcmpi(tagarg,"RIGHT") || !alignarg && (align & RIGHT))
        {
         if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
-	{
+        {
          thistable->maxwidth/=2;
          twidth/=2;
         }
@@ -1962,6 +1953,7 @@ if (
       thistable->valignrow=MIDDLE;
 
       //ulozim tabulku do seznamu tabulek
+      //tr.: I put/save the table into the list of tables
       tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
       if(tmptable)
       {
@@ -1972,6 +1964,7 @@ if (
        MALLOCERR();
 
       //vyrobim si pointer na tabulku:
+      //tr.: I create a pointer for the table
       if(img->URL[0])
        addatom(&HTMLatom,img,sizeof(struct picinfo),TD_BACKGROUND,TOP,border,tabalign,thistableadr,1);
       else
@@ -1979,6 +1972,7 @@ if (
       currenttable[tabledepth]=p->lastHTMLatom;
 
       //a v seznamu je na rade dalsi tabulka...
+      //tr.: and it is the turn of the next table in the list
       //Tablelist.cur++;
       istd=0;
      }
@@ -2004,10 +1998,11 @@ if (
         }
 
        //uzavreni posledniho policka
+       //tr.: closing the last small field
        atomptr=(struct HTMLrecord *)ie_getswap(currenttable[tabledepth]);
        if(atomptr)
        {
-	XSWAP parenttableadr=atomptr->linkptr;
+        XSWAP parenttableadr=atomptr->linkptr;
 
         tblstart=atomptr->x;
         tblystart=atomptr->y;
@@ -2015,6 +2010,7 @@ if (
         tabalign=atomptr->data2;
 
         if(currentcell[tabledepth]!=IE_NULL) //uzavrit posledni ctverecek na radce
+        //tr.: close the last small square on the line
         {
          if(thistableadr==parenttableadr)
           tmptable=thistable;
@@ -2033,7 +2029,7 @@ if (
             p->maxsum=tdwidth[tabledepth-1];
           }
 
-	  if(y<tdheight)
+          if(y<tdheight)
            y=tdheight;
 
           if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,
@@ -2046,10 +2042,11 @@ if (
            closeatom(currentcell[tabledepth],cellx,y);
          }
          else
-	  MALLOCERR();
+          MALLOCERR();
         }
 
         //spocitam sirku a zjistim posledni udaje
+        //I calculate width and get the last variable
         if(thistableadr==parenttableadr)
          tmptable=thistable;
         else
@@ -2059,7 +2056,7 @@ if (
         }
 
         if(tmptable)
-	{
+        {
          XSWAP closeptrs[MAXROWSPANTD+1];
          long start=tmptable->tdstart,end;
          int padding=tmptable->cellpadding;
@@ -2072,7 +2069,7 @@ if (
 
          //----------------------------------------------------------------
          //return to previous state of reneding engine - calc max. desired
-	 //cell width - p->maxsum and p->xsum, where p->maxsum>=p->xsum ...
+         //cell width - p->maxsum and p->xsum, where p->maxsum>=p->xsum ...
 
          {
           long desired=2*border+tmptable->realwidth+tmptable->totalxsum;
@@ -2106,12 +2103,13 @@ if (
          //----------------------------------------------------------------
 
          //zapsani zavrene tabulky
+         //tr.: writing closed table
 
          if(thistableadr==parenttableadr)
          {
           tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
           if(tmptable)
-	  {
+          {
            memcpy(tmptable,thistable,sizeof(struct HTMLtable));
           }
          }
@@ -2124,7 +2122,7 @@ if (
          if(cellx>p->maxsum)
            p->xsum=p->maxsum=cellx;
 
-	 if(closeatom(currenttable[tabledepth],cellx,celly)
+         if(closeatom(currenttable[tabledepth],cellx,celly)
             && tabalign && !GLOBAL.validtables)
           RENDER.willadjusttables=1;
          if(tblstart+cellx>frame->scroll.total_x)
@@ -2133,11 +2131,12 @@ if (
          }
 
          //zarovnam posledni radek tabulky
+         //tr.: I align the last row of the table
          fixrowspan_y(closeptrs,end,padding);
          tablerow(start,end,parenttableadr,padding);
         }
         else
-	 MALLOCERR();
+         MALLOCERR();
        }
        else
         MALLOCERR();
@@ -2162,22 +2161,22 @@ if (
          MALLOCERR();
        }
        else
-	thistableadr=IE_NULL;
+        thistableadr=IE_NULL;
 
        if(cellx>=p->docRight-p->docLeft && tabledepth>0)
        {
-	p->docRightEdge=p->docRight=p->docLeft+cellx;
+        p->docRightEdge=p->docRight=p->docLeft+cellx;
        }
 
        align=alignstack[tabledepth];
        currentlink=IE_NULL;
        if(!popfont(&font,&style,&HTMLatom,&fontstack))
        {
-	font=htmldata->basefontsize;
-	style=htmldata->basefontstyle;
-	HTMLatom.R=htmldata->textR;
-	HTMLatom.G=htmldata->textG;
-	HTMLatom.B=htmldata->textB;
+        font=htmldata->basefontsize;
+        style=htmldata->basefontstyle;
+        HTMLatom.R=htmldata->textR;
+        HTMLatom.G=htmldata->textG;
+        HTMLatom.B=htmldata->textB;
        }
        y=celly;
 
@@ -2192,7 +2191,7 @@ if (
        {
         if(tabalign==LEFT && cellx+FUZZYPIX<frame->scroll.total_x)
         {
-	 p->docLeft=tblstart+cellx+FUZZYPIX;
+         p->docLeft=tblstart+cellx+FUZZYPIX;
          if(p->docRight>p->docLeft)
          {
           if(celly>p->docClearLeft)
@@ -2202,10 +2201,10 @@ if (
          else
           p->docLeft=p->docLeftEdge;
 
-	}
+        }
         else
         if(tabalign==RIGHT && cellx+FUZZYPIX<frame->scroll.total_x)
-	{
+        {
          p->docRight=tblstart-FUZZYPIX;
          if(p->docRight>p->docLeft)
          {
@@ -2215,7 +2214,7 @@ if (
          }
          else
           p->docRight=p->docRightEdge;
-	}
+        }
        }
 
        //clear left and right ... AFTER returning to <TABLE ALIGN=.....>
@@ -2228,7 +2227,7 @@ if (
        if(p->docClearLeft && y>=p->docClearLeft)
        {
         if(orderedlist[listdepth]==0)p->docLeft=p->docLeftEdge;
-	p->docClearLeft=0;
+        p->docClearLeft=0;
        }
 
        if(!GLOBAL.validtables && (tabalign==LEFT || tabalign==RIGHT || tabalign==CENTER))
@@ -2268,9 +2267,11 @@ if (
       }
 
       //kvuli caption
+      //tr.: because of caption
       if(!GLOBAL.validtables)
        invisibletag=0;
       //pokud jsem uvnitr tabulky
+      //tr.: if I am within a table
       if(tabledepth && currenttable[tabledepth]!=IE_NULL)
       {
        clearall(&y);
@@ -2283,20 +2284,22 @@ if (
        atomptr=(struct HTMLrecord *)ie_getswap(currenttable[tabledepth]);
        if(atomptr)
        {
-	XSWAP parenttableadr=atomptr->linkptr;
+        XSWAP parenttableadr=atomptr->linkptr;
         int cellx;
 
         //getswap musim delat pokazde, protoze tabulka je dynamicky ulozena
+        //tr.: I have to do getswap every time, becaus the table
+        //     is allocated dynamically
         if(thistableadr==parenttableadr)
           tmptable=thistable;
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
            //printf("tables out of sync");
-	}
+        }
         if(tmptable)
         {
-	 if(bgcolor[0])
+         if(bgcolor[0])
          {
           try2readHTMLcolor(bgcolor,&(tmptable->rowbgR),&(tmptable->rowbgG),&(tmptable->rowbgB));
           thistable->userowbg=1;
@@ -2306,10 +2309,10 @@ if (
           if(tmptable->usetablebg)
           {
            thistable->userowbg=1;
-	   tmptable->rowbgR=tmptable->tablebgR;
+           tmptable->rowbgR=tmptable->tablebgR;
            tmptable->rowbgG=tmptable->tablebgG;
            tmptable->rowbgB=tmptable->tablebgB;
-	  }
+          }
           else
            thistable->userowbg=0;
          }
@@ -2319,10 +2322,10 @@ if (
           swapmod=1;
 
          if(currentcell[tabledepth]!=IE_NULL)
-	 {
+         {
 
           // fix desired table cell width data:
-	  if(p->xsum>p->maxsum)
+          if(p->xsum>p->maxsum)
            p->maxsum=p->xsum;
           if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
            p->maxsum=tdwidth[tabledepth];
@@ -2332,10 +2335,10 @@ if (
 
           if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
             RENDER.willadjusttables=1;
-	  if(thistableadr!=parenttableadr)
+          if(thistableadr!=parenttableadr)
            swapmod=1;
 
-	  if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
+          if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
            closeatom(currentcell[tabledepth],cellx,y);
           currentcell[tabledepth]=IE_NULL;
           invisibletag=1;
@@ -2345,10 +2348,10 @@ if (
          MALLOCERR();
 
         if(thistableadr==parenttableadr)
-	 tmptable=thistable;
+         tmptable=thistable;
         else
         {
-	 tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
+         tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
            //printf("tables out of sync");
         }
         if(tmptable)
@@ -2356,12 +2359,12 @@ if (
          XSWAP closeptrs[MAXROWSPANTD+1];
          long start=tmptable->tdstart,end;
 
-         if(tmptable->x) //prvni <TR> ignorovat!
+         if(tmptable->x) //prvni <TR> ignorovat! (tr.: ignore first <TR>)
          {
-	  fixrowspan(tmptable,0,closeptrs);
+          fixrowspan(tmptable,0,closeptrs);
           end=tmptable->tdend;
           tmptable->y++;
-	  tmptable->x=0;
+          tmptable->x=0;
           tmptable->tdstart=end+tmptable->cellspacing;
           tmptable->tdend=tmptable->tdstart;
 
@@ -2370,11 +2373,11 @@ if (
           tmptable->nexttdend=tmptable->tdend;
 
           if(thistableadr!=parenttableadr)
-           swapmod=1;//<-ulozit zmeny!
+           swapmod=1;//<-ulozit zmeny! (tr.: save changes)
 
           fixrowspan_y(closeptrs,end,tmptable->cellpadding);
           tablerow(start,end,parenttableadr,tmptable->cellpadding);
-	 }
+         }
         }
         else
          MALLOCERR();
@@ -2465,7 +2468,7 @@ if (
        if(getvar("VALIGN",&tagarg))
        {
         if(!strcmpi(tagarg,"TOP"))
-	 valign=TOP;
+         valign=TOP;
         else
         if(!strcmpi(tagarg,"BOTTOM"))
          valign=BOTTOM;
@@ -2491,7 +2494,7 @@ if (
        if(getvar("BGCOLOR",&tagarg))
        {
         try2readHTMLcolor(tagarg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
-	bgcolor=1;
+        bgcolor=1;
        }
 
        if(getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode)
@@ -2499,7 +2502,7 @@ if (
         AnalyseURL(tagarg,&url,p->currentframe);
         url2str(&url,img->URL);
         init_picinfo(img);
-	img->URL[URLSIZE-1]='\0';
+        img->URL[URLSIZE-1]='\0';
        }
 
       if(getvar("HEIGHT",&tagarg) && yspan==1)
@@ -2527,10 +2530,10 @@ if (
         else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-	   //printf("tables out of sync");
+           //printf("tables out of sync");
         }
         if(tmptable)
-	{
+        {
          if(sheet->usetdbgcolor)
          {
           HTMLatom.R=sheet->tdbgR;
@@ -2540,10 +2543,10 @@ if (
          }
          else
          if(!bgcolor && tmptable->userowbg)
-	 {
+         {
           HTMLatom.R=tmptable->rowbgR;
           HTMLatom.G=tmptable->rowbgG;
-	  HTMLatom.B=tmptable->rowbgB;
+          HTMLatom.B=tmptable->rowbgB;
           bgcolor=1;
          }
 
@@ -2553,10 +2556,10 @@ if (
          if(widthstr[0])
          {
           char *percstr=strchr(widthstr,'%');
-	  if(percstr && !noresize) //noresize is hack for <BODY NORESIZE>
+          if(percstr && !noresize) //noresize is hack for <BODY NORESIZE>
           {
            *percstr='\0';
-	   perc=atoi(widthstr);
+           perc=atoi(widthstr);
           }
           else //special case, <BODY NORESIZE> onlye...
           {
@@ -2566,10 +2569,10 @@ if (
             width-=tmptable->cellspacing;
            }
           }
-	 }
+         }
 
          if(width<=0 || perc)
-	 {
+         {
           if(GLOBAL.validtables)
           {
            width=determine_new_width(tmptable,xspan);
@@ -2582,7 +2585,7 @@ if (
 
            if(xspan>1 && !GLOBAL.validtables)
             RENDER.willadjusttables=1;
-	  }
+          }
          }
 
          //we are closing cell opened by previous <TD> tag: -----------
@@ -2592,10 +2595,10 @@ if (
           // fix desired table cell width data:
           if(p->xsum>p->maxsum)
            p->maxsum=p->xsum;
-	  if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
+          if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
            p->maxsum=tdwidth[tabledepth];
 
-	  if(y<tdheight)
+          if(y<tdheight)
            y=tdheight;
 
           if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
@@ -2605,10 +2608,10 @@ if (
 
           if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
            closeatom(currentcell[tabledepth],cellx,y);
-	 }
+         }
          //ok, cell closed. -------------------------------------------
         }
-	else
+        else
          MALLOCERR();
 
         if(widthstr[0] && !perc)
@@ -2618,23 +2621,23 @@ if (
 
         if(thistableadr==parenttableadr)
          tmptable=thistable;
-	else
+        else
         {
          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-	   //printf("tables out of sync");
+           //printf("tables out of sync");
         }
         if(tmptable)
         {
          if(caption)
          {
           xspan=tmptable->columns-tmptable->x;
-	  if(xspan<=0)
+          if(xspan<=0)
            xspan=1;
          }
 
          newcell(tmptable,xspan,yspan,&HTMLatom.x,&HTMLatom.y,&width,perc,tdwidth[tabledepth]);
          if(thistableadr!=parenttableadr)
-	  swapmod=1;
+          swapmod=1;
          HTMLatom.x+=tblx+border;
          HTMLatom.xx=HTMLatom.x+width;
          x=p->docLeftEdge=p->docLeft=HTMLatom.x+tmptable->cellpadding;
@@ -2644,10 +2647,11 @@ if (
 
          tdheight=y+newtdheight;
 
-	 if(caption) //nadpis
+         if(caption) //nadpis (tr.: headline)
           border=0;
 
-	 if(p->docRight-p->docLeft<FUZZYPIX) //v uzkych sloupcich nedelat bordel!
+         if(p->docRight-p->docLeft<FUZZYPIX) //v uzkych sloupcich nedelat bordel!
+         //tr.: don't mess up narrow tables
           align=BOTTOM;
 
          if(img->URL[0])
@@ -2657,36 +2661,36 @@ if (
 
          currentcell[tabledepth]=p->lastHTMLatom;
          //!rowspan fix!
-	 if(yspan>1)
+         if(yspan>1)
          {
           if(thistableadr==parenttableadr)
-	   tmptable=thistable;
+           tmptable=thistable;
           else
-	  {
+          {
            tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
            //printf("tables out of sync");
           }
           if(tmptable)
-	  {
+          {
            if(tmptable->x-xspan+1<MAXROWSPANTD)
            {
-	    tmptable->closerowspan[tmptable->x-xspan+1]=p->lastHTMLatom;
+            tmptable->closerowspan[tmptable->x-xspan+1]=p->lastHTMLatom;
             if(thistableadr!=parenttableadr)
              swapmod=1;
-	   }
+           }
           }
           else
            MALLOCERR();
          }
          //!rowspan end!
         }
-	else
+        else
          MALLOCERR();
        }
        else
         MALLOCERR();
        fontstack.depth=fontstackdepth[tabledepth-1];
-      } //endif uvnitr table
+      } //endif uvnitr table (tr.: within table)
 
       if(sheet->usetdcolor)
       {
@@ -2715,6 +2719,7 @@ if (
      break;
 
 #else // ----------------------------nouzova interpretace tabulek:
+//tr.: emergency interpretation of tables
      case TAG_TABLE:
      case TAG_SLASH_TABLE:
      case TAG_SLASH_CAPTION:
@@ -2779,8 +2784,8 @@ if (
       addatom(&HTMLatom,number,strlen(number),TEXT,BOTTOM,font,style,IE_NULL,0);
      }
      nownobr=1;
-     lastspace=1;//mazat mezery
-     align=BOTTOM; //seznam zarovnavat doleva
+     lastspace=1;//mazat mezery (tr.: erase spaces)
+     align=BOTTOM; //seznam zarovnavat doleva (tr.: list align left)
      if(p->xsum>p->maxsum)
       p->maxsum=p->xsum;
      p->xsum=0;
@@ -2860,12 +2865,14 @@ if (
       if(getvar("URI",&tagarg))
       {
        AnalyseURL(cache->URL,&url,p->currentframe); //(plne zneni...)
+       //tr.: entire text
        strcpy(value,url.file);
       }
 
       if(getvar("USR",&tagarg))
       {
        AnalyseURL(cache->URL,&url,p->currentframe); //(plne zneni...)
+       //tr.: entire text
        strcpy(value,url.user);
       }
 
@@ -2894,7 +2901,7 @@ if (
        if(!strcmpi(tagarg,"PASSWORD"))
         type=PASSWORD;
        else
-       if(!strcmpi(tagarg,"SUBMIT"))    //tlacitko
+       if(!strcmpi(tagarg,"SUBMIT"))    //tlacitko (tr.: button)
        {
         type=SUBMIT;
         butt:
@@ -2933,14 +2940,14 @@ if (
        {
         type=CHECKBOX;
         size=1;
-	if(!value[0])
+        if(!value[0])
          strcpy(value,"on");
        }
        else
        if(!strcmpi(tagarg,"IMAGE"))
        {
         input_image=1;
-	goto process_input_image;
+        goto process_input_image;
        }
       }
 
@@ -2953,9 +2960,9 @@ if (
       //unsecure arachne extensions to <INPUT> tag.....................
       //allowed only for local or forced-html documents
       if(searchvar("ARACHNE") &&
-	 (!strncmpi(cache->URL,"file",4) || !strncmpi(cache->URL,"mailto",4)
-	  || !strncmpi(cache->URL,"about",4) || !strncmpi(cache->URL,"gui",3)
-	  || p->forced_html))
+         (!strncmpi(cache->URL,"file",4) || !strncmpi(cache->URL,"mailto",4)
+          || !strncmpi(cache->URL,"about",4) || !strncmpi(cache->URL,"gui",3)
+          || p->forced_html))
        CheckArachneFormExtensions(cache,value, &checked);
 
       if(type==SUBMIT || type==RESET /*|| type==BUTTON*/)
@@ -2968,24 +2975,24 @@ if (
        while(i<l)
        {
         if(value[i]==' ' && spccount>2)
-	{
-	 spc=1;
+        {
+         spc=1;
          spccount++;
         }
-	else
+        else
          spc=0;
 
         if(spc)
          size+=space(BUTTONFONT);
-	else
+        else
          size+=fontx(BUTTONFONT,0,'a');
-	i++;
+        i++;
        }
 
        htmlfont(BUTTONFONT,0);
        maxsize=x_txwidth(value)+2*space(0);
        if(maxsize>size)
-	size=maxsize;
+        size=maxsize;
       }
       else if(type==OUTPUT)
       {
@@ -3011,12 +3018,12 @@ if (
        {
         checked=2; //to indicate that it's button, not input ! No text shown
 
-	//checked & 1 ...checked/pressed
+        //checked & 1 ...checked/pressed
         //checked & 2 ...it is BUTTON
 
         currentbuttonx=x;
         nobr=1;
-	nownobr=0;
+        nownobr=0;
        }
        HTMLatom.xx=x;
        HTMLatom.y=y;
@@ -3024,7 +3031,7 @@ if (
        if(type==CHECKBOX)
         HTMLatom.yy=y+11+space(SYSFONT);
        else if(type==RADIO)
-	HTMLatom.yy=y+10+space(SYSFONT);
+        HTMLatom.yy=y+10+space(SYSFONT);
        else if(type==SUBMIT || type==RESET || type==BUTTON)
         HTMLatom.yy=y+4+fonty(BUTTONFONT,0);
        else if(tag==TAG_BUTTON)
@@ -3034,16 +3041,16 @@ if (
 
        if(tag!=TAG_BUTTON)
        {
-	int ygap=(int)(HTMLatom.yy-HTMLatom.y)+2;
+        int ygap=(int)(HTMLatom.yy-HTMLatom.y)+2;
         if(p->sizeRow<ygap)
          p->sizeRow=ygap;
-	if(p->sizeTextRow<ygap)
+        if(p->sizeTextRow<ygap)
          p->sizeTextRow=ygap;
        }
       }
       else
       {
-       //neviditelna polozka
+       //neviditelna polozka (tr.: invisible element)
        HTMLatom.x=-256;
        HTMLatom.y=y;
        HTMLatom.xx=-256;
@@ -3059,7 +3066,7 @@ if (
       {
        int ygap=fonty(font,style);
        if(p->sizeRow<ygap)
-	p->sizeRow=ygap;
+        p->sizeRow=ygap;
        if(p->sizeTextRow<ygap)
         p->sizeTextRow=ygap;
        currentbutton=p->lastHTMLatom;
@@ -3123,22 +3130,26 @@ if (
       if(getvar("METHOD",&tagarg))
       {
        if(!strcmpi(tagarg,"POST"))
-	method=1;
+        method=1;
        else
        if(!strcmpi(tagarg,"HREF"))
-	method=-1;
+        method=-1;
       }
       if(getvar("ACTION",&tagarg))
       {
        //vlozit link:
+       //tr.: insert link
        if(tagarg[0]=='#' && method==-1)
-	makestr(text,tagarg,URLSIZE);
+        makestr(text,tagarg,URLSIZE);
        else
        {
-	AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
-	url2str(&url,text);
+        AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+        //tr.: entire text
+        url2str(&url,text);
        }
        //vyrobim si pointr na link, a od ted je vsechno link:
+       //tr.: I create a pointer for link, and from now on
+       //     everything will be a link
        addatom(&HTMLatom,text,strlen(text),FORM,align,target,method,IE_NULL,1);
        currentform=p->lastHTMLatom;
       }
@@ -3147,9 +3158,12 @@ if (
        else
        *tagarg=p->currentframe;
        {
-	AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
-	url2str(&url,text);
+        AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+        //tr.: entire text
+        url2str(&url,text);
        //vyrobim si pointr na link, a od ted je vsechno link:
+       //tr.: I create a pointer for link, and from now on
+       //     everything will be a link
        addatom(&HTMLatom,text,strlen(text),FORM,align,target,method,IE_NULL,1);
        currentform=p->lastHTMLatom;
        }
@@ -3179,13 +3193,10 @@ if (
 //!!glennmcc: begin May 03, 2002
 // added to optionally "ignore" <script> tag
 // (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
-//!!glennmcc: Jan 24, 2005 -- 2==toggled off via toggleignorejs()
-if(http_parameters.ignorejs && http_parameters.ignorejs!=2){insidetag=0;}else
-//if(http_parameters.ignorejs){insidetag=0;}else
+   if(http_parameters.ignorejs){insidetag=0;}else
 //!!glennmcc: end
-
-     insidetag=tag;
-//     case TAG_HEAD: //<HEAD>
+      insidetag=tag;
+//   case TAG_HEAD: //<HEAD>
      invisibletag=1;
      break;
 
@@ -3286,7 +3297,7 @@ if(http_parameters.ignorejs && http_parameters.ignorejs!=2){insidetag=0;}else
        alignrow(x,y,orderedlist[listdepth]);
        y+=p->sizeRow;
        x=p->docLeft;
-       lastspace=1;//mazat mezery
+       lastspace=1;//mazat mezery (tr.: erase spaces)
        p->sizeTextRow=p->sizeRow=atom2nextline(x,y,p->lastHTMLatom);
       }
       closeatom(p->lastHTMLatom,dx,0); //0=don't overwrite Y coordinate
@@ -3296,13 +3307,13 @@ if(http_parameters.ignorejs && http_parameters.ignorejs!=2){insidetag=0;}else
        editorptr=(struct ib_editor *)ie_getswap(currenttextarea);
        if(editorptr)
        {
-	char *ptr;
+        char *ptr;
         memcpy(&tmpeditor,editorptr,sizeof(struct ib_editor));
-	ptr=ie_getline(&tmpeditor,0);
+        ptr=ie_getline(&tmpeditor,0);
         if(ptr)
         {
-	 ptr[0]='1';
-	 swapmod=1;
+         ptr[0]='1';
+         swapmod=1;
         }
        }
       }
@@ -3438,10 +3449,17 @@ if(http_parameters.ignorejs && http_parameters.ignorejs!=2){insidetag=0;}else
 
      case TAG_BODY: //<BODY>
 
-     if(getvar("BACKGROUND",&tagarg) && tagarg[0])
+//!!glennmcc: Oct 29, 2005 - optionally do not display bgimages
+     if((!strncmpi(cache->URL,"file:",5) ||
+	!configvariable(&ARACHNEcfg,"BGimages",NULL) ||
+	 configvariable(&ARACHNEcfg,"BGimages",NULL)[0]=='Y') &&
+     getvar("BACKGROUND",&tagarg) && tagarg[0])
+//     if(getvar("BACKGROUND",&tagarg) && tagarg[0])//original single line
+//!!glennmcc: end
      {
       ResetHtmlPage(htmldata,TEXT_HTML,0);
       AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+      //tr.: entire text
       url2str(&url,img->URL);
       init_picinfo(img);
       img->URL[URLSIZE-1]='\0';
@@ -3452,13 +3470,12 @@ if(http_parameters.ignorejs && http_parameters.ignorejs!=2){insidetag=0;}else
       }
       //printf("background image=%s\n",img->URL);
      }
-
-//!!glennmcc: July 14, 2005 -- use a new config setting to over-ride instead
-//"AlwaysUseCFGcolors Yes" will over-ride 'bgcolor' , 'text' and 'link'
+//!!glennmcc: July 14, 2005 -- use a new config setting to override instead
+//"AlwaysUseCFGcolors Yes" will override 'bgcolor' , 'text' and 'link'
 //!!glennmcc: begin Jan 3, 2003
 //use arachne.cfg values if either bgcolor= or text= is missing from <body>
 //if(getvar("BGCOLOR",&tagarg) && getvar("TEXT",&tagarg))
-//{//(closing '}' below)//no onger needed... commented-out
+//{//(closing '}' below)//no longer needed... commented-out
 
      if(getvar("BGCOLOR",&tagarg) && !http_parameters.alwaysusecfgcolors)
      {
@@ -3475,7 +3492,7 @@ if(http_parameters.ignorejs && http_parameters.ignorejs!=2){insidetag=0;}else
 //no matter what bgcolor might be
 /*
      else if (htmldata->backR<8 && htmldata->backG<8 && htmldata->backB<8 &&
-	      htmldata->backgroundptr==IE_NULL )
+              htmldata->backgroundptr==IE_NULL )
      {
       htmldata->textR=255;
       htmldata->textG=255;
@@ -3488,44 +3505,6 @@ if(http_parameters.ignorejs && http_parameters.ignorejs!=2){insidetag=0;}else
      {
       try2readHTMLcolor(tagarg,&htmldata->linkR,&htmldata->linkG,&htmldata->linkB);
      }
-//!!glennmcc: July 16, 2005 -- bad idea :(
-/*
-//!!glennmcc: July 14, 2005
-//if bgcolor and link match eachother, use a contrasting color for link
-if (
-    htmldata->backR==htmldata->linkR &&
-    htmldata->backG==htmldata->linkG &&
-    htmldata->backB==htmldata->linkB
-   )
-   {
-    if (htmldata->linkR<127)
-    {
-     htmldata->linkR+=127;
-    }
-    else
-    {
-     htmldata->linkR-=127;
-    }
-    if (htmldata->linkG<127)
-    {
-     htmldata->linkG+=127;
-    }
-    else
-    {
-     htmldata->linkG-=127;
-    }
-    if (htmldata->linkB<127)
-    {
-     htmldata->linkB+=127;
-    }
-    else
-    {
-     htmldata->linkB-=127;
-    }
-   }
-//!!glennmcc: end -- July 14, 2005
-*/
-
 #ifdef VLINK
      if(getvar("VLINK",&tagarg))
      {
@@ -3648,7 +3627,7 @@ DrawTitle(0);
        if(tagarg[0]=='0' || toupper(tagarg[0])=='N' || toupper(tagarg[0])=='F')
         framewantborder=DONT_WANT_FRAMEBORDER;
        else
-	framewantborder=I_WANT_FRAMEBORDER;
+        framewantborder=I_WANT_FRAMEBORDER;
       }
 
       if(getvar("ROWS",&tagarg) && strchr(tagarg,','))
@@ -3778,11 +3757,14 @@ DrawTitle(0);
     lastspcx=x;
    }
    // <------------------------<---------<------zpracovani parametru HTML tagu
+   //tr.: processing parameters of HTML tags
    else if(!comment && in>=' ')
    {
     //hehehe.... jestli nasledujicim radku nerozumite, nejste sami :-))))
     //autor programu pro vas ma plne pochopeni...
 
+    //tr.: if you do not understand the following row/s, you are not alone,
+    //     be assured of the author's full empathy
     if(!param && in!=' ' && taglen<sizeof(tagname))
     {
      tagname[taglen++]=in;
@@ -3804,7 +3786,7 @@ DrawTitle(0);
     }
     else if((in=='\"' || in=='\'' && (!uvozovky || apostrof)) && (!vallen || uvozovky))
     {
-     if(argument && uvozovky)      //kvuli ' XXX="" '
+     if(argument && uvozovky)      //kvuli ' XXX="" ' (tr.: because of)
       tagargptr[vallen++]='\0';
 
      uvozovky=1-uvozovky;
@@ -3842,6 +3824,7 @@ DrawTitle(0);
     }
    }
    else //ukonceni HTML komentare ? zjistuju '-->'
+   //tr.: end of HTML comment, ? I find '-->'
    {
     pom[1]=pom[0];
     pom[0]=in;
@@ -3892,6 +3875,7 @@ exitloop:
    frame->scroll.yvisible=0;
 
  //kreslit rolovatko ?
+ //tr.: draw scrollbar ?
  if(frame->scroll.total_x>frame->scroll.xsize+FUZZYPIX &&
     frame->scroll.ymax>user_interface.scrollbarsize &&
     frame->allowscrolling && !p->rendering_target)
@@ -3899,11 +3883,11 @@ exitloop:
   frame->scroll.xvisible=1;
 
   ScrollInit(&frame->scroll,
-	     frame->scroll.xsize,
+             frame->scroll.xsize,
              frame->scroll.ymax-user_interface.scrollbarsize, //visible y
              frame->scroll.ymax, //max y
              frame->scroll.xtop,
-	     frame->scroll.ytop,
+             frame->scroll.ytop,
              frame->scroll.total_x, //total x
              frame->scroll.total_y);//total y
  }
@@ -3916,7 +3900,7 @@ exitloop:
   ScrollInit(&frame->scroll,
              frame->scroll.xsize,
              frame->scroll.ymax, //visible y
-	     frame->scroll.ymax, //max y
+             frame->scroll.ymax, //max y
              frame->scroll.xtop,
              frame->scroll.ytop,
              frame->scroll.total_x, //total x
@@ -3926,6 +3910,7 @@ exitloop:
  closeHTML(cache,p->html_source);
 
  //kdyz budu muset delat tabulky, tak se ani nezdrzovat:
+ //tr.: if I have to create tables, then not to loose time:
  //if download was aborted, document will be redrawn later
  if((  (GLOBAL.validtables!=TABLES_UNKNOWN || !RENDER.willadjusttables)
      || p->html_source==HTTP_HTML)

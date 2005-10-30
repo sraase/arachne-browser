@@ -318,11 +318,7 @@ char NeedImage(char reload, XSWAP *from)
  else
  {
   char *value = configvariable(&ARACHNEcfg,"LoadImages",NULL);
-//!!glennmcc: Nov 02, 2005 -- if CSS is enable, grab CSS file if it exists
-  if(!GLOBAL.nowimages && value && (*value=='n' || *value=='N') &&
-       configvariable(&ARACHNEcfg,"CSS",NULL)[0]=='N')
-//  if(!GLOBAL.nowimages && value && (*value=='n' || *value=='N'))
-//!!glennmcc: end (more below)
+  if (!GLOBAL.nowimages && value && (*value=='n' || *value=='N'))
    return 0;
   outs(MSG_VERIFY);
  }
@@ -383,12 +379,6 @@ char NeedImage(char reload, XSWAP *from)
 //    printf("[object URL is void]");
     continue; //continue with loop
    }
-//!!glennmcc: Nov 02, 2005 -- if CSS is enable, grab CSS file if it exists
-if(type!=STYLESHEET &&
-   configvariable(&ARACHNEcfg,"LoadImages",NULL)[0]=='N' &&
-   GLOBAL.nowimages!=IMAGES_LOAD
-  ) break;
-//!!glennmcc: end
 
    AnalyseURL(URLptr,&url,IGNORE_PARENT_FRAME);
    found = SearchInCache(&url,&HTTPdoc,&uptr,&status);

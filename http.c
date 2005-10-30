@@ -405,6 +405,10 @@ Content-length: %d\r\n",ql);
   cachecontrol="\0";
 
  {
+
+//!!glennmcc: Aug 20, 2005
+//don't include 'exestr' nor video settings in User-agent
+/*
   char colordepth[10],*c="HiColor";
 #ifdef HICOLOR
   if (xg_256!=MM_Hic)
@@ -415,17 +419,28 @@ Content-length: %d\r\n",ql);
 #ifdef HICOLOR
   }
 #endif
+*/
+//!!glennmcc: end
 
  if(http_parameters.keepalive)
   keepalive="Connection: Keep-Alive\n";
 
+//!!glennmcc: Aug 20, 2005
+//don't include 'exestr' nor video settings in User-agent
+//User-agent: xChaos_Arachne/4.%s%s (%s; %dx%d,%s; www.arachne.cz)\r\n\
+//removed as indicated by '^'________^^^^^^^^^^^^^^___
+//also changed to 'version 5 type'
+//also changed to my own web site address
  sprintf(p->buf,"\
 %s %s HTTP/1.0\r\n\
-User-agent: xChaos_Arachne/4.%s%s (%s; %dx%d,%s; www.arachne.cz)\r\n\
+User-agent: xChaos_Arachne/5.%s%s (www.cisnet.com/glennmcc/)\r\n\
 Accept: */*\r\n\
 Host: %s%s\r\n\
 %s%s%s%s%s%s%s\r\n",
- httpcommand,uri,VER,beta,exestr,x_maxx()+1,x_maxy()+1,c,
+     httpcommand,uri,VER,beta,
+//   httpcommand,uri,VER,beta,exestr,x_maxx()+1,x_maxy()+1,c,
+//removed as indicated by '^'_^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^___
+//!!glennmcc: end
  url->host,portstr,
  keepalive,
  cachecontrol,
@@ -1175,8 +1190,7 @@ void Download(struct HTTPrecord *cache)
  int rd=1, prc=0;
 
 //!!glennmcc: Nov 17, 2004 -- include bytes/sec rate
-//!!glennmcc: Nov 21, 2004 -- added time remaining
-long starttime=time(NULL), elapsedtime, heta, meta, seta;
+long starttime=(int)(time(NULL)), elapsedtime=0, lastsec=0, bytesec=0;
 //!!glennmcc: end
 
  if(cache->handle!=-1)
@@ -1202,22 +1216,19 @@ long starttime=time(NULL), elapsedtime, heta, meta, seta;
     prc=(int)(100*fpos/cache->size);
 
 //!!glennmcc: Nov 17, 2004 -- include bytes/sec rate
-//!!glennmcc: Nov 21, 2004 -- added time remaining
-elapsedtime=(time(NULL)-starttime);
-if((int)elapsedtime>0)// && prc<99)
+//!!glennmcc: Aug 20, 2005 -- restore original MSG_X_of_Y for use by 2nd image
+//during parallel image download & use MSG_X_of_Y_byte for the 1st image only
+elapsedtime=(int)(time(NULL))-(int)(starttime);
+if(elapsedtime>lastsec && prc<=99 &&
+ strstr(configvariable(&ARACHNEcfg,"UseByteSec",NULL),"Y"))
 {
-//if(prc>5){ //uncomment to start calculating only after 5%
-heta=(cache->size-fpos)/(fpos/(int)(elapsedtime))/3600;//hours
-meta=((cache->size-fpos)/(fpos/(int)(elapsedtime))-(heta*3600))/60;
-seta=(cache->size-fpos)/(fpos/(int)(elapsedtime))-(heta*3600)-(meta*60);
-//}else{heta=0;meta=0;seta=0;} //uncomment to start calculating only after 5%
-sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size,fpos/(int)(elapsedtime),heta,meta,seta);
+ lastsec++;
+ bytesec=fpos/lastsec;
 }
-else
-{
-sprintf(str,"waiting for data...");
-}
-//    sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);
+ sprintf(str,MSG_X_OF_Y_byte,dl,fpos,cache->size,bytesec);
+
+if(lastsec==0 || prc>99 || !strstr(configvariable(&ARACHNEcfg,"UseByteSec",NULL),"Y"))
+sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);//original line
 //!!glennmcc: end
 
     outs(str);

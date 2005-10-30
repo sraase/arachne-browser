@@ -63,10 +63,10 @@ Notes for translators:
 #define MSG_CLOSED "Connection closed."
 #define MSG_DOWNLD "Downloading file ("
 //!!glennmcc: Nov 17, 2004 -- include bytes/sec rate
-//!!glennmcc: Nov 21, 2004 -- added time remaining
-#define MSG_X_OF_Y "%s%ld of %ld bytes @ %ld bytes/sec. - time remaining %ld:%ld:%ld )"
-//#define MSG_X_OF_Y "%s%ld of %ld bytes -- @ %ld bytes/sec. ) ..."
-//#define MSG_X_OF_Y "%s%ld of %ld bytes ) ..."
+#define MSG_X_OF_Y_byte "%s%ld of %ld bytes, %ld bytes/sec)"
+//!!glennmcc: Aug 19, 2005 -- restore original MSG_X_of_Y for use by 2nd image
+//during parallel image download & use MSG_X_of_Y_byte for the 1st image only
+#define MSG_X_OF_Y "%s%ld of %ld bytes ) ..."
 #define MSG_BYTESR "%s%ld bytes read) ..."
 #define MSG_MISOBJ "%d objects missing, "
 #define MSG_DISK   "Loading page from disk"
@@ -107,11 +107,13 @@ Notes for translators:
 #define MSG_CONVI  "Processing %d embeded objects. %s %s"
 #define MSG_LOGIN  "Logging in..."
 #define MSG_DETECT "Detected %lu messages (%lu bytes in mailbox)\n"
-#define MSG_GET1   "Getting message # %lu of %lu (%lu%s"
-#define MSG_GET2   "Getting message # %lu (%lu bytes) of %lu (%lu%s"
-#define MSG_GET3   " bytes in mailbox)\n"
-#define MSG_DELE   "Deleting message # %lu of %lu"
-#define MSG_SKIP   "Skipping message # %lu, too big for disk space available\n"
+#define MSG_GET1   "Getting message #%lu of %lu (%lu%s"
+#define MSG_GET2   "Getting message #%lu (%lu bytes) of %lu (%lu%s"
+#define MSG_GET3   " bytes total)\n"
+//#define MSG_GET3   " bytes in mailbox)\n"
+#define MSG_DELE   "Marking message #%lu for deletion"
+//#define MSG_DELE   "Deleting message # %lu of %lu"
+#define MSG_SKIP   "Skipping message #%lu, too big for disk space available\n"
 #define MSG_ERROPN "Cannot open file!"
 #define MSG_SMTP   "Connecting to SMTP server..."
 #define MSG_ICON1  "Previous visited page"

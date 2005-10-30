@@ -178,8 +178,8 @@ void process_form(char cgi, XSWAP formID)
 	   strcat(arachne.graphics,value);
 	  else
 	   strcpy(arachne.graphics,value);
-
-	  arachne.GUIstyle=8; //undefined.
+//!!glennmcc: Oct 25, 2005 -- do not change style when resetting mode
+//	  arachne.GUIstyle=8; //undefined.
 	 }
 	}
 	else if (!strcmpi(cmd,"HTUSER"))
@@ -255,21 +255,31 @@ void process_form(char cgi, XSWAP formID)
 	 write(mailmsg,str,strlen(str));
 	}
 //!!glennmcc: begin Oct 19, 2001
-//added to create "reply-to" field in composed massages
+//added to create "reply-to" field in composed messages
 //!!glennmcc: June 09, 2002
 //changed so that replyto only gets added when "UseReplyto == Yes"
        else if (!strcmpi(cmd,"RT") && mailmsg>=0 && value[0])
        {
 	ptr=configvariable(&ARACHNEcfg,"UseReplyto",NULL);
-	if(ptr && toupper(*ptr)=='Y')
+	if(ptr && toupper(*ptr)=='Y' && value[0])
        {
-	configvariable(&ARACHNEcfg,cmd,value);
+	if(!value[0])configvariable(&ARACHNEcfg,cmd,value);
 	adrfield(value);
 	sprintf(str,"Reply-To: %s\n",value);
 	write(mailmsg,str,strlen(str));
 	}
        }
 //!!glennmcc: end
+//!!glennmcc: begin Oct 16, 2005
+//added to create "Return-Receipt-To" field in composed messages
+//will also add the format "Disposition-Notification-To"
+else if (!strcmpi(cmd,"RRT") && mailmsg>=0 && value[0])
+{
+sprintf(str,"Return-Receipt-To: %s\nDisposition-Notification-To: %s\n",value,value);
+write(mailmsg,str,strlen(str));
+}
+//!!glennmcc: end
+
 	else if (!strcmpi(cmd,"SUBJ") && mailmsg>=0)
 	{
 	 sprintf(str,"Subject: %s\n",value);

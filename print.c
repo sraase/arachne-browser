@@ -225,9 +225,7 @@ void generateprt(void)
  }
  {
   char ffeed[2]=" ";
-//!!glennmcc: Jan 26, 2005 -- removed due to 'non-universal' compatibility
-//  ffeed[0]=12; //form feed?
-//!!glennmcc: end
+  ffeed[0]=12; //form feed?
 
   ie_insline(&txt,txt.lines,ffeed);
  }

@@ -1,7 +1,13 @@
 // Testing ALT + TAB
 #include <dos.h>
 #include <stdio.h>
+//!!JdS 2004/11/30 {
+#include <process.h>
+#include "main.h"
+#include "glflag.h"
 
+#define ESCSCAN 0x01
+//!!JdS 2004/11/30 }
 #define ALTSCAN 0x38
 #define TABSCAN 0x0F
 #define EXTSCAN 0xE0
@@ -9,7 +15,7 @@
 // GLOBALS
 unsigned char g_Scan=0,g_PrevScan=0;
 char g_Alt =0;
-
+unsigned int g_InDosSeg, g_InDosOfs;  //!!JdS 2004/11/30
 int  g_AltTab=0;
 int  g_PrtScr=0;
 
@@ -66,15 +72,26 @@ void interrupt NewKeyboard()
 			break;
     case ALTSCAN|0x80 : g_Alt = 0;  // release ALT
 			break;
-    case TABSCAN      : if(g_Alt)   // press TAB
-                        { g_AltTab = 1;   // combination <ALT>+<TAB>
-                          //AcceptKey();  // polknu TAB ??
-                                      // tr.: do I swallow TAB ??
+    case TABSCAN      : if (g_Alt)   // press TAB
+			{
+			  g_AltTab = 1;   // combination <ALT>+<TAB>
+			  //AcceptKey();  // polknu TAB ??
+				      // tr.: do I swallow TAB ??
 			  //return;       // nevolam puvodni ??
-                                      // tr.: don't I call the original one ??
-          ReleaseAltTab();
+				      // tr.: don't I call the original one ??
+			  ReleaseAltTab();
 			}
 			break;
+//!!JdS 2004/11/30 {
+    case ESCSCAN      : if ((peekb(0x40,0x17) & 0x0C) == 0x0C && // Ctl-Alt-Esc
+			    peekb(g_InDosSeg,g_InDosOfs) == 0)  // Exit if DOS ready
+			{
+			  OldKeyboard();
+			  ReleaseAltTab();  // just to be sure
+                          exit(Terminate_Arachne(EXIT_ABNORMAL));
+                        }
+			break;
+//!!JdS 2004/11/30 }
     default:;
   }
   //printf(">>> %02x\n",g_Scan);
@@ -85,6 +102,15 @@ void interrupt NewKeyboard()
 // Instalation :
 void InstalAltTab()
 {
+//!!JdS 2004/11/30 {
+  union REGS r;
+  struct SREGS sr;
+  // Get the address of the InDos semaphore
+  r.h.ah = 0x34;
+  intdosx(&r, &r, &sr);
+  g_InDosOfs = r.x.bx;
+  g_InDosSeg = sr.es;
+//!!JdS 2004/11/30 }
   OldKeyboard = STgetvect(0x09);
   STsetvect(0x09, NewKeyboard);
 }
@@ -97,7 +123,7 @@ void ReleaseAltTab()
 
 void InstalPrtScr()
 {
-  OldPrtScr = STgetvect(0x09);
+  OldPrtScr = STgetvect(0x05);  //!!JdS 2004/11/30 (was 0x09!!!)
   STsetvect(0x05, NewPrtScr);
 }
 

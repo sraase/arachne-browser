@@ -154,11 +154,16 @@ IveGotNewUrl:
   else
   if(!strcmpi(GLOBAL.location,"arachne:addressbook"))
   {
+//!!glennmcc: Aug 25, 2005 -- change to new adrsbook.htm
+    strcpy(GLOBAL.location,"file:adrsbook.htm");
+/*
    char *ptr=configvariable(&ARACHNEcfg,"Hotlist",NULL);
    if(ptr)
     sprintf(GLOBAL.location,"file:%s#mailto",ptr);
    else
     strcpy(GLOBAL.location,"file:hotlist.htm#mailto");
+*/
+//!!glennmcc: end
   }
   //endif pseudoprotocols
 
@@ -343,7 +348,7 @@ IveGotNewUrl:
      char buf[IE_MAXLEN+2];
      make_cmd(text,buf,
               p->htmlframe[arachne.target].cacheitem.URL,
-              url.host, url.file, text, "NUL");
+	      url.host, url.file, text, "NUL");
 
 #ifdef POSIX
      printf("Executing command:\n%s\n",buf);
@@ -667,6 +672,12 @@ if(!strstr(url.protocol,"arachne:"))
 //    goback();
 //    gotonextpage();
 //!!glennmcc: Feb 07, 2005 Ray's fix works better than mine.
+//!!glennmcc: Aug 26, 2005 -- 'Enter' does BG DL/view when DL complete
+//'left mouse click' will still 'view as downloading'
+//see companion code in guievent.c
+if(//!strstr(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Y")
+   GLOBAL.backgr<2)
+//!!glennmcc: end
     strcpy(GLOBAL.location, ie_getline(&history, arachne.history));
     GLOBAL.gotolocation=1;
     goto Wait4Orders; //original single line
@@ -727,7 +738,7 @@ if(!strstr(url.protocol,"arachne:"))
     cacheitem->dynamic=1;
 
     mode=make_cmd(command,buf,cacheitem->URL,
-                  url.host, url.file, str,cacheitem->locname);
+		  url.host, url.file, str,cacheitem->locname);
     unlink(cacheitem->locname);
     UpdateInCache(*cacheitem_writeadr,cacheitem);
     *cacheitem_status=VIRTUAL;
@@ -1056,6 +1067,21 @@ Search4Image:
 PageDone:
 //-------------------------------------------------------------------------
 
+//!!glennmcc: Nov 08, 2005 -- when Xswap memory gets too low
+    if(ie_free()<ie_used())
+      {
+       char cmd[128];
+       closebat(cmd,RESTART_KEEP_GRAPHICS);
+       GLOBAL.willexecute=willexecute(cmd);
+//       strcpy(cmd,"Xswap memory is getting low, it will be cleared before taking next action.");
+//       outs(cmd);
+       farfree(cmd);
+       goto Render;
+      }
+//else
+//{
+//!!glennmcc: end
+
  pagetime=time(NULL)-pagetime; //. Much time we have used to do this page
  if(GLOBAL.timeout)
   GLOBAL.secondsleft-=(int)pagetime;
@@ -1074,6 +1100,7 @@ PageDone:
   outs(dummy);
   //defaultmsg();
  }
+//}//!!glannmcc: added for 'Xswap clear code' above
 
  if(GLOBAL.activate_textarea)
  {

@@ -20,6 +20,9 @@ char *ARACHNEPICK="arachne.pck";
 #ifndef POSIX
 int askgraphics(void)
 {
+//!!glennmcc: Oct 23, 2005 -- always use VGA by simply commenting-out
+//this entire block
+/*
 int i;
   puts(MSG_VGASEL);
   puts(MSG_VGAVGA);
@@ -46,6 +49,8 @@ int i;
   else if (i!='0' && i!=13)
    goto vga;
   else
+*/
+//!!glennmcc: end -- Oct 23, 2005
   {
    strcpy(arachne.graphics,"VGA");
    return 1;
@@ -55,11 +60,13 @@ int i;
 #endif
 
 int loadpick( char *exename) //nahrat konfiguraci
+                // tr.: load configuration
 {
  int f,i,rv=0;
  char *str1;
 
  strncpy( exepath, exename, 63);   // urceni exepath !!!
+                // tr.: definition of exepath!
 #ifdef POSIX
  str1= strrchr( exepath, '/');
 #else
@@ -107,14 +114,14 @@ int loadpick( char *exename) //nahrat konfiguraci
 #endif
 
 #ifdef POSIX
- if(f<0) //globalni pick ? First start ?
+ if(f<0) //global pick ? First start ?
  {
   char cmd[256];
   sprintf(cmd,"%sarachne-install %s",sharepath,sharepath);
   system(cmd);
  }
 #else
- if(f<0) //globalni pick ? First start ?
+ if(f<0) //global pick ? First start ?
  {
   char str[80];
   sprintf(str,"%s%s",exepath,ARACHNEPICK);
@@ -130,7 +137,9 @@ int loadpick( char *exename) //nahrat konfiguraci
   memset(&arachne,0,sizeof(struct ArachnePick));
 
 #ifndef POSIX
-
+//!!glennmcc: Oct 23, 2005 -- always use XMS by simply commenting-out
+//this entire block
+/*
   puts(MSG_MEMSEL);
   puts(MSG_MEMXMS);
   puts(MSG_MEMEMS);
@@ -154,6 +163,8 @@ int loadpick( char *exename) //nahrat konfiguraci
    goto mem;
 
   printf("\n");
+*/
+//!!glennmcc: end -- Oct 23, 2005
   rv=askgraphics();
 
   if(rv==-1)
@@ -233,7 +244,7 @@ void meminit(char arg)
 }
 #endif
 
-void savepick() //ulozit konfiguraci
+void savepick() //save configuration
 {
  int f;
 
@@ -251,8 +262,8 @@ void savepick() //ulozit konfiguraci
  }
 }
 
-//pokud newvalue!=NULL
-//keystring musi byt alkovan na delku keystring+newvalue dohromady!
+//in case newvalue!=NULL
+//keystring must be allocated at the length keystring+newvalue together!
 
 #endif //MINITERM
 
@@ -285,14 +296,19 @@ char *configvariable(struct ib_editor *fajl,char *keystring,char *newvalue)
    else
    {
     line+=l;                 //ted ukazuju na prvni mezeru
+      // tr.: now I point at first space
     while(*line==' ')line++; //uriznu mezeru
+      // tr.: I cut off space
     ptr=strchr(line,';');
     if(ptr)                  //je za hodnotou komentar ?
+      // tr.: is after value a comment?
     {
      while(*(ptr-1)==' ')ptr--;//uriznu mezeru pred komentarem
+      // tr.: I cut off space before comment
      *ptr='\0';
     }
     return line;             //vracim pointer na hodnotu promenne.
+      // tr.: I reset pointer to the value of the variable
    }
   }
   fajl->y++;
@@ -320,6 +336,7 @@ void rouraname(char *fname)
 
 // create a batch file executing cmd , uses name created by rouraname( ..)
 int willexecute(char *cmd) //vykonat nejakou hloupost:
+  // tr.: to do foolish things
 {
  int f;
  char bat[80];
@@ -347,7 +364,7 @@ struct uiface user_interface;
 #endif
 
 //extern char reg;
-extern struct ib_editor ARACHNEcfg;//hlavni konfigurace
+extern struct ib_editor ARACHNEcfg;// main configuration
 
 void configure_user_interface(void)
 {
@@ -356,13 +373,13 @@ void configure_user_interface(void)
 //!!glennmcc: begin Feb 11, 2005 -- Arrow cursor courtesy of Andrej Cuckov
 // THANK YOU !!! Mr. Cuckov
 //moved to config.c to make it configurable via CursorType in arachne.cfg
-const short cur2[32] =
-	 {
+ const short cur2[32] =
+ {
 //!!glennmcc: July 27, 2005 -- small mod to arrow by 'un-named SRC'
 	   0x1FFF, 0x0FFF, 0x07FF, 0x03FF, 0x01FF, 0x00FF, 0x007F, 0x003F,
 	   0x001F, 0x01FF, 0x10FF, 0x30FF, 0x787F, 0xF87F, 0xFC3F, 0xFFFF,
 	   0x4000, 0x6000, 0x7000, 0x7800, 0x7C00, 0x7E00, 0x7F00, 0x7F80,
-	   0x7C00, 0x6C00, 0x4600, 0x0600, 0x0300, 0x0300, 0x0180, 0x0000 };
+	   0x7C00, 0x6C00, 0x4600, 0x0600, 0x0300, 0x0300, 0x0180, 0x0000
 /*
 The above extends the shaft (tail) and removes the bottom line.
 The below is all that is needed in line 3 to fix the "bump" on
@@ -370,41 +387,41 @@ the right side if the tail fix is not desired:
 
 0x4000, 0x6000, 0x7000, 0x7800, 0x7C00, 0x7E00, 0x7F00, 0x7F80,
 					   ^
+// Original 'arrow' by Andrej Cuckov :
+   0x1FFF, 0x0FFF, 0x07FF, 0x03FF, 0x01FF, 0x00FF, 0x007F, 0x003F,
+   0x001F, 0x01FF, 0x10FF, 0x30FF, 0x787F, 0xF87F, 0xFC7F, 0x0000,
+   0x4000, 0x6000, 0x7000, 0x7800, 0x7C00, 0x7F00, 0x7F00, 0x7F80,
+   0x7C00, 0x6C00, 0x4600, 0x0600, 0x0300, 0x0300, 0x0000, 0x0000
 */
-
-/*
-// Andrej Cuckov 'arrow'
-	   0x1FFF, 0x0FFF, 0x07FF, 0x03FF, 0x01FF, 0x00FF, 0x007F, 0x003F,
-	   0x001F, 0x01FF, 0x10FF, 0x30FF, 0x787F, 0xF87F, 0xFC7F, 0x0000,
-	   0x4000, 0x6000, 0x7000, 0x7800, 0x7C00, 0x7F00, 0x7F00, 0x7F80,
-	   0x7C00, 0x6C00, 0x4600, 0x0600, 0x0300, 0x0300, 0x0000, 0x0000 };
-*/
+ };
 
 //!!glennmcc: July 27, 2005 -- Alternate 'cross' courtesy of 'un-named SRC'
-const short cur1[32] =
-	 {
+ const short cur1[32] =
+ {
 	   0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0x0001, 0x0101,
 	   0x0001, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFFFF,
 	   0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0xFEFE,
-	   0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0000 };
+	   0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0100, 0x0000
+ };
 
 //the next block  of data is the original 'hand' cursor
-const short cur[32] =
-	 {
-	   0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
-	   0xF001, 0xF000, 0xF800, 0xF800, 0xF800, 0xFC00, 0xFC00, 0xFC00,
-	   0x0000, 0x6000, 0x7000, 0x3800, 0x1C00, 0x0E00, 0x0700, 0x0018,
-	   0x07EC, 0x07EE, 0x001E, 0x03EE, 0x03EE, 0x001E, 0x00EC, 0x0002 };
+ const short cur[32] =
+ {
+   0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
+   0xF001, 0xF000, 0xF800, 0xF800, 0xF800, 0xFC00, 0xFC00, 0xFC00,
+   0x0000, 0x6000, 0x7000, 0x3800, 0x1C00, 0x0E00, 0x0700, 0x0018,
+   0x07EC, 0x07EE, 0x001E, 0x03EE, 0x03EE, 0x001E, 0x00EC, 0x0002
+ };
 
-value=configvariable(&ARACHNEcfg,"CursorType",NULL);
-if(!value || toupper(*value)=='H')
-x_defcurs( (short *)cur, (short *)&cur[16], 15); //original 'Hand' cursor
-else
-if(toupper(*value)=='A')
-x_defcurs( (short *)cur2, (short *)&cur2[16], 15); // new 'Arrow' cursor
-else
-if(toupper(*value)=='C')
-x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
+ value=configvariable(&ARACHNEcfg,"CursorType",NULL);
+ if(!value || toupper(*value)=='H')
+    x_defcurs( (short *)cur, (short *)&cur[16], 15); //original 'Hand' cursor
+  else
+  if (toupper(*value)=='C')
+    x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // 'Cross' cursor
+ else
+  if(toupper(*value)=='A')
+   x_defcurs( (short *)cur2, (short *)&cur2[16], 15); // new 'Arrow' cursor
 //!!glennmcc:end
 
  value=configvariable(&ARACHNEcfg,"SmallIcons",NULL);
@@ -463,7 +480,7 @@ x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
 
  value=configvariable(&ARACHNEcfg,"Colors",NULL);
  if(value)
- { 
+ {
   char *newvalue;
 
   user_interface.ink = (int)strtol (value, &newvalue, 10);
@@ -473,7 +490,7 @@ x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
     if (newvalue == value)
        user_interface.paper=0; //black
   }
-  else user_interface.ink=11; //green  
+  else user_interface.ink=11; //green
  }
  else
  {
@@ -532,7 +549,16 @@ x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
   user_interface.killadds=0;
 
 #ifndef POSIX
- value=configvariable(&ARACHNEcfg,"AltTab",NULL);
+//!!JdS 2004/12/05 {
+//Because we now handle Ctrl-Alt-Esc as well as Alt-Tab, introduce a
+//new keyword 'AltKeys', with fallback to the old 'AltTab' keyword :
+//!!glennmcc: Oct 06, 2005 -- no 'ifs' about it... always enabled
+//now there's now need for either 'AltTab' or 'AltKeys' in arachne.cfg
+//!!glennmcc: Nov 09, 2005 -- VERY BAD IDEA !!!! :(
+ value = configvariable(&ARACHNEcfg,"AltKeys",NULL);
+ if (!value)
+   value = configvariable(&ARACHNEcfg,"AltTab",NULL);
+//!!JdS 2004/12/05 }
  if(value && toupper(*value)=='Y')
  {
   InstalAltTab();
@@ -622,19 +648,19 @@ x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
   user_interface.scrollbarstyle=0; //default = A...Arachne
 
  value=configvariable(&ARACHNEcfg,"ESC",NULL);
- if(value && toupper(*value=='I'))
+ if(value && toupper(*value)=='I')   //JdS 2004/9/3 (parenthesis)
   user_interface.esc=ESC_IGNORE;
  else
- if(value && toupper(*value=='B'))
+ if(value && toupper(*value)=='B')   //JdS 2004/9/3 (parenthesis)
   user_interface.esc=ESC_BACK;
  else
   user_interface.esc=ESC_EXIT;
 
  value=configvariable(&ARACHNEcfg,"Multitasking",NULL);
- if(value && toupper(*value=='N'))
+ if(value && toupper(*value)=='N')   //JdS 2004/9/3 (parenthesis)
   user_interface.multitasking=MULTI_NO;
  else
- if(value && toupper(*value=='S'))
+ if(value && toupper(*value)=='S')   //JdS 2004/9/3 (parenthesis)
   user_interface.multitasking=MULTI_SAFE;
  else
   user_interface.multitasking=MULTI_YES;
@@ -685,7 +711,14 @@ x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
  {
   value=configvariable(&ARACHNEcfg,"FontShift",NULL);
   if(value)
+//!!glennmcc: Aug 22, 2005 -- legal values... -2 through +1
+  {
    user_interface.fontshift=atoi(value);
+   if(user_interface.fontshift <-2) user_interface.fontshift=-2;
+   if(user_interface.fontshift >1) user_interface.fontshift=1;
+  }
+// user_interface.fontshift=atoi(value); // original single line
+//!!glennmcc: end
   else
    user_interface.fontshift=0;
  }
@@ -761,17 +794,16 @@ x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
  else
   user_interface.css=1;
 
-
  // HTTP parameters --------------------------------------------------
 
  value=configvariable(&ARACHNEcfg,"HTTPreferer",NULL);
- if(value && toupper(*value=='N'))
+ if(value && toupper(*value)=='N')   //JdS 2004/9/3 (parenthesis)
   http_parameters.referer=0;
  else
   http_parameters.referer=1;
 
  value=configvariable(&ARACHNEcfg,"HTTPKeepAlive",NULL);
- if(value && toupper(*value=='N'))
+ if(value && toupper(*value)=='N')   //JdS 2004/9/3 (parenthesis)
   http_parameters.keepalive=0;
  else
   http_parameters.keepalive=1;
@@ -790,10 +822,10 @@ x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
 
 //!!glennmcc: begin Dec 11, 2001
 // added to fix "HTTPS verifying images" loop by trying HTTP instead
-// (defaults to No if "HTTPS2HTTP Yes" line is not in Arachne.cfg)
+// (defaults to Yes if "Https2Http Disabled" line is not in Arachne.cfg)
 //!!glennmcc: Jan 24, 2005 -- changed defult to "Yes"
  value=configvariable(&ARACHNEcfg,"HTTPS2HTTP",NULL);
- if(value && toupper(*value=='N'))
+ if(value && toupper(*value)=='D')   //JdS 2005/4/30 (parenthesis)
   http_parameters.https2http=0;
  else
   http_parameters.https2http=1;
@@ -803,7 +835,7 @@ x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
 // added to optionally "ignore" <script> tag
 // (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
  value=configvariable(&ARACHNEcfg,"IGNOREJS",NULL);
- if(value && toupper(*value=='Y'))
+ if(value && toupper(*value)=='Y')   //JdS 2004/9/3 (parenthesis)
   http_parameters.ignorejs=1;
  else
   http_parameters.ignorejs=0;
@@ -813,7 +845,7 @@ x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
 // added to optionally "ignore" <base href=> tag
 // (defaults to No if "IgnoreBaseHref Yes" line is not in Arachne.cfg)
  value=configvariable(&ARACHNEcfg,"IGNOREBASEHREF",NULL);
- if(value && toupper(*value=='Y'))
+ if(value && toupper(*value)=='Y')   //JdS 2004/9/3 (parenthesis)
   http_parameters.ignorebasehref=1;
  else
   http_parameters.ignorebasehref=0;
@@ -822,35 +854,14 @@ x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // Alt 'Cross' cursor
 //!!glennmcc: begin July 14, 2005
 //added to optionally always use arachne.cfg html colors in the <body> tag
 //(defaults to No if "AlwaysUseCFGcolors Yes" line is not in Arachne.cfg)
- value=configvariable(&ARACHNEcfg,"AlwaysUseCFGcolors",NULL);
- if(value && toupper(*value=='Y'))
+ value = configvariable(&ARACHNEcfg,"AlwaysUseCFGcolors",NULL);
+ if(value && toupper(*value)=='Y')   //JdS 2005/8/4 (parenthesis)
   http_parameters.alwaysusecfgcolors=1;
  else
   http_parameters.alwaysusecfgcolors=0;
 //!!glennmcc: end
 
 }
-
-//!!glennmcc: Begin Jan 24, 2005 -- per user requests
-int togglehttps2http(void)
-{
-if(http_parameters.https2http==1 || http_parameters.https2http==3) http_parameters.https2http=2;
-else
-if(!http_parameters.https2http || http_parameters.https2http==2) http_parameters.https2http=3;
-
-return 1;
-}
-
-int toggleignorejs(void)
-{
-if(http_parameters.ignorejs==1 || http_parameters.ignorejs==3) http_parameters.ignorejs=2;
-else
-if(!http_parameters.ignorejs || http_parameters.ignorejs==2) http_parameters.ignorejs=3;
-
-return 1;
-}
-//!!glennmcc: end
-
 
 #endif
 #endif

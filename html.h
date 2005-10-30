@@ -148,7 +148,6 @@ p->xsum=0;
 #define TD     11
 #define AREA   12
 #define EMBED  13
-
 //!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
 #define BGSOUND 14
 
@@ -157,6 +156,13 @@ p->xsum=0;
 #define DECORATION    98
 #define BACKGROUND    99
 #define TD_BACKGROUND 100
+
+//!!JdS 2004/12/02 {
+//image-input atom subtypes:
+#define IMG_ISMAP     1		/* IMG ISMAP        */
+#define IMG_USEMAP    2		/* IMG USEMAP       */
+#define IMG_INPUT     4		/* INPUT TYPE=IMAGE */
+//!!JdS 2004/12/02 }
 
 // atom type=INPUT subtypes:
 #define PASSWORD  1

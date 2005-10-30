@@ -139,6 +139,19 @@ int onbutton(int x,int y)
   return CLICK_HISTORY;
  }
 
+//!!glennmcc: Sep 30, 2005
+//moveing 'Up one Level' function to 'URL' instead of 'Arachne ver#'
+ if(x>URLprompt.x-40 && x<URLprompt.x-5 && y>URLprompt.y+p->htscrn_ytop && y<p->htscrn_ytop)
+ {
+#ifdef OVRL
+#ifndef XTVERSION
+  thisxx=0;
+#endif
+#endif
+  return CLICK_UPLEVEL;
+ }
+//!!glennmcc: end
+
  if(y<p->htscrn_ytop-25 && y>p->htscrn_ytop-50)
  {
  if(x>x_maxx()-300 && x<x_maxx()-190)

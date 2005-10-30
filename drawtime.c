@@ -300,7 +300,10 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
 
   x_bar(x_maxx()-206,x_maxy()-13,x_maxx()-156,x_maxy()-2);
   x_setcolor(0); //cerna
-  htmlfont(1,0);
+//!!glennmcc: Aug 22, 2005
+//prevent fontshift >0 from causing the clock to go 'off the right'
+  htmlfont(0-user_interface.fontshift,0);
+//  htmlfont(1,0);
   x_text_ib( x_maxx()-206,x_maxy()-15,(unsigned char *)cas2);
 
  #endif

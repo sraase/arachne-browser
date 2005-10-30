@@ -35,7 +35,10 @@ void hidehover(void);
 #define GUI_MOUSE_BUTTON_RIGHT  12
 #define GUI_MOUSE_BUTTON_MIDDLE 13
 
+#define MOUSE_LEFT              1  //JdS
+#define MOUSE_RIGHT             2  //JdS
 #define MOUSE_RELEASE           3
+#define MOUSE_MIDDLE            4  //JdS
 
 #ifdef AGB
 #define REDRAW_KEY 0x3f00
@@ -68,6 +71,11 @@ void hidehover(void);
 #define CLICK_ABOUT   909
 #define CLICK_MAIL    910
 #define CLICK_SAVE    911
+
+//!!glennmcc: Sep 30, 2005
+//moveing 'Up one Level' function to 'URL' instead of 'Arachne ver#'
+#define CLICK_UPLEVEL 912
+//!!glennmcc: end
 
 #define ONMOUSE_TITLE 999
 

@@ -131,8 +131,10 @@ struct GLOBAL_FLAG
 
 //GLOBAL.clipdel
 
-#define CLIPBOARD_DELETE 1
-#define CLIPBOARD_ADDHOT 2
+#define CLIPBOARD_DEFAULT   0  //!!JdS 2004/12/08
+#define CLIPBOARD_DELETE    1
+#define CLIPBOARD_ADDHOT    2
+#define CLIPBOARD_DEFER_ADD 3  //!!JdS 2004/12/08
 
 //activeistextwindows
 
@@ -177,7 +179,7 @@ struct GLOBAL_FLAG
 #define EXIT_RESOLUTION_ERROR 8
 #define EXIT_CONTINUE_SETUP   4
 #define EXIT_ABORT_SETUP      2
-#define EXIT_ABNORMAL         0
+#define EXIT_ABNORMAL         1   //!!JdS
 
 #define TABLES_UNKNOWN    0
 #define TABLES_EXPAND     1

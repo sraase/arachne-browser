@@ -226,7 +226,13 @@ int togglefullscreen(void)
 int erasecache(void)
 {
  MemInfo(NORMAL);
+//!!glennmcc: Sep 10, 2005 -- optionally warn before clearing
+ if(!strcmpi(configvariable(&ARACHNEcfg,"WarnClear",NULL),"Yes"))
+ sprintf(GLOBAL.location,"file:%s%swarn_clr.ah",sharepath,GUIPATH);
+else
  strcpy(GLOBAL.location,"file:clearcache.dgi");
+// strcpy(GLOBAL.location,"file:clearcache.dgi"); // original single line
+//!!glennmcc: end
  arachne.target=0;
  return gotoloc();
 }
@@ -477,12 +483,15 @@ int gotomailpage(void)
  return gotoloc();
 }
 //!!glennmcc: begin Aug 11, 2004 -- news page
+//to be used at some future date
+/*
 int gotonewspage(void)
 {
  sprintf(GLOBAL.location,"file:%snews.htm",exepath);
  arachne.target=0;
  return gotoloc();
 }
+*/
 //!!glennmcc: end
 
 //!!glennmcc: begin Jun 12, 2005 -- alternate font page
@@ -513,7 +522,10 @@ unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
   if(asc==13) //bylo stisknuto enter ? (tr.: was 'enter' pressed?)
   {
    char *gotonewurl=NULL;
-
+//!!glennmcc: Aug 28, 2005
+if(!strcmpi(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Yes"))
+GLOBAL.backgr=2;
+//!!glennmcc: end
    switch(activeistextwindow)
    {
     case INPUT_SEARCHSTRING:
@@ -583,13 +595,15 @@ unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
    else
    {
     if(user_interface.esc==ESC_BACK)
-     //!!JdS 2004/2/15 {
+     //!!JdS 2004/11/06 {
+     //finally got this stuff working the way I like it!  :-)
      //return gotopreviouspage();
-     if (!GLOBAL.needrender || GLOBAL.abort)
+     //if (!GLOBAL.needrender || GLOBAL.abort) // previous attempt
+     if (GLOBAL.allowdealloc)
       return gotopreviouspage();
      else
       GLOBAL.abort=ABORT_TRANSFER;
-     //!!JdS 2004/2/15 }
+     //!!JdS 2004/11/06 }
     else
      if(user_interface.esc==ESC_IGNORE || GLOBAL.timeout)
       GLOBAL.abort=ABORT_TRANSFER;
@@ -855,8 +869,11 @@ else return 1; //do not reload if not local
     return gotomailpage();
 
 //!!glennmcc: begin Aug 11, 2004 -- news page
+//to be used at some future date
+/*
    else if(asc=='N')
     return gotonewspage();
+*/
 //!!glennmcc: end
 
    else if(asc=='C')
@@ -1285,31 +1302,38 @@ else if(key==11264)
     }
 //!!glennmcc: end
 
-//!!glennmcc: begin Jan 24, 2005 -- per user requests
-    else
-     if(key==0x8200)
-     {
-      togglehttps2http();
-      gotopreviouspage();
-      gotonextpage();
-      return repaint();
-     }
-    else
-     if(key==0x8300)
-     {
-      toggleignorejs();
-      gotopreviouspage();
-      gotonextpage();
-      return repaint();
-     }
-//!!glennmcc: end
-
 //!!glennmcc: begin Jun 12, 2005
 //Alternate font page --- Alt+F
 else if(key==8448)
     return gotoaltfontpage();
 //!!glennmcc: end
 
+//!!glennmcc: begin Oct 09, 2005
+//Validate current page --- Alt+V
+else if(key==12032 && !strncmpi(GLOBAL.location,"http://",7))
+   {
+//'HTTPreferer Yes' must be enabled in Arachne.cfg
+//in order for the 'referer method' to work
+//the 'check?url=' method will work even with 'HTTPreferer No'
+    sprintf(link,"http://validator.w3.org/check?uri=%s",GLOBAL.location);
+    strcpy(GLOBAL.location,link);
+//    strcpy(GLOBAL.location,"http://validator.w3.org/check/referer");
+    arachne.target=0;
+    return gotoloc();
+   }
+//!!glennmcc: end
+
+//!!glennmcc: begin Aug 22, 2005
+//idea stolen from Ray ;-)
+//cycle through fontshift settings --- Ctrl+F
+else if(key==8454)
+  {
+   user_interface.fontshift++;
+   if (user_interface.fontshift >1)
+   user_interface.fontshift=-2;
+   return GLOBAL.needrender=1;
+  }
+//!!glennmcc: end
 
 #endif
    else if(key>=0x5400 && key<=0x5d00 /* &&reg*/)
@@ -1331,7 +1355,7 @@ else if(key==8448)
 
 //========================================================================
 
- if(mouse)  
+ if(mouse)
  {
   SecondsSleeping=0l; //pro screensaver (tr.: for screensaver)
   if(!lmouse)
@@ -1491,6 +1515,11 @@ submit:
      }
 
      if(!strcmpi(GLOBAL.location,"arachne:again"))
+//!!glennmcc: goback to original page after coming to textedit.ah
+//via the 'return to previous page' link on edithelp.htm
+      if(strstr(ie_getline(&history,arachne.history),"edithelp.htm"))
+	 goback(); else
+//!!glennmcc: end
       strcpy(GLOBAL.location,p->htmlframe[p->activeframe].cacheitem.URL);
 
      if(!strcmpi(GLOBAL.location,"arachne:view"))
@@ -1748,7 +1777,10 @@ submit:
      arachne.target=0;
      return gotoloc();
 
-     case CLICK_ABOUT://click on "Arachne Vxx" label
+//!!glennmcc: Sep 30, 2005
+//moveing 'Up one Level' function to 'URL' instead of 'Arachne ver#'
+//still will go up only when remote.. nothing will happen when local
+     case CLICK_UPLEVEL://click on "URL" label
 //!!glennmcc: Feb 03, 2005 -- up one level if remote 'about:' if local
 if(!strstr(GLOBAL.location,"file:"))
      {
@@ -1756,9 +1788,17 @@ if(!strstr(GLOBAL.location,"file:"))
 	 strcat(GLOBAL.location,"../");
 	 else
 	 strcat(GLOBAL.location,"../../");
+      arachne.target=0;
+      return gotoloc();
      }
 else
+//     strcpy(GLOBAL.location,"about:");
+//     arachne.target=0;
+//     return gotoloc();
+     return 0;
 //!!glennmcc: end
+
+     case CLICK_ABOUT://click on "Arachne Vxx" label
      strcpy(GLOBAL.location,"about:");
 
      arachne.target=0;
