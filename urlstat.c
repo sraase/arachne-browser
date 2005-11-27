@@ -29,6 +29,14 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
 
  if(!strcmpi(absURL->protocol,"file"))
  {
+//!!glennmcc: Nov 13, 2005 -- append '\' if we forget to enter it in typed URL
+  if(strlen(absURL->file)>1 &&
+     !strstr(absURL->file,".") &&
+     absURL->file[strlen(absURL->file)-1]!='\\'
+    )
+  {strcat(absURL->file,"\\");}
+//!!glennmcc: end
+
   makestr(cacheitem->locname,absURL->file,79);
   i=strlen(cacheitem->locname);
 
@@ -49,6 +57,7 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
    cacheitem->locname[i]='\0';
    startfname=2;
   }
+
 
   while(i>0)
   {
@@ -101,6 +110,7 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
    char ext[5];
 
    get_extension(cacheitem->mime,ext);
+
    if(!strstr("HTM TXT",ext) && !strstr(imageextensions,ext) && !file_exists(cacheitem->locname))
     return 0;
    else
@@ -615,13 +625,18 @@ void add2history(char *URL)
 //Mail2Hist caused more problems than it's worth, it's time to trash it :(
 #ifdef EXP//experimental
 //!!glennmcc: Jan 29, 2005 -- made it configurable
-char *ptr=configvariable(&ARACHNEcfg,"Mail2Hist",NULL);
-   if(!ptr) ptr="Yes";
-   if(!strcmpi(ptr,"No"))
+if(!strcmpi(configvariable(&ARACHNEcfg,"Mail2Hist",NULL),"No") &&
+   !strstr(URL,"*"))
+//char *ptr=configvariable(&ARACHNEcfg,"Mail2Hist",NULL);
+//   if(!ptr) ptr="Yes";
+//   if(!strcmpi(ptr,"No"))
      {
 //!!glennmcc: Jan 16, 2005 -- also don't add any of the mail files themselves
-      if(strstr(URL,".cnm") || strstr(URL,".tbs") ||
-	 strstr(URL,".mes") || strstr(URL,".snt")
+      if(
+	 strstr(URL,".cnm") || strstr(URL,".tbs") ||
+	 strstr(URL,".mes") || strstr(URL,".snt") ||
+	 strstr(URL,".CNM") || strstr(URL,".TBS") ||
+	 strstr(URL,".MES") || strstr(URL,".SNT")
 	) return;
      }
 #endif
@@ -667,7 +682,7 @@ char *ptr=configvariable(&ARACHNEcfg,"Mail2Hist",NULL);
       {
        ie_delline(&history,0);
        if(arachne.history>1)
-        arachne.history--;
+	arachne.history--;
       }
       else //... nebo na konci
        ie_delline(&history,history.lines-1);

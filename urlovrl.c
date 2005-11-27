@@ -319,9 +319,11 @@ char NeedImage(char reload, XSWAP *from)
  {
   char *value = configvariable(&ARACHNEcfg,"LoadImages",NULL);
 //!!glennmcc: Nov 02, 2005 -- if CSS is enable, grab CSS file if it exists
-  if(!GLOBAL.nowimages && value && (*value=='n' || *value=='N') &&
-       configvariable(&ARACHNEcfg,"CSS",NULL)[0]=='N')
-//  if(!GLOBAL.nowimages && value && (*value=='n' || *value=='N'))
+//!!glennmcc: Nov 22, 2005 -- the experiment did not work correctly :(
+//I'll leave this here but commented-out for others to play with ;-)
+//  if(!GLOBAL.nowimages && value && (*value=='n' || *value=='N') &&
+//       configvariable(&ARACHNEcfg,"CSS",NULL)[0]=='N')
+  if(!GLOBAL.nowimages && value && (*value=='n' || *value=='N'))//original line
 //!!glennmcc: end (more below)
    return 0;
   outs(MSG_VERIFY);
@@ -384,10 +386,14 @@ char NeedImage(char reload, XSWAP *from)
     continue; //continue with loop
    }
 //!!glennmcc: Nov 02, 2005 -- if CSS is enable, grab CSS file if it exists
+//!!glennmcc: Nov 22, 2005 -- the experiment did not work correctly :(
+//I'll leave this here but commented-out for others to play with ;-)
+/*
 if(type!=STYLESHEET &&
    configvariable(&ARACHNEcfg,"LoadImages",NULL)[0]=='N' &&
    GLOBAL.nowimages!=IMAGES_LOAD
   ) break;
+*/
 //!!glennmcc: end
 
    AnalyseURL(URLptr,&url,IGNORE_PARENT_FRAME);

@@ -51,9 +51,8 @@ int xpopdump(struct Url *url,char dele,char logfile)
  int log;
  char done,lastchar[2];
 
-//!!glennmcc: Nov 07, 2005 -- also check the drives containing %TEMP%
-//and %ARACHNETEMP% if it is being used
-int toosmall=0;
+//!!glennmcc: Nov 25, 2005 -- for checking the drivespace (see below)
+int toosmall=0, mult=1;
 //!!glennmcc: end
 
 
@@ -210,16 +209,16 @@ int toosmall=0;
 	percentbar((int)(100*read/totallength));
 //!!glennmcc: Oct 19, 2005
 //check space on drive where mailpath is located instead of the current drive.
-//!!glennmcc: Nov 07, 2005 -- also check the drives containing %TEMP%
-//and %ARACHNETEMP% if it is being used
 toosmall=0;
+//!!glennmcc: Nov 25, 2005 -- we only need 'double space'
+// when pop3log is 'on' and mailpath==current disk
+if(log!=-1 &&
+lastdiskspace(configvariable(&ARACHNEcfg,"MailPath",NULL))==localdiskspace())
+   mult=2;else mult=1;
+
 if(lastdiskspace(configvariable(&ARACHNEcfg,"MailPath",NULL))
-   <locallength*2) toosmall=1;
-if(lastdiskspace(getenv("TEMP"))
-   <locallength*2) toosmall=2;
-if(configvariable(&ARACHNEcfg,"Cache2Temp",NULL)[0]=='Y' &&
-   lastdiskspace(getenv("ARACHNETEMP"))
-   <locallength*2) toosmall=3;
+   <locallength*mult) toosmall=1;
+
 if(toosmall)
 	{
 //	 if ( localdiskspace() < locallength * 2 ) {
@@ -284,32 +283,20 @@ if(toosmall)
 	}
 
 //!!glennmcc: Oct 19, 2005 -- if message is too big, write the error into .CNM
-//if(lastdiskspace(configvariable(&ARACHNEcfg,"MailPath",NULL))<locallength*2)
-//!!glennmcc: Nov 07, 2005 -- also check the drives containing %TEMP%
-//and %ARACHNETEMP% if it is being used
-//now select message depending upon which drive was too small
 if(toosmall)
 	{
 	 sprintf(str,"Subject: "MSG_SKIP,process);
 	 write(f,str,strlen(str));
-	 if(toosmall==1)
-	 {
 	 sprintf(str,"\n Available disk space on mail drive: %ld",
 	 lastdiskspace(configvariable(&ARACHNEcfg,"MailPath",NULL)));
-	 }else
-	 if(toosmall==2)
+	 write(f,str,strlen(str));
+	 sprintf(str,"\n Required disk space for this message: %ld",locallength*mult);
+	 write(f,str,strlen(str));
+	 if(mult==2)
 	 {
-	 sprintf(str,"\n Available disk space on TEMP drive: %ld",
-	 lastdiskspace(getenv("TEMP")));
-	 }else
-	 if(toosmall==3)
-	 {
-	 sprintf(str,"\n Available disk space on ARACHNETEMP drive: %ld",
-	 lastdiskspace(getenv("ARACHNETEMP")));
+	 sprintf(str,"\n (double the message size itself due to POP3LOG)");
+	 write(f,str,strlen(str));
 	 }
-	 write(f,str,strlen(str));
-	 sprintf(str,"\n Required disk space for this message: %ld",locallength*2);
-	 write(f,str,strlen(str));
 	 a_close(f);
 	 continue;
 	}

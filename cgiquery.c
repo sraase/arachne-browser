@@ -283,6 +283,14 @@ write(mailmsg,str,strlen(str));
 	else if (!strcmpi(cmd,"SUBJ") && mailmsg>=0)
 	{
 	 sprintf(str,"Subject: %s\n",value);
+//!!glennmcc: Nov 18, 2005 -- truncate to 127 (including 'Subject: ')
+      if(strlen(str)>127)
+	{
+	 write(mailmsg,str,127);
+	 write(mailmsg,"\n",1);
+	}
+	 else
+//!!glennmcc: end
 	 write(mailmsg,str,strlen(str));
 	}
 	else if (!strcmpi(cmd,"ATTACH") && mailmsg>=0 && value[0])

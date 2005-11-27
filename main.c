@@ -196,6 +196,16 @@ IveGotNewUrl:
   GLOBAL.timeout=0;
   GLOBAL.backgroundimages=BACKGROUND_EMPTY;
   GLOBAL.clipdel=0;
+#ifdef JDS
+  //!!JdS: 2004/12/08 {
+  //Allow for deferred addition of clipboard link to hotlist
+  //GLOBAL.clipdel=0;
+  if (GLOBAL.clipdel == CLIPBOARD_DEFER_ADD)
+   GLOBAL.clipdel = CLIPBOARD_ADDHOT;
+  else
+   GLOBAL.clipdel = CLIPBOARD_DEFAULT;
+  //!!JdS: 2004/12/08 }
+#endif
   //reset keepalive for this session
 #ifndef NOTCPIP
   sock_keepalive[0][0]='\0';
@@ -211,7 +221,8 @@ IveGotNewUrl:
    if(arachne.backtrace==MAXBACKTRACE-1)
     memmove(arachne.backtrace_target,arachne.backtrace_target+1,MAXBACKTRACE-1);
    arachne.backtrace_target[arachne.backtrace]=arachne.target;
-   if(arachne.backtrace<MAXBACKTRACE)
+//   if(arachne.backtrace<MAXBACKTRACE)
+   if(arachne.backtrace<MAXBACKTRACE-1)  //!!JdS 2004/11/09
     arachne.backtrace++;
   }
  }//endif not image
@@ -347,7 +358,7 @@ IveGotNewUrl:
     {
      char buf[IE_MAXLEN+2];
      make_cmd(text,buf,
-              p->htmlframe[arachne.target].cacheitem.URL,
+	      p->htmlframe[arachne.target].cacheitem.URL,
 	      url.host, url.file, text, "NUL");
 
 #ifdef POSIX
@@ -588,7 +599,8 @@ if(!strstr(url.protocol,"arachne:"))
   if(GLOBAL.abort)
   {
    unlink(inlineimage.locname);
-   FinishBackground(BG_ABORT);
+//   FinishBackground(BG_ABORT);
+   FinishBackground(BG_FINISH);  //!!JdS 2004/11/06
    goto AbortRedrawAndMsg;
   }
   else
@@ -646,8 +658,8 @@ if(!strstr(url.protocol,"arachne:"))
    if(!strcmpi(ext,"ASF")) //script hack
    {
      copy(cacheitem->locname,history.filename);
-     ie_clearf(&history,0);
-     if(ie_openf_lim(&history,CONTEXT_SYSTEM,256)==1); //historie - max. 256 radku
+     ie_clearf(&history,0);       //!!JdS 2004/11/05 removed if() semi-colon :
+     if(ie_openf_lim(&history,CONTEXT_SYSTEM,256)==1) //historie - max. 256 radku
      {
       ie_insline(&history,0,"");
       arachne.scriptline=1;
@@ -760,7 +772,9 @@ if(//!strstr(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Y")
      //ie_savebin(&HTTPcache);
 
 #ifndef POSIX
-     if(strstr(strlwr(buf),"insight"))
+//!!glennmcc: Nov 18, 2005 mime.cfg lines will now retain case
+     if(!strcmpi(buf,"insight"))
+//     if(strstr(strlwr(buf),"insight"))
      {
       tempinit(mman);
       strcat(mman,"$roura2.bat");
@@ -813,7 +827,9 @@ if(//!strstr(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Y")
    //------------------------------------------------------------------------
    sprintf(str,MSG_CONV,oldmime,ext,MSG_DELAY1,ctrlbreak);
    outs(str);
-   if(strstr(strlwr(buf),"insight"))
+//!!glennmcc: Nov 18, 2005 mime.cfg lines will now retain case
+     if(!strcmpi(buf,"insight"))
+//     if(strstr(strlwr(buf),"insight"))
    {
     tempinit(mman);
     strcat(mman,"$roura2.bat");
@@ -1068,18 +1084,18 @@ PageDone:
 //-------------------------------------------------------------------------
 
 //!!glennmcc: Nov 08, 2005 -- when Xswap memory gets too low
+//!!glennmcc: Nov 22, 2005 -- the experiment did not work correctly :(
+//I'll leave this here but commented-out for others to play with ;-)
+/*
     if(ie_free()<ie_used())
       {
        char cmd[128];
        closebat(cmd,RESTART_KEEP_GRAPHICS);
        GLOBAL.willexecute=willexecute(cmd);
-//       strcpy(cmd,"Xswap memory is getting low, it will be cleared before taking next action.");
-//       outs(cmd);
        farfree(cmd);
        goto Render;
       }
-//else
-//{
+*/
 //!!glennmcc: end
 
  pagetime=time(NULL)-pagetime; //. Much time we have used to do this page
@@ -1093,6 +1109,10 @@ PageDone:
   redrawHTML(REDRAW_NO_MESSAGE,REDRAW_CREATE_VIRTUAL);
   outs(MSG_ABORT);
  }
+ //!!JdS 2004/12/12 {
+ else if (GLOBAL.clipdel == CLIPBOARD_ADDHOT)
+  outs(MSG_CLPADD);
+ //!!JdS 2004/12/12 }
  else
  {
   char dummy[128];
