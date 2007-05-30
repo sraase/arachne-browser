@@ -65,7 +65,7 @@ char *anykey=MSG_ANYKEY;
 #ifdef NOKEY
 //char *regkey="",reg=1;
 //char *regkey="GPL  Version",reg=1;//!!glennmcc: Apr 06, 2003 --- GPL now
-char *regkey="v1.89;GPL,386+",reg=1;
+char *regkey="v1.91;GPL,387+",reg=1;
 #else
 char regkey[KEYLEN+1]=MSG_UNREG,reg=0;
 #endif
@@ -107,6 +107,8 @@ struct ib_editor history;   //historie "TADYJSEM.BYL"
 struct ib_editor cookies;
 struct ib_editor MIMEcfg;   //mime configuration
 struct ib_editor ARACHNEcfg;//main configuration
+//!!glennmcc: May 27, 2007 -- read entity conversions from entity.cfg
+struct ib_editor ENTITYcfg;//entity.cfg
 struct ib_editor TOOLBARcfg;//toolbar
 struct ib_editor tmpeditor,*editorptr;//ukazatel na jeden vyskyt IBASE editoru
          // tr.: pointer to one occurence  of the IBASE editor

@@ -345,16 +345,22 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
     makestr(url->host,value,STRINGSIZE-1);
   }
 
-  value=configvariable(&ARACHNEcfg,"NoHELO",NULL);
-  if(value && toupper(*value)=='Y')
-   helo=0;
+//!!glennmcc: Feb 13, 2006 -- 'SendHelo' is more logical ;-)
+  value=configvariable(&ARACHNEcfg,"SendHELO",NULL);
+  if(!value || toupper(*value)!='N') helo=1; else helo=0;
+//  value=configvariable(&ARACHNEcfg,"NoHELO",NULL);
+//  if(value && toupper(*value)=='Y') helo=0;
+//!!glennmcc: end
 
   value=configvariable(&ARACHNEcfg,"SMTPlog",NULL);
   if(value && toupper(*value)=='Y') log=1;
 
 //!!glennmcc: begin Nov 09, 2003 --- for Authenticated SMTP
+//!!glennmcc: Feb 17, 2006 -- moved down below
+/*
   value=configvariable(&ARACHNEcfg,"UseAuthSMTP",NULL);
-  if(value && toupper(*value)=='Y') helo=2;
+  if(!value || toupper(*value)!='N') helo=2;
+*/
 //!!glennmcc: end
 
 //!!glennmcc: begin Apr 30, 2004 --- for Authenticated SMTP
@@ -365,7 +371,15 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
   if(value) makestr(url->authuser,value,STRINGSIZE-1);
 //!!glennmcc: end
   value=configvariable(&ARACHNEcfg,"AuthSMTPpassword",NULL);
-  if(value) makestr(url->password,value,STRINGSIZE-1);
+//!!glennmcc: Feb 17, 2006 -- switch to new variable 'authpassword'
+  if(value) makestr(url->authpassword,value,PASSWORDSIZE-1);
+//if(value) makestr(url->password,value,STRINGSIZE-1);
+//!!glennmcc: end
+//!!glennmcc: Feb 17, 2006 -- switch to new variable 'authpassword'
+if(strlen(url->authuser)>0 && strlen(url->authpassword)>0 &&
+   strstr(configvariable(&ARACHNEcfg,"UseAuthSMTP",NULL),"Yes")
+  )
+   helo=2; else helo=1;
 //!!glennmcc: end
 
   if(!url->user[0])

@@ -218,6 +218,12 @@ void try2readHTMLcolor(char *str,unsigned char *r,unsigned char *g,unsigned char
   {*r=0;*g=0xFF;*b=0xFF;}
  else
  {
+//!!glennmcc: Dec 01, 2005 -- fix 'bad html' <TD BGCOLR= ALIGN=RIGHT>
+if(str[0]>'F' || str[1]>'F' || str[2]>'F' ||
+   str[3]>'F' || str[4]>'F' || str[5]>'F')
+   strncpy(string,"777777",6);
+   else
+//!!glennmcc: end
   strncpy(string,str,6);
   resolve:
 
@@ -345,6 +351,15 @@ int FastTagDetect(char *tagname)
    return TAG_OL;
   if(!strcmp(ptr,"IV"))
    return TAG_DIV;
+//!!glennmcc: Feb 27, 2007 -- <S> has been depreciated to <DEL>
+//therefore, we can treat <DEL> with the same action as <S> here
+//<S> is actually 'strike'
+//since our font set does not support 'strike',
+//we should italicise <S> instead of treating it as <B>
+//!!JDS: Feb 28, 2007 -- STRIKE now implemented (see code in htmldraw.c)
+  if(!strcmp(ptr,"EL"))
+   return TAG_S;
+//!!glennmcc: end
   break;
 
   case 'E':
@@ -385,6 +400,16 @@ int FastTagDetect(char *tagname)
    return TAG_IMG;
   if(!strcmp(ptr,"NPUT"))
    return TAG_INPUT;
+//!!glennmcc: Feb 27, 2007 -- <U> has been depreciated to <INS>
+//therefore, we can treat <INS> with the same action as <U> here
+  if(!strcmp(ptr,"NS"))
+   return TAG_U;
+//!!glennmcc: end
+//!!glennmcc: Mar 12, 2007 -- quick-n-dirty hack to support <iframe
+//test page .... http://www.auschess.org.au/
+  if(!strcmp(ptr,"FRAME"))
+   return TAG_IFRAME;
+//!!glennmcc: end
   break;
 
   case 'K':
@@ -438,8 +463,14 @@ int FastTagDetect(char *tagname)
   break;
 
   case 'S':
+//!!glennmcc: Feb 27, 2007 -- <S> is actually 'strike'
+//since our font set does not support 'strike',
+//we should italicise <S> instead of treating it as <B>
+//!!JDS: Feb 28, 2007 -- STRIKE now implemented (see code in htmldraw.c)
   if(!*ptr)
-   return TAG_B;
+   return TAG_S;
+// return TAG_B;//original line
+//!!glennmcc: end
   strupr(ptr);
   if(!strcmp(ptr,"ELECT"))
    return TAG_SELECT;
@@ -490,7 +521,12 @@ char closeatom(XSWAP adr,int deltax,long absy)
    swapmod=1;
   }
   else
-   MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//   MALLOCERR();
+//!!glennmcc: end
  }
  return expand;
 }//end if
@@ -564,7 +600,12 @@ void addatom(struct HTMLrecord *atom,void *ptr,int len,char t, char align,
    swapmod=1;
   }
   else
-   MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return;
+//   MALLOCERR();
+//!!glennmcc: end
  }
 
  if(p->lastHTMLatom==IE_NULL)
@@ -620,7 +661,12 @@ void alignrow(int x,long y,int islist)
  alignloop:
  atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
  if(!atomptr)
-  MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return;
+//  MALLOCERR();
+//!!glennmcc: end
  if(atomptr->y==y && //eliminate unclosed buttons:
    !(atomptr->type==INPUT && (atomptr->data2 & 2) && atomptr->x==atomptr->xx) &&
     !(atomptr->type==TD || atomptr->type==TD_BACKGROUND ||

@@ -315,7 +315,10 @@ int XGifFromXms(struct picinfo *gif, int ScrVirt,
      TranspCol2 = xhead.TranspCol;
    }
    Bufx = farmalloc(LenBuf);
-   if(Buf == NULL) goto End_wrt;
+//!!Bernie: Mar 01, 2007 -- needs to be Bufx not Buf   
+   if(Bufx == NULL) goto End_wrt;
+// if(Buf == NULL) goto End_wrt;
+//!!bernie: end   
    Bufx2 = (int*)Bufx;
 
    DxXms=LenPix*xhead.Dx;   // length of row in B in Xms

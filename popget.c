@@ -21,7 +21,7 @@
 	Faculty of Engineering
 	University of Waterloo          Erick@development.watstar.uwaterloo.ca
 	200 University Ave.,
-        Waterloo, Ont., Canada
+	Waterloo, Ont., Canada
 	N2L 3G1
 
 ******************************************************************************/
@@ -52,9 +52,9 @@ int xpopdump(struct Url *url,char dele,char logfile)
  char done,lastchar[2];
 
 //!!glennmcc: Nov 25, 2005 -- for checking the drivespace (see below)
-int toosmall=0, mult=1;
+int toobig=0, mult=1;
 //!!glennmcc: end
-
+char *value=configvariable(&ARACHNEcfg,"MailTop",NULL);
 
  if(!tcpip)return 0;
  free_socket();
@@ -209,7 +209,7 @@ int toosmall=0, mult=1;
 	percentbar((int)(100*read/totallength));
 //!!glennmcc: Oct 19, 2005
 //check space on drive where mailpath is located instead of the current drive.
-toosmall=0;
+toobig=0;
 //!!glennmcc: Nov 25, 2005 -- we only need 'double space'
 // when pop3log is 'on' and mailpath==current disk
 if(log!=-1 &&
@@ -217,9 +217,9 @@ lastdiskspace(configvariable(&ARACHNEcfg,"MailPath",NULL))==localdiskspace())
    mult=2;else mult=1;
 
 if(lastdiskspace(configvariable(&ARACHNEcfg,"MailPath",NULL))
-   <locallength*mult) toosmall=1;
+   <(locallength*mult)+user_interface.mindiskspace) toobig=1;
 
-if(toosmall)
+if(toobig)
 	{
 //	 if ( localdiskspace() < locallength * 2 ) {
 	 sprintf(str,MSG_SKIP, process );
@@ -229,6 +229,10 @@ if(toosmall)
 //	 continue; //original single line
 //!!glennmcc: end this section.....more below
 	}
+
+//   value=configvariable(&ARACHNEcfg,"MailTop",NULL);
+     if(!strncmpi(value,"Y",1))
+	sprintf( str, "TOP %lu 1000000", process ); else
 	sprintf( str, "RETR %lu", process );
 	if(log!=-1)
 	{
@@ -283,18 +287,22 @@ if(toosmall)
 	}
 
 //!!glennmcc: Oct 19, 2005 -- if message is too big, write the error into .CNM
-if(toosmall)
+if(toobig)
 	{
 	 sprintf(str,"Subject: "MSG_SKIP,process);
 	 write(f,str,strlen(str));
 	 sprintf(str,"\n Available disk space on mail drive: %ld",
 	 lastdiskspace(configvariable(&ARACHNEcfg,"MailPath",NULL)));
 	 write(f,str,strlen(str));
-	 sprintf(str,"\n Required disk space for this message: %ld",locallength*mult);
+	 sprintf(str,"\n Required disk space for this message: %ld",(locallength*mult)+user_interface.mindiskspace);
+	 write(f,str,strlen(str));
+	 sprintf(str,"\n Message size of %ld + MinDiskSpace setting of %ld",locallength,user_interface.mindiskspace);
 	 write(f,str,strlen(str));
 	 if(mult==2)
 	 {
 	 sprintf(str,"\n (double the message size itself due to POP3LOG)");
+	 write(f,str,strlen(str));
+	 sprintf(str,"\n Message size of (%ld * 2) + MinDiskSpace setting of %ld",locallength,user_interface.mindiskspace);
 	 write(f,str,strlen(str));
 	 }
 	 a_close(f);
@@ -348,10 +356,8 @@ if(toosmall)
 //if(strlen(buffer)<1) done=1;
 
 //!!glennmcc: Jun 27, 2005 -- This one finally works correctly :))
-#ifndef NOKEY
-if(locallength<1 &&
-   (
-    strstr(ptr,"\n\0\n.\n")
+#ifdef EXP//experimental
+if(strlen(ptr)<1 || !buffer || (locallength<1 && strstr(ptr,"\n\0\n.\n")
 //!!glennmcc: Sep 29, 2005 -- next line was still causing a few aborts
 //  || strstr(ptr,"\r\n\0\r\n.\r\n")
    )
@@ -394,6 +400,9 @@ if(locallength<1 &&
 	  if(dot)
 	   *dot='\0';
 	  done=1;
+//!!glennmcc: Feb 22, 2006 -- don't write 'null CR LF' at end of file
+	  len-=3;
+//!!glennmcc: end
 	 }
 
 /*

@@ -8,8 +8,11 @@
 #ifndef __URL_H
 #define __URL_H
 
+#ifdef NOKEY
 #define URLSIZE 512 //(GPL version)
-//#define URLSIZE 480 //(UE version)
+#else
+#define URLSIZE 400 //(UE version)
+#endif
 #define PROTOCOLSIZE 11
 #define STRINGSIZE 48
 #define PASSWORDSIZE 16
@@ -20,6 +23,9 @@ struct Url
  char user[STRINGSIZE];
 //!!glennmcc: begin Sept 17, 2004 -- for AuthSMTP
  char authuser[STRINGSIZE];
+//!!glennmcc: end
+//!!glennmcc: begin Feb 17, 2006 -- for AuthSMTP modifications
+ char authpassword[PASSWORDSIZE];
 //!!glennmcc: end
  char password[PASSWORDSIZE];
  char host[STRINGSIZE];

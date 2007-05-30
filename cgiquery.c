@@ -190,6 +190,7 @@ void process_form(char cgi, XSWAP formID)
 	{
 	 strcpy(AUTHENTICATION->password,value);
 	}
+
 	else if (!strcmpi(cmd,"MSG")) //start mail msg
 	{
 	 char str[12];
@@ -202,7 +203,15 @@ void process_form(char cgi, XSWAP formID)
 	 ptr=configvariable(&ARACHNEcfg,"MailPath",NULL);
 	 if(!ptr)
 	  ptr="MAIL\\";
+
+//!!glennmcc: Aug 27, 2006 -- add 'save as draft' function
+//file extension will now be taken from the value of $MSG on mail screens
+//(TBS for completed messages... DFT for drafts)
+if(!strcmpi(value,"DFT")) sprintf(mailname,"%s%s.%s",ptr,&str[1],value);
+else
 	 sprintf(mailname,"%s%s.TBS",ptr,&str[1]);
+//original single line above this comment
+//!!glennmcc: end
 	 mailmsg=a_open(mailname,O_CREAT|O_TEXT|O_WRONLY|O_TRUNC,S_IREAD|S_IWRITE);
 	 if(mailmsg>=0)
 	 {
@@ -238,6 +247,14 @@ void process_form(char cgi, XSWAP formID)
 	{
 	 adrfield(value);
 	 sprintf(str,"To: %s\n",value);
+//!!glennmcc: Dec 16, 2006 -- truncate to 127 (including 'To: ')
+      if(strlen(str)>127)
+	{
+	 write(mailmsg,str,127);
+	 write(mailmsg,"\n",1);
+	}
+	 else
+//!!glennmcc: end
 	 write(mailmsg,str,strlen(str));
 	}
 	else if (!strcmpi(cmd,"CC") && mailmsg>=0 && value[0])
@@ -245,6 +262,14 @@ void process_form(char cgi, XSWAP formID)
 	 configvariable(&ARACHNEcfg,cmd,value);
 	 adrfield(value);
 	 sprintf(str,"CC: %s\n",value);
+//!!glennmcc: Dec 16, 2006 -- truncate to 127 (including 'CC: ')
+      if(strlen(str)>127)
+	{
+	 write(mailmsg,str,127);
+	 write(mailmsg,"\n",1);
+	}
+	 else
+//!!glennmcc: end
 	 write(mailmsg,str,strlen(str));
 	}
 	else if (!strcmpi(cmd,"BCC") && mailmsg>=0 && value[0])
@@ -252,6 +277,14 @@ void process_form(char cgi, XSWAP formID)
 	 configvariable(&ARACHNEcfg,cmd,value);
 	 adrfield(value);
 	 sprintf(str,"Bcc: %s\n",value);
+//!!glennmcc: Dec 16, 2006 -- truncate to 90 (including 'Bcc: ')
+      if(strlen(str)>90)
+	{
+	 write(mailmsg,str,90);
+	 write(mailmsg,"\n",1);
+	}
+	 else
+//!!glennmcc: end
 	 write(mailmsg,str,strlen(str));
 	}
 //!!glennmcc: begin Oct 19, 2001
@@ -266,6 +299,14 @@ void process_form(char cgi, XSWAP formID)
 	if(!value[0])configvariable(&ARACHNEcfg,cmd,value);
 	adrfield(value);
 	sprintf(str,"Reply-To: %s\n",value);
+//!!glennmcc: Dec 16, 2006 -- truncate to 127 (including 'Reply-To: ')
+      if(strlen(str)>127)
+	{
+	 write(mailmsg,str,127);
+	 write(mailmsg,"\n",1);
+	}
+	 else
+//!!glennmcc: end
 	write(mailmsg,str,strlen(str));
 	}
        }
@@ -275,7 +316,25 @@ void process_form(char cgi, XSWAP formID)
 //will also add the format "Disposition-Notification-To"
 else if (!strcmpi(cmd,"RRT") && mailmsg>=0 && value[0])
 {
-sprintf(str,"Return-Receipt-To: %s\nDisposition-Notification-To: %s\n",value,value);
+sprintf(str,"Return-Receipt-To: %s\n",value);
+//!!glennmcc: Dec 16, 2006 -- truncate to 127
+      if(strlen(str)>127)
+	{
+	 write(mailmsg,str,127);
+	 write(mailmsg,"\n",1);
+	}
+	 else
+//!!glennmcc: end
+write(mailmsg,str,strlen(str));
+sprintf(str,"Disposition-Notification-To: %s\n",value);
+//!!glennmcc: Dec 16, 2006 -- truncate to 127
+      if(strlen(str)>127)
+	{
+	 write(mailmsg,str,127);
+	 write(mailmsg,"\n",1);
+	}
+	 else
+//!!glennmcc: end
 write(mailmsg,str,strlen(str));
 }
 //!!glennmcc: end
@@ -284,9 +343,10 @@ write(mailmsg,str,strlen(str));
 	{
 	 sprintf(str,"Subject: %s\n",value);
 //!!glennmcc: Nov 18, 2005 -- truncate to 127 (including 'Subject: ')
-      if(strlen(str)>127)
+//!!glennmcc: Mar 06, 2006 -- doubled the limit.
+      if(strlen(str)>255)
 	{
-	 write(mailmsg,str,127);
+	 write(mailmsg,str,255);
 	 write(mailmsg,"\n",1);
 	}
 	 else
@@ -464,15 +524,15 @@ unlink("textarea.tmp");
        {
 	ptr=ie_getline(&tmpeditor,i);
 	if(ptr)
-        {
-         strcpy(p->buf,ptr);
-         strcat(p->buf,"\r\n");
-         querystring=ie_getswap(GLOBAL.postdataptr);
-         if(!querystring)
-     	  MALLOCERR();
-         qlen+=cgiquery((unsigned char *)p->buf,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
+	{
+	 strcpy(p->buf,ptr);
+	 strcat(p->buf,"\r\n");
+	 querystring=ie_getswap(GLOBAL.postdataptr);
+	 if(!querystring)
+	  MALLOCERR();
+	 qlen+=cgiquery((unsigned char *)p->buf,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
 	 swapmod=1; //novy platny querystring:
-        }
+	}
 	i++;
        }//loop
       }//end if cgi
@@ -490,26 +550,35 @@ unlink("textarea.tmp");
        ptr=ie_getline(&tmpeditor,i);
        if(ptr)
        {
-        if(*ptr=='1') //selected value:
-        {
-         if(ptr[1])
-          strcpy(p->buf,&ptr[1]);
-         else
-          makestr(p->buf,ie_getline(&tmpeditor,i+1),BUF);
+	if(*ptr=='1') //selected value:
+	{
+	 if(ptr[1])
+	  strcpy(p->buf,&ptr[1]);
+	 else
+//!!glennmcc: Jan 11, 2006 -- if value="".... value=(blank)
+//!!glennmcc: Jan 31, 2007 -- bad idea...
+// both attempts cause too many other problems :(
+/*
+//	  if (strnicmp(GLOBAL.location,"file:",5)!=0 && i==0)
+	  if (strnicmp(GLOBAL.location,"file:",5)!=0 && strlen(ptr)<3)
+	   strcpy(p->buf,"\0"); else
+*/
+//!!glennmcc: end
+	  makestr(p->buf,ie_getline(&tmpeditor,i+1),BUF);
 
 	 querystring=ie_getswap(GLOBAL.postdataptr);
-         if(!querystring)
+	 if(!querystring)
 	  MALLOCERR();
-         if(qlen>0)
+	 if(qlen>0)
 	 {
 	  strcat(querystring,"&");
-          qlen++;
-         }
-         strcat(querystring,name);
-         strcat(querystring,"=");
-         qlen+=strlen(name)+1;
-         qlen+=cgiquery((unsigned char *)p->buf,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
-         swapmod=1; //novy platny querystring:
+	  qlen++;
+	 }
+	 strcat(querystring,name);
+	 strcat(querystring,"=");
+	 qlen+=strlen(name)+1;
+	 qlen+=cgiquery((unsigned char *)p->buf,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
+	 swapmod=1; //novy platny querystring:
 	}
        }
        i+=2;

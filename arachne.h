@@ -78,6 +78,22 @@ void outs(char *str); //change browser status message
 #define IRC_HTML      3 //not yet implemented
 #define ICQ_HTML      4 //not yet implemented
 
+/*
+//maximum number of lines in CFG files :
+//!!glennmcc: increased to 388 or 1024 (experimental compile only)
+//NOKEY == original value of 256 in GPL
+//works in tandom with the increase of history file size in main.c
+//and MAXCONV define in urlovrl.c
+#ifdef NOKEY
+#define LINES 256
+#else
+#ifdef EXPMAX
+#define LINES 1024
+#else
+#define LINES 388
+#endif//EXPMAX
+#endif//NOKEY
+*/
 //----------------------------------------------------------------------------
 #ifdef POSIX //POSIX-compliant systems - linear access to memory, etc.
 //----------------------------------------------------------------------------
@@ -594,6 +610,9 @@ extern struct ib_editor ARACHNEcfg;//main configuration - text file
 extern struct ib_editor TOOLBARcfg;//toolbar
 extern struct ib_editor tmpeditor,*editorptr;//temporary IBASE editor pointer
 
+//!!glennmcc: May 27, 2007 -- read entity conversions from entity.cfg
+extern struct ib_editor ENTITYcfg;//entity.cfg - text file
+
 extern char myIPstr[20];           //my IP address
 extern char graphics;            //is graphics available ?
 extern char tcpip;               //is TCP/IP available ?
@@ -624,6 +643,9 @@ extern char *setupdoc;
 extern char *VER;
 extern char *exetype;
 extern char *beta;
+#ifdef NOKEY
+extern char *ident;
+#endif
 extern char *copyright;
 extern char *homepage;
 

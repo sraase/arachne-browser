@@ -112,7 +112,7 @@ void toolbar(char newtoolbarmode,char forced)
 
      if(geticoninfo(iconkey,icon,dummy,dummy,desc1,desc2))
      {
-      if(icon[0]!='*')
+      if(!user_interface.iconsoff && icon[0]!='*')
        DrawIconLater( icon,x_maxx()-148,icony);
 
       x_setcolor(0);
@@ -195,8 +195,11 @@ void buttons(void)
  else
  if(arachne.GUIstyle==STYLE_SMALL2)
  {
+  if(!user_interface.iconsoff)
+  {
   DrawIconLater( "alticon2",x_maxx()-146,4 );
   DrawIconLater( "alticon1",x_maxx()-146,27 );
+  }
   Box3Dh(x_maxx()-150,p->htscrn_ytop-50,x_maxx(),p->htscrn_ytop-2);
  }
  else
@@ -274,7 +277,29 @@ void PaintTitle(void)    // vykresleni nazvu stranky
  }
  else
  {
-  int colormap[5]={15,-1,-1,8,7};
+//!!glennmcc: Begin Jan 20, 2006
+// 4 choices at build-time for 'Arachne ver#' color/style
+  int colormap[5]={15,-1,-1,7,8};//high-contrast raised
+//int colormap[5]={7,-1,-1,15,8};//high-contrast indented
+//int colormap[5]={15,-1,-1,8,7};//low-contrast raised
+//int colormap[5]={8,-1,-1,15,7};//low_contrast indented
+//!!glennmcc: end
+//int colormap[5]={8,-1,-1,15,7};//original line
+//!!glennmcc: Mar 15, 2006 -- inserted description & short color list
+/*
+{15,-1,-1,7,8};//high-contrast raised
+_^^<--top_edge/left_edge color
+{15,-1,-1,7,8}
+__________^<--bottom_edge/right_edge color
+{15,-1,-1,7,8}
+____________^<--fill color
+0  BLACK
+7  LIGHTGRAY
+8  DARKGRAY
+15 WHITE
+*/
+//!!glennmcc: end
+
   char buf[64];
   char *title;
 
@@ -373,6 +398,9 @@ char *maxres=configvariable(&ARACHNEcfg,"MaxRes",NULL);
  if(style)
  {
   arachne.GUIstyle++;
+#ifdef CAV
+if(arachne.GUIstyle==2) arachne.GUIstyle=3;
+#endif
   if(arachne.GUIstyle>STYLE_SMALL2)
   {
    arachne.GUIstyle=STYLE_ARACHNE;
@@ -388,7 +416,7 @@ char *maxres=configvariable(&ARACHNEcfg,"MaxRes",NULL);
  {
   if(plus)
   {
-   if(!strncmpi(arachne.graphics,"VESA.X",6))
+   if(!strncmpi(arachne.graphics,"VESA.X",6))//X==640x400x256c
     ptr[1]='B';//B==640x480x256c
    else if(ptr[1]=='B' && *maxres>'1')
     ptr[1]='C';//C==800x600x256c
@@ -414,8 +442,10 @@ char *maxres=configvariable(&ARACHNEcfg,"MaxRes",NULL);
    else if(ptr[1]=='J')
     ptr[1]='I';//I==640x480xHiColor
 #endif
+#ifndef ERIC
    else if(!strncmpi(arachne.graphics,"VESA.B",6))
-    ptr[1]='X';
+    ptr[1]='X';//X==640x400x256c
+#endif
   }
   graphicsinit(arachne.graphics); // XLOPIF SVGA GRAPHICS
  }
@@ -690,6 +720,7 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
 
 
 //!!glennmcc: Aug 22, 2005 -- maintain size independant of fontshift
+if(user_interface.fontshift<0) htmlfont(3+user_interface.fontshift,0); else
  htmlfont(3-user_interface.fontshift,0);
 // htmlfont(3,0);
 

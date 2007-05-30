@@ -9,6 +9,22 @@ ARACHNE WWW BROWSER (TM) is a trademark of Michael Polak, Arachne Labs (TM)
 
 ******************************************************************************/
 
+//!!JdS 2004/10/21 : Added conditional compilation
+//  of 386+387 (requires BC++3.1) or 286+287 build
+#ifdef FPU3
+#  pragma option -3
+#  pragma option -f287  // (not a typo.)
+#else
+#  ifdef FPU2
+#    pragma option -2
+#    pragma option -f287
+#  else
+#    pragma option -3-
+#    pragma option -2-
+#    pragma option -f
+#  endif
+#endif
+
 #include "arachne.h"
 #include "internet.h"
 #include "main.h"
@@ -99,7 +115,10 @@ IveGotNewUrl:
   cacheitem_status=&inlineimage_status;     //status of inline image
   cacheitem_writeadr=&inlineimage_writeadr; //update adr of inline image
 
-  if(addobjectsnow && !user_interface.nohtt)
+//!!glennmcc: Feb 13, 2006 -- at Ray's suggestion,
+// changed variable name to match the keyword
+  if(addobjectsnow && user_interface.keephtt)
+//if(addobjectsnow && !user_interface.nohtt)
   {
    char httfile[2*URLSIZE+80];
    int htt;
@@ -136,9 +155,19 @@ IveGotNewUrl:
    }
   }
   else
-  if(!strncmpi(GLOBAL.location,"find:",5) ||
+//!!glennmcc: Feb 25, 2006 -- modified to allow colons, spaces and dots
+// in the new 'define' function (see below)
+  if((!strncmpi(GLOBAL.location,"find:",5) ||
      (!strchr(GLOBAL.location,':') || strchr(GLOBAL.location,' '))
-      && !strchr(GLOBAL.location,'.') )
+      && !strchr(GLOBAL.location,'.')) &&
+//!!glennmcc: Apr 12, 2007 -- added 'wiki:' (see below)
+//!!glennmcc: Apr 13, 2007 -- duplicated 'define:' with 'webster:'
+//added 'oxford:' and combined all 4
+//(define:, webster:, oxford:, wiki:) into the same block of code
+      strncmpi(GLOBAL.location,"define:",7) &&
+      strncmpi(GLOBAL.location,"webster:",8) &&
+      strncmpi(GLOBAL.location,"oxford:",7) &&
+      strncmpi(GLOBAL.location,"wiki:",5))
   {
    int i=0;
    char *ptr=configvariable(&ARACHNEcfg,"SearchEngine",NULL);
@@ -151,6 +180,34 @@ IveGotNewUrl:
    strcpy(GLOBAL.location,ptr);
    makestr(&GLOBAL.location[strlen(ptr)],buf,URLSIZE-strlen(ptr)-2);
   }
+//!!glennmcc: Feb 25, 2006 -- new 'define' function to get the
+// definition of a word or phrase via Webster's online dictionary
+//!!glennmcc: Apr 13, 2007 -- duplicated 'define:' with 'webster:'
+//added 'oxford:' and combined all 4
+//(define:, webster:, oxford:, wiki:) into the same block of code
+  else
+  if(!strncmpi(GLOBAL.location,"define:",7)
+     || !strncmpi(GLOBAL.location,"webster:",8)
+     || !strncmpi(GLOBAL.location,"oxford:",7)
+     || !strncmpi(GLOBAL.location,"wiki:",5)
+    )
+  {
+   int i=7;
+   char buf[4*URLSIZE];
+   char *ptr="http://www.webster.com/cgi-bin/dictionary?";
+   if (!strncmpi(GLOBAL.location,"webster:",8)) i=8;
+   if (!strncmpi(GLOBAL.location,"oxford:",7))
+   ptr="http://www.askoxford.com/concise_oed/";
+   if (!strncmpi(GLOBAL.location,"wiki:",5))
+   {
+    i=5;
+    ptr="http://en.wikipedia.org/wiki/Special:Search?search=";
+   }
+   cgiquery((unsigned char *)&GLOBAL.location[i],(unsigned char *)buf,1);
+   strcpy(GLOBAL.location,ptr);
+   makestr(&GLOBAL.location[strlen(ptr)],buf,URLSIZE-strlen(ptr)-2);
+  }
+//!!glennmcc: end
   else
   if(!strcmpi(GLOBAL.location,"arachne:addressbook"))
   {
@@ -195,8 +252,7 @@ IveGotNewUrl:
   GLOBAL.source=0;
   GLOBAL.timeout=0;
   GLOBAL.backgroundimages=BACKGROUND_EMPTY;
-  GLOBAL.clipdel=0;
-#ifdef JDS
+//  GLOBAL.clipdel=0;
   //!!JdS: 2004/12/08 {
   //Allow for deferred addition of clipboard link to hotlist
   //GLOBAL.clipdel=0;
@@ -205,7 +261,6 @@ IveGotNewUrl:
   else
    GLOBAL.clipdel = CLIPBOARD_DEFAULT;
   //!!JdS: 2004/12/08 }
-#endif
   //reset keepalive for this session
 #ifndef NOTCPIP
   sock_keepalive[0][0]='\0';
@@ -300,7 +355,7 @@ IveGotNewUrl:
    {
     make_cmd(text,buf,
              p->htmlframe[arachne.target].cacheitem.URL,
-             url.host, url.file, text, "NUL");
+	     url.host, url.file, text, "NUL");
    }
    else
     sprintf(buf,"telnet %s\n",url.host);
@@ -659,7 +714,20 @@ if(!strstr(url.protocol,"arachne:"))
    {
      copy(cacheitem->locname,history.filename);
      ie_clearf(&history,0);       //!!JdS 2004/11/05 removed if() semi-colon :
+//!!glennmcc: Dec 03, 2005 -- increased to 388 or 1024
+//in 'non-release' experimental compiles only (see 'LINES define' in init.c)
+//works in tandom with the increase of LINES define in init.c
+//and MAXCONV define in urlovrl.c
+#ifdef NOKEY
      if(ie_openf_lim(&history,CONTEXT_SYSTEM,256)==1) //historie - max. 256 radku
+#else
+#ifdef EXPMAX
+     if(ie_openf_lim(&history,CONTEXT_SYSTEM,1024)==1)
+#else
+     if(ie_openf_lim(&history,CONTEXT_SYSTEM,388)==1)
+#endif//EXPMAX
+#endif//NOKEY
+
      {
       ie_insline(&history,0,"");
       arachne.scriptline=1;
@@ -692,6 +760,13 @@ if(//!strstr(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Y")
 //!!glennmcc: end
     strcpy(GLOBAL.location, ie_getline(&history, arachne.history));
     GLOBAL.gotolocation=1;
+//!!glennmcc: July 06, 2006 -- scroll to top left
+   if(GLOBAL.backgr && found==1)
+      {
+       p->htmlframe[p->activeframe].posY=0;
+       p->htmlframe[p->activeframe].posX=0;
+      }
+//!!glennmcc: end
     goto Wait4Orders; //original single line
    }
 //!!glennmcc: end
@@ -808,7 +883,7 @@ if(//!strstr(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Y")
     sprintf(str,MSG_PLUGIN,cacheitem->mime,ctrlbreak);
     outs(str);
     mode=make_cmd(command,buf , cacheitem->URL,
-                  url.host, url.file,cacheitem->locname, "NUL");
+		  url.host, url.file,cacheitem->locname, "NUL");
 #ifdef POSIX
     system(buf);
     goto Wait4Orders;
@@ -1047,7 +1122,7 @@ Search4Image:
    returnvalue=GLOBAL.willexecute;
    goto end;
   }
-  else 
+  else
 #endif
   if(GLOBAL.gotolocation) //somewhere to go ?
    goto IveGotNewUrl;
@@ -1118,9 +1193,9 @@ PageDone:
   char dummy[128];
   sprintf(dummy,MSG_DOCDON,copyright,pagetime/60,(int)(pagetime % 60));
   outs(dummy);
-  //defaultmsg();
+  defaultmsg();
  }
-//}//!!glannmcc: added for 'Xswap clear code' above
+//}//!!glennmcc: added for 'Xswap clear code' above
 
  if(GLOBAL.activate_textarea)
  {
@@ -1214,7 +1289,7 @@ ReadScriptLine:
  {
   struct timeval tv={0,500000};
   WaitForEvent(&tv); //NULL pointer means >>wait forever for mouse or keystroke<<
-                     //later, timeval structure with time limit will be passed,
+		     //later, timeval structure with time limit will be passed,
                      //considering  animation, JavaScript and redirection timouts,
                      //and also DrawTime function - used in fullscreen version...                   
  }                 
@@ -1268,6 +1343,11 @@ ReadScriptLine:
     int fr=0;
     do
     {
+     // This is where the frames/smiley bug manifested itself :
+     // Without the 'writeadr' field being initialized, this part
+     // of the code could corrupt other XSWAP data. [JdS 2006/02/19]
+//note added by gelennmcc: the 'fix' itself is in htmlutil.c and init.c
+//Joe, THANK YOU !!! this bug has been with us for too many years.
      cacheitem=(struct HTTPrecord *)ie_getswap(p->tmpframedata[fr].writeadr);
      if(cacheitem)
      {
@@ -1373,7 +1453,7 @@ ReadScriptLine:
     DeleteFromCache(p->tmpframedata[p->activeframe].writeadr);
    }
    else
-    Piip();
+   Piip();
    GLOBAL.del=0;
   }
 

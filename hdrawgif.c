@@ -12,7 +12,7 @@
 //changes and BMP implementation (c)1996,1997 xChaos
 struct GIFGLB  {  unsigned char sigGIF[6];    /* Globani hlavicka */
                   short unsigned int  screenwide;
-                  short unsigned int  screendeep;
+		  short unsigned int  screendeep;
                   unsigned char global;
                   unsigned char background;
                   unsigned char pixaspect;
@@ -34,7 +34,7 @@ int  ReadImgBlok(struct picinfo *gif, struct GIFIMG *GifImg,
                 int *interlac, unsigned int *cod_start, int GlbPal,
                 int *ReaPal, int *nLocPal, unsigned char *pLocPal);
 int  PalForPaleteModes(struct picinfo *gif, int *mapio, int *Mmapio[2],
-          int ReaPal, int nLocPal, unsigned char *pLocPal);
+	  int ReaPal, int nLocPal, unsigned char *pLocPal);
 void mosaic_background(struct picinfo *gif,char *obuf,int yz,int imgx);
 int  IndexToTranspCol(int TranspInx, char *Palx);
 
@@ -233,7 +233,7 @@ int drawGIF(struct picinfo *gif)
 
            //RGB001
            if(Transp && !gif->palismap && GlbPal)
-           { gif->pal[3*backg  ] = g_rT;
+	   { gif->pal[3*backg  ] = g_rT;
              gif->pal[3*backg+1] = g_gT;
              gif->pal[3*backg+2] = g_bT;
            }
@@ -242,7 +242,7 @@ int drawGIF(struct picinfo *gif)
    else if(mark == 2)     // Img. blok
    {
      ist = ReadImgBlok(gif, &GifImg, &interlac, &code_start, GlbPal,
-                       &ReaPal, &nLocPal, pLocPal);
+		       &ReaPal, &nLocPal, pLocPal);
      if((ist&1)==0)   { /*ire = 12*/ ire=1; goto Err_frame; } //mp!
      if(gif->sizeonly){ ire = 1; goto Only_sp; }
 
@@ -255,11 +255,11 @@ int drawGIF(struct picinfo *gif)
 
 
            if(ReaPal ==1)
-           { gif->pal[3*backg  ] = g_rT;
+	   { gif->pal[3*backg  ] = g_rT;
              gif->pal[3*backg+1] = g_gT;
              gif->pal[3*backg+2] = g_bT;
            }
-           else if(ReaPal == 2)
+	   else if(ReaPal == 2)
            { pLocPal[3*backg  ] = g_rT;
              pLocPal[3*backg+1] = g_gT;
              pLocPal[3*backg+2] = g_bT;
@@ -268,7 +268,7 @@ int drawGIF(struct picinfo *gif)
           //if(GifImg.screex2==GifGlb.screenwide && GifImg.screey2==GifGlb.screendeep)
           if(disp >= 2)
            bSaveBck1++;   // max. velikost s transp
-          else
+	  else
            bSaveBck2++;   // mensi nez. cele s transp
      }
 
@@ -281,7 +281,7 @@ int drawGIF(struct picinfo *gif)
 //mp!!begin
           //specialni filtry pro 16ti barevne mody
           if(egamode)
-           for(i=0; i<3*gif->npal; i++) gif->pal[i]=egafilter(gif->pal[i]);
+	   for(i=0; i<3*gif->npal; i++) gif->pal[i]=egafilter(gif->pal[i]);
           else if(vga16mode && !vgamono)
            for(i=0; i<3*gif->npal; i++) gif->pal[i]=vgafilter(gif->pal[i]);
           else
@@ -311,7 +311,7 @@ int drawGIF(struct picinfo *gif)
        else  // musim ji vyrobit
        { mapio=farmalloc(1024*sizeof(int)); if(!mapio) return(2);
          ist = PalForPaleteModes(gif, mapio, Mmapio, ReaPal, nLocPal, pLocPal);
-         if(ist != 1) { /*ire=ist*/ ire=1; goto Err_frame;} //mp!
+	 if(ist != 1) { /*ire=ist*/ ire=1; goto Err_frame;} //mp!
        }
 
 #ifdef XANIMGIF
@@ -320,7 +320,7 @@ int drawGIF(struct picinfo *gif)
          ist = XInitImgXms(gif, NumImg, Transp, TraCol, tAnim, disp);
          if(ist != 1)  // Neni misto v XMS : prepnout na screen a znovu
          { goto Prepni;
-         }
+	 }
        }
 #endif
 
@@ -333,11 +333,11 @@ int drawGIF(struct picinfo *gif)
        if( ReaPal==2 )
         pAktpal = (char *) pLocPal;
        else
-        pAktpal = (char *)gif->pal;
+	pAktpal = (char *)gif->pal;
 #ifdef XANIMGIF
        if(g_gifDrawXms == 0)
        { TraCol = IndexToTranspCol((int)gif->bgindex, pAktpal);
-         ist = XInitImgXms(gif, NumImg, Transp, TraCol, tAnim, disp);
+	 ist = XInitImgXms(gif, NumImg, Transp, TraCol, tAnim, disp);
          if(ist != 1)  // neni XMS ?
          { Prepni:
            a_close(filx); goto New_read_gif;
@@ -385,11 +385,11 @@ int drawGIF(struct picinfo *gif)
            g_TableAnim[g_NumAnim].NextAnim = 0;        // Cas pristi animace
 
            // SaveBck : Ulozit background ?
-           if(bSaveBck1 /*&& bSaveBck2*/)
+	   if(bSaveBck1 /*&& bSaveBck2*/)
            { ist = XSaveBackToXMS(gif, GifGlb.screenwide, GifGlb.screendeep, &BckAdr);
              if(ist==0)
              { if(BckAdr) XGifFreeXMS(); // uvolnit alloc. XMS pro pozadi
-             }
+	     }
              else
              { gif->BckImg = BckAdr;
                swapmod = 1;
@@ -699,21 +699,21 @@ int PrepareScaleAndX(struct picinfo *gif, int NumImg, int *Prepni)
     {
       if(NumImg == 0)   // $$$ animace scale.gifu
       { g_resiz_x=gif->resize_x; g_resiz_y=gif->resize_y; // puvodni velikost resize
-        g_size_x =gif->size_x  ; g_size_y =gif->size_y;   // velikost prvniho gifu
+	g_size_x =gif->size_x  ; g_size_y =gif->size_y;   // velikost prvniho gifu
       }
       else
       { if(gif->size_x==g_size_x && gif->size_y==g_size_y) // stejny jako prvni
-        { gif->resize_x=g_resiz_x; gif->resize_y=g_resiz_y;
-        }
-        else  // jina (mensi) velikost => nove resize_ a offsety
-        { double pomx,pomy;
-          pomx = (double)g_resiz_x/(double)g_size_x;
-          pomy = (double)g_resiz_y/(double)g_size_y;
-          gif->resize_x = RoundGE(pomx*gif->size_x);
-          gif->resize_y = RoundGE(pomy*gif->size_y);
-          gif->offx1 = RoundGE(pomx*gif->offx1);
-          gif->offy1 = RoundGE(pomy*gif->offy1);
-        }
+	{ gif->resize_x=g_resiz_x; gif->resize_y=g_resiz_y;
+	}
+	else  // jina (mensi) velikost => nove resize_ a offsety
+	{ double pomx,pomy;
+	  pomx = (double)g_resiz_x/(double)g_size_x;
+	  pomy = (double)g_resiz_y/(double)g_size_y;
+	  gif->resize_x = RoundGE(pomx*gif->size_x);
+	  gif->resize_y = RoundGE(pomy*gif->size_y);
+	  gif->offx1 = RoundGE(pomx*gif->offx1);
+	  gif->offy1 = RoundGE(pomy*gif->offy1);
+	}
       }
       Size = (long)gif->resize_x * (long)gif->resize_y;
       dxo = gif->resize_x; dyo = gif->resize_y;
@@ -736,7 +736,14 @@ int PrepareScaleAndX(struct picinfo *gif, int NumImg, int *Prepni)
     { g_gifDrawXms = 0;
     }
     else
-    { goto Obrazovka;
+    {
+#ifdef RAY
+    if ((g_FreeAnim + SizeXms) > user_interface.xms4onegif)
+    {
+     Piip();
+    }
+#endif
+     goto Obrazovka;
     }
     gif->x1gif = 0;
     gif->dxgif = dxo;

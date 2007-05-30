@@ -111,6 +111,10 @@ char *ArachneDIAL(void)
  char buf[5*IE_MAXLEN];
  char altnameserver[IE_MAXLEN];
  char *altdns="\0";
+//!!glennmcc: Mar 06, 2006 -- allow use of %DNS1 with miniterm/epppd
+ char nameserver[IE_MAXLEN];
+ char *dns="\0";
+//!!glennmcc: end
 
  process_form(0,IE_NULL); //updateovat Arachne.Cfg
 
@@ -202,9 +206,26 @@ char *ArachneDIAL(void)
     base=configvariable(&ARACHNEcfg,"Base",NULL);
    }
 
+//!!glennmcc: Mar 06, 2006 -- allow use of %DNS1 with miniterm/epppd
+   dns=configvariable(&ARACHNEcfg,"NameServer",NULL);
+   if(strstr(dns,"%"))
+      makestr(dns,getenv(&dns[1]),19);
+   if(strlen(dns)>6)
+      sprintf(nameserver,"namsrv %s\n",dns);
+      else
+      strcpy(nameserver,"\0");
+//!!glennmcc: end
+
+//!!glennmcc: Mar 06, 2006 -- allow use of %DNS2 with miniterm/epppd
    altdns=configvariable(&ARACHNEcfg,"AltNameServer",NULL);
-   if(altdns)
-    sprintf(altnameserver,"namsrv %s\n",altdns);
+   if(strstr(altdns,"%"))
+      makestr(altdns,getenv(&altdns[1]),19);
+   if(strlen(altdns)>6)
+      sprintf(altnameserver,"namsrv %s\n",altdns);
+      else
+      strcpy(altnameserver,"\0");
+//!!glennmcc: end
+
 
    sprintf(buf,"\
 %s\n\
@@ -213,13 +234,18 @@ base %s\n\
 modem\n\
 crtscts\n\
 asyncmap 0\n\
-namsrv %s\n\
+%s\
 %s\
 user \"%s\"\n\
 passwd \"%s\"\n",
    configvariable(&ARACHNEcfg,"Speed",NULL),
    irq,base,
-   configvariable(&ARACHNEcfg,"NameServer",NULL),
+//!!glennmcc: Mar 06, 2006 -- allow use of %DNS1 with miniterm/epppd
+   nameserver,
+// configvariable(&ARACHNEcfg,"NameServer",NULL), //original line
+// also changed "namsrv %s\n\" to simply "%s\" above
+//(now matches altnameserver section)
+//!!glennmcc: end
    altnameserver,
    configvariable(&ARACHNEcfg,"PPPusername",NULL),
    configvariable(&ARACHNEcfg,"PPPpassword",NULL));

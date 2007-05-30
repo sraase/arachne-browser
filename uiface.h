@@ -50,7 +50,10 @@ char vfat;
  char cachefonts; //1/0
  int xms4allgifs; //KB
  long xms4onegif; //bytes
- char nohtt;
+//!!glennmcc: Feb 13, 2006 -- at Ray's suggestion,
+// changed variable name to match the keyword
+ char keephtt;
+// char nohtt;
 #ifdef GGI
 int ggifastscroll;
 #endif

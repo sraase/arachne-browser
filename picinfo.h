@@ -1,8 +1,11 @@
 
 //(c)1998 xChaos software
 
+#ifdef NOKEY
 #define URLSIZE 512 //(GPL version)
-//#define URLSIZE 480 //(UE version)
+#else
+#define URLSIZE 400 //(UE version)
+#endif
 #define MAXPALMIX 20
 
 struct picinfo

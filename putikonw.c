@@ -261,7 +261,12 @@ int PrepareIconDraw(XSWAP hSwap, unsigned int Off, char **bo, int *TrCol)
 
      BufImg = ie_getswap(hSwap);
      if(!BufImg)
-      MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//      MALLOCERR();
+//!!glennmcc: end
 
      mapio=farmalloc(512*sizeof(int));
      if(mapio == NULL) return( 0 );
@@ -327,7 +332,12 @@ void DrawIcon1(int x0, int y0, XSWAP hSwap, unsigned int Off)
 
       BufImg = ie_getswap(hSwap);
       if(!BufImg) //return on error !
-       MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return;
+//       MALLOCERR();
+//!!glennmcc: end
 
       bi1    = BufImg + Off;
 
@@ -413,7 +423,12 @@ int IsInIndex(char *iconame, XSWAP *hSwap, unsigned int *Off,
 #else
     BegSwap = ie_getswap(g_hIndex);
     if(!BegSwap)
-     MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//     MALLOCERR();
+//!!glennmcc
     IknInx = (struct IknIndex *)BegSwap;
 #endif     
 
@@ -457,7 +472,12 @@ int AddToList(int x0, int y0, int JeVinx)
 #else
     BegSwap = ie_getswap(g_hIndex);
     if(!BegSwap)
-     MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//     MALLOCERR();
+//!!glennmcc: end
     IknInx = (struct IknIndex *)BegSwap;
     IknLst = (struct IknList *)(BegSwap+g_BegList);
 #endif
@@ -489,7 +509,12 @@ int  AddIconToIndex(char *iconame, XSWAP hSwap,
 #else
     BegSwap = ie_getswap(g_hIndex);
     if(!BegSwap)
-     MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//     MALLOCERR();
+//!!glennmcc: end
     IknInx = (struct IknIndex *)BegSwap;
 #endif     
 
@@ -539,7 +564,12 @@ char *MemIconImg(unsigned int Len, XSWAP *hSwap, unsigned int *Off, int *Up)
 
    BufImg = ie_getswap(g_AktImgSwap);
    if(!BufImg)
-     MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//     MALLOCERR();
+//!!glennmcc: end
 
    RetMem = BufImg + g_FreeOff;
    *hSwap = g_AktImgSwap;
@@ -1087,7 +1117,12 @@ int  GetListNext(int From, int Kolik, struct IknList *List)
 
     BegSwap = ie_getswap(g_hIndex);
     if(!BegSwap)
-     MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//     MALLOCERR();
+//!!glennmcc: end
     IknLst = (struct IknList *)(BegSwap+g_BegList);
 
     if((From + Kolik) > g_AktList)
@@ -1117,7 +1152,12 @@ int SortListIcons(void)
 
     BegSwap = ie_getswap(g_hIndex);
     if(!BegSwap)
-     MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//     MALLOCERR();
+//!!glennmcc: end
     A  = (unsigned int *)(BegSwap+g_BegList);
 
     if(g_AktList <= 1) return( 1 );

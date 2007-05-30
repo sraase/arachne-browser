@@ -24,7 +24,11 @@ Notes for translators:
 //!!glennmcc: June 22, 2002 ... spelling correction "succesfuly->successfully" ;-)
 
 #define MSG_START  "\nArachne V%s%s is taking off...\n%s\n"
+#ifdef NOKEY
+#define MSG_END    "\nArachne V%s%s%s\n%s has just successfully collapsed to DOS...\n%s\n\n"
+#else
 #define MSG_END    "\nArachne V%s%s%s has just successfully collapsed to DOS...\n%s\n\n"
+#endif
 #define MSG_ENDX   "Arachne has just successfully collapsed...\n\n"
 #define MSG_MEM    "Arachne is out of conventional (low) DOS memory"
 #define MSG_MEMERR "Arachne is out of memory - malloc() failed.\n"

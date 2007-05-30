@@ -13,7 +13,7 @@ void makehttfilename(char *locname, char *httname)
 #ifdef POSIX
 #ifdef CLEMENTINE
  char *endp;
- 
+
  strcpy(httname,locname);
  endp=strrchr(httname,'.');
  if (endp)
@@ -70,7 +70,7 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
  char cachefull=0;
  long largest=0;
  long lastseen;
- 
+
  absURL->kotva[0]='\0';
  url2str(absURL,cacheitem->URL);
  absURL->kotva[0]=firstkotva;
@@ -113,7 +113,9 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
  }//endif newfilename
 
 #ifndef POSIX
- cachefull=lastdiskspace(cacheitem->locname)<user_interface.mindiskspace;
+//!!glennmcc: Mar 18, 2006 -- check the drive containing 'cachepath'
+ cachefull=lastdiskspace(cachepath)<user_interface.mindiskspace;
+// cachefull=lastdiskspace(cacheitem->locname)<user_interface.mindiskspace;
 #endif
 #ifdef CLEMENTINE
  cachefull=getfreespace("/cache")<0x80000;
@@ -124,7 +126,12 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
  {
   cacheptr=(struct HTTPrecord *)ie_getswap(HTTPcache.lineadr[HTTPcache.cur]);
   if(!cacheptr)
-    MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//    MALLOCERR();
+//!!glennmcc: end
   if(!strcmp(cacheptr->URL,cacheitem->URL))
   {
    if(!cachefull)
@@ -167,7 +174,12 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
   {
    cacheptr=(struct HTTPrecord *)ie_getswap(HTTPcache.lineadr[HTTPcache.cur]);
    if(!cacheptr)
-    MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//    MALLOCERR();
+//!!glennmcc: end
 
    if(cachefull)
    {
@@ -241,7 +253,12 @@ void UpdateFilenameInCache(XSWAP cacheadr, struct HTTPrecord *store)
 
  cacheptr=(struct HTTPrecord *)ie_getswap(cacheadr);
  if(!cacheptr)
-   MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return;
+//   MALLOCERR();
+//!!glennmcc: end
 
  if ((store->locname) && (cacheptr->locname))
     strcpy(cacheptr->locname,store->locname);
@@ -261,7 +278,12 @@ void DeleteFromCache(XSWAP cacheadr)
 
  cacheptr=(struct HTTPrecord *)ie_getswap(cacheadr);
  if(!cacheptr)
-   MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return;
+//   MALLOCERR();
+//!!glennmcc: end
 
  cacheptr->URL[0]='\0';
  cacheptr->rawname[0]='\0';
@@ -271,7 +293,18 @@ void DeleteFromCache(XSWAP cacheadr)
  swapmod=1;
 }
 
+//!!glennmcc: increased to 387 or 624 (experimental compile only)
+//works in tandom with the increase of LINES define in init.c
+//and history file size in main.c
+#ifdef NOKEY
 #define MAXCONV 255
+#else
+#ifdef EXPMAX
+#define MAXCONV 624
+#else
+#define MAXCONV 387
+#endif//EXPMAX
+#endif//NOKEY
 
 // =====================================================================
 // Searching HTML page for missing images  ( jpeg  images)
@@ -342,7 +375,12 @@ char NeedImage(char reload, XSWAP *from)
    if (from)
     return NeedImage(FIND_MISSING_IMAGE,NULL);
    else
-    MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//    MALLOCERR();
+//!!glennmcc: end
   }
 
   IMGatom = currentHTMLatom;
@@ -369,7 +407,12 @@ char NeedImage(char reload, XSWAP *from)
    {
     URLptr = ie_getswap(atomptr->ptr);
     if (!URLptr)
-     MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//     MALLOCERR();
+//!!glennmcc: end
    }
    else
    {
@@ -377,7 +420,12 @@ char NeedImage(char reload, XSWAP *from)
     if (img)
      URLptr = img->URL;
     else
-     MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//     MALLOCERR();
+//!!glennmcc: end
    }
 
    if (!URLptr[0])
@@ -397,6 +445,11 @@ if(type!=STYLESHEET &&
 //!!glennmcc: end
 
    AnalyseURL(URLptr,&url,IGNORE_PARENT_FRAME);
+
+//!!glennmcc: Jan 06, 2006 -- do not auto-download embeded .SWf files
+if(type==EMBED && !strncmpi(&URLptr[strlen(URLptr)-4],".SWF",4)) found=1; else
+//!!glennmcc: end
+
    found = SearchInCache(&url,&HTTPdoc,&uptr,&status);
 
    if (reload==EXPIRE_ALL_IMAGES && found && status!=LOCAL)
@@ -454,7 +507,11 @@ if(type!=STYLESHEET &&
  mouseoff();
 
 //JdS {
+#ifdef EXPMAX
+#define CMD_BUF_SIZE 49152L
+#else
 #define CMD_BUF_SIZE 32768L
+#endif
 #ifdef POSIX
  cmdbuf = malloc(CMD_BUF_SIZE);
 #else
@@ -474,14 +531,23 @@ if(type!=STYLESHEET &&
  if (willconvert) //prepare for conversion
  {
   int mode, f = -1, i = 0;
+  #ifdef EXPMAX
+  unsigned int cmdlen = 0;
+  #else
   int cmdlen = 0;
+  #endif
   char *pom;
 
   while (i<willconvert)
   {
    atomptr = (struct HTMLrecord *)ie_getswap(imageptr[i]);
    if (!atomptr)
-    MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//    MALLOCERR();
+//!!glennmcc: end
 
 //   frameID=atomptr->frameID;
    uptr = atomptr->ptr;
@@ -564,7 +630,12 @@ if(type!=STYLESHEET &&
      }
    } //if (img)
    else
-    MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return NULL;
+//    MALLOCERR();
+//!!glennmcc: end
 
    i++;
   }//loop

@@ -250,9 +250,9 @@ void HTTPcharset(char *charset)
 //   RENDER.utf8=0;
    if(strstr(charset,"utf-8")) RENDER.utf8=1;
    if(strstr(charset,"UTF-8")) RENDER.utf8=1;
-//   if(RENDER.utf8!=0)
-//    {if(strstr(my,"-8859-1")) RENDER.utf8=1;
-//     if(strstr(my,"-8859-2")) RENDER.utf8=2;}
+   if(RENDER.utf8!=0)
+    {if(strstr(my,"-8859-1")) RENDER.utf8=1;
+     if(strstr(my,"-8859-2")) RENDER.utf8=2;}
   // werner scholz end
   if(strncmpi(name,my,strlen(name)))  //!=
   {
@@ -283,7 +283,7 @@ void HTTPcharset(char *charset)
      {
       RENDER.translatecharset=1;
       makestr(GLOBAL.currentcharset,ptr,8);
-//      if(!strstr(ptr,"8859"))RENDER.utf8=0; // werner scholz Nov 8.2006
+      if(!strstr(ptr,"8859"))RENDER.utf8=0; // werner scholz Nov 8.2006
      }
      else
       GLOBAL.currentcharset[0]='\0';
@@ -507,7 +507,7 @@ void FRAMEtag(int *emptyframeset,int *previousframe)
 	    frame->scroll.xsize,
             frame->scroll.ymax,   //visible y
 	    frame->scroll.ymax,   //max y
-	    frame->scroll.xtop,
+            frame->scroll.xtop,
 	    frame->scroll.ytop,
             frame->scroll.xsize,0);//total x,y
  ResetHtmlPage(&(p->tmpframedata[newframe_target]),TEXT_HTML,1);
@@ -695,12 +695,7 @@ void verticalalign(XSWAP adr,XSWAP tbladr,char valign,long yshift)
   {
    cellatom=(struct HTMLrecord *)ie_getswap(adr);
    if(!cellatom)
-//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
-//"Page too long !" message will then be displayed
-//and the incomplete page can be viewed.
-return;
-//    MALLOCERR();
-//!!glennmcc: end
+    MALLOCERR();
    if((cellatom->type==TD || cellatom->type==TD_BACKGROUND) &&
       cellatom->linkptr==tbladr) //cell boundary atom
     return;
@@ -733,12 +728,7 @@ void closeatom_y(XSWAP adr,long absy,int padding)
    }
   }
   else
-//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
-//"Page too long !" message will then be displayed
-//and the incomplete page can be viewed.
-return;
-//   MALLOCERR();
-//!!glennmcc: end
+   MALLOCERR();
  }
 }//end if
 //!rowspan end!
@@ -772,12 +762,7 @@ void tablerow(long y,long yy,XSWAP tbladr,int padding)
 //  kbhit();
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
-//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
-//"Page too long !" message will then be displayed
-//and the incomplete page can be viewed.
-return;
-//   MALLOCERR();
-//!!glennmcc: end
+   MALLOCERR();
   currentHTMLatom=atomptr->prev;
   if(atomptr->y==y && (atomptr->type==TD || atomptr->type==TD_BACKGROUND)
      && atomptr->linkptr==tbladr)
@@ -857,12 +842,7 @@ void Deallocmem(void)
    }
   }
   else
-//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
-//"Page too long !" message will then be displayed
-//and the incomplete page can be viewed.
-return;
-//   MALLOCERR();
-//!!glennmcc: end
+   MALLOCERR();
  }//loop
 
  ie_killcontext(CONTEXT_HTML);
@@ -879,10 +859,7 @@ activeatomptr=NULL;
 //!!Bernie: end
 }
 
-//!!glennmcc: Mar 12, 2007 -- quick-n-dirty hack to support <iframe
-//test page .... http://www.auschess.org.au/
-void DummyFrame(struct Page *p,int *x, long *y, int tag)
-//void DummyFrame(struct Page *p,int *x, long *y)//originl line
+void DummyFrame(struct Page *p,int *x, long *y)
 {
  unsigned currentlink;
  char *tagarg;
@@ -890,7 +867,6 @@ void DummyFrame(struct Page *p,int *x, long *y, int tag)
  struct Url url;
  char str[URLSIZE+1];
  struct picinfo *img=farmalloc(sizeof(struct picinfo));
-// int tag;//for Iframe hack
  if(!img)
   memerr();
 
@@ -926,13 +902,7 @@ void DummyFrame(struct Page *p,int *x, long *y, int tag)
   HTMLatom.B=p->tmpframedata[p->currentframe].linkB;
   img->size_y=60;
   img->size_x=60;
-//!!glennmcc: Mar 12, 2007 -- quick-n-dirty hack to support <iframe
-//test page .... http://www.auschess.org.au/
-  if (tag==TAG_IFRAME)
-  strcpy(img->filename,"IFRAME.IKN");//new Ikon
-  else
-  strcpy(img->filename,"HTM.IKN");//original line
-//!!glennmcc: end
+  strcpy(img->filename,"HTM.IKN");
   img->URL[0]='\0';
   HTMLatom.x=*x;
   HTMLatom.y=*y;
@@ -940,16 +910,11 @@ void DummyFrame(struct Page *p,int *x, long *y, int tag)
   HTMLatom.xx=*x;
   HTMLatom.yy=*y+img->size_y;
   addatom(&HTMLatom,img,sizeof(struct picinfo),IMG,BOTTOM,0,0,currentlink,0);
-//!!glennmcc: Mar 12, 2007 -- quick-n-dirty hack to support <iframe
-//test page .... http://www.auschess.org.au/
-  if(tag!=TAG_IFRAME)
-{//for Iframe hack
   HTMLatom.x=*x+FUZZYPIX;
   HTMLatom.xx=p->docRight;
   HTMLatom.yy=*y+fonty(3,UNDERLINE);
   addatom(&HTMLatom,str,strlen(str),TEXT,BOTTOM,3,UNDERLINE,currentlink,0);
   *y+=img->size_y;
-}//for Iframe hack
 //  if(!popfont(&font,&style,&HTMLatom,&fontstack))
 //  {
    HTMLatom.R=p->tmpframedata[p->currentframe].textR;

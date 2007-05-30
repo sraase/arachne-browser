@@ -11,6 +11,8 @@
 #include "html.h"
 #include "internet.h"
 
+
+
 int renderHTML(struct Page *p)
 {
  //not specific to frames:
@@ -19,9 +21,21 @@ int renderHTML(struct Page *p)
  //specific to frames:
  int i,bflen;
 
+//!!glennmcc: July 13, 2006
+int tablecount=0;
+//!!glennmcc: end
+
 //!!glennmcc: begin Feb 24, 2002
 // (added 'bflenold' and 'retry' for use by Quick-n-dirty Fix for RDLC bug)
- int bflenold=0,retry=0;
+#ifndef NORDLC
+ int bflenold=0;
+ unsigned long int retry=0;
+#endif
+//!!glennmcc: end
+
+//!!glennmcc: July 08, 2006 -- kill any image wider than 'MaxImgWidth'
+//defaults to 2048 if variable missing from CFG
+char *maxwidth="";
 //!!glennmcc: end
 
  long fpos;
@@ -82,6 +96,14 @@ int renderHTML(struct Page *p)
  struct picinfo *img;
  long percflag;
  char *text;
+ char *value;
+
+// werner scholz Nov 08,2006  --- utf8 ---
+int utf8=0;           // utf8-sequenceflag
+unsigned char utf8_1,utf8_2,utf8_3,utf8_4;  // utf8-sequenzbytes  1...4
+int utf8_byte;        // loadpointer for utf8-sequenzbytes 1...4
+RENDER.utf8=0;
+// werner end  --- utf8 ---
 
 // --------------------------------------------------------------------------
 /* This function is called in following modes:
@@ -138,13 +160,21 @@ int renderHTML(struct Page *p)
  img=farmalloc(sizeof(struct picinfo));
  thistable=farmalloc(sizeof(struct HTMLtable));
  text=farmalloc(BUF+8);
- text[0]='\0';
+
+//!!Bernie: Mar 01, 2007 -- moved below to prevent possibility of crash 
+//text[0]='\0';
+//!!Bernie: end
+
 //#ifdef POSIX
-// newtable=thistable;
+//  newtable=thistable;
 //#endif
 
  if(!text || !thistable || !img || !tagargptr)
   memerr();
+
+//!!Bernie: Mar 01, 2007 -- moved from up above to prevent possibility of crash 
+  text[0]='\0';
+//!!Bernie: end
 
  //show some info to user
  MemInfo(NORMAL);
@@ -320,6 +350,8 @@ int renderHTML(struct Page *p)
  font=htmldata->basefontsize;
  style=htmldata->basefontstyle;
 
+ value=configvariable(&ARACHNEcfg,"WrapPre",NULL);
+ if(value && toupper(*value)=='Y') pre=0; else
  pre=plaintext;
  if(plaintext)font=SYSFONT;
 
@@ -340,12 +372,12 @@ int renderHTML(struct Page *p)
  frame->hidden=0;
 
  ScrollInit(&frame->scroll,
-            frame->scroll.xsize,
-            frame->scroll.ymax,   //visible y
-            frame->scroll.ymax,   //max y
-            frame->scroll.xtop,
-            frame->scroll.ytop,
-            frame->scroll.xsize,0);//total x,y
+       frame->scroll.xsize,
+       frame->scroll.ymax,   //visible y
+       frame->scroll.ymax,   //max y
+       frame->scroll.xtop,
+       frame->scroll.ytop,
+       frame->scroll.xsize,0);//total x,y
  ScrollButtons(&frame->scroll);
 
  if(!GLOBAL.isimage && GLOBAL.validtables==TABLES_UNKNOWN && p->html_source==HTTP_HTML)
@@ -435,7 +467,7 @@ int renderHTML(struct Page *p)
  }
 
 loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
-           //tr.: own (or separate) cycle - analyzis of HTML and plain/text
+      //tr.: own (or separate) cycle - analyzis of HTML and plain/text
   if((percflag & 0x1ff) == 0x1ff ) //kazdych 512 (tr.: for every 512)
    if(!p->rendering_target && GUITICK())
     if(GLOBAL.gotolocation || GLOBAL.abort)
@@ -448,7 +480,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
    frame->scroll.total_y=y+p->sizeRow;
 
    if(!p->rendering_target && (user_interface.quickanddirty  || noresize ||
-        !(GLOBAL.validtables==TABLES_UNKNOWN && RENDER.willadjusttables)))
+   !(GLOBAL.validtables==TABLES_UNKNOWN && RENDER.willadjusttables)))
    {
     if(y>frame->posY+frame->scroll.ysize &&
        lastredrawy+fonty(htmldata->basefontsize,0)<frame->posY+frame->scroll.ysize &&
@@ -473,13 +505,13 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     else
     {
      ScrollInit(&frame->scroll,
-                frame->scroll.xsize,
-                frame->scroll.ymax,     //visible y
-                frame->scroll.ymax,     //max y
-                frame->scroll.xtop,
-                frame->scroll.ytop,
-                frame->scroll.total_x,  //total x
-                frame->scroll.total_y); //total y
+      frame->scroll.xsize,
+      frame->scroll.ymax,     //visible y
+      frame->scroll.ymax,     //max y
+		frame->scroll.xtop,
+      frame->scroll.ytop,
+      frame->scroll.total_x,  //total x
+      frame->scroll.total_y); //total y
 
      if(frame->allowscrolling)
      {
@@ -545,7 +577,9 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
   {
 
 //!!glennmcc: begin Feb 24, 2002 (Quick-n-dirty Fix for RDLC bug)
+#ifndef NORDLC
    bflenold=bflen;
+#endif
 //!!glennmcc: end
 
    bflen=readHTML(cache,p->html_source);
@@ -558,6 +592,7 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
   }
 
 //!!glennmcc: begin Feb 24, 2002 (Quick-n-dirty Fix for RDLC bug)
+#ifndef NORDLC
 if (cache->knowsize)goto knowsize;
    if (bflenold==bflen)
    {
@@ -567,18 +602,24 @@ if (cache->knowsize)goto knowsize;
    {
     retry=0;
    }
-   if (retry>32000) //was 24000
+   if (retry>96000l) //was 32000 //was 24000
    {
     retry=0;
     goto exitloop;
    }
 knowsize:
+#endif
 //!!glennmcc: end
 
   if(RENDER.translatecharset)
    in=GLOBAL.codepage[(unsigned char)p->buf[i]];
   else
    in=(unsigned char)p->buf[i];
+
+   // werner scholz Nov 11,2006    '<' has priority and ends utf8sequence
+   if((utf8)&&(in!='<'))goto utf8start;
+   utf8=0;
+   // werner scholz  end
 
   //text/html ignoruje konce radku, uvnitr <PRE> nebo text/plain ne:
   //tr.: ignores end of line, but not in <PRE> or text/plain
@@ -621,7 +662,25 @@ knowsize:
   if(!tag)
   {
    endoftag=0;
+//!!glennmcc: July 30, 2006
+// to fix problems with '<' symbols in JS and CSS,
+//all html tags _should_ be an alphabetic character immediately following
+//that '<' symbol
+// (except for the "comment tag" '<!--' and the "slashtag" '</tag>')
+//!!glennmcc: July 31, 2006 -- modified to simply by-pass
+//spaces, numbers and all other characters up-to and including '@' (:;<=>?@)
+//Aug 02, 2006 -- causing more trouble than it's worth :(
+/*
+if((in=='<' &&
+//   (p->buf[i+1]!=' ' &&
+//    (p->buf[i+1]<'0' || p->buf[i+1]>'@')
+//    ))
+     (isalpha(p->buf[i+1]) || p->buf[i+1]=='!' || p->buf[i+1]=='/'))
+       && !plaintext) //zacatek HTMLtagu (tr.: start of HTML tag)
+*/
    if(in=='<' && !plaintext) //zacatek HTMLtagu (tr.: start of HTML tag)
+//original single line above this comment
+//!!glennmcc: end
    {
     HTMLatom.xx=x;
      HTMLatom.y=y;
@@ -658,12 +717,68 @@ knowsize:
     goto loop;
    }
 
+  // werner scholz  Nov 8,2006  ----  begin  UTF8 processing ---
+   utf8start:
+   if(RENDER.utf8==0)goto utf8end;      // jump if no utf-8  !
+   if((utf8==0)&&(in<128))goto utf8end; // no utf8-character !
+
+      if(utf8==0)          // start utf8 encoding
+       {utf8_1=in&240;     // length of utf8-sequence is given by highbyte
+   if(utf8_1==192)utf8=2;   // 2 bytes of utf8  C
+   if(utf8_1==208)utf8=2;   // 2 bytes of utf8  D
+   if(utf8_1==224)utf8=3;   // 3 bytes of utf8  E
+   if(utf8_1==240)utf8=4;   // 4 bytes of utf8  F
+   utf8_byte=1;             // Bytecounter
+   utf8_1=in;               // Load byte 1
+   utf8--;
+   if(utf8)goto loop;       // get next sequencebyte
+   goto utf8end;            // no utf8
+       }
+      if((in&192)!=128){utf8=0;goto loop;} // check sequencebyte !
+   if(utf8_byte==1) utf8_2=in;  // Load byte 2
+   if(utf8_byte==2) utf8_3=in;  // Load byte 3
+   if(utf8_byte==3) utf8_4=in;  // Load byte 4
+      utf8_byte++;         // Address next byte
+      utf8--;              // countdown to zero
+      if(utf8)goto loop;   // get next byte
+      in=utf8table(utf8_1,utf8_2,utf8_3,utf8_4); // get in from utf8table
+  utf8end:
+// Werner Scholz    --- end utf8-processing  ---
+
    //Entity (&lt;,&jt; &copy ...)
    //tr.: entities
    if(in=='&' && !plaintext && (isalpha(p->buf[i+1]) || p->buf[i+1]=='#' || i==bflen))
+//!!glennmcc: Dec 18, 2006 -- '&' followed by an alpha is only an entity
+// if there is also ';' within the next 7 characters
+//!!glennmcc: Jan 28, 2007 -- bad idea :(
+// I'll leave this here for others to have a look at.
+/*
+   if(in=='&' && !plaintext &&
+      (isalpha(p->buf[i+1]) &&
+       (
+   (p->buf[i+3]==';' ||
+    p->buf[i+3]=='<' ||  //catches entities that incorrectly end without ';'
+    p->buf[i+3]==' ') || //catches entities that incorrectly end in a space
+   (p->buf[i+4]==';' ||
+    p->buf[i+4]=='<' ||  //catches entities that incorrectly end without ';'
+    p->buf[i+4]==' ') || //catches entities that incorrectly end in a space
+   (p->buf[i+5]==';' ||
+    p->buf[i+5]=='<' ||  //catches entities that incorrectly end without ';'
+    p->buf[i+5]==' ') || //catches entities that incorrectly end in a space
+   (p->buf[i+6]==';' ||
+    p->buf[i+6]=='<' ||  //catches entities that incorrectly end without ';'
+    p->buf[i+6]==' ') || //catches entities that incorrectly end in a space
+   (p->buf[i+7]==';' ||
+    p->buf[i+7]=='<' ||  //catches entities that incorrectly end without ';'
+    p->buf[i+7]==' ')    //catches entities that incorrectly end in a space
+       )
+     || p->buf[i+1]=='#' || i==bflen))
+*/
+//!!glennmcc: end
+
    //HTML entita zacina '&'
    //uvnitr tagu by byt nemela
-   //tr.: HTML entita begins with &, this should not happen within TAG
+   //tr.: HTML entity begins with &, this should not happen within TAG
    {
     entity=1;
     entilen=0;
@@ -689,8 +804,12 @@ knowsize:
     }
    }//endif entity (tr.: entities)
 
+   if(((unsigned char)in==160)&&(!utf8)) // ASCII 160 is ALWAYS nobreak space in HTML
+   {   // werner scholz  Nov 8,2006 skip for character  'a  in  utf8 !
+/*
    if((unsigned char)in==160) // ASCII 160 is ALWAYS nobreak space in HTML
    {
+*/
     in=' ';
     lastspace=0;
     lastentity=1;
@@ -719,38 +838,38 @@ knowsize:
       {
        xsize=x-HTMLatom.x;
        if(xsize<p->docRight-p->docLeft && !pre && !nownobr && !nobr /*&&
-          (HTMLatom.x!=p->docLeft || GLOBAL.validtables)*/ || p->docRight<p->docRightEdge)
+     (HTMLatom.x!=p->docLeft || GLOBAL.validtables)*/ || p->docRight<p->docRightEdge)
        {
-        // <------------------------------------------------odsunout cely atom
-        // tr.: move out the entire atom
-        alignrow(HTMLatom.x,y,orderedlist[listdepth]);
-        y+=p->sizeRow;
+   // <------------------------------------------------odsunout cely atom
+   // tr.: move out the entire atom
+	alignrow(HTMLatom.x,y,orderedlist[listdepth]);
+   y+=p->sizeRow;
 
-        //kdyz jsou levy a pravy okraj moc blizko u sebe...
-        //tr.: if left and right margins are too close to each other
-        if(xsize>p->docRight-p->docLeft)
-         clearall(&y);
+   //kdyz jsou levy a pravy okraj moc blizko u sebe...
+	//tr.: if left and right margins are too close to each other
+   if(xsize>p->docRight-p->docLeft)
+    clearall(&y);
 
-        p->sizeTextRow=p->sizeRow=fonty(font,style);
-        x=p->docLeft+xsize;
-        HTMLatom.x=p->docLeft;
-        HTMLatom.y=y;
-        HTMLatom.xx=x;
-        HTMLatom.yy=y+p->sizeRow;
-        addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
-        HTMLatom.x=x;
-        HTMLatom.y=y;
-        txtlen=0;
-        lastspcpos=0;
-        lastspcx=x;
-        nownobr=nobr;
+   p->sizeTextRow=p->sizeRow=fonty(font,style);
+   x=p->docLeft+xsize;
+	HTMLatom.x=p->docLeft;
+   HTMLatom.y=y;
+   HTMLatom.xx=x;
+	HTMLatom.yy=y+p->sizeRow;
+   addatom(&HTMLatom,text,txtlen,TEXT,align,font,style,currentlink,0);
+   HTMLatom.x=x;
+   HTMLatom.y=y;
+	txtlen=0;
+   lastspcpos=0;
+   lastspcx=x;
+	nownobr=nobr;
        }
        else
        {
-        p->docRight+=charsize;
-        //during second pass, certain <NOBR> elements will be treated as <BR>
-        if(nobr)
-         boom=1;
+   p->docRight+=charsize;
+   //during second pass, certain <NOBR> elements will be treated as <BR>
+	if(nobr)
+	boom=1;
        }
       }
       else
@@ -784,8 +903,14 @@ knowsize:
      }
     }//endif viditelny text (tr.: visible text)
 
-//    if(in==' ' && !nbsp|| in=='/') //wrap also long unix pathnames !
-    if(in==' ' && !nbsp)//!!glennmcc: Apr 06, 2003---do not wrap long pathnames---// || in=='/') //wrap also long unix pathnames !
+#ifndef NOKEY
+// if(in==' ' && !nbsp || in=='/') //wrap also long unix pathnames !
+   if(in==' ' && !nbsp)//!!glennmcc: Apr 06, 2003---do not wrap long pathnames---
+#else
+//!!glennmcc: May 06, 2007---
+//only wrap long pathnames which are in an unordered list ( <ul> ) ---
+   if(in==' ' && !nbsp || (in=='/' && orderedlist[listdepth]<0))
+#endif
     {
      lastspcpos=txtlen;
      lastspcx=x;//-fontx(font,' ');
@@ -809,6 +934,9 @@ knowsize:
   //................................................zpracovani vnitrku tagu
   //tr.: processing tag content
   {
+//!!glennmcc: Aug 03, 2006 -- prevent problems with '<' within script or style
+   if(strncmp(pom,"--",2) && in=='>') nolt=0;
+//!!glennmcc: end
    if (in=='>' && !uvozovky && (nolt || !(comment && strncmp(pom,"--",2))))
    {
     if(param && !comment)
@@ -826,18 +954,22 @@ knowsize:
     tagname[taglen]='\0';
     tag=FastTagDetect(tagname);
 
+#ifdef TABLES
     if(tag<TAG_SLASH || tag==TAG_SLASH_TABLE)
+#else
+    if(tag<TAG_SLASH)// || tag==TAG_SLASH_TABLE)
+#endif
      endoftag=1;
 
     if(insidetag)
     {
      if((insidetag==TAG_TEXTAREA && tag!=TAG_SLASH_TEXTAREA) ||
-        (insidetag==TAG_TITLE && tag!=TAG_SLASH_TITLE) ||
-        (insidetag==TAG_STYLE && tag!=TAG_SLASH_STYLE) ||
-        (insidetag==TAG_SELECT && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
-        (insidetag==TAG_OPTION && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
-        (insidetag==TAG_SCRIPT && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT &&
-         tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS))
+   (insidetag==TAG_TITLE && tag!=TAG_SLASH_TITLE) ||
+   (insidetag==TAG_STYLE && tag!=TAG_SLASH_STYLE) ||
+   (insidetag==TAG_SELECT && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
+   (insidetag==TAG_OPTION && tag!=TAG_SLASH_SELECT && tag!=TAG_OPTION && tag!=TAG_SLASH_OPTION) ||
+   (insidetag==TAG_SCRIPT && tag!=TAG_SLASH_SCRIPT && tag!=TAG_SLASH_NOSCRIPT &&
+    tag!=TAG_SLASH_NOFRAMES && tag!=TAG_ARACHNE_BONUS))
       tag=0;
     }
 
@@ -898,28 +1030,28 @@ knowsize:
        char target;
 
        if(!strncmpi(tagarg,"mailto:",7))
-        target=findtarget(0);
+	target=findtarget(0);
        else
-        target=findtarget(basetarget);
+	target=findtarget(basetarget);
 
        //vlozit link:
        //tr.: insert link
        if(tagarg[0]!='#')
        {
-        AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
-        //tr.: entire, full, complete version/text
-        url2str(&url,text);
-        if(strstr(text,"&amp;"))
-         entity2str(text);
-        tagarg=text;
+   AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+   //tr.: entire, full, complete version/text
+   url2str(&url,text);
+   if(strstr(text,"&amp;"))
+    entity2str(text);
+	tagarg=text;
        }
 
        pushfont(font,style,&HTMLatom,&fontstack);
        sheet=locatesheet(htmldata,&tmpsheet,stylesheetadr);
        if(sheet->usehover)
-        HTMLatom.R=1;
+   HTMLatom.R=1;
        else
-        HTMLatom.R=0;
+   HTMLatom.R=0;
 
        //vyrobim si pointr na link, a od ted je vsechno link:
        //tr.: I create a pointer for link, and from now on
@@ -930,7 +1062,7 @@ knowsize:
        style|=sheet->ahrefsetbits;
        style-=(style&sheet->ahrefresetbits);
        if(sheet->ahreffontsize!=-1)
-        font=sheet->ahreffontsize;
+   font=sheet->ahreffontsize;
        HTMLatom.R=sheet->linkR;
        HTMLatom.G=sheet->linkG;
        HTMLatom.B=sheet->linkB;
@@ -962,7 +1094,11 @@ knowsize:
      break;
 
      case TAG_IMG: //<IMG>
-
+//!!glennmcc: Dec 03, 2005 - optionally do not display any remote images
+   if(((!strncmpi(cache->URL,"http:",5) || !strncmpi(cache->URL,"ftp:",4)) &&
+       configvariable(&ARACHNEcfg,"IgnoreImages",NULL)[0]=='Y'))
+      break;
+//!!glennmcc: end
      input_image=0;
      process_input_image:
      {
@@ -986,7 +1122,7 @@ knowsize:
       {
        imglink=currentlink;
        if(imglink!=IE_NULL)
-        border=1;
+   border=1;
       }
 
       if(getvar("SRC",&tagarg) && tagarg[0])
@@ -998,32 +1134,38 @@ knowsize:
        AnalyseURL(tagarg,&url,p->currentframe);
        url2str(&url,img->URL);
 
+//!!glennmcc: Nov 29, 2006 -- fix problems with '&amp;' in <img src="
+   if(strstr(img->URL,"&amp;"))
+    entity2str(img->URL);
+   tagarg=img->URL;
+//!!glennmcc: end
+
        //printf("Image URL is: %s\n",img->URL);
 
        if(QuickSearchInCache(&url,&HTTPdoc,&dummy,&status))
        {
-        strcpy(img->filename,HTTPdoc.locname);
+	strcpy(img->filename,HTTPdoc.locname);
 
-        if(img->filename[0])
-        {
-         img->sizeonly=1;
+   if(img->filename[0])
+   {
+    img->sizeonly=1;
 
-         get_extension(HTTPdoc.mime,ext);
-         //printf("image extension: %s\n",ext);
-         if(strcmpi(ext,"IKN")) // != IKN
+    get_extension(HTTPdoc.mime,ext);
+    //printf("image extension: %s\n",ext);
+    if(strcmpi(ext,"IKN")) // != IKN
          {
-          if(drawanyimage(img)==1)
-           znamrozmerx=znamrozmery=1;
-          else
-           failedGIF=1;
-         }
-         else
-         if(!cgamode)
-         {
-          img->size_y=60;
-          img->size_x=60;
-          znamrozmerx=znamrozmery=1;
-         }
+     if(drawanyimage(img)==1)
+      znamrozmerx=znamrozmery=1;
+	  else
+	   failedGIF=1;
+    }
+    else
+    if(!cgamode)
+    {
+     img->size_y=60;
+     img->size_x=60;
+     znamrozmerx=znamrozmery=1;
+    }
         }//endif nasel jsem neco (tr.: I have found something)
        }
       }
@@ -1035,18 +1177,18 @@ knowsize:
       if(getvar("ALIGN",&tagarg))
       {
        if(!strcmpi(tagarg,"TOP"))
-        imgalign = imgalign | TOP;
+   imgalign = imgalign | TOP;
        else
        if(!strcmpi(tagarg,"MIDDLE"))
-        imgalign = imgalign | MIDDLE;
+   imgalign = imgalign | MIDDLE;
        else
        if(!strcmpi(tagarg,"RIGHT"))
-        imgright=1;
+   imgright=1;
        else
        if(!strcmpi(tagarg,"LEFT"))
-        imgleft=1;
+   imgleft=1;
        else
-        imgalign = imgalign | BOTTOM;
+   imgalign = imgalign | BOTTOM;
       }
       else
        imgalign = imgalign | BOTTOM;
@@ -1068,9 +1210,9 @@ knowsize:
       if(getvar("BORDER",&tagarg))
       {
        if(*tagarg)
-        border=(char)atoi(tagarg);
+   border=(char)atoi(tagarg);
        else
-        border=1;
+   border=1;
       }
 
       if(getvar("HEIGHT",&tagarg))
@@ -1079,8 +1221,8 @@ knowsize:
        if(i<2)i=2;//!!glennmcc: Feb 15, 2005 -- fixes 'sticky mouse'
        if((!znamrozmery || i!=img->size_y) && !egamode && !vga16mode)
        {
-        img->resize_y=i;
-        img->resize_x=img->size_x;
+	img->resize_y=i;
+	img->resize_x=img->size_x;
        }
        img->size_y=i;
        znamrozmery=1;
@@ -1095,9 +1237,9 @@ knowsize:
        if(i<2)i=2;//!!glennmcc: Feb 15, 2005 -- fixes 'sticky mouse'
        if((!znamrozmerx || i!=img->size_x) && !egamode && !vga16mode)
        {
-        img->resize_x=i;
-        if(!img->resize_y)
-         img->resize_y=img->size_y;
+   img->resize_x=i;
+   if(!img->resize_y)
+    img->resize_y=img->size_y;
        }
        img->size_x=i;
        znamrozmerx=1;
@@ -1106,6 +1248,14 @@ knowsize:
       //kill adds (468x60)?
       if(user_interface.killadds && reg && img->size_x==468 && img->size_y==60)
        break;
+//!!glennmcc: July 08, 2006 -- kill any image wider than 'MaxImgWidth'
+//defaults to max 2048 if variable missing from CFG
+//min setting 100
+maxwidth=configvariable(&ARACHNEcfg,"MaxImgWidth",NULL);
+if(atoi(maxwidth)<100) strcpy(maxwidth,"2048");
+if(img->size_x>atoi(maxwidth))
+   break;
+//!!glennmcc: end
 
       if(getvar("ALT",&tagarg) || getvar("NAME",&tagarg))
       {
@@ -1135,21 +1285,29 @@ knowsize:
       if(imgleft)
       {
        if(x>p->docLeft)
-        HTMLatom.y=y+p->sizeRow;
+   HTMLatom.y=y+p->sizeRow;
        else
        {
-        HTMLatom.y=y;
-        x+=img->size_x;
+   HTMLatom.y=y;
+   x+=img->size_x;
        }
        HTMLatom.x=p->docLeft;
-       p->docLeft+=img->size_x;
-       HTMLatom.xx=p->docLeft;
+//!!glennmcc & Ray_Andrews: Nov 22, 2006 -- fix 'stair-step' effect in <DL><DT><DD> lists
+//example: http://www.cisnet.com/glennmcc/my-stuff/aligntest.htm
+if(orderedlist[listdepth])
+       HTMLatom.xx=HTMLatom.x+img->size_x; //this fixes it
+   else
+      {
+       p->docLeft+=img->size_x;  //original line
+       HTMLatom.xx=p->docLeft;   //original line
+      }
+//!!glennmcc & Ray_Andrews: end
        HTMLatom.yy=HTMLatom.y+img->size_y;
        if(HTMLatom.yy>p->docClearLeft)
-        p->docClearLeft=HTMLatom.yy;
+   p->docClearLeft=HTMLatom.yy;
 
        if(p->docLeft>p->docRight)
-        clearall(&y);
+   clearall(&y);
 
        imgalign=0; //a hlavne tady: rikam, ze uz s tim nebudu hejbat !!!
        //tr.: and mainly here: I tell you, that I won't do any more changes
@@ -1157,18 +1315,18 @@ knowsize:
       else if(imgright)
       {
        if(p->docLeft+img->size_x>p->docRight)
-        clearall(&y);
+   clearall(&y);
 
        if(p->docRight-img->size_x<x)
        {
-        clearall(&y);
-        x=p->docLeft;
+   clearall(&y);
+   x=p->docLeft;
        }
 
        if(p->docLeft+img->size_x>p->docRight)
        {
-        p->docRight+=img->size_x;
-        p->docRightEdge=p->docRight;
+   p->docRight+=img->size_x;
+   p->docRightEdge=p->docRight;
        }
 
        HTMLatom.xx=p->docRight+1;
@@ -1177,7 +1335,7 @@ knowsize:
        HTMLatom.x=p->docRight+1;
        HTMLatom.yy=y+img->size_y;
        if(HTMLatom.yy>p->docClearRight)
-        p->docClearRight=HTMLatom.yy;
+   p->docClearRight=HTMLatom.yy;
 
        imgalign=0; //a hlavne tady: rikam, ze uz s tim nebudu hejbat !!!
        //tr.: and mainly here: I tell you, that I won't do any more changes
@@ -1190,27 +1348,27 @@ knowsize:
        //tr.: does not fit into there?
        if(x+img->size_x>p->docRight)
        {
-        if(!pre && !nownobr)
-        {
+   if(!pre && !nownobr)
+	{
          if(img->size_x<=p->docRight-p->docLeft && x>p->docLeft ||
-            !tabledepth && !p->docClearLeft && !p->docClearRight)
-         {
-          alignrow(x,y,orderedlist[listdepth]);
+	    !tabledepth && !p->docClearLeft && !p->docClearRight)
+    {
+     alignrow(x,y,orderedlist[listdepth]);
           y+=p->sizeRow;
-          x=p->docLeft;
+	  x=p->docLeft;
           p->sizeRow=0; //!hned spravim (tr.: I will repair it immediately)
-         }
-         else clearall(&y);
-        }
+    }
+    else clearall(&y);
+   }
        }
 
        if(p->sizeRow<img->size_y)
         p->sizeRow=img->size_y;
 
        if(imgalign & BOTTOM)
-        p->sizeTextRow=p->sizeRow;
+   p->sizeTextRow=p->sizeRow;
        else if(imgalign & MIDDLE && p->sizeTextRow<p->sizeRow/2)
-        p->sizeTextRow=p->sizeRow/2;
+	p->sizeTextRow=p->sizeRow/2;
 
        HTMLatom.x=x;
        HTMLatom.y=y;
@@ -1259,12 +1417,12 @@ knowsize:
       {
        if(p->docClearLeft>y && p->docClearLeft>=p->docClearRight)
        {
-        y=p->docClearLeft;
+   y=p->docClearLeft;
        }
        else
        if(p->docClearRight>y)
        {
-        y=p->docClearRight;
+   y=p->docClearRight;
        }
        p->docLeft=p->docLeftEdge;
        p->docRight=p->docRightEdge;
@@ -1467,7 +1625,8 @@ knowsize:
      break;
 
      case TAG_PRE: //<PRE>
-
+ value=configvariable(&ARACHNEcfg,"WrapPre",NULL);
+ if(value && toupper(*value)=='Y'){pre=0; break;} else
      font=htmldata->basefontsize;
      style=FIXED;
      pre=1;
@@ -1506,7 +1665,7 @@ knowsize:
       if(tagarg[0]=='-')
        font-=atoi(&tagarg[1]);
       else
-        font=atoi(tagarg);
+   font=atoi(tagarg);
       if(font<1)font=1;
       if(font>8)font=8; //! tady do budoucna pocitam s rozsirenim jako Netscape!
       //here, for the future I plan extension/improvement like/similar Netscape
@@ -1605,10 +1764,10 @@ knowsize:
       if(getvar("ALIGN",&tagarg))
       {
        if(!strcmpi(tagarg,"RIGHT"))
-        hralign=RIGHT;
+   hralign=RIGHT;
        else
        if(!strcmpi(tagarg,"LEFT"))
-        hralign=LEFT;
+   hralign=LEFT;
       }
 
       if(getvar("WIDTH",&tagarg))
@@ -1634,7 +1793,7 @@ knowsize:
      }
      break;
 
-     case TAG_B: //<B>,<STRONG>,<S>
+     case TAG_B: //<B>,<STRONG>
 
      style=style | BOLD;
      fixrowsize(font,style);
@@ -1660,6 +1819,22 @@ knowsize:
      fixrowsize(font,style);
      break;
 
+//!!JDS: Feb 28, 2007 -- add support for <S> (strike)
+//(see code in htmldraw.c)
+     case TAG_S: //<S>
+
+     style=style | STRIKE;
+     fixrowsize(font,style);
+     break;
+
+     case TAG_SLASH_S:
+
+     if(style & STRIKE)
+      style -= STRIKE;
+     fixrowsize(font,style);
+     break;
+//!!JDS: end
+
      case TAG_I: //<I>,<ADDRESS>,<CITE>
 
      style=style | ITALIC;
@@ -1677,6 +1852,7 @@ knowsize:
      // =========================================================== //<TABLE>
      case TAG_TABLE:
 
+
      //hack for missing <TD> elements - Netscape's invention...
      if(tabledepth && !istd)
       goto tag_td;
@@ -1688,6 +1864,10 @@ knowsize:
       char border=0,newtab=0,tabalign=0;
       int newx,twidth,alignarg;
 
+//!!glennmcc: July 13, 2006
+tablecount++;
+if(tablecount>(MAXTABLEDEPTH*10)) goto p;
+//!!glennmcc:end
       //if there are too many nested tables, than we will give up...
       if(tabledepth>MAXTABLEDEPTH)
        goto p;
@@ -1700,10 +1880,10 @@ knowsize:
        tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
        if(tmptable)
        {
-        memcpy(tmptable,thistable,sizeof(struct HTMLtable));
-        swapmod=1;
-        tableptrstack[tabledepth]=thistableadr;
-        thistableadr=IE_NULL;
+   memcpy(tmptable,thistable,sizeof(struct HTMLtable));
+   swapmod=1;
+   tableptrstack[tabledepth]=thistableadr;
+   thistableadr=IE_NULL;
        }
       }
 
@@ -1721,21 +1901,21 @@ knowsize:
        newtab=1;
        thistableadr=ie_putswap((char *)thistable,sizeof(struct HTMLtable),CONTEXT_TABLES);
        if(thistableadr==IE_NULL)
-        goto p;
+	goto p;
 
        if(p->firstHTMLtable==IE_NULL)
-        p->firstHTMLtable=thistableadr;
+	p->firstHTMLtable=thistableadr;
 
        if(p->prevHTMLtable!=IE_NULL)
        {
-        tmptable=(struct HTMLtable *)ie_getswap(p->prevHTMLtable);
-        if(tmptable)
-        {
-         tmptable->nextHTMLtable=thistableadr;
-         swapmod=1;
-        }
-        else
-         MALLOCERR();
+   tmptable=(struct HTMLtable *)ie_getswap(p->prevHTMLtable);
+   if(tmptable)
+	{
+    tmptable->nextHTMLtable=thistableadr;
+    swapmod=1;
+   }
+	else
+    MALLOCERR();
        }
        p->prevHTMLtable=thistableadr;
 
@@ -1745,26 +1925,26 @@ knowsize:
        tmptable=(struct HTMLtable *)ie_getswap(p->nextHTMLtable);
        if(tmptable)
        {
-        memcpy(thistable,tmptable,sizeof(struct HTMLtable));
-        thistableadr=p->prevHTMLtable=p->nextHTMLtable;
-        p->nextHTMLtable=tmptable->nextHTMLtable;
+   memcpy(thistable,tmptable,sizeof(struct HTMLtable));
+   thistableadr=p->prevHTMLtable=p->nextHTMLtable;
+	p->nextHTMLtable=tmptable->nextHTMLtable;
        }
        else
-        MALLOCERR();
+	MALLOCERR();
       }
 
       //border attribute: stored both in table structure and in HTML atom...
       if(getvar("BORDER",&tagarg))
       {
        if(tagarg[0] && tagarg[0]>='0' && tagarg[0]<='9')
-        border=atoi(tagarg);
+   border=atoi(tagarg);
        else
-        border=2; // BORDER="BORDER"
+   border=2; // BORDER="BORDER"
       }
 
       //HTML/4.0 attribute: should table border be visible ?
       if(getvar("FRAME",&tagarg) && border &&
-        (toupper(tagarg[0])=='V' || toupper(tagarg[0])=='N' )) // FRAME="VOID"
+	(toupper(tagarg[0])=='V' || toupper(tagarg[0])=='N' )) // FRAME="VOID"
        border=-1;
 
       //let's do this only for NEW tables:
@@ -1772,24 +1952,24 @@ knowsize:
       {
        inittable(thistable);
        if(newtab)
-        thistable->nextHTMLtable=IE_NULL;
+   thistable->nextHTMLtable=IE_NULL;
 
        if(fixedfont)
        {
-        thistable->cellspacing=FIXEDFONTY;
-        thistable->cellpadding=0;
+	thistable->cellspacing=FIXEDFONTY;
+	thistable->cellpadding=0;
        }
        else
        {
-        if(getvar("CELLSPACING",&tagarg))
-         thistable->cellspacing=atoi(tagarg);
-        else
-         thistable->cellspacing=2;
+   if(getvar("CELLSPACING",&tagarg))
+	 thistable->cellspacing=atoi(tagarg);
+   else
+    thistable->cellspacing=2;
 
-        if(getvar("CELLPADDING",&tagarg))
-         thistable->cellpadding=atoi(tagarg);
-        else
-         thistable->cellpadding=2;
+	if(getvar("CELLPADDING",&tagarg))
+    thistable->cellpadding=atoi(tagarg);
+   else
+	 thistable->cellpadding=2;
        }
       }
 
@@ -1804,11 +1984,11 @@ knowsize:
        char *perc=strchr(tagarg,'%');
        thistable->maxwidth=try2getnum(tagarg,thistable->maxwidth);
        if(perc)
-        thistable->fixedmax=PERCENTS_FIXED_TABLE;
+       thistable->fixedmax=PERCENTS_FIXED_TABLE;
        else
        {
-        thistable->fixedmax=PIXELS_FIXED_TABLE;
-        thistable->maxwidth-=2*border;
+   thistable->fixedmax=PIXELS_FIXED_TABLE;
+	thistable->maxwidth-=2*border;
        }
       }
 
@@ -1821,7 +2001,7 @@ knowsize:
 
       //twidth is width of table, which is valid for current pass
       if(GLOBAL.validtables/* &&
-         (thistable->realwidth>thistable->maxwidth/2 || !tabledepth)*/)
+	 (thistable->realwidth>thistable->maxwidth/2 || !tabledepth)*/)
        twidth=thistable->realwidth;
       else
        twidth=thistable->maxwidth;
@@ -1830,8 +2010,8 @@ knowsize:
       HTMLatom.xx=HTMLatom.x+twidth;
 
        if(HTMLatom.xx>p->docRight &&
-          (GLOBAL.validtables!=TABLES_UNKNOWN || thistable->fixedmax==PIXELS_FIXED_TABLE))
-        clearall(&y);
+     (GLOBAL.validtables!=TABLES_UNKNOWN || thistable->fixedmax==PIXELS_FIXED_TABLE))
+	clearall(&y);
 
 // we dont really want this....
 //      if(HTMLatom.xx>p->docRight)
@@ -1841,43 +2021,43 @@ knowsize:
       if(alignarg || (align & RIGHT) || (align & CENTER))
       {
        if(GLOBAL.validtables==TABLES_UNKNOWN)
-        RENDER.willadjusttables=1;
+	RENDER.willadjusttables=1;
        if(!strcmpi(tagarg,"LEFT"))
        {
-        if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
-        {
-         thistable->maxwidth/=2;
-         twidth/=2;
-        }
-        tabalign=LEFT;
+	if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
+   {
+    thistable->maxwidth/=2;
+	 twidth/=2;
+   }
+   tabalign=LEFT;
        }
        else
        if(!strcmpi(tagarg,"RIGHT") || !alignarg && (align & RIGHT))
        {
-        if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
+	if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
         {
-         thistable->maxwidth/=2;
-         twidth/=2;
-        }
-        HTMLatom.x=p->docRight-FUZZYPIX-twidth;
-        if(HTMLatom.x<p->docLeft)
-        {
-         clearall(&y);
-         HTMLatom.x=p->docLeft;
-        }
-        HTMLatom.xx=p->docLeft+twidth;
-        tabalign=RIGHT;
+    thistable->maxwidth/=2;
+	 twidth/=2;
+   }
+   HTMLatom.x=p->docRight-FUZZYPIX-twidth;
+	if(HTMLatom.x<p->docLeft)
+   {
+    clearall(&y);
+    HTMLatom.x=p->docLeft;
+	}
+   HTMLatom.xx=p->docLeft+twidth;
+   tabalign=RIGHT;
        }
        else
        if(!strcmpi(tagarg,"CENTER") || !alignarg && (align & CENTER))
        {
-        newx=(int)(p->docRight-p->docLeft-twidth)/2;
-        if(newx<p->docLeft || GLOBAL.validtables==TABLES_UNKNOWN)
-         HTMLatom.x=p->docLeft;
-        else
-         HTMLatom.x=p->docLeft+newx;
-        HTMLatom.xx=HTMLatom.x+twidth;
-        tabalign=CENTER;
+   newx=(int)(p->docRight-p->docLeft-twidth)/2;
+   if(newx<p->docLeft || GLOBAL.validtables==TABLES_UNKNOWN)
+	 HTMLatom.x=p->docLeft;
+   else
+    HTMLatom.x=p->docLeft+newx;
+   HTMLatom.xx=HTMLatom.x+twidth;
+	tabalign=CENTER;
        }
       }
 
@@ -1978,6 +2158,7 @@ knowsize:
      }
      break;
 
+#ifdef TABLES
      case TAG_SLASH_TABLE: //</TABLE>
 
      tag_slash_table:
@@ -1992,154 +2173,154 @@ knowsize:
       {
        clearall(&y);
        if(x>p->docLeft)
-        {
-         alignrow(x,y,orderedlist[listdepth]);
-         y+=p->sizeRow;
-        }
+   {
+    alignrow(x,y,orderedlist[listdepth]);
+    y+=p->sizeRow;
+   }
 
        //uzavreni posledniho policka
        //tr.: closing the last small field
        atomptr=(struct HTMLrecord *)ie_getswap(currenttable[tabledepth]);
        if(atomptr)
        {
-        XSWAP parenttableadr=atomptr->linkptr;
+   XSWAP parenttableadr=atomptr->linkptr;
 
-        tblstart=atomptr->x;
-        tblystart=atomptr->y;
-        border=atomptr->data1;
-        tabalign=atomptr->data2;
+   tblstart=atomptr->x;
+   tblystart=atomptr->y;
+   border=atomptr->data1;
+   tabalign=atomptr->data2;
 
-        if(currentcell[tabledepth]!=IE_NULL) //uzavrit posledni ctverecek na radce
-        //tr.: close the last small square on the line
-        {
-         if(thistableadr==parenttableadr)
-          tmptable=thistable;
-         else
-          tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
+   if(currentcell[tabledepth]!=IE_NULL) //uzavrit posledni ctverecek na radce
+   //tr.: close the last small square on the line
+   {
+    if(thistableadr==parenttableadr)
+     tmptable=thistable;
+    else
+     tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
 
-         if(tmptable)
-         {
-          // fix desired table cell width data:
-          // tabledepth>1 == we are wrapped in another table cell...
-          if(p->xsum>p->maxsum)
-           p->maxsum=p->xsum;
-          if(tabledepth>1)
-          {
-           if(tdwidth[tabledepth-1] && tdwidth[tabledepth-1]<p->maxsum)
-            p->maxsum=tdwidth[tabledepth-1];
-          }
+    if(tmptable)
+    {
+     // fix desired table cell width data:
+     // tabledepth>1 == we are wrapped in another table cell...
+     if(p->xsum>p->maxsum)
+      p->maxsum=p->xsum;
+     if(tabledepth>1)
+     {
+      if(tdwidth[tabledepth-1] && tdwidth[tabledepth-1]<p->maxsum)
+       p->maxsum=tdwidth[tabledepth-1];
+     }
 
-          if(y<tdheight)
-           y=tdheight;
+     if(y<tdheight)
+      y=tdheight;
 
-          if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,
-              y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
-           RENDER.willadjusttables=1;
-          if(thistableadr!=parenttableadr)
-           swapmod=1;
+     if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,
+	 y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
+      RENDER.willadjusttables=1;
+     if(thistableadr!=parenttableadr)
+      swapmod=1;
 
-          if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
-           closeatom(currentcell[tabledepth],cellx,y);
-         }
-         else
-          MALLOCERR();
-        }
+     if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
+      closeatom(currentcell[tabledepth],cellx,y);
+    }
+    else
+     MALLOCERR();
+   }
 
-        //spocitam sirku a zjistim posledni udaje
-        //I calculate width and get the last variable
-        if(thistableadr==parenttableadr)
-         tmptable=thistable;
-        else
-        {
-         tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-           //printf("tables out of sync");
-        }
+   //spocitam sirku a zjistim posledni udaje
+   //I calculate width and get the last variable
+   if(thistableadr==parenttableadr)
+    tmptable=thistable;
+   else
+   {
+    tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
+      //printf("tables out of sync");
+   }
 
-        if(tmptable)
-        {
-         XSWAP closeptrs[MAXROWSPANTD+1];
-         long start=tmptable->tdstart,end;
-         int padding=tmptable->cellpadding;
+   if(tmptable)
+   {
+    XSWAP closeptrs[MAXROWSPANTD+1];
+    long start=tmptable->tdstart,end;
+    int padding=tmptable->cellpadding;
 
-         fixrowspan(tmptable,1,closeptrs);
-         end=tmptable->tdend;
+    fixrowspan(tmptable,1,closeptrs);
+    end=tmptable->tdend;
 
-         if(calcwidth(tmptable) && GLOBAL.validtables==TABLES_UNKNOWN)
-          RENDER.willadjusttables=1;
+    if(calcwidth(tmptable) && GLOBAL.validtables==TABLES_UNKNOWN)
+     RENDER.willadjusttables=1;
 
-         //----------------------------------------------------------------
-         //return to previous state of reneding engine - calc max. desired
-         //cell width - p->maxsum and p->xsum, where p->maxsum>=p->xsum ...
+    //----------------------------------------------------------------
+    //return to previous state of reneding engine - calc max. desired
+    //cell width - p->maxsum and p->xsum, where p->maxsum>=p->xsum ...
 
-         {
-          long desired=2*border+tmptable->realwidth+tmptable->totalxsum;
+    {
+     long desired=2*border+tmptable->realwidth+tmptable->totalxsum;
 
-          if(tmptable->fixedmax==PIXELS_FIXED_TABLE) //not percent specification!
-          {
-           desired=2*border+tmptable->maxwidth;
-          }
+     if(tmptable->fixedmax==PIXELS_FIXED_TABLE) //not percent specification!
+     {
+      desired=2*border+tmptable->maxwidth;
+     }
 
-          if(desired>p->maxsum)
-           p->maxsum=desired;
-         }
+     if(desired>p->maxsum)
+      p->maxsum=desired;
+    }
 
-         switch(tmptable->fixedmax)
-         {
-          case PIXELS_FIXED_TABLE:
-          if(maxsumstack[tabledepth-1]>p->maxsum)
-           p->maxsum=maxsumstack[tabledepth-1];
+    switch(tmptable->fixedmax)
+    {
+     case PIXELS_FIXED_TABLE:
+     if(maxsumstack[tabledepth-1]>p->maxsum)
+      p->maxsum=maxsumstack[tabledepth-1];
 
-          if(tmptable->maxwidth>p->maxsum)
-           p->maxsum=tmptable->maxwidth;
+     if(tmptable->maxwidth>p->maxsum)
+      p->maxsum=tmptable->maxwidth;
 
-          default:
-          p->xsum=0;
-          break;
+     default:
+     p->xsum=0;
+     break;
 
-          case PERCENTS_FIXED_TABLE:
-          p->xsum=p->maxsum;
-         }
+     case PERCENTS_FIXED_TABLE:
+     p->xsum=p->maxsum;
+    }
 
-         //----------------------------------------------------------------
+    //----------------------------------------------------------------
 
-         //zapsani zavrene tabulky
-         //tr.: writing closed table
+    //zapsani zavrene tabulky
+    //tr.: writing closed table
 
-         if(thistableadr==parenttableadr)
-         {
-          tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
-          if(tmptable)
-          {
-           memcpy(tmptable,thistable,sizeof(struct HTMLtable));
-          }
-         }
-         swapmod=1;
+    if(thistableadr==parenttableadr)
+    {
+     tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
+     if(tmptable)
+     {
+      memcpy(tmptable,thistable,sizeof(struct HTMLtable));
+     }
+    }
+    swapmod=1;
 
-         cellx=2*border+tmptable->realwidth;
-         celly=tmptable->tdend+tmptable->cellspacing+border;
+    cellx=2*border+tmptable->realwidth;
+    celly=tmptable->tdend+tmptable->cellspacing+border;
 
-         //dirty fix of desired width - should be already ok, but just
-         if(cellx>p->maxsum)
-           p->xsum=p->maxsum=cellx;
+    //dirty fix of desired width - should be already ok, but just
+    if(cellx>p->maxsum)
+      p->xsum=p->maxsum=cellx;
 
-         if(closeatom(currenttable[tabledepth],cellx,celly)
-            && tabalign && !GLOBAL.validtables)
-          RENDER.willadjusttables=1;
-         if(tblstart+cellx>frame->scroll.total_x)
-         {
-          frame->scroll.total_x=tblstart+cellx;
-         }
+    if(closeatom(currenttable[tabledepth],cellx,celly)
+       && tabalign && !GLOBAL.validtables)
+     RENDER.willadjusttables=1;
+    if(tblstart+cellx>frame->scroll.total_x)
+    {
+     frame->scroll.total_x=tblstart+cellx;
+    }
 
-         //zarovnam posledni radek tabulky
-         //tr.: I align the last row of the table
-         fixrowspan_y(closeptrs,end,padding);
-         tablerow(start,end,parenttableadr,padding);
-        }
-        else
-         MALLOCERR();
+    //zarovnam posledni radek tabulky
+    //tr.: I align the last row of the table
+    fixrowspan_y(closeptrs,end,padding);
+    tablerow(start,end,parenttableadr,padding);
+   }
+   else
+    MALLOCERR();
        }
        else
-        MALLOCERR();
+   MALLOCERR();
 
        //tablerightedge
        tabledepth--;
@@ -2153,35 +2334,35 @@ knowsize:
        fontstack.depth=fontstackdepth[tabledepth];
        if(tabledepth)
        {
-        thistableadr=tableptrstack[tabledepth];
-        tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
-        if(tmptable)
-         memcpy(thistable,tmptable,sizeof(struct HTMLtable));
-        else
-         MALLOCERR();
+   thistableadr=tableptrstack[tabledepth];
+   tmptable=(struct HTMLtable *)ie_getswap(thistableadr);
+   if(tmptable)
+    memcpy(thistable,tmptable,sizeof(struct HTMLtable));
+   else
+    MALLOCERR();
        }
        else
-        thistableadr=IE_NULL;
+   thistableadr=IE_NULL;
 
        if(cellx>=p->docRight-p->docLeft && tabledepth>0)
        {
-        p->docRightEdge=p->docRight=p->docLeft+cellx;
+   p->docRightEdge=p->docRight=p->docLeft+cellx;
        }
 
        align=alignstack[tabledepth];
        currentlink=IE_NULL;
        if(!popfont(&font,&style,&HTMLatom,&fontstack))
        {
-        font=htmldata->basefontsize;
-        style=htmldata->basefontstyle;
-        HTMLatom.R=htmldata->textR;
-        HTMLatom.G=htmldata->textG;
-        HTMLatom.B=htmldata->textB;
+   font=htmldata->basefontsize;
+   style=htmldata->basefontstyle;
+   HTMLatom.R=htmldata->textR;
+   HTMLatom.G=htmldata->textG;
+   HTMLatom.B=htmldata->textB;
        }
        y=celly;
 
        /*if(!tabledepth)
-        y+=fonty(font,style)/4;*/
+   y+=fonty(font,style)/4;*/
 
        invisibletag=0;
        p->sizeRow=p->sizeTextRow=0;
@@ -2189,61 +2370,61 @@ knowsize:
        nownobr=0;
        if(GLOBAL.validtables)
        {
-        if(tabalign==LEFT && cellx+FUZZYPIX<frame->scroll.total_x)
-        {
-         p->docLeft=tblstart+cellx+FUZZYPIX;
-         if(p->docRight>p->docLeft)
-         {
-          if(celly>p->docClearLeft)
-           p->docClearLeft=celly;
-          y=tblystart;
-         }
-         else
-          p->docLeft=p->docLeftEdge;
+   if(tabalign==LEFT && cellx+FUZZYPIX<frame->scroll.total_x)
+   {
+    p->docLeft=tblstart+cellx+FUZZYPIX;
+    if(p->docRight>p->docLeft)
+    {
+     if(celly>p->docClearLeft)
+      p->docClearLeft=celly;
+     y=tblystart;
+    }
+    else
+     p->docLeft=p->docLeftEdge;
 
-        }
-        else
-        if(tabalign==RIGHT && cellx+FUZZYPIX<frame->scroll.total_x)
-        {
-         p->docRight=tblstart-FUZZYPIX;
-         if(p->docRight>p->docLeft)
-         {
-          if(celly>p->docClearRight)
-           p->docClearRight=celly;
-          y=tblystart;
-         }
-         else
-          p->docRight=p->docRightEdge;
-        }
+   }
+   else
+   if(tabalign==RIGHT && cellx+FUZZYPIX<frame->scroll.total_x)
+   {
+    p->docRight=tblstart-FUZZYPIX;
+    if(p->docRight>p->docLeft)
+    {
+     if(celly>p->docClearRight)
+      p->docClearRight=celly;
+     y=tblystart;
+    }
+    else
+     p->docRight=p->docRightEdge;
+   }
        }
 
        //clear left and right ... AFTER returning to <TABLE ALIGN=.....>
        if(p->docClearRight && y>=p->docClearRight)
        {
-        p->docRight=p->docRightEdge;
-        p->docClearRight=0;
+   p->docRight=p->docRightEdge;
+   p->docClearRight=0;
        }
 
        if(p->docClearLeft && y>=p->docClearLeft)
        {
-        if(orderedlist[listdepth]==0)p->docLeft=p->docLeftEdge;
-        p->docClearLeft=0;
+   if(orderedlist[listdepth]==0)p->docLeft=p->docLeftEdge;
+   p->docClearLeft=0;
        }
 
        if(!GLOBAL.validtables && (tabalign==LEFT || tabalign==RIGHT || tabalign==CENTER))
-        RENDER.willadjusttables=1;
+   RENDER.willadjusttables=1;
 
        tdheight=y;
        x=p->docLeft;
        //fixrowsize(font,style);
        if(tabledepth)
-        istd=1;
+   istd=1;
       }
       else
        goto p;
      }
      break;
-
+#endif
      case TAG_TR: //<TR>
      case TAG_SLASH_TR: //<TR>
      case TAG_SLASH_CAPTION: //<CAPTION>
@@ -2260,10 +2441,10 @@ knowsize:
       if(getvar("VALIGN",&tagarg))
       {
        if(!strcmpi(tagarg,"TOP"))
-        valignrow=TOP;
+	valignrow=TOP;
        else
        if(!strcmpi(tagarg,"BOTTOM"))
-        valignrow=BOTTOM;
+   valignrow=BOTTOM;
       }
 
       //kvuli caption
@@ -2277,113 +2458,113 @@ knowsize:
        clearall(&y);
        if(x>p->docLeft)
        {
-        alignrow(x,y,orderedlist[listdepth]);
-        y+=p->sizeRow;
+   alignrow(x,y,orderedlist[listdepth]);
+   y+=p->sizeRow;
        }
 
        atomptr=(struct HTMLrecord *)ie_getswap(currenttable[tabledepth]);
        if(atomptr)
        {
-        XSWAP parenttableadr=atomptr->linkptr;
-        int cellx;
+   XSWAP parenttableadr=atomptr->linkptr;
+	int cellx;
 
-        //getswap musim delat pokazde, protoze tabulka je dynamicky ulozena
-        //tr.: I have to do getswap every time, becaus the table
-        //     is allocated dynamically
-        if(thistableadr==parenttableadr)
-          tmptable=thistable;
-        else
-        {
-         tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-           //printf("tables out of sync");
-        }
-        if(tmptable)
-        {
-         if(bgcolor[0])
-         {
-          try2readHTMLcolor(bgcolor,&(tmptable->rowbgR),&(tmptable->rowbgG),&(tmptable->rowbgB));
-          thistable->userowbg=1;
-         }
-         else
-         {
-          if(tmptable->usetablebg)
-          {
-           thistable->userowbg=1;
-           tmptable->rowbgR=tmptable->tablebgR;
-           tmptable->rowbgG=tmptable->tablebgG;
-           tmptable->rowbgB=tmptable->tablebgB;
-          }
-          else
-           thistable->userowbg=0;
-         }
+   //getswap musim delat pokazde, protoze tabulka je dynamicky ulozena
+	//tr.: I have to do getswap every time, becaus the table
+   //     is allocated dynamically
+   if(thistableadr==parenttableadr)
+     tmptable=thistable;
+	else
+   {
+    tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
+      //printf("tables out of sync");
+	}
+   if(tmptable)
+	{
+	 if(bgcolor[0])
+    {
+	  try2readHTMLcolor(bgcolor,&(tmptable->rowbgR),&(tmptable->rowbgG),&(tmptable->rowbgB));
+     thistable->userowbg=1;
+    }
+    else
+	 {
+     if(tmptable->usetablebg)
+     {
+      thistable->userowbg=1;
+	   tmptable->rowbgR=tmptable->tablebgR;
+      tmptable->rowbgG=tmptable->tablebgG;
+	   tmptable->rowbgB=tmptable->tablebgB;
+	  }
+     else
+	   thistable->userowbg=0;
+    }
 
-         tmptable->valignrow=valignrow;
-         if(thistableadr!=parenttableadr)
-          swapmod=1;
+    tmptable->valignrow=valignrow;
+	 if(thistableadr!=parenttableadr)
+     swapmod=1;
 
-         if(currentcell[tabledepth]!=IE_NULL)
-         {
+    if(currentcell[tabledepth]!=IE_NULL)
+	 {
 
-          // fix desired table cell width data:
-          if(p->xsum>p->maxsum)
-           p->maxsum=p->xsum;
-          if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
-           p->maxsum=tdwidth[tabledepth];
+	  // fix desired table cell width data:
+	  if(p->xsum>p->maxsum)
+      p->maxsum=p->xsum;
+	  if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
+      p->maxsum=tdwidth[tabledepth];
 
-          if(y<tdheight)
-           y=tdheight;
+     if(y<tdheight)
+	   y=tdheight;
 
-          if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
-            RENDER.willadjusttables=1;
-          if(thistableadr!=parenttableadr)
-           swapmod=1;
+     if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
+       RENDER.willadjusttables=1;
+	  if(thistableadr!=parenttableadr)
+      swapmod=1;
 
-          if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
-           closeatom(currentcell[tabledepth],cellx,y);
-          currentcell[tabledepth]=IE_NULL;
-          invisibletag=1;
-         }
-        }
-        else
-         MALLOCERR();
+	  if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
+      closeatom(currentcell[tabledepth],cellx,y);
+	  currentcell[tabledepth]=IE_NULL;
+     invisibletag=1;
+    }
+   }
+	else
+    MALLOCERR();
 
-        if(thistableadr==parenttableadr)
-         tmptable=thistable;
-        else
-        {
-         tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-           //printf("tables out of sync");
-        }
-        if(tmptable)
-        {
-         XSWAP closeptrs[MAXROWSPANTD+1];
-         long start=tmptable->tdstart,end;
+   if(thistableadr==parenttableadr)
+	 tmptable=thistable;
+   else
+	{
+	 tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
+      //printf("tables out of sync");
+	}
+   if(tmptable)
+   {
+    XSWAP closeptrs[MAXROWSPANTD+1];
+	 long start=tmptable->tdstart,end;
 
-         if(tmptable->x) //prvni <TR> ignorovat! (tr.: ignore first <TR>)
-         {
-          fixrowspan(tmptable,0,closeptrs);
-          end=tmptable->tdend;
-          tmptable->y++;
-          tmptable->x=0;
-          tmptable->tdstart=end+tmptable->cellspacing;
-          tmptable->tdend=tmptable->tdstart;
+    if(tmptable->x) //prvni <TR> ignorovat! (tr.: ignore first <TR>)
+    {
+	  fixrowspan(tmptable,0,closeptrs);
+     end=tmptable->tdend;
+	  tmptable->y++;
+	  tmptable->x=0;
+     tmptable->tdstart=end+tmptable->cellspacing;
+	  tmptable->tdend=tmptable->tdstart;
 
-          if(tmptable->tdend<tmptable->nexttdend)
-           tmptable->tdend=tmptable->nexttdend;
-          tmptable->nexttdend=tmptable->tdend;
+     if(tmptable->tdend<tmptable->nexttdend)
+      tmptable->tdend=tmptable->nexttdend;
+	  tmptable->nexttdend=tmptable->tdend;
 
-          if(thistableadr!=parenttableadr)
-           swapmod=1;//<-ulozit zmeny! (tr.: save changes)
+     if(thistableadr!=parenttableadr)
+      swapmod=1;//<-ulozit zmeny! (tr.: save changes)
 
-          fixrowspan_y(closeptrs,end,tmptable->cellpadding);
-          tablerow(start,end,parenttableadr,tmptable->cellpadding);
-         }
-        }
-        else
-         MALLOCERR();
+     fixrowspan_y(closeptrs,end,tmptable->cellpadding);
+	  tablerow(start,end,parenttableadr,tmptable->cellpadding);
+	 }
+   }
+	else
+    MALLOCERR();
        }
        else
-        MALLOCERR();
+	MALLOCERR();
       }
       else
        goto br;
@@ -2414,18 +2595,18 @@ knowsize:
       {
        if(!strcmpi(tagarg,"CENTER"))
        {
-        align=align | CENTER;
-        noalign=0;
+   align=align | CENTER;
+	noalign=0;
        }
        else
        if(!strcmpi(tagarg,"RIGHT"))
        {
-        align=align | RIGHT;
-        noalign=0;
+   align=align | RIGHT;
+   noalign=0;
        }
        else
        if(!strcmpi(tagarg,"LEFT"))
-        noalign=0;
+   noalign=0;
       }
 
       basealign[tabledepth]=align;
@@ -2437,19 +2618,19 @@ knowsize:
       {
        style=BOLD;
        if(noalign)
-        basealign[tabledepth]=align=CENTER;
+   basealign[tabledepth]=align=CENTER;
       }
       else
       if(tag==TAG_CAPTION)
       {
        if(!GLOBAL.validtables)
-          RENDER.willadjusttables=1;
+     RENDER.willadjusttables=1;
        style=BOLD;
        if(noalign)
-        basealign[tabledepth]=align=CENTER;
+   basealign[tabledepth]=align=CENTER;
        caption=1;
        if(!GLOBAL.validtables)
-        invisibletag=1;
+   invisibletag=1;
       }
       else
        style=sheet->basefontstyle;
@@ -2467,228 +2648,239 @@ knowsize:
        valign=-1;
        if(getvar("VALIGN",&tagarg))
        {
-        if(!strcmpi(tagarg,"TOP"))
-         valign=TOP;
-        else
-        if(!strcmpi(tagarg,"BOTTOM"))
-         valign=BOTTOM;
-        else
-         valign=MIDDLE;
+	if(!strcmpi(tagarg,"TOP"))
+	 valign=TOP;
+   else
+	if(!strcmpi(tagarg,"BOTTOM"))
+	 valign=BOTTOM;
+	 else
+	 valign=MIDDLE;
        }
 
        if(getvar("NOWRAP",&tagarg))
-        nobr=1;
-       else
-        nobr=0;
+	nobr=1;
+	else
+	nobr=0;
 
        if(getvar("COLSPAN",&tagarg))
        {
-        xspan=atoi(tagarg);
+	xspan=atoi(tagarg);
        }
 
        if(getvar("ROWSPAN",&tagarg))
        {
-        yspan=atoi(tagarg);
+	yspan=atoi(tagarg);
        }
 
-       if(getvar("BGCOLOR",&tagarg))
+//!!glennmcc: Nov 30, 2005 -- compensate for 'empty' bgcolor
+//such-as <td bgcolor=>
+   if(getvar("BGCOLOR",&tagarg) && strlen(tagarg)>=3 && strcmpi(&tagarg[1]," ")>0)
+//       if(getvar("BGCOLOR",&tagarg)) //original line
+//!!glennmcc: end
        {
-        try2readHTMLcolor(tagarg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
-        bgcolor=1;
+   try2readHTMLcolor(tagarg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
+   bgcolor=1;
        }
 
        if(getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode)
        {
-        AnalyseURL(tagarg,&url,p->currentframe);
-        url2str(&url,img->URL);
-        init_picinfo(img);
-        img->URL[URLSIZE-1]='\0';
+   AnalyseURL(tagarg,&url,p->currentframe);
+	url2str(&url,img->URL);
+   init_picinfo(img);
+	img->URL[URLSIZE-1]='\0';
        }
 
       if(getvar("HEIGHT",&tagarg) && yspan==1)
        newtdheight=try2getnum(tagarg,0);
 
        if(getvar("WIDTH",&tagarg))
-        makestr(widthstr,tagarg,SHORTSTR);
+	makestr(widthstr,tagarg,SHORTSTR);
 
       }
 
       nownobr=0;
 
       if(tabledepth && currenttable[tabledepth]!=IE_NULL &&
-         !(caption && !GLOBAL.validtables))
+	 !(caption && !GLOBAL.validtables))
       {
        atomptr=(struct HTMLrecord *)ie_getswap(currenttable[tabledepth]);
        if(atomptr)
        {
-        char border=atomptr->data1;
-        int tblx=atomptr->x;
-        XSWAP parenttableadr=atomptr->linkptr;
+   char border=atomptr->data1;
+	int tblx=atomptr->x;
+   XSWAP parenttableadr=atomptr->linkptr;
 
-        if(thistableadr==parenttableadr)
-         tmptable=thistable;
-        else
-        {
-         tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-           //printf("tables out of sync");
-        }
-        if(tmptable)
-        {
-         if(sheet->usetdbgcolor)
-         {
-          HTMLatom.R=sheet->tdbgR;
-          HTMLatom.G=sheet->tdbgG;
-          HTMLatom.B=sheet->tdbgB;
-          bgcolor=1;
-         }
-         else
-         if(!bgcolor && tmptable->userowbg)
-         {
-          HTMLatom.R=tmptable->rowbgR;
-          HTMLatom.G=tmptable->rowbgG;
-          HTMLatom.B=tmptable->rowbgB;
-          bgcolor=1;
-         }
+   if(thistableadr==parenttableadr)
+	 tmptable=thistable;
+   else
+	{
+	 tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
+      //printf("tables out of sync");
+	}
+   if(tmptable)
+   {
+    if(sheet->usetdbgcolor)
+	 {
+     HTMLatom.R=sheet->tdbgR;
+     HTMLatom.G=sheet->tdbgG;
+     HTMLatom.B=sheet->tdbgB;
+	  bgcolor=1;
+    }
+	 else
+	 if(!bgcolor && tmptable->userowbg)
+    {
+	  HTMLatom.R=tmptable->rowbgR;
+     HTMLatom.G=tmptable->rowbgG;
+     HTMLatom.B=tmptable->rowbgB;
+     bgcolor=1;
+	 }
 
-         if(valign==-1)
-          valign=tmptable->valignrow;
+    if(valign==-1)
+     valign=tmptable->valignrow;
 
-         if(widthstr[0])
-         {
-          char *percstr=strchr(widthstr,'%');
-          if(percstr && !noresize) //noresize is hack for <BODY NORESIZE>
-          {
-           *percstr='\0';
-           perc=atoi(widthstr);
-          }
-          else //special case, <BODY NORESIZE> onlye...
-          {
-           width=try2getnum(widthstr,tmptable->maxwidth-tmptable->cellspacing);
-           if(percstr)
-           {
-            width-=tmptable->cellspacing;
-           }
-          }
-         }
+    if(widthstr[0])
+	 {
+	  char *percstr=strchr(widthstr,'%');
+     if(percstr && !noresize) //noresize is hack for <BODY NORESIZE>
+	  {
+      *percstr='\0';
+      perc=atoi(widthstr);
+     }
+	  else //special case, <BODY NORESIZE> onlye...
+     {
+      width=try2getnum(widthstr,tmptable->maxwidth-tmptable->cellspacing);
+      if(percstr)
+	   {
+       width-=tmptable->cellspacing;
+	   }
+	  }
+    }
 
-         if(width<=0 || perc)
-         {
-          if(GLOBAL.validtables)
-          {
-           width=determine_new_width(tmptable,xspan);
-          }
-          else
-          {
-           width=2*tmptable->cellpadding;
-           if(!width)
-            width=1;
+    if(width<=0 || perc)
+    {
+     if(GLOBAL.validtables)
+     {
+      width=determine_new_width(tmptable,xspan);
+     }
+     else
+     {
+      width=2*tmptable->cellpadding;
+	   if(!width)
+	    width=1;
 
-           if(xspan>1 && !GLOBAL.validtables)
-            RENDER.willadjusttables=1;
-          }
-         }
+	   if(xspan>1 && !GLOBAL.validtables)
+       RENDER.willadjusttables=1;
+     }
+    }
 
-         //we are closing cell opened by previous <TD> tag: -----------
-         if(currentcell[tabledepth]!=IE_NULL)
-         {
+    //we are closing cell opened by previous <TD> tag: -----------
+    if(currentcell[tabledepth]!=IE_NULL)
+    {
 
-          // fix desired table cell width data:
-          if(p->xsum>p->maxsum)
-           p->maxsum=p->xsum;
-          if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
-           p->maxsum=tdwidth[tabledepth];
+     // fix desired table cell width data:
+	  if(p->xsum>p->maxsum)
+	   p->maxsum=p->xsum;
 
-          if(y<tdheight)
-           y=tdheight;
+     if(tdwidth[tabledepth] && tdwidth[tabledepth]<p->maxsum)
+	   p->maxsum=tdwidth[tabledepth];
 
-          if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
-            RENDER.willadjusttables=1;
-          if(thistableadr!=parenttableadr)
-           swapmod=1;
+     if(y<tdheight)
+      y=tdheight;
 
-          if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
-           closeatom(currentcell[tabledepth],cellx,y);
-         }
-         //ok, cell closed. -------------------------------------------
-        }
-        else
-         MALLOCERR();
+     if(processcell(tmptable,p->maxsum,p->docRightEdge-p->docLeftEdge+2*tmptable->cellpadding,y+tmptable->cellpadding,&cellx) && GLOBAL.validtables==TABLES_UNKNOWN)
+       RENDER.willadjusttables=1;
+     if(thistableadr!=parenttableadr)
+	   swapmod=1;
 
-        if(widthstr[0] && !perc)
-         tdwidth[tabledepth]=width; //define maximum TD width (in pixels!)
-        else
-         tdwidth[tabledepth]=0; //undefined maximum TD width - can expand
+	  if(noresize || user_interface.quickanddirty || GLOBAL.validtables!=TABLES_UNKNOWN || RENDER.willadjusttables==0) //acceleration
+	   closeatom(currentcell[tabledepth],cellx,y);
+    }
+	 //ok, cell closed. -------------------------------------------
+   }
+   else
+    MALLOCERR();
 
-        if(thistableadr==parenttableadr)
-         tmptable=thistable;
-        else
-        {
-         tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-           //printf("tables out of sync");
-        }
-        if(tmptable)
-        {
-         if(caption)
-         {
-          xspan=tmptable->columns-tmptable->x;
-          if(xspan<=0)
-           xspan=1;
-         }
+   if(widthstr[0] && !perc)
+    tdwidth[tabledepth]=width; //define maximum TD width (in pixels!)
+   else
+    tdwidth[tabledepth]=0; //undefined maximum TD width - can expand
 
-         newcell(tmptable,xspan,yspan,&HTMLatom.x,&HTMLatom.y,&width,perc,tdwidth[tabledepth]);
-         if(thistableadr!=parenttableadr)
-          swapmod=1;
-         HTMLatom.x+=tblx+border;
-         HTMLatom.xx=HTMLatom.x+width;
-         x=p->docLeftEdge=p->docLeft=HTMLatom.x+tmptable->cellpadding;
-         p->docRightEdge=p->docRight=HTMLatom.xx-tmptable->cellpadding;
-         y=HTMLatom.y+tmptable->cellpadding;
-         HTMLatom.yy=tmptable->tdend+tmptable->cellpadding;
+//!!glennmcc: May 05, 2007 -- fix problem with <td> widths when
+//one was speced in percent and the next is not speced at-all
+//eg: <td width="25%"><td>
+// perc=0;
+//!!glennmcc: end
 
-         tdheight=y+newtdheight;
+	if(thistableadr==parenttableadr)
+	 tmptable=thistable;
+   else
+	{
+    tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
+      //printf("tables out of sync");
+   }
+	if(tmptable)
+   {
+    if(caption)
+    {
+	  xspan=tmptable->columns-tmptable->x;
+     if(xspan<=0)
+	   xspan=1;
+	 }
 
-         if(caption) //nadpis (tr.: headline)
-          border=0;
+	 newcell(tmptable,xspan,yspan,&HTMLatom.x,&HTMLatom.y,&width,perc,tdwidth[tabledepth]);
+    if(thistableadr!=parenttableadr)
+     swapmod=1;
+    HTMLatom.x+=tblx+border;
+	 HTMLatom.xx=HTMLatom.x+width;
+    x=p->docLeftEdge=p->docLeft=HTMLatom.x+tmptable->cellpadding;
+    p->docRightEdge=p->docRight=HTMLatom.xx-tmptable->cellpadding;
+    y=HTMLatom.y+tmptable->cellpadding;
+	 HTMLatom.yy=tmptable->tdend+tmptable->cellpadding;
 
-         if(p->docRight-p->docLeft<FUZZYPIX) //v uzkych sloupcich nedelat bordel!
-         //tr.: don't mess up narrow tables
-          align=BOTTOM;
+	 tdheight=y+newtdheight;
 
-         if(img->URL[0])
-          addatom(&HTMLatom,img,sizeof(struct picinfo),TD_BACKGROUND,valign,border,bgcolor,parenttableadr,1);
-         else
-          addatom(&HTMLatom,"",0,TD,valign,border,bgcolor,parenttableadr,1);
+    if(caption) //nadpis (tr.: headline)
+	  border=0;
 
-         currentcell[tabledepth]=p->lastHTMLatom;
-         //!rowspan fix!
-         if(yspan>1)
-         {
-          if(thistableadr==parenttableadr)
-           tmptable=thistable;
-          else
-          {
-           tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
-           //printf("tables out of sync");
-          }
-          if(tmptable)
-          {
-           if(tmptable->x-xspan+1<MAXROWSPANTD)
-           {
-            tmptable->closerowspan[tmptable->x-xspan+1]=p->lastHTMLatom;
-            if(thistableadr!=parenttableadr)
-             swapmod=1;
-           }
-          }
-          else
-           MALLOCERR();
-         }
-         //!rowspan end!
-        }
-        else
-         MALLOCERR();
+    if(p->docRight-p->docLeft<FUZZYPIX) //v uzkych sloupcich nedelat bordel!
+    //tr.: don't mess up narrow tables
+	  align=BOTTOM;
+
+    if(img->URL[0])
+     addatom(&HTMLatom,img,sizeof(struct picinfo),TD_BACKGROUND,valign,border,bgcolor,parenttableadr,1);
+	 else
+     addatom(&HTMLatom,"",0,TD,valign,border,bgcolor,parenttableadr,1);
+
+	 currentcell[tabledepth]=p->lastHTMLatom;
+    //!rowspan fix!
+	 if(yspan>1)
+    {
+     if(thistableadr==parenttableadr)
+      tmptable=thistable;
+	  else
+     {
+      tmptable=(struct HTMLtable *)ie_getswap(parenttableadr);
+      //printf("tables out of sync");
+	  }
+     if(tmptable)
+	  {
+	   if(tmptable->x-xspan+1<MAXROWSPANTD)
+      {
+	    tmptable->closerowspan[tmptable->x-xspan+1]=p->lastHTMLatom;
+       if(thistableadr!=parenttableadr)
+	swapmod=1;
+      }
+	  }
+     else
+      MALLOCERR();
+    }
+	 //!rowspan end!
+   }
+	else
+	 MALLOCERR();
        }
        else
-        MALLOCERR();
+   MALLOCERR();
        fontstack.depth=fontstackdepth[tabledepth-1];
       } //endif uvnitr table (tr.: within table)
 
@@ -2721,7 +2913,9 @@ knowsize:
 #else // ----------------------------nouzova interpretace tabulek:
 //tr.: emergency interpretation of tables
      case TAG_TABLE:
+#ifdef TABLES
      case TAG_SLASH_TABLE:
+#endif
      case TAG_SLASH_CAPTION:
      case TAG_TR:
 
@@ -2879,6 +3073,40 @@ knowsize:
       if(getvar("URL",&tagarg))
        strcpy(value,cache->URL);
 
+//!!glennmcc: Mar 27, 2007 -- cut mailto URLs at '?'
+//and grab that subject from mailto addresses
+//mailto:someone@somewhere.net?subject=something
+//new lines needed in sendmail.ah for this feature
+//<TD ALIGN=RIGHT><B><FONT 3D>To:&nbsp;
+//<TD COLSPAN=2><INPUT TYPE=TEXT SIZE=61 NAME="$TO" TO active>
+//__________________________________________________^^ 'URI' changed to 'TO'
+//<TD ALIGN=RIGHT><B><FONT 3D>Subject:
+//<TD COLSPAN=2><INPUT TYPE=TEXT SIZE=61 NAME="$SUBJ" SUBJECT>
+//____________________________________________________^^^^^^^ 'SUBJECT' added
+      if(getvar("TO",&tagarg))
+      {
+       AnalyseURL(cache->URL,&url,p->currentframe); //(plne zneni...)
+//       strlwr(url.file);
+       if(strstr(url.file,"?"/*subject=*/))
+       makestr(value,url.file,strcspn(url.file,"?"));
+       else
+       strcpy(value,url.file);
+      }
+
+      if(getvar("SUBJECT",&tagarg))
+      {
+       AnalyseURL(cache->URL,&url,p->currentframe); //(plne zneni...)
+//       strlwr(url.file);
+       if(strstr(url.file,"?"/*subject=*/))
+       {
+       strrev(url.file);
+       makestr(value,url.file,strcspn(url.file,"="));
+       strrev(value);
+       }
+       else value[0]='\0';
+      }
+//!!glennmcc: end
+
       //end of official extensions
 
       if(getvar("VALUE",&tagarg))
@@ -2896,73 +3124,97 @@ knowsize:
       if(getvar("TYPE",&tagarg))
       {
        if(!strcmpi(tagarg,"TEXT"))
-        type=TEXT;
+   type=TEXT;
        else
        if(!strcmpi(tagarg,"PASSWORD"))
-        type=PASSWORD;
+   type=PASSWORD;
        else
        if(!strcmpi(tagarg,"SUBMIT"))    //tlacitko (tr.: button)
        {
-        type=SUBMIT;
-        butt:
-        if(!value[0])
-         strcpy(value,tagarg);
-        size=strlen(value);
+   type=SUBMIT;
+   butt:
+   if(!value[0])
+    strcpy(value,tagarg);
+   size=strlen(value);
        }
        else
        if(!strcmpi(tagarg,"RESET"))
        {
-        type=RESET;
-        goto butt;
+   type=RESET;
+   goto butt;
        }
        else
        if(!strcmpi(tagarg,"BUTTON"))
        {
-        break; //not yet implemented !
-
-//        type=BUTTON;
-//        goto butt;
+//!!glennmcc: Feb 26, 2007 -- now duplicates type=submit in our compiles
+#ifdef NOKEY
+   break; //not yet implemented ! //won't break in our compiles
+#else
+   type=SUBMIT;//new line added to duplicate type=submit in our compiles <G>
+// type=BUTTON;//had been commeneted-out
+   goto butt;  //had been commeneted-out
+#endif
+//!!glennmcc: end
        }
        else
        if(!strcmpi(tagarg,"OUTPUT"))
-        type=OUTPUT;
+   type=OUTPUT;
        else
        if(!strcmpi(tagarg,"HIDDEN"))
-        type=HIDDEN;
+   type=HIDDEN;
        else
        if(!strcmpi(tagarg,"RADIO"))
        {
-        type=RADIO;
-        size=1;
+   type=RADIO;
+   size=1;
        }
        else
        if(!strcmpi(tagarg,"CHECKBOX"))
        {
-        type=CHECKBOX;
-        size=1;
-        if(!value[0])
-         strcpy(value,"on");
+   type=CHECKBOX;
+   size=1;
+   if(!value[0])
+    strcpy(value,"on");
        }
        else
        if(!strcmpi(tagarg,"IMAGE"))
        {
-        input_image=1;
-        goto process_input_image;
+   input_image=1;
+   goto process_input_image;
        }
       }
 
-      if(getvar("CHECKED",&tagarg) || getvar("ACTIVE",&tagarg))
-       checked=1;
+//!!glennmcc: Feb 14, 2006 -- optionally ignore 'active'
+      if(getvar("CHECKED",&tagarg) || (getvar("ACTIVE",&tagarg) &&
+     configvariable(&ARACHNEcfg,"IgnoreActive",NULL)[0]!='Y'))
+//    if(getvar("CHECKED",&tagarg) || getvar("ACTIVE",&tagarg))
+      checked=1;
+//!!glennmcc: end
 
       if(getvar("NAME",&tagarg))
        makestr(name,tagarg,79);
 
+//!!glennmcc: Apr 03, 2007 -- make this frame 'active'
+//also requires <arachne nocache>
+/*
+<arachne nocache>
+<frameset cols="100%">
+<frameset rows="10,*,96">
+ <frame src="file://rule800.htm" scrolling=NO border=0>
+ <frame src="file://*.*" NAME="activeframe" scrolling=NO border=0 NORESIZE>
+ <frame src="file://control.htm" NAME="Control" scrolling=NO>
+</frameset>
+*/
+if(!strcmpi(name,"activeframe") && arachne.framescount>0)
+   p->activeframe=p->currentframe;
+//!!glennmcc: end
+
       //unsecure arachne extensions to <INPUT> tag.....................
       //allowed only for local or forced-html documents
       if(searchvar("ARACHNE") &&
-         (!strncmpi(cache->URL,"file",4) || !strncmpi(cache->URL,"mailto",4)
-          || !strncmpi(cache->URL,"about",4) || !strncmpi(cache->URL,"gui",3)
-          || p->forced_html))
+    (!strncmpi(cache->URL,"file",4) || !strncmpi(cache->URL,"mailto",4)
+     || !strncmpi(cache->URL,"about",4) || !strncmpi(cache->URL,"gui",3)
+     || p->forced_html))
        CheckArachneFormExtensions(cache,value, &checked);
 
       if(type==SUBMIT || type==RESET /*|| type==BUTTON*/)
@@ -2974,25 +3226,25 @@ knowsize:
 
        while(i<l)
        {
-        if(value[i]==' ' && spccount>2)
-        {
-         spc=1;
-         spccount++;
-        }
-        else
-         spc=0;
+   if(value[i]==' ' && spccount>2)
+   {
+    spc=1;
+    spccount++;
+   }
+   else
+    spc=0;
 
-        if(spc)
-         size+=space(BUTTONFONT);
-        else
-         size+=fontx(BUTTONFONT,0,'a');
-        i++;
+   if(spc)
+    size+=space(BUTTONFONT);
+   else
+    size+=fontx(BUTTONFONT,0,'a');
+   i++;
        }
 
        htmlfont(BUTTONFONT,0);
        maxsize=x_txwidth(value)+2*space(0);
        if(maxsize>size)
-        size=maxsize;
+   size=maxsize;
       }
       else if(type==OUTPUT)
       {
@@ -3006,46 +3258,46 @@ knowsize:
       {
        if(x+size>p->docRight && x>p->docLeft && size<p->docRight-p->docLeft && !pre && !nownobr)
        {
-        alignrow(x,y,orderedlist[listdepth]);
-        y+=p->sizeRow;
-        x=p->docLeft;
+   alignrow(x,y,orderedlist[listdepth]);
+   y+=p->sizeRow;
+   x=p->docLeft;
        }
 
        HTMLatom.x=x;
        if(tag!=TAG_BUTTON)
-        x+=size;
+   x+=size;
        else
        {
-        checked=2; //to indicate that it's button, not input ! No text shown
+   checked=2; //to indicate that it's button, not input ! No text shown
 
-        //checked & 1 ...checked/pressed
-        //checked & 2 ...it is BUTTON
+   //checked & 1 ...checked/pressed
+   //checked & 2 ...it is BUTTON
 
-        currentbuttonx=x;
-        nobr=1;
-        nownobr=0;
+   currentbuttonx=x;
+   nobr=1;
+   nownobr=0;
        }
        HTMLatom.xx=x;
        HTMLatom.y=y;
 
        if(type==CHECKBOX)
-        HTMLatom.yy=y+11+space(SYSFONT);
+   HTMLatom.yy=y+11+space(SYSFONT);
        else if(type==RADIO)
-        HTMLatom.yy=y+10+space(SYSFONT);
+   HTMLatom.yy=y+10+space(SYSFONT);
        else if(type==SUBMIT || type==RESET || type==BUTTON)
-        HTMLatom.yy=y+4+fonty(BUTTONFONT,0);
+   HTMLatom.yy=y+4+fonty(BUTTONFONT,0);
        else if(tag==TAG_BUTTON)
-        HTMLatom.yy=y;
+   HTMLatom.yy=y;
        else
-        HTMLatom.yy=y+4+fonty(SYSFONT,0);
+   HTMLatom.yy=y+4+fonty(SYSFONT,0);
 
        if(tag!=TAG_BUTTON)
        {
-        int ygap=(int)(HTMLatom.yy-HTMLatom.y)+2;
-        if(p->sizeRow<ygap)
-         p->sizeRow=ygap;
-        if(p->sizeTextRow<ygap)
-         p->sizeTextRow=ygap;
+   int ygap=(int)(HTMLatom.yy-HTMLatom.y)+2;
+   if(p->sizeRow<ygap)
+    p->sizeRow=ygap;
+   if(p->sizeTextRow<ygap)
+    p->sizeTextRow=ygap;
        }
       }
       else
@@ -3066,9 +3318,9 @@ knowsize:
       {
        int ygap=fonty(font,style);
        if(p->sizeRow<ygap)
-        p->sizeRow=ygap;
+   p->sizeRow=ygap;
        if(p->sizeTextRow<ygap)
-        p->sizeTextRow=ygap;
+   p->sizeTextRow=ygap;
        currentbutton=p->lastHTMLatom;
        currentbuttony=y;
        xshift(&x,space(0));
@@ -3118,7 +3370,6 @@ knowsize:
      break;
 
      case TAG_FORM: //<FORM>
-
      {
       char target=findtarget(basetarget);
       char method=0;
@@ -3130,40 +3381,49 @@ knowsize:
       if(getvar("METHOD",&tagarg))
       {
        if(!strcmpi(tagarg,"POST"))
-        method=1;
+   method=1;
        else
        if(!strcmpi(tagarg,"HREF"))
-        method=-1;
+   method=-1;
       }
       if(getvar("ACTION",&tagarg))
       {
        //vlozit link:
        //tr.: insert link
        if(tagarg[0]=='#' && method==-1)
-        makestr(text,tagarg,URLSIZE);
+   makestr(text,tagarg,URLSIZE);
        else
+ReAnalyse:
        {
-        AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
-        //tr.: entire text
-        url2str(&url,text);
+   AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+   //tr.: entire text
+   url2str(&url,text);
        }
        //vyrobim si pointr na link, a od ted je vsechno link:
        //tr.: I create a pointer for link, and from now on
        //     everything will be a link
+//!!glennmcc: Jan 11, 2006 -- 'backup' one step if '?' and 'action=""'
+  if(strcmpi(url.protocol,"file:") && strstr(text,"?") && strlen(tagarg)<1)
+    {strcat(tagarg,"../"); goto ReAnalyse;}
+//!!glennmcc: end
        addatom(&HTMLatom,text,strlen(text),FORM,align,target,method,IE_NULL,1);
        currentform=p->lastHTMLatom;
       }
 
 //!!glennmcc: begin: Aug 12, 2002 - use current URL if 'action' is missing from form
        else
-       *tagarg=p->currentframe;
        {
-        AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
-        //tr.: entire text
-        url2str(&url,text);
+       *tagarg=p->currentframe;
+   AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
+   //tr.: entire text
+   url2str(&url,text);
        //vyrobim si pointr na link, a od ted je vsechno link:
        //tr.: I create a pointer for link, and from now on
        //     everything will be a link
+//!!glennmcc: Jan 11, 2006 -- 'backup' one step if '?' and 'action' is missing
+  if(strcmpi(url.protocol,"file:") && strstr(text,"?"))
+    {strcat(tagarg,"../"); goto ReAnalyse;}
+//!!glennmcc: end
        addatom(&HTMLatom,text,strlen(text),FORM,align,target,method,IE_NULL,1);
        currentform=p->lastHTMLatom;
        }
@@ -3309,10 +3569,10 @@ knowsize:
        {
         char *ptr;
         memcpy(&tmpeditor,editorptr,sizeof(struct ib_editor));
-        ptr=ie_getline(&tmpeditor,0);
+   ptr=ie_getline(&tmpeditor,0);
         if(ptr)
-        {
-         ptr[0]='1';
+	{
+    ptr[0]='1';
          swapmod=1;
         }
        }
@@ -3406,8 +3666,12 @@ knowsize:
      if(getvar("WRAP",&tagarg) && toupper(tagarg[0])!='N')
       tmpeditor.wordwrap=1;
 
-     if(getvar("ACTIVE",&tagarg))
+//!!glennmcc: Feb 14, 2006 -- optionally ignore 'active'
+     if(getvar("ACTIVE",&tagarg) &&
+  configvariable(&ARACHNEcfg,"IgnoreActive",NULL)[0]!='Y')
+//   if(getvar("ACTIVE",&tagarg))
       active=1;
+//!!glennmcc: end
 
      if(rv==1)
      {
@@ -3451,8 +3715,8 @@ knowsize:
 
 //!!glennmcc: Oct 29, 2005 - optionally do not display bgimages
      if((!strncmpi(cache->URL,"file:",5) ||
-	!configvariable(&ARACHNEcfg,"BGimages",NULL) ||
-	 configvariable(&ARACHNEcfg,"BGimages",NULL)[0]=='Y') &&
+   !configvariable(&ARACHNEcfg,"BGimages",NULL) ||
+    configvariable(&ARACHNEcfg,"BGimages",NULL)[0]=='Y') &&
      getvar("BACKGROUND",&tagarg) && tagarg[0])
 //     if(getvar("BACKGROUND",&tagarg) && tagarg[0])//original single line
 //!!glennmcc: end
@@ -3572,6 +3836,10 @@ if(!http_parameters.ignorebasehref || !strncmpi(cache->URL,"file",4)){
       add2history(frame->cacheitem.URL);
       GLOBAL.nothot=1;
 
+//!!glennmcc: Mar 03, 2006 -- correct problem with <base href="">
+//which results in URL of 'http:///'
+if(strlen(tagarg)<1) strcpy(text,frame->cacheitem.URL); else
+//!!glennmcc: end
       strcpy(text,tagarg);
       entity2str(text);
       AnalyseURL(text,&url,IGNORE_PARENT_FRAME);
@@ -3625,9 +3893,9 @@ DrawTitle(0);
       if(getvar("FRAMEBORDER",&tagarg) || getvar("BORDER",&tagarg))
       {
        if(tagarg[0]=='0' || toupper(tagarg[0])=='N' || toupper(tagarg[0])=='F')
-        framewantborder=DONT_WANT_FRAMEBORDER;
+   framewantborder=DONT_WANT_FRAMEBORDER;
        else
-        framewantborder=I_WANT_FRAMEBORDER;
+   framewantborder=I_WANT_FRAMEBORDER;
       }
 
       if(getvar("ROWS",&tagarg) && strchr(tagarg,','))
@@ -3661,13 +3929,37 @@ DrawTitle(0);
      break;
 
      case TAG_FRAME: //<FRAME>
+//!!glennmcc: Mar 12, 2007 -- quick-n-dirty hack to support <iframe
+//test page .... http://www.auschess.org.au/
+     case TAG_IFRAME: //<IFRAME>
      if(user_interface.frames && emptyframeset!=-1)
       FRAMEtag(&emptyframeset,&previousframe);
      else
      {
-      DummyFrame(p,&x,&y);
+     if(tag==TAG_IFRAME)//<BR> 4 times normal height to move the Ikon down
+     //and out of the way of other items already on the page
+     {
+      p->sizeTextRow=p->sizeRow=fonty(font,style)*4; //?p->sizeRow?
+      x=p->docLeft;
+      lastspace=1;//mazat mezery (tr. spaces)
+      HTMLatom.x=x;
+      HTMLatom.y=y;
+     }
+      DummyFrame(p,&x,&y,tag);//added 'tag' to the function
+     if(tag==TAG_IFRAME)//<BR> 4 times normal height to move the rest
+     //of the items on the page out of the way of the Ikon
+     {
+      p->sizeTextRow=p->sizeRow=fonty(font,style)*4; //?p->sizeRow?
+      x=p->docLeft;
+      lastspace=1;//mazat mezery (tr. spaces)
+      HTMLatom.x=x;
+      HTMLatom.y=y;
+     }
+//    DummyFrame(p,&x,&y);//original line
+//!!glennmcc: end
       goto br;
      }
+     break;//!!ray: May 15, 2006
 
      case TAG_META:
      METAtag();
@@ -3708,8 +4000,6 @@ DrawTitle(0);
        addatom(&HTMLatom,img,sizeof(struct picinfo),EMBED,BOTTOM,0,0,IE_NULL,0);
      }
      break;
-
-//!!glennmcc: begin Jan 19, 2003
 
      case TAG_ARACHNE_BONUS:
 
@@ -3786,7 +4076,7 @@ DrawTitle(0);
     }
     else if((in=='\"' || in=='\'' && (!uvozovky || apostrof)) && (!vallen || uvozovky))
     {
-     if(argument && uvozovky)      //kvuli ' XXX="" ' (tr.: because of)
+   if(argument && uvozovky)      //kvuli ' XXX="" ' (tr.: because of)
       tagargptr[vallen++]='\0';
 
      uvozovky=1-uvozovky;
@@ -3862,8 +4152,10 @@ exitloop:
  }
  alignrow(x,y,orderedlist[listdepth]);
 
+#ifdef TABLES
  if(tabledepth && currenttable[tabledepth]!=IE_NULL)
   goto tag_slash_table;
+#endif
 
  //Arachne formatted document?
  if(noresize)
@@ -4025,5 +4317,3 @@ exitloop:
  farfree(img);
  return 1;
 }
-
-

@@ -164,6 +164,7 @@ if (strstr(buffer,"sword"))
 		  &status );		//SDL
  sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
  outs(buffer);
+
 //  printf("FTP daemon said>");
 //  puts(buffer);
 
@@ -315,8 +316,8 @@ if (strstr(buffer,"sword"))
   else
    sprintf( str, "STOR %s", url->file);
  }
-
  sock_puts(socket,(unsigned char *)str);
+if(isdir) sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Apr 10, 2007
 
  if(!retry)
  {
@@ -342,7 +343,6 @@ if (strstr(buffer,"sword"))
 			&status);	//SDL
   GlobalLogoStyle=1;		//SDL set data animation
  }
-
  //wait for "110 openning connection" (or "550 ....error....")
  sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
 		  &status );		//SDL
@@ -458,6 +458,7 @@ dataquit:
 
 dataclose:
  outs(MSG_CLOSE);
+ sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Dec 04, 2006
  sock_wait_closed( &datasocket, sock_delay, (sockfunct_t) TcpIdleFunc,
 		   &status );		//SDL
 
@@ -486,8 +487,8 @@ sock_err:
 	case 1 : /* foreign host closed */
 		 break;
 	case -1: /* timeout */
-                 sprintf(str,MSG_TCPERR, sockerr(socket));
-                 outs(str);
+		 sprintf(str,MSG_TCPERR, sockerr(socket));
+		 outs(str);
 		 break;
     }
 

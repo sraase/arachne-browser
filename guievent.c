@@ -523,8 +523,9 @@ unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
   {
    char *gotonewurl=NULL;
 //!!glennmcc: Aug 28, 2005
-if(!strcmpi(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Yes"))
-GLOBAL.backgr=2;
+//!!glennmcc: July 04, 2006 -- no longer needed
+//if(!strcmpi(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Yes"))
+//GLOBAL.backgr=2;
 //!!glennmcc: end
    switch(activeistextwindow)
    {
@@ -570,7 +571,10 @@ GLOBAL.backgr=2;
 
     if(gotoactiveatom(asc,&formID))
     {
-     link=activeislastinput();
+//!!glennmcc: July 10, 2006 -- duplicate action of F2 in forms
+//     link=gotoactiveatom(asc,&formID);
+     link=activeislastinput(); //original line
+//!!glennmcc: end
      if(link)
       goto submit;
      else
@@ -849,9 +853,10 @@ GLOBAL.backgr=2;
 //!!glennmcc: Feb 14, 2005 -- made it configurable
 //RIAD == Reload Index After Delete
 ptr=strupr(configvariable(&ARACHNEcfg,"RIAD",NULL));
-if(*ptr=='Y' && strstr(GLOBAL.location,"file:")) return reloadpage(); //reload if local
-//if(strstr(GLOBAL.location,"file:")) return reloadpage(); //reload if local
-else return 1; //do not reload if not local
+if(*ptr=='Y' && strstr(GLOBAL.location,"file:"))
+return reloadpage(); //reload if local
+else
+return 1; //do not reload if not local
    }
    else if(asc=='/' || asc==17 || key==F7) // F7 || ^Q - search for string
     return searchevent();
@@ -909,14 +914,22 @@ unlink("textarea.tmp");
 #ifdef POSIX
     strcpy(GLOBAL.location,"gui:setup.ah");
 #else
+#ifdef CAV
+    sprintf(GLOBAL.location,"file://sentmail.dgi");
+#else
     sprintf(GLOBAL.location,"file:%ssetup.htm",exepath);
+#endif
 #endif
     arachne.target=0;
     return gotoloc();
    }
    else if(asc=='O')
    {
+#ifdef CAV
+    sprintf(GLOBAL.location,"file://outbox.dgi");
+#else
     sprintf(GLOBAL.location,setupdoc,exepath);
+#endif
     arachne.target=0;
     return gotoloc();
    }
@@ -931,9 +944,10 @@ unlink("textarea.tmp");
     return gotoloc();
    }
 #ifndef CLEMTEST
+#ifndef ERIC
 //!!glennmcc: Feb 12, 2005 -- at the request of Michal H. Tyc
-//   else if(key==0x2004)//Ctrl+D
- else if(asc=='Q')
+   else if(key==0x2004)//Ctrl+D
+// else if(asc=='Q')
    {
     if(!ProcessLinks(1))
     {
@@ -943,6 +957,7 @@ unlink("textarea.tmp");
     arachne.target=0;
     return gotoloc();
    }
+#endif //ERIC
    else if(asc=='V')
    {
     int i=ProcessLinks(0);
@@ -967,12 +982,14 @@ unlink("textarea.tmp");
     return gotoloc();
    }
 #endif
+#ifndef CAV
    else if(asc=='X')
    {
     strcpy(GLOBAL.location,homepage);
     arachne.target=0;
     return gotoloc();
    }
+#endif
 //!!glennmcc: no more "negative tests" ;-)
    else if(asc=='H' || key==0x2b1c || key==0x8100) //Alt+0,Ctrl+backslash
 // else if(asc=='H' || key==0x2b1c || key==-32512) //Alt+0,Ctrl+backslash
@@ -1032,6 +1049,12 @@ unlink("textarea.tmp");
    {
     int i=0,w;
     char *ptr=" ";
+#ifdef TESTQM
+    Piip();
+    outs("Question mark key pressed, pausing 2 seconds");//MSG_TESTQM);
+    sleep(2);
+#endif
+
 #ifndef POSIX
     gotoxy(1,8);
 #endif
@@ -1092,7 +1115,10 @@ unlink("textarea.tmp");
 
     {
      int ishttp=!strncmpi(p->htmlframe[p->activeframe].cacheitem.URL,"http:",5);
-     if(ishttp && !user_interface.nohtt)
+//!!glennmcc: Feb 13, 2006 -- at Ray's suggestion,
+// changed variable name to match the keyword
+     if(ishttp && user_interface.keephtt)
+//     if(ishttp && !user_interface.nohtt)
       makehttfilename(p->htmlframe[p->activeframe].cacheitem.rawname,&GLOBAL.location[5]);
      else
      {
@@ -1110,7 +1136,9 @@ unlink("textarea.tmp");
     arachne.target=0;
     return gotoloc();
    }
-   else if(asc=='-') //decrease resolution
+//!!glennmcc: Jan 14, 2006 -- don't change vid res when on vga.htm or hgcgevga.htm
+   else if(asc=='-' && !strstr(GLOBAL.location,"vga.htm")) //decrease resolution
+// else if(asc=='-') //decrease resolution
    {
     if(!GLOBAL.allowdealloc)
     {
@@ -1122,7 +1150,9 @@ unlink("textarea.tmp");
     ChangeZoom(0,0,1);
     return 1;
    }
-   else if(asc=='+') //increase resolution
+//!!glennmcc: Jan 14, 2006 -- don't change vid res when on vga.htm or hgcgevga.htm
+   else if(asc=='+' && !strstr(GLOBAL.location,"vga.htm")) //increase resolution
+// else if(asc=='+') //increase resolution
    {
     if(!GLOBAL.allowdealloc)
     {
@@ -1223,11 +1253,30 @@ unlink("textarea.tmp");
    if(key==0x3e00)//F4
    {
     ptr=configvariable(&ARACHNEcfg,"Editor",NULL);
-    if(ptr && strcmpi(ptr,"NUL"))
+//!!Ray & !!glennmcc: Mar 07, 2007 -- use internal editor for frameset
+    if(ptr && strcmpi(ptr,"NUL") && !arachne.framescount)
+//  if(ptr && strcmpi(ptr,"NUL"))
+//!!Ray & !!glennmcc: end
     {
+//!!Ray & !!glennmcc: Mar 07, 2007 -- disable F4 when on a frameset
+//rather than an individual file/page
+//    if (arachne.framescount)
+//     {
+//      outs("F4 disabled while on a frameset, Rt-Click on a single frame to edit that frame.");
+//      return NULL;
+//     }
+//!!Ray & !!glennmcc: end
      sprintf(GLOBAL.location,"edit:%s",p->htmlframe[p->activeframe].cacheitem.locname);
      return gotoloc();
     }
+//!!Ray & !!glennmcc: Mar 07, 2007 --
+if(ptr && strcmpi(ptr,"NUL") && arachne.framescount)
+{
+outs("internal editor used for frameset pages, Rt-Click on a single frame to use external editor.");
+Piip();
+Piip();
+}
+//!!Ray & !!glennmcc: end
     GLOBAL.source=0;
     GLOBAL.validtables=0;
     strcpy(LASTlocname,p->htmlframe[p->activeframe].cacheitem.locname);
@@ -1315,9 +1364,18 @@ else if(key==12032 && !strncmpi(GLOBAL.location,"http://",7))
 //'HTTPreferer Yes' must be enabled in Arachne.cfg
 //in order for the 'referer method' to work
 //the 'check?url=' method will work even with 'HTTPreferer No'
-    sprintf(link,"http://validator.w3.org/check?uri=%s",GLOBAL.location);
-    strcpy(GLOBAL.location,link);
-//    strcpy(GLOBAL.location,"http://validator.w3.org/check/referer");
+if(!strcmpi(configvariable(&ARACHNEcfg,"HttpReferer",NULL),"Yes"))
+//method #1
+    strcpy(GLOBAL.location,"http://validator.w3.org/check/referer");
+else
+//method #2
+   {
+    char validate[URLSIZE];
+    strcpy(validate,"http://validator.w3.org/check?uri=");
+    strcat(validate,GLOBAL.location);
+    strcpy(GLOBAL.location,validate);
+   }
+
     arachne.target=0;
     return gotoloc();
    }
@@ -1334,6 +1392,20 @@ else if(key==8454)
    return GLOBAL.needrender=1;
   }
 //!!glennmcc: end
+#ifdef CAV
+   else if(key==0x1800)//Alt+O
+   {
+    sprintf(GLOBAL.location,setupdoc,exepath);
+    arachne.target=0;
+    return gotoloc();
+   }
+   else if(key==0x1f00)//Alt+S
+   {
+    sprintf(GLOBAL.location,"file:%ssetup.htm",exepath);
+    arachne.target=0;
+    return gotoloc();
+   }
+#endif
 
 #endif
    else if(key>=0x5400 && key<=0x5d00 /* &&reg*/)
@@ -1380,6 +1452,9 @@ submit:
 
     if(bioskey(2) & CTRLKEY) //nahrat na pozadi (tr.: load in background)
      GLOBAL.backgr=1;
+//!!glennmcc: July 04, 2006 -- load in background and view when complete
+     else GLOBAL.backgr=2;
+//!!glennmcc: end
     maptype=activeismap(&dx,&dy);
 #ifdef CUSTOMER_MODULE
     if(customer_URLcheck())
@@ -1454,7 +1529,7 @@ submit:
         if(mail==1)
          goback();
 	else
-         strcpy(GLOBAL.location,p->htmlframe[p->activeframe].cacheitem.URL);
+	 strcpy(GLOBAL.location,p->htmlframe[p->activeframe].cacheitem.URL);
        }
 
        if(GLOBAL.mailaction & MAIL_ATTACH)
@@ -1527,7 +1602,7 @@ submit:
       GLOBAL.source=1;
       GLOBAL.needrender=1;
       strcpy(p->htmlframe[p->activeframe].cacheitem.locname,
-             p->htmlframe[p->activeframe].cacheitem.rawname);
+	     p->htmlframe[p->activeframe].cacheitem.rawname);
       return 1;
      }
 
@@ -1610,7 +1685,7 @@ submit:
        if(methodarg[0]=='0')
         toolbarpage=0;
        else
-        toolbarpage=methodarg[0];
+	toolbarpage=methodarg[0];
        mouseoff();
        toolbar(0,0);
 #ifndef XTVERSION
@@ -1628,9 +1703,12 @@ submit:
       else
       {
        if(methodarg[0]=='\'')
-        return GUIEVENT((int)methodarg[1],0);
+//!!glennmcc: Mar 18, 2006
+if(strstr(methodarg,"PrtScr")){g_PrtScr=1; return 1;} else
+//!!glennmcc: end
+	return GUIEVENT((int)methodarg[1],0);
        else
-        return GUIEVENT(atoi(methodarg),0);
+	return GUIEVENT(atoi(methodarg),0);
       }
      }
      choice=0;
@@ -1657,7 +1735,7 @@ submit:
      case CLICK_NEXT:
      //-----------------------------------------------------------------
      return gotonextpage();
-      
+
      //-----------------------------------------------------------------
      case CLICK_HOME:
      //-----------------------------------------------------------------
@@ -1873,7 +1951,7 @@ else
        {
         case 1: return scrollpageup(1);           //up
         case 2: return scrollpagedown(1);         //down
-        case 3: return scrollleft();              //left
+	case 3: return scrollleft();              //left
         case 4: return scrollright();             //right
        }//end switch
       }//end if OnScrollButton
@@ -1893,8 +1971,8 @@ else
 
        switch(s)
        {
-        case 1: return scrollpageup(0);
-        case 2: return scrollpagedown(0);
+	case 1: return scrollpageup(0);
+	case 2: return scrollpagedown(0);
         case 3: p->htmlframe[p->activeframe].posX=0;
                 redraw=2;
                 break;
@@ -1946,7 +2024,7 @@ else
     else
 
      ScrollDraw(&(p->htmlframe[p->activeframe].scroll),
-                 p->htmlframe[p->activeframe].posX, 
+		 p->htmlframe[p->activeframe].posX,
                  p->htmlframe[p->activeframe].posY);
 #endif
 
@@ -2035,5 +2113,4 @@ else
  return 0;
 
 }
-
 

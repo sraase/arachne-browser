@@ -30,6 +30,10 @@ void ArachneTCPIP(void)
  char dialer=0;
  char *value=configvariable(&ARACHNEcfg,"Connection",NULL);
 
+//!!glennmcc: Mar 06 2006
+char *dns="\0", *dns1="\0", *dns2="\0";
+//!!glennmcc: end
+
  if(!value)
  {
   tcpip=0;
@@ -149,6 +153,7 @@ void ArachneTCPIP(void)
   }
 */
 
+
   if(ipmode==MODE_PPP)
    loadrefresh=500;
 
@@ -162,11 +167,20 @@ void ArachneTCPIP(void)
    if(value) sin_mask = resolve( value );
   }
 
-  value=configvariable(&ARACHNEcfg,"NameServer",NULL);
-  if(value) _add_server( &_last_nameserver, MAX_NAMESERVERS, def_nameservers, resolve(value));
-  value=configvariable(&ARACHNEcfg,"AltNameServer",NULL);
-  if(value) _add_server( &_last_nameserver, MAX_NAMESERVERS, def_nameservers, resolve(value));
-
+//!!glennmcc: Mar 06 2006 -- modified entire section to use 'dns1' and 'dns2'
+//instead of the original 'value' in all places
+  dns1=configvariable(&ARACHNEcfg,"NameServer",NULL);
+//!!glennmcc: Dec 12, 2005 -- add NameServer %DNS1 capability
+  if(dns1 && strstr(dns1,"%")) makestr(dns,getenv(&dns1[1]),19);
+  else strcpy(dns,dns1);
+//!!glennmcc: end
+  if(dns) _add_server( &_last_nameserver, MAX_NAMESERVERS, def_nameservers, resolve(dns));
+  dns2=configvariable(&ARACHNEcfg,"AltNameServer",NULL);
+//!!glennmcc: Dec 12, 2005 -- add AltNameServer %DNS2 capability
+  if(dns2 && strstr(dns2,"%")) makestr(dns,getenv(&dns2[1]),19);
+  else strcpy(dns,dns2);
+//!!glennmcc: end
+  if(dns) _add_server( &_last_nameserver, MAX_NAMESERVERS, def_nameservers, resolve(dns));
  }//endif tcp/ip
 }
 

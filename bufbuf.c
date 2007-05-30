@@ -104,11 +104,239 @@ int h_xmove(XMOVE *p);      // umoznuje odkladat buffery liche delky
 
 char DisableXMS=0;
 
+/***********************************************************************/
+/*             Zjisteni delky odlozeneho bufferu    		       */
+/***********************************************************************/
+// Parametry :  bbuf ..... pointer pro identifikaci
+// Return    :  delka odlozeneho bufferu
+
+unsigned int sizeBuf( struct T_buf_buf *bbuf )
+{
+//   if( *bbuf == NULL ) return(0);
+//   return( ((struct T_buf_buf *)*bbuf)->size );
+ return( bbuf->size );
+}
+
+//!!Bernie: Mar 02, 2007
+/*
+Below are rewritten functions from bufbuf.c, I've rewritten them so there
+are no gotos left. As a side effect the saveBuf function should be
+somewhat faster if there isn't enough memory.
+*/
+
+int saveBuf( char *inbuf, unsigned int lenbuf, struct T_buf_buf *bb )
+{
+   int  ist;
+   char mem;
+
+   ist = get_xmem();
+   mem = 4;
+   if(ist >= 0x0200 && !DisableXMS)
+     mem = 1; // HIMEM.SYS O.K.
+
+   if(mem == 1)
+   {
+     int kby;
+//!!Bernie: Mar 04, 2007
+//!!glennmcc: Mar 04, 2007 -- this test failed
+//     kby  = lenbuf;
+   kby  = (lenbuf + 1023) / 1024;                   // from B to kB
+//!!Bernie: end
+     bb->handle = alloc_xmem(kby);
+     if(bb->handle != -1)
+     {
+       XMOVE             xmove;
+       xmove.length    = (long)lenbuf;
+       xmove.sourceH   = 0;
+       xmove.sourceOff = ptr2long(inbuf);
+       xmove.destH     = bb->handle;
+       xmove.destOff   = 0;
+
+       if(h_xmove(&xmove) < 1)
+       {
+	 DisableXMS = 1;
+	 mem = 4;
+       }
+     }
+     else
+     {
+       DisableXMS = 1;
+       mem = 4;
+     }
+   }
+
+//!!Bernie: **** warning *** Do NOT change this into a "else if"
+   if(mem == 4)
+   {
+     char         fname[80], pomstr[20];
+     struct ffblk ffblk;
+     int h;
+
+     do
+     {
+       tempinit(fname);
+
+       bb->handle = (int)clock();
+       itoa(bb->handle, pomstr, 10);
+       strcat(fname, pomstr);
+       strcat(fname, "._$B");
+     }while(!findfirst( fname, &ffblk, 0));
+
+//!!Bernie: Mar 04, 2007 --- rewite
+//old code
+/*
+     h = a_open(fname, O_CREAT | O_RDWR | O_BINARY, S_IWRITE);
+     if(h < 0)
+      return(6);
+
+     if(write(h, inbuf, lenbuf) != lenbuf)
+      return(6);
+*/
+//new code
+     h = a_open(fname, O_CREAT | O_RDWR | O_BINARY, S_IWRITE);
+     if(h < 0)
+     {
+      bb->handle = NULL;
+      return(6);
+     }
+
+     if(write(h, inbuf, lenbuf) != lenbuf)
+     {
+      bb->handle = NULL;
+      a_close(h);
+      unlink(fname);
+      return(6);
+     }
+//!!Bernie: end
+
+     a_close(h);
+   }
+
+   bb->size   = lenbuf;
+   bb->medium = mem;
+   return(1);
+}
+
+int fromBuf( char *outbuf, unsigned int from,
+	 unsigned int *lenbuf, struct T_buf_buf *bb )
+{
+   int               ist;
+   unsigned int      d;
+   char              mem;
+
+   if( bb->size <= from )
+   {
+     *lenbuf = 0;
+     return(1);
+   }
+
+   d = min( *lenbuf, bb->size - from );
+   *lenbuf = d;
+   mem = bb->medium;
+
+   if( mem == 1 )
+   {
+     XMOVE             xmove;
+     xmove.length    = (long)d;
+     xmove.sourceH   = bb->handle;
+     xmove.sourceOff = (long)from;
+     xmove.destH     = 0;
+     xmove.destOff   = ptr2long(outbuf);
+
+     if(h_xmove(&xmove) < 1)
+       return(4);
+   }
+   else
+   {
+     char fname[80], pomstr[20];
+     int h;
+
+     tempinit(fname);
+     //strcpy( fname, scratchBase );
+     itoa( bb->handle, pomstr, 10);
+     strcat( fname, pomstr);
+     strcat( fname, "._$B");
+     h = a_open( fname, O_RDONLY | O_BINARY,0);
+     if ( h < 0 )
+       return(6);
+
+     if ( from ) // shift
+     {
+       if( a_lseek( h, (long)from, SEEK_SET) < 0 )
+	 return(6);
+     }
+     ist = a_read( h, outbuf, d);
+     if ( ist != d  )
+     {
+       if ( ist < 0 )
+	 return(6);
+       *lenbuf = d;
+     }
+     a_close( h );
+   }
+   return(1);
+}
+
+//!!Bernie: Mar 04, 2007
+//the documentation for delBuf isn't correct. it never returns 2, the
+//precondition for the function is that bb isn't NULL. On the other hand
+//we never check the result anyway so we should rewrite it (once again) into:
+/***********************************************************************/
+/*                  Zruseni odlozeneho bufferu                  */
+// tr.: Delete saved buffer
+/***********************************************************************/
+// Parameters:  bb ..... pointer for identification (see getIm), != NULL
+void delBuf( struct T_buf_buf *bb )
+{
+   if(!bb->handle)
+    return;
+   if( bb->medium == 1 )
+    dealloc_xmem( bb->handle );
+   else
+   {
+     char fname[80], pomstr[20];
+
+     tempinit(fname);
+     itoa( bb->handle, pomstr, 10);
+     strcat( fname, pomstr);
+     strcat( fname, "._$B");
+     unlink( fname );
+   }
+}
+
+//old/new function ;-)
+/*
+int delBuf( struct T_buf_buf *bb )
+{
+   char              mem;
+   mem = bb->medium;
+   if( mem == 1 )
+   {
+     if (dealloc_xmem( bb->handle ) !=1 )
+       return(6);
+   }
+   else
+   {
+     char fname[80], pomstr[20];
+     tempinit(fname);
+     itoa( bb->handle, pomstr, 10);
+     strcat( fname, pomstr);
+     strcat( fname, "._$B");
+     if ( unlink( fname ) < 0 )
+       return(6);
+   }
+   return(1);
+}
+*/
+//!!Bernie: end
+
+//old functions retained below.....
+/*
 //int saveBuf( char *inbuf, unsigned int lenbuf, char far **bbuf )
 int saveBuf( char *inbuf, unsigned int lenbuf, struct T_buf_buf *bb )
 {
    int               ist, kby, ret, h;
-   char              mem, fname[80], pomstr[20];
+	   char              mem, fname[80], pomstr[20];
    struct ffblk      ffblk;
    XMOVE             xmove;
 //   struct T_buf_buf  *bb = NULL;
@@ -190,19 +418,7 @@ Ko:
 //   if ( bb != NULL ) farfree(bb);
    return(ret);
 }
-
-/***********************************************************************/
-/*             Zjisteni delky odlozeneho bufferu    		       */
-/***********************************************************************/
-// Parametry :  bbuf ..... pointer pro identifikaci
-// Return    :  delka odlozeneho bufferu
-
-unsigned int sizeBuf( struct T_buf_buf *bbuf )
-{
-//   if( *bbuf == NULL ) return(0);
-//   return( ((struct T_buf_buf *)*bbuf)->size );
- return( bbuf->size );
-}
+*/
 
 /***********************************************************************/
 /*                  Cetba z odlozeneho bufferu   		       */
@@ -221,10 +437,12 @@ unsigned int sizeBuf( struct T_buf_buf *bbuf )
 //              Nepodari-li se nacist pozadovanou delku,
 //              vrati se v lenbuf skutecne nactena delka.
 
+/*
 int fromBuf( char *outbuf, unsigned int from,
 	     unsigned int *lenbuf, struct T_buf_buf *bb )
 {
-   int               ist, /*ret,*/ h;
+   int               ist, /*ret,*/ /* h;
+___________________________________^^<-- added for commenting-out old functions
    unsigned int      d;
    char              mem, fname[80], pomstr[20];
    XMOVE             xmove;
@@ -303,13 +521,14 @@ ErrMove:
 
 ErrRead:
    return(6);
-/*
 
-Ko:
-   if ( bb != NULL ) farfree(bb);
-   return(ret);
-*/
+
+//Ko:
+//   if ( bb != NULL ) farfree(bb);
+//   return(ret);
+
 }
+*/
 
 /***********************************************************************/
 /*                  Zruseni odlozeneho bufferu   		       */
@@ -319,6 +538,7 @@ Ko:
 //              2 ........ bb je NULL
 //              6 ........ nepodarilo se zrusit
 
+/*
 int delBuf( struct T_buf_buf *bb )
 {
    int               ist, ret;
@@ -359,3 +579,4 @@ Ko:
 //   if ( bb != NULL ) farfree(bb);
    return(ret);
 }
+*/

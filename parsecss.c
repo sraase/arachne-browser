@@ -103,6 +103,8 @@ void ProcessSingleCSSItem(char *variable,char *value, char *objmap,struct TMPfra
   if(text){sheet->hoverR=textR;sheet->hoverG=textG;sheet->hoverB=textB;}
 //!!glennmcc: Mar 05, 2005
 //default to a contrast from both link color & background color
+//!!glennmcc: Mar 02, 2006 -- bad idea, did not work as intended
+/*
   else
     if(sheet->hoverR!=textR) //!!glennmcc: added Mar 23, 2005
       {
@@ -110,6 +112,7 @@ void ProcessSingleCSSItem(char *variable,char *value, char *objmap,struct TMPfra
        sheet->hoverG=(sheet->backG + sheet->linkG +100) / 2;
        sheet->hoverB=(sheet->backB + sheet->linkB +100) / 2;
        }
+*/
 //!!glennmcc: end
  }
 

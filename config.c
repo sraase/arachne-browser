@@ -425,19 +425,15 @@ the right side if the tail fix is not desired:
 //!!glennmcc:end
 
  value=configvariable(&ARACHNEcfg,"SmallIcons",NULL);
-/*
  if(value && toupper(*value)=='N' && reg)
   user_interface.iconsoff=1;
  else
-*/
   user_interface.iconsoff=0;
 
  value=configvariable(&ARACHNEcfg,"Hotkeys",NULL);
-/*
  if(value && toupper(*value)=='N' && reg)
   user_interface.hotkeys=0;
  else
-*/
   user_interface.hotkeys=1;
 
  user_interface.bigfont=0;
@@ -519,10 +515,10 @@ the right side if the tail fix is not desired:
  }
 
  value=configvariable(&ARACHNEcfg,"Frames",NULL);
- if(value && toupper(*value)=='N')
-  user_interface.frames=0;
- else
+ if(value && toupper(*value)=='Y')
   user_interface.frames=1;
+ else
+  user_interface.frames=0;
 
  value=configvariable(&ARACHNEcfg,"QADT",NULL);
  if(value && toupper(*value)=='Y')
@@ -595,11 +591,17 @@ the right side if the tail fix is not desired:
   user_interface.vfat=0;
 #endif
 
+//!!glennmcc: Feb 13, 2006 -- at Ray's suggestion,
+// changed variable name to match the keyword
  value=configvariable(&ARACHNEcfg,"KeepHTT",NULL);
  if(value && toupper(*value)=='N')
-  user_interface.nohtt=1;
+  user_interface.keephtt=0;
  else
-  user_interface.nohtt=0;
+  user_interface.keephtt=1;
+//  user_interface.nohtt=1;
+// else
+//  user_interface.nohtt=0;
+//!!glennmcc: end
 
  user_interface.virtualysize=0;
  user_interface.smooth=0;

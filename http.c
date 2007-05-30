@@ -662,7 +662,7 @@ Host: %s%s\r\n\
    if(count<0)
    {
     if (errno != EAGAIN) {
-           outs(MSG_CLOSED);
+	   outs(MSG_CLOSED);
        return 0;
     }
     else count = 0;
@@ -763,6 +763,11 @@ analyse:
     {
      cache->size=atol(&ptr[2]);
      cache->knowsize=1;
+//!!glennmcc: July 08, 2006 -- only do a BGDL if it was
+// specifcally requested via CTRL+Enter/CTRL+LeftClick
+// or via Enter/LeftClick when size is not known
+if(GLOBAL.backgr==2) GLOBAL.backgr=0;
+//!!glennmcc: end
     }
 
     // ----------------------------------------------- Last-modified:
@@ -948,27 +953,27 @@ analyse:
        ptr+=5;
        while(*ptr)
        {
-        if(!strncmpi(ptr,"realm=",6))
+	if(!strncmpi(ptr,"realm=",6))
 	{
-         char *realm;
+	 char *realm;
 	 ptr+=6;
-         realm=ptr;
+	 realm=ptr;
 	 if(*ptr=='\"')
 	 {
-          ptr++;
+	  ptr++;
 	  realm=ptr;
           while (*ptr && *ptr!='\"')ptr++;
 	  *ptr='\0';
          }
          if(!strcmpi(AUTHENTICATION->host,url->host) &&
-            !strcmp(AUTHENTICATION->realm,realm))
+	    !strcmp(AUTHENTICATION->realm,realm))
 	   AUTHENTICATION->flag=AUTH_OK;
-         else
+	 else
 	 {
-          makestr(AUTHENTICATION->realm,realm,79);
+	  makestr(AUTHENTICATION->realm,realm,79);
 	  strcpy(AUTHENTICATION->host,url->host);
 	 }
-        }
+	}
 	ptr++;
        }//loop
       }
@@ -1000,7 +1005,7 @@ analyse:
 
 write2cache:
 
- //HTTP/1.0 Connection: Keep-Alive rules acording to RFC2068:
+ //HTTP/1.0 Connection: Keep-Alive rules according to RFC2068:
  //
  if(!cache->knowsize || !willkeepalive)
  {
@@ -1013,6 +1018,22 @@ write2cache:
  // printf("[keepalive enabled]");
  }
 
+//!!glennmcc: Feb 19-21, 2006 -- try again without keepalive
+//MS-IIS says... "Bad Request"
+//TUX erroneously says... "Not Found"
+//(a 'real' 404 not found will have the date)
+//therefore, "Not Found" without a date == TUX refused keepalive
+
+if(http_parameters.keepalive &&
+   (strstr(p->buf,"Bad Request") ||
+    (strstr(p->buf,"Not Found") && !strstr(p->buf,"Date:"))
+   )
+  )
+  {
+   http_parameters.keepalive=0;
+   return 0;
+  }
+//!!glennmcc: end
 
  ptr=strrchr(cache->locname,'.');
  if(ptr)
@@ -1028,7 +1049,12 @@ write2cache:
   }
 
   strcpy(cache->rawname,cache->locname);
-  if(!user_interface.nohtt)
+
+
+//!!glennmcc: Feb 13, 2006 -- at Ray's suggestion,
+// changed variable name to match the keyword
+  if(user_interface.keephtt)
+//  if(!user_interface.nohtt)
   {
    makehttfilename(cache->rawname,httfile);
    htt=a_fast_open(httfile,O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
@@ -1040,9 +1066,7 @@ write2cache:
 
     sprintf(pom,"<TITLE>%s %s</TITLE><PRE>\n",MSG_HTTP,cache->URL);
     write(htt,pom,strlen(pom));
-
     write(htt,p->buf,count);
-
     ptr=strrchr(cache->locname,'\\');
     if(ptr)
      ptr++;
@@ -1052,9 +1076,7 @@ write2cache:
 </PRE>\n<HR>URL: <A HREF=\"%s\">%s</A><BR>\n\
 Local: <A HREF=\"file:%s\">%s</A><HR>\n\
 ",cache->URL,cache->URL,ptr,cache->locname);
-
     write(htt,pom,strlen(pom));
-
     farfree(pom);
     a_close(htt);
    }//end if htt opened
@@ -1066,8 +1088,20 @@ Local: <A HREF=\"file:%s\">%s</A><HR>\n\
  if(!httpstub)
  {
   cache->handle=a_fast_open(cache->locname,O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-  if(cache->handle<0)
+//!!glennmcc: Nov 25, 2006 -- abort attempt if cache drive
+//has too little space available
+//  if(cache->handle<0) // original line
+  if(cache->handle<0
+     || lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))
+	<cache->size)//user_interface.mindiskspace)
   {
+//!!glennmcc: Nov 25, 2006 -- close and delete file if it was opened
+//but cache drive had too little space available
+  if(cache->handle>=0
+     && lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))
+     <cache->size)//user_interface.mindiskspace)
+     {a_close(cache->handle); unlink(cache->locname);}
+//!!glennmcc: end
    GLOBAL.gotolocation=1;
    puts(cache->locname);
    sprintf(GLOBAL.location,"file:%s%serr_disk.ah",sharepath,GUIPATH);
@@ -1205,6 +1239,22 @@ long starttime=(int)(time(NULL)), elapsedtime=0, lastsec=0, bytesec=0;
 #endif
   fpos+=rd;
 
+//!!glennmcc: Nov 26, 2006 -- abort download when file size is not known,
+//and disk gets full during download
+if(!cache->knowsize
+   && lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))
+      <(fpos+rd))// rd=-1;
+      //!!glennmcc: Nov 26, 2006 -- disk filled during download
+//   if(rd<0)
+   {
+    a_close(cache->handle);
+    unlink(cache->locname);
+    GLOBAL.gotolocation=1;
+    sprintf(GLOBAL.location,"file:%s%serr_disk.ah",sharepath,GUIPATH);
+   }
+//!!glennmcc: end
+//!!glennmcc: end
+
   strcpy(dl,MSG_DOWNLD);
 
 #ifndef POSIX
@@ -1244,7 +1294,9 @@ sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);//original line
 #ifndef POSIX
   }//endif
 #endif
+
  }//loop
+diskfull:
 }//end sub
 
 //. current HTTP download will continue as "background task"
@@ -1306,7 +1358,13 @@ void FinishBackground(char mode)
     outs(str);
    }
    else
-    outs(MSG_PARALL);
+   outs(MSG_PARALL);
+//!!glennmcc: Mar 08, 2006 -- fix intermittent freeze on final image
+//when 'HTTPkeepAlive Yes' and 'Multitasking Yes'
+    if(sock_datalen[socknum]<0)
+       mode=BG_ABORT;
+       else
+//!!glennmcc: end
    Download(&cacheitem);
   }
   else

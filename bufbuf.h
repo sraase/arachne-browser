@@ -66,7 +66,7 @@ unsigned int sizeBuf( struct T_buf_buf *bbuf );
 //              vrati se v lenbuf skutecne nactena delka.
 // tr.:  Reads requested part of the saved buffer. If it is not
 //       possible to read the requested length, lenbuf returns
-//       the length that has actually been read. 
+//       the length that has actually been read.
 
 //int fromBuf( char *outbuf, unsigned int from,
 //	     unsigned int *lenbuf, char far **bbuf );
@@ -82,6 +82,9 @@ int fromBuf( char *outbuf, unsigned int from,
 //              2 ........ bbuf is NULL
 //              6 ........ failed to delete
 
-//int delBuf( char far **bbuf );
-int delBuf( struct T_buf_buf *bb );
+//int delBuf( char far **bbuf );//very old format
 
+//!!Bernie: Mar 04, 2007 -- complete rewrite as void in bufbuf.c
+void delBuf( struct T_buf_buf *bb );
+//int delBuf( struct T_buf_buf *bb );
+//!!Bernie: end

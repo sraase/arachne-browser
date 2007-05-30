@@ -48,7 +48,8 @@ void cutaddress(char *string)
 // messages are in format described in RFC822.
 // ========================================================================
 
-#define BUFLEN 512
+#define BUFLEN 1024//!!glennmcc: Dec 14, 2006
+//#define BUFLEN 512
 extern int reset_detected;
 
 int xsendmail(struct Url *url, char helo, char logfile)
@@ -71,6 +72,10 @@ int xsendmail(struct Url *url, char helo, char logfile)
  int status,err=0;
  char *ptr;
  int log;
+
+//!!glennmcc & Ray: Dec 14, 2006
+ int bcc=0;
+//!!glennmcc & Ray: end
 
  if(!tcpip)
   return 0;
@@ -152,12 +157,31 @@ int xsendmail(struct Url *url, char helo, char logfile)
   if(mydomain)
    mydomain++; // xx@->yyy
   else
-   mydomain=url->user;
+//!!glennmcc: Feb 22, 2006 -- use host domain instead of user
+  {
+   mydomain=strchr(url->host,'.');
+   mydomain++; // xx@->yyy
+  }
+//   mydomain=url->user;
+//!!glennmcc: end
 
 //!!glennmcc: begin Nov 09, 2003 --- EHLO == Authenticated SMTP
 //finally finished it on Apr 30, 2004 ;-)
 if(helo==2)
 {
+//!!glennmcc: Feb 14, 2006 -- use 'authuser' for AuthSMTP
+     mydomain=strrchr(url->authuser,'@');
+     if(mydomain)
+      mydomain++; // xx@->yyy
+      else
+//!!glennmcc: Feb 22, 2006 -- use host domain instead of authuser
+      {
+       mydomain=strchr(url->host,'.');
+       mydomain++; // xx@->yyy
+      }
+//     mydomain=url->authuser;
+//!!glennmcc: end
+
   sprintf( str, "EHLO %s", mydomain);
   outs(str);
   if(log!=-1)
@@ -235,7 +259,9 @@ if(helo==2)
   }
   while(buffer[3]=='-'); //continued message!
 
-  base64code((unsigned char *)url->password,AuthSMTPpassword);
+//!!glennmcc: Feb 17, 2006 -- switch to new variable 'authpassword'
+  base64code((unsigned char *)url->authpassword,AuthSMTPpassword);
+//  base64code((unsigned char *)url->password,AuthSMTPpassword);
   sprintf( str, AuthSMTPpassword);
   outs(str);
   if(log!=-1)
@@ -404,6 +430,9 @@ else //begin else HELO
     else
     if(!strncmpi("BCC:",str,4))
     {
+//!!glennmcc & Ray: Dec 14, 2006
+     bcc=1;
+//!!glennmcc & Ray: end
      ptr=&str[4];
      field=1;
     }
@@ -446,8 +475,8 @@ else //begin else HELO
        ptr=ie_getline(&expandlist,expandlist.y++);
        if(expandlist.y>=expandlist.lines)
        {
-        rcpt=0;
-        field=0;
+	rcpt=0;
+	field=0;
        }
       }
 
@@ -459,21 +488,21 @@ else //begin else HELO
        outs(pom);
        if(log!=-1)
        {
-        write(log,pom,strlen(pom));
-        write(log,"\r\n",2);
+	write(log,pom,strlen(pom));
+	write(log,"\r\n",2);
        }
        sock_puts(socket,(unsigned char *)pom);
        sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-                        &status );		//SDL
+			&status );		//SDL
        sock_gets( socket, (unsigned char *)pom, sizeof( pom ));
        outs(pom);
        if(log!=-1)
        {
-        write(log,pom,strlen(pom));
-        write(log,"\r\n",2);
+	write(log,pom,strlen(pom));
+	write(log,"\r\n",2);
        }
        if(*pom == '2')
-        success++;
+	success++;
       }
      }//loop
 
@@ -509,7 +538,7 @@ else //begin else HELO
   }
   sock_puts(socket,(unsigned char *)"DATA");
   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-                   &status );		//SDL
+		   &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
   if(log!=-1)
@@ -542,6 +571,42 @@ else //begin else HELO
       done=1;
      i=0;
  //    printf("\nlenread=%d \n",lenread);
+//!!glennmcc & Ray: Dec 14, 2006 -- bypass Bcc:
+if(bcc)
+  {
+   char *ptr = strstr(buffer, "Bcc:");//Ray
+   if(ptr)
+     {
+//Ray's method replaces the address(s) with spaces
+//it also looks for '\r' (carrage return) as the end of the Bcc line
+//      ptr += 4;                        // PASS 'Bcc:'
+//    while(*ptr && *ptr != '\r')
+//    *ptr++ = ' ';
+//printf("After: \n\n%40s", ptr); getch(); // SEE THE RESULT
+
+//!!glennmcc: this method works better by 'nulling-out' the Bcc line and
+//looking for '\n' (new line) as the end of the Bcc line
+/* method #1 */
+/**/
+      if(*ptr--=='\n')*ptr='\0';//remove previous '\r\n' if it exists
+      do
+      {*ptr='\0'; ptr++;}
+      while( *ptr && *ptr!='\n');
+/**/
+/* end method #1 */
+
+/* method *2 */
+/*
+      if(*ptr--=='\n')*ptr='\0';//remove previous '\r\n' if it exists
+      while(*ptr && *ptr!='\n')
+      *ptr++ ='\0';
+      *ptr='\0';//also remove this '\n'
+*/
+/* end method #2 */
+      bcc=0;
+     }
+  }
+//!!glennmcc & Ray: end
     }
     str[j]=buffer[i++];
 
@@ -584,7 +649,7 @@ else //begin else HELO
    write(log,".\r\n",3);
   }
   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-                   &status );		//SDL
+		   &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
   if(log!=-1)

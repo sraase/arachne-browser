@@ -19,22 +19,28 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
 // struct ffblk ff;
  char firstkotva=absURL->kotva[0];
  char dummy[120],ext[5];
-
+// Werner Scholz: begin 19 Jan, 2007  process form to email
+ FILE *fopen(),*out;
+ char *p;
+ unsigned char character;
+ char str[12];
+// Werner Scholz: end
  *cacheitemadr=IE_NULL;
  *status=LOCAL;
  absURL->kotva[0]='\0';
  url2str(absURL,cacheitem->URL);
  absURL->kotva[0]=firstkotva;
 
-
  if(!strcmpi(absURL->protocol,"file"))
  {
 //!!glennmcc: Nov 13, 2005 -- append '\' if we forget to enter it in typed URL
+#ifdef CAV
   if(strlen(absURL->file)>1 &&
      !strstr(absURL->file,".") &&
      absURL->file[strlen(absURL->file)-1]!='\\'
     )
   {strcat(absURL->file,"\\");}
+#endif
 //!!glennmcc: end
 
   makestr(cacheitem->locname,absURL->file,79);
@@ -128,6 +134,48 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
 
  else if(!strcmpi(absURL->protocol,"mailto"))
  {
+// Werner Scholz: begin 19 Jan 2007   process form to email
+  sprintf(str,"%ld",time(NULL));
+  if (!strcmpi(configvariable(&ARACHNEcfg,"KillSent",NULL),"Y"))str[1]='!';//glennmcc method
+//if (ConfigYesNo("KillSent",0))str[1]='!';// JDS method
+  p=configvariable(&ARACHNEcfg,"MailPath",NULL);
+  if(!p)p="MAIL\\";
+  sprintf(dummy,"%s%s.TBS",p,&str[1]);
+
+  if((GLOBAL.postdata==2)&&(absURL->file[0])&&((out=fopen(dummy,"w+t"))!=NULL))
+     {fprintf(out,"To: %s\n",absURL->file);
+      inettime(dummy);
+      fprintf(out,"From: \"%s\" <%s>\nDate: %s %s\n",
+		      configvariable(&ARACHNEcfg,"PersonalName",NULL),
+		      configvariable(&ARACHNEcfg,"eMail",NULL),
+		      dummy,
+		      configvariable(&ARACHNEcfg,"TimeZone",NULL));
+      fprintf(out,"Subject: Form made available by WWW Browser Arachne\n");
+      p=configvariable(&ARACHNEcfg,"MyCharset",NULL);
+	 if(!p)p="US-ASCII";
+      fprintf(out,"MIME-Version: 1.0\nContent-type: text/plain; charset=%s\n",p);
+      fprintf(out,"Content-transfer-encoding: 8bit\n\n");
+
+      p=ie_getswap(GLOBAL.postdataptr);
+      while(*p!=0)
+       {character=*p;
+	 if(character=='&'){fprintf(out,"\n");p++;continue;}
+	 if(character=='%')
+	  {if((*(p+1)=='2')&&(*(p+2)=='0')){p+=3;fprintf(out," ");continue;}
+	   if((*(p+1)=='0')&&(*(p+2)=='D')){p+=3;continue;}
+	   if((*(p+1)=='0')&&(*(p+2)=='A')){p+=3;fprintf(out,"\n");continue;}
+	  }putc(character,out);p++;
+       }fclose(out);
+	// We should inform user now, that email is saved to outbox by
+	// the following line
+	// sprintf(cacheitem->locname,"%s%sendform.ah",sharepath,GUIPATH);
+
+	// following line is provisionally solution only
+	sprintf(cacheitem->locname,"mail.htm",sharepath,GUIPATH);
+	//
+    }
+else
+// Werner Scholz: end
   sprintf(cacheitem->locname,"%s%ssendmail.ah",sharepath,GUIPATH);
   cacheitem->rawname[0]='\0';
   strcpy(cacheitem->mime,"text/html");
@@ -378,6 +426,10 @@ void AnalyseURL(char *str,struct Url *url,int frame)
     !strcmpi(url->protocol,"file") ||
     !strcmpi(url->protocol,"reload") ||
     !strcmpi(url->protocol,"find") ||
+//!!glennmcc: Feb 25, 2006 -- new 'define' function to get the
+// definition of a word or phrase via Webster's online dictionary
+    !strcmpi(url->protocol,"define") ||
+//!!glennmcc: end
 //    !strcmpi(url->protocol,"freq") ||
 //    !strcmpi(url->protocol,"fidonet") ||
     !strcmpi(url->protocol,"arachne") ||
@@ -425,12 +477,23 @@ strcpy(url->protocol, url->protocol + 1);
 //and you instigated me to make it even better
 //this now removes multiple spaces and dots :)
 //(commented-out su above since it's no longer needed)
-if (url->protocol[0] == ' ' || url->protocol[0] == '.')
+//!!glennmcc: Jan 16, 2006 -- also remove backslashes and quotation marks
+//!!glennmcc: Jan 19, 2006 -- Ray came up with the 'perfect fix'
+// now all 'non-alphabetic' characters will be stripped-off
+while (!isalpha(url->protocol[0]))
+strcpy(url->protocol, url->protocol + 1);
+/*
+if (url->protocol[0] == ' ' || url->protocol[0] == '.' ||
+    url->protocol[0] == '\\'|| url->protocol[0] == '\"'||
+    url->protocol[0] == '\'')
 do
 {
 strcpy(url->protocol, url->protocol + 1);
 }
-while (url->protocol[0] == ' ' || url->protocol[0] == '.');
+while (url->protocol[0] == ' ' || url->protocol[0] == '.' ||
+       url->protocol[0] == '\\'|| url->protocol[0] == '\"'||
+       url->protocol[0] == '\'');
+*/
 //!glennmcc: end (PITA fixed)<g>
 
   if(!strcmpi(url->protocol,"http"))
@@ -452,10 +515,26 @@ while (url->protocol[0] == ' ' || url->protocol[0] == '.');
    url->port=119;
   else
   if(!strcmpi(url->protocol,"smtp"))
-   url->port=25;
+//!!glennmcc: Feb 28, 2006 -- optionally use 'alternate' port #
+  {
+   char *ptr=configvariable(&ARACHNEcfg,"SMTPport",NULL);
+   if(ptr && strlen(ptr)>1)
+   url->port=atoi(ptr);
+   else
+   url->port=25;//original single line
+  }
+//!!glennmcc: end
   else
   if(!strcmpi(url->protocol,"pop3"))
-   url->port=110;
+//!!glennmcc: Feb 28, 2006 -- optionally use 'alternate' port #
+  {
+   char *ptr=configvariable(&ARACHNEcfg,"POP3port",NULL);
+   if(ptr && strlen(ptr)>1)
+   url->port=atoi(ptr);
+   else
+   url->port=110;//original single line
+  }
+//!!glennmcc: end
 /*
   else
   if(!strcmpi(url->protocol,"irc"))
@@ -466,11 +545,26 @@ while (url->protocol[0] == ' ' || url->protocol[0] == '.');
    url->port=79;
 
   // ========================================================================
+//!!glennmcc: Sep 28, 2006 -- //skip '\"'
+  if(!strncmp(strptr,"\\\"",2))
+   strptr+=2;
+//!!glennmcc: end
+
+//!!glennmcc: Apr 19, 2007 -- //skip leading space(s)
+//needed to fix problems such as this....
+//<meta http-equiv="refresh" content="0;url= site/Welcome.html" />
+//__________________________________________^<-- erroneous space
+//the resulting URL is ... http://domain.com/%20site/Welcome.html
+//instead of the correct URL of... http://domain.com/site/Welcome.html
+  while(!strncmp(strptr," ",1))
+       strptr++;
+//!!glennmcc: end
 
   if(!strncmp(strptr,"//",2))
   {
    //skip '//'
    strptr+=2;
+
 
    //skip to file section of URL
    ptr=strchr(strptr,'/');
@@ -526,6 +620,10 @@ while (url->protocol[0] == ' ' || url->protocol[0] == '.');
     url->host[0]='\0';
 
    makestr(url->file,strptr,URLSIZE-1);
+//!!glennmcc: Sep 28, 2006 'trim' \" from end of JS format URLs
+  if(strstr(url->file,"\\\""))
+  {makestr(url->file,url->file,strlen(url->file)-2);}
+//!!glennmcc: end
   }//end if
 
   // ========================================================================
@@ -546,7 +644,7 @@ while (url->protocol[0] == ' ' || url->protocol[0] == '.');
 
   i=strlen(base->file);
   while(i>0 && !(base->file[i-1]=='/' || isfile &&
-                 base->file[i-1]=='\\'))
+		 base->file[i-1]=='\\'))
    i--;
   strncpy(strbuf,base->file,i);
   if(i<URLSIZE-1)
@@ -576,8 +674,26 @@ void url2str(struct Url *url,char *out)
     !strcmpi(url->protocol,"about") || !strcmpi(url->protocol,"reload") ||
     !strcmpi(url->protocol,"news") || !strcmpi(url->protocol,"arachne") ||
     !strcmpi(url->protocol,"find") || !strcmpi(url->protocol,"gui") ||
+//!!glennmcc: Feb 25, 2006 -- new 'define' function to get the
+// definition of a word or phrase via Webster's online dictionary
+    !strcmpi(url->protocol,"define") ||
+//!!glennmcc: end
     !strcmpi(url->protocol,"javascript") )
-  sprintf(outbuf,"%s:%s",url->protocol,url->file);
+
+//!!Ray: Dec 18, 2006 -- get rid of pointless '//' eg. convert: 'file://' to 'file:'
+//!!glennmcc: Jan 29, 2007 -- bad idea... causes many problems with DGIs
+/*
+{
+char *ptr = url->file;
+if(*ptr == '/') ptr++;
+if(*ptr == '/') ptr++;
+  sprintf(outbuf, "%s:%s", url->protocol, ptr);
+}
+*/
+//!!Ray: end
+
+sprintf(outbuf, "%s:%s", url->protocol, url->file);//original single line
+
  else
  if(!strcmpi(url->protocol,"finger") || !strcmpi(url->protocol,"telnet") )
  {
@@ -603,7 +719,12 @@ void url2str(struct Url *url,char *out)
     sprintf(outbuf,"%s://%s@%s:%d%s",url->protocol,url->user,url->host,url->port,url->file);
   }
   else
-  if(!strcmpi(url->protocol,"http") && url->port==80)
+//!!glennmcc: Mar 16, 2006 -- don't add the port # for https
+// so we can send the URL as-is to Lynx
+  if((!strcmpi(url->protocol,"http") && url->port==80)
+      || !strcmpi(url->protocol,"https"))
+//if(!strcmpi(url->protocol,"http") && url->port==80) //original line
+//!!glennmcc: end
    sprintf(outbuf,"%s://%s%s",url->protocol,url->host,url->file);
   else
    sprintf(outbuf,"%s://%s:%d%s",url->protocol,url->host,url->port,url->file);
@@ -636,6 +757,7 @@ if(!strcmpi(configvariable(&ARACHNEcfg,"Mail2Hist",NULL),"No") &&
 	 strstr(URL,".cnm") || strstr(URL,".tbs") ||
 	 strstr(URL,".mes") || strstr(URL,".snt") ||
 	 strstr(URL,".CNM") || strstr(URL,".TBS") ||
+	 strstr(URL,".DFT") || strstr(URL,".dft") ||
 	 strstr(URL,".MES") || strstr(URL,".SNT")
 	) return;
      }
@@ -652,12 +774,14 @@ if(!strcmpi(configvariable(&ARACHNEcfg,"Mail2Hist",NULL),"No") &&
     ) return;
 //!!glennmcc: end
 
-//!!glennmcc: Jan 13, 2005 -- also don't add the some of the mail .DGIs
-#ifndef NOKEY
+//!!glennmcc: Jan 13, 2005 -- also don't add some of the mail .DGIs
+//#ifndef NOKEY
+#ifdef EXP
   if(strstr(URL,"//movemail") || strstr(URL,"//delmail") ||
      strstr(URL,"emptytrash.dgi")
     ) return;
 #endif
+//#endif
 //!!glennmcc: end
 
    if(!URL) return;

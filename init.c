@@ -94,7 +94,7 @@ if(argc>1)
 {
  if(argv[1][0]=='-')
  {
-#ifndef POSIX 
+#ifndef POSIX
   if(argv[1][1]=='d')
   {
    detectgraphics();
@@ -195,14 +195,14 @@ else
 
 InitInput(&tmpeditor,"","",1,CONTEXT_SYSTEM);//text input prompt
 MakeInputAtom(&TXTprompt,&tmpeditor,
-              64,p->htscrn_ysize/2,
+	      64,p->htscrn_ysize/2,
               p->htscrn_xsize-128,p->htscrn_ysize/2+fonty(SYSFONT,0)+4);
 
 
 //initialization of certain global variables:
 
 GLOBAL.needrender=1;        //na zacatku potrebuju prekreslit
-                  // tr.: in the beginning I need to redraw
+		  // tr.: in the beginning I need to redraw
 GLOBAL.isimage=0;           //to co nactu po startu, to nebude inline...
                   // tr.: what I load/read after start, will not be inline
 GLOBAL.nothot=0;
@@ -412,7 +412,19 @@ bioskey_close();
 void cfgerr (struct ib_editor *f);
 
 //maximum number of lines in CFG files :
+//!!glennmcc: increased to 388 or 1024 (experimental compiles only)
+//NOKEY == original value of 256 in GPL
+//works in tandom with the increase of history file size in main.c
+//and MAXCONV define in urlovrl.c
+#ifdef NOKEY
 #define LINES 256
+#else
+#ifdef EXPMAX
+#define LINES 1024
+#else
+#define LINES 388
+#endif//EXPMAX
+#endif//NOKEY
 
 //maximum number of lines in cookies file :
 #define MAX_HTTP_COOKIES 64*CookieCrumbs
@@ -467,6 +479,7 @@ void init_bin(void)
  //---ARACHNE.CFG
  strcpy(ARACHNEcfg.filename,acfg);
  ARACHNEcfg.killcomment=0;
+//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
  rc=ie_openf_lim(&ARACHNEcfg,CONTEXT_SYSTEM,LINES); //main configuration
  if(!ARACHNEcfg.lines)
  {
@@ -476,6 +489,7 @@ void init_bin(void)
 #else
   sprintf(ARACHNEcfg.filename,"%s%s",exepath,acfg);
 #endif
+//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
   rc=ie_openf_lim(&ARACHNEcfg,CONTEXT_SYSTEM,LINES); //always 256 lines
  }
  if(rc==2)
@@ -496,6 +510,7 @@ void init_bin(void)
   //---MIME.CFG
  strcpy(MIMEcfg.filename,mcfg);
  MIMEcfg.killcomment=1;
+//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
  rc=ie_openf_lim(&MIMEcfg,CONTEXT_SYSTEM,LINES); //MIME
  if(!MIMEcfg.lines)
  {
@@ -505,6 +520,7 @@ void init_bin(void)
 #else
   sprintf(MIMEcfg.filename,"%s%s",exepath,mcfg);
 #endif
+//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
   rc=ie_openf_lim(&MIMEcfg,CONTEXT_SYSTEM,LINES); //MIME
  }
  if(rc==2)
@@ -523,11 +539,27 @@ void init_bin(void)
   else
   strcpy(TOOLBARcfg.filename,ptr);
  TOOLBARcfg.killcomment=1;
+//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
  rc=ie_openf_lim(&TOOLBARcfg,CONTEXT_SYSTEM,LINES); //Toolbar
  if(rc==2)
   memerr0();
  else if(rc!=1 || TOOLBARcfg.lines==0)
   cfgerr(&TOOLBARcfg);
+
+//!!glennmcc: May 27, 2007 -- read entity conversions from entity.cfg
+ //---entity.cfg
+#ifdef POSIX
+  strcpy(ENTITYcfg.filename,"entity.cfg");
+#else
+  sprintf(ENTITYcfg.filename,"%sentity.cfg",exepath);
+#endif
+ ENTITYcfg.killcomment=1;
+ rc=ie_openf_lim(&ENTITYcfg,CONTEXT_SYSTEM,100);
+ if(rc==2)
+  memerr0();
+ else if(rc!=1 || ENTITYcfg.lines==0)
+  cfgerr(&ENTITYcfg);
+//!!glennmcc: end
 
  //---History of visited URLs
  ptr=configvariable(&ARACHNEcfg,"History",NULL);
@@ -535,6 +567,7 @@ void init_bin(void)
   ptr="history.lst";
  strcpy(history.filename,ptr);
  history.killcomment=0;
+//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
  rc=ie_openf_lim(&history,CONTEXT_SYSTEM,LINES); //history - max. 256 lines
  if(rc==2)
   memerr0();
@@ -548,7 +581,9 @@ void init_bin(void)
  if(!ptr)
   ptr="cache.idx";
  strcpy(HTTPcache.filename,ptr);
- HTTPcache.maxlines=256; //max 256 files in cache
+//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
+ HTTPcache.maxlines=LINES;
+// HTTPcache.maxlines=256; //max 256 files in cache
  rc=ie_openbin(&HTTPcache);
  if(rc==2)
   memerr0();
@@ -642,6 +677,12 @@ void reset_tmpframedata(void)
   p->tmpframedata[i].usevirtualscreen=0;
   p->tmpframedata[i].whichvirtual=i-1;
   p->tmpframedata[i].backgroundptr=IE_NULL;
+  //!!JdS 2006/02/15: frames/smiley bug fix {
+  p->tmpframedata[i].writeadr = IE_NULL;
+  //... and just in case ...
+  p->tmpframedata[i].nextsheet = IE_NULL;
+  p->tmpframedata[i].myadr = IE_NULL;
+  //!!JdS 2006/02/15: frames/smiley bug fix }
   i++;
  }
  p->tmpframedata[0].whichvirtual=0;
@@ -719,7 +760,11 @@ void exitmsg(void)
 #ifdef POSIX
   printf(MSG_ENDX);
 #else
+#ifdef NOKEY
+  printf(MSG_END,VER,beta,ident,exetype,copyright);
+#else
   printf(MSG_END,VER,beta,exetype,copyright);
+#endif
 #endif
 }
 

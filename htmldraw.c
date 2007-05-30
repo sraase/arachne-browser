@@ -97,6 +97,29 @@ void drawatom(struct HTMLrecord *atom,
      x_text_ib((int)(x2+screen_x-sz+xskip),(int)(y1+screen_y),(unsigned char *)"_");
    }
 
+//!!JDS: Feb 28, 2007 -- add support for <S> (strike)
+   if(style & STRIKE)
+   {
+    int sz=fontx(font,style,'-');
+    x2=x1+x_txwidth(txt);
+
+    j=x1+sz;
+    txt[0]='-';
+    i=1;
+    while(j+sz<x2 && j<draw_x-FUZZYPIX && i<IE_MAXLEN)
+    {
+     txt[i]='-';
+     j+=sz;
+     i++;
+    }
+    txt[i]='\0';
+
+    x_text_ib(x1+screen_x+xskip,(int)(y1+screen_y),(unsigned char *)txt);
+    if(x2-x1>sz && x2<draw_x)
+     x_text_ib((int)(x2+screen_x-sz+xskip),(int)(y1+screen_y),(unsigned char *)"-");
+   }
+//!!JDS: end
+
 
   break; //end plain text
 
@@ -247,7 +270,12 @@ void drawatom(struct HTMLrecord *atom,
     makestr(txt,image->alt,txlen);
    }
    else
-    MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return;
+//    MALLOCERR();
+//!!glennmcc: end
 
    //draw box instead of image
 
@@ -676,7 +704,12 @@ void redrawatoms(char frame,
 //  kbhit();
   atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
   if(!atomptr)
-   MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return;
+//   MALLOCERR();
+//!!glennmcc: end
   nextHTMLatom=atomptr->next;
   if(atomptr->type==INPUT &&
      atomptr->data1!=SUBMIT && atomptr->data1!=RESET && atomptr->data1!=BUTTON &&
@@ -980,7 +1013,12 @@ void redrawHTML(char nomsg, char virt)
   {
    atomptr=(struct HTMLrecord *)ie_getswap(currentHTMLatom);
    if(!atomptr)
-    MALLOCERR();
+//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
+//"Page too long !" message will then be displayed
+//and the incomplete page can be viewed.
+return;
+//    MALLOCERR();
+//!!glennmcc: end
    nextHTMLatom=atomptr->next;
    if(atomptr->frameID==i &&
       atomptr->yy>frame->posY &&

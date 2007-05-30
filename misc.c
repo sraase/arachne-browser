@@ -322,6 +322,11 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
  int kcnt=0;
 //!!glennmcc: end
 
+//!!glennmcc: Dec 06 ,2006
+//needed for $Z
+ char *drive="\0", *dir="\0", *file="\0", *ext="\0";
+//!!glennmcc: end
+
  if(*in=='@')
  {
   in++;
@@ -499,10 +504,29 @@ else
     goto cont;
 //!!glennmcc: end
 
+//!!glannmcc: Dec 06, 2006 -- add $z to pass only the drive letter to dosshell.dgi
+//and dosshell.bat so that FreeDos can be returned to the correct drive.
+    case 'Z':
+    fnsplit(exepath,drive,dir,file,ext);
+    strcpy(out,drive);
+    out+=strlen(drive)-1;
+    break;
+//!!glennmc: end
+
     case 'F':  //file browser WWWMANE.EXE mode
+    pom=configvariable(&ARACHNEcfg,"Expiredynamic",NULL);
     pom=configvariable(&ARACHNEcfg,"FILEargs",NULL);
     if(!pom)
      pom="-d";
+
+//!!glennmcc: Oct 19, 2006 -- use new keyword 'CacheDirList'
+//to determine wheather or not to cache the dir listings
+//Y==always cache.... N==nocache
+//defaults to cached if line is missing from arachne.cfg
+//see companion code in SRC of wwwman.exe
+strncat(pom,configvariable(&ARACHNEcfg,"CacheDirList",NULL),1);
+//!!glennmcc: end
+
     goto cont;
     case 'M':
     pom=configvariable(&ARACHNEcfg,"MailPath",NULL);
@@ -568,4 +592,3 @@ void makeexestr(char *exestr)
   sprintf(exestr,"Clementine%s",exetype);
 #endif
 }
-

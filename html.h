@@ -19,6 +19,7 @@ struct Fontstack
 int openHTML(struct HTTPrecord *cache,char source);
 int readHTML(struct HTTPrecord *cache,char source);
 void closeHTML(struct HTTPrecord *cache,char source);
+unsigned char utf8table(unsigned char x1,unsigned char x2,unsigned char x3,unsigned char x4); // werner
 
 //TAG analysis optimized for speed
 int FastTagDetect(char *tagname);
@@ -72,7 +73,10 @@ void LINKtag(XSWAP *stylesheetadr);
 void USEMAParea(struct HTMLrecord *atom,char basetarget);
 void FRAMEtag(int *emptyframeset,int *previousframe);
 void BodyArachne(struct TMPframedata *html);
-void DummyFrame(struct Page *p,int *x, long *y);
+//!!glennmcc: Mar 12, 2007 -- quick-n-dirty hack to support <iframe
+//test page .... http://www.auschess.org.au/
+void DummyFrame(struct Page *p,int *x, long *y, int tag);
+//void DummyFrame(struct Page *p,int *x, long *y);//original line
 void CheckArachneFormExtensions(struct HTTPrecord *cache,char *value, int *checked);
 
 //CSS processor binding:
@@ -91,6 +95,7 @@ struct RENDER_DATA
 {
  char willadjusttables;
  char translatecharset;
+ char utf8;  // werner scholz Nov 8,2006
 };
 
 extern struct RENDER_DATA RENDER;
@@ -106,7 +111,6 @@ extern unsigned char cacheg[16];
 extern unsigned char cacheb[16];
 extern unsigned char coloridx[16];
 extern char rgbcacheidx;
-
 
 #define PARAGRAPH \
 alignrow(x,y,orderedlist[listdepth]);\
@@ -300,6 +304,15 @@ p->xsum=0;
 
 //!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
 #define TAG_BGSOUND          64
+
+//!!JDS: Feb 28, 2007 -- add support for <S> (strike)
+//(see code in htmldraw.c)
+#define TAG_S                65
+#define TAG_SLASH_S          1065
+//!!JDS: end
+
+//!!glennmcc: Mar 13, 2007 --- added support for 'IFRAME'
+#define TAG_IFRAME          66
 
 #define TAG_SPECIAL_A_HOVER 98
 #define TAG_ARACHNE_BONUS   99

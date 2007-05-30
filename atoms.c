@@ -340,7 +340,7 @@ int activeatomtick(int key,char textareacmd)
       activescroll.xvisible=1;
       activescroll.yvisible=1;
       ScrollInit(&activescroll,(int)(x2-x1-5),(int)(y2-y1-5),
-                 (int)(y2-y1-5+user_interface.scrollbarsize),
+		 (int)(y2-y1-5+user_interface.scrollbarsize),
                  (int)(x1+2),(int)(y1+2),
                 tmpeditor.cols*fontx(SYSFONT,0,' '),(long)tmpeditor.lines*fonty(SYSFONT,0));
       activescroll.onscrollx=oldonx;
@@ -640,7 +640,7 @@ void activeatomredraw(void)
   mouseoff();
   if(activeatomptr==&URLprompt || activeatomptr==&TXTprompt)
    drawatom(activeatomptr,0u,0,
-            frame->scroll.xsize,
+	    frame->scroll.xsize,
             frame->scroll.ysize,
             frame->scroll.xtop,
             frame->scroll.ytop);
@@ -892,7 +892,7 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
     tmpscroll.yvisible=1;
     ScrollInit(&tmpscroll,
                (int)(activeatom.xx-activeatom.x-user_interface.scrollbarsize-6),
-               (int)(realyy-realy-8),
+	       (int)(realyy-realy-8),
                (int)(realyy-realy-8),
                onscreen_x+3,
                (int)(realy+3-fromy+scroll->ytop),1,1);
@@ -946,11 +946,22 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
      {
       if(editorptr->x==selected)
        return;
+//!!Ray: Jan 27, 2007
+// NO, DON'T RETURN! JUST BECAUSE YOU DOWN THE LAST UP BUTTON DOESN'T
+// MEAN YOU ARE NOT STILL ON ANOTHER BUTTON. COMMENTING 'return' IS
+// SUFFICIENT TO KILL THE BUG, BUT THE WHOLE BLOCK IS SUSPECT, IT ONLY
+// DOWNS THE BUTTON IN ONE OF FOUR POSSIBLE SITUATIONS, AND IT DOES THAT
+// IMPERFECTLY, BEST TO JUST KILL THE WHOLE THING, THE BUTTON WILL DROP
+// JUST FINE WITHOUT ANY OF THIS.
+/*
       else if(x>onscreen_xx-user_interface.scrollbarsize-4)
       {
        hidehighlight();
        return;
       }
+*/
+//!!Ray: end
+
       else
        editorptr->x=selected;
      }
@@ -978,7 +989,7 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
       }
 
       mousey=(int)(realy-fromy+scroll->ytop)+
-              fonty(OPTIONFONT,0)*(editorptr->x-editorptr->zoomy+2)/2;
+	      fonty(OPTIONFONT,0)*(editorptr->x-editorptr->zoomy+2)/2;
       mousex=onscreen_xx-user_interface.scrollbarsize-4;
       ImouseSet( mousex, mousey);
      }
@@ -988,7 +999,7 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
      thisx=onscreen_x+3;
      thisxx=onscreen_xx-user_interface.scrollbarsize-1;
      thisy=(int)(realy-fromy+scroll->ytop)+
-             fonty(OPTIONFONT,0)*(editorptr->x-editorptr->zoomy)/2+3;
+	     fonty(OPTIONFONT,0)*(editorptr->x-editorptr->zoomy)/2+3;
      thisyy=thisy+fonty(OPTIONFONT,0)+2;
 
      if(key!=PAGEUP && key!=PAGEDOWN)
@@ -1000,10 +1011,10 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
 
     mouseoff();
     drawatom(&activeatom,fromx,fromy,
-              p->htscrn_xsize+p->htscrn_xtop-scroll->xtop,
-              p->htscrn_ysize+p->htscrn_ytop-scroll->ytop, 
-              //select window can overwrite other
-              scroll->xtop,scroll->ytop);  //frames...
+	      p->htscrn_xsize+p->htscrn_xtop-scroll->xtop,
+	      p->htscrn_ysize+p->htscrn_ytop-scroll->ytop,
+	      //select window can overwrite other
+	      scroll->xtop,scroll->ytop);  //frames...
     mouseon();
     if(key)
      showhighlight();
@@ -1011,11 +1022,21 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
    }
   }//endif ?scroll?
 
+//!!Ray: Jan 27, 2007
+// AGAIN WE HAVE THIS STRANGE, INCOMPLETE GEOGRAPHY TEST.
+// THIS FUNCTION CALL SOMEHOW ZEROS 'Ed->nlines' SO THE TEST BELOW
+// FAILS AND RETURNS BEFORE 'selected' CAN BE PROCESSED. WITH IT
+// COMMENTED OUT THINGS SEEM OK, BUT I DON'T KNOW WHAT IT WAS SUPPOSED
+// TO DO SO I'M VERY LEARY OF REMOVING IT. FOOL WITH IT AND LET ME
+// KNOW WHAT YOU THINK.
+/*
   if(!singleline && x>onscreen_xx-user_interface.scrollbarsize-4)
   {
    activeatomcursor(0);
    return;
   }
+*/
+//!!Ray: end
 
   if(selected<0 || selected>=editorptr->lines)
    return;
@@ -1059,9 +1080,9 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
    {
     mouseoff();
     drawatom(&activeatom,fromx,fromy,
-              p->htscrn_xsize+p->htscrn_xtop-scroll->xtop,
-              p->htscrn_ysize+p->htscrn_ytop-scroll->ytop, 
-              scroll->xtop,scroll->ytop); 
+	      p->htscrn_xsize+p->htscrn_xtop-scroll->xtop,
+	      p->htscrn_ysize+p->htscrn_ytop-scroll->ytop,
+	      scroll->xtop,scroll->ytop);
     mouseon();
    }
    return;
@@ -1072,7 +1093,7 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
 
 //---------------------------- <SELECT> ---------------------------- end
 
-// There may be more than one scroll bars on the screen, but only one is active.  This active SC bar 
+// There may be more than one scroll bars on the screen, but only one is active.  This active SC bar
 // should be checked as a GUI event
 char activeatomScrollBarTICK(void)
 {

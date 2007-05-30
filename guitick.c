@@ -11,7 +11,7 @@
 
 #ifdef EXP//experimental
 #include "html.h"//!!glennmcc: Feb 18, 2005 -- for 'Select test' in mouseon()
-#endif
+#endif//exp
 
 int TcpIdleFunc(void)
 {
@@ -37,7 +37,7 @@ void timestr(char *str)
  gettime(&t);
  sprintf(str,"%2d:%02d:%02d",
    t.ti_hour, t.ti_min, t.ti_sec );
-#endif
+#endif//posix
 }
 
 void draw_time_online(void)
@@ -78,6 +78,7 @@ void xChLogo(char n)
    int y=3;
    if(arachne.GUIstyle==STYLE_SMALL2)
     y=4;
+   if(!user_interface.iconsoff)
    DrawIconNow( "ALTICON2",x_maxx()-146,y );
    return;
   }
@@ -101,7 +102,7 @@ void xChLogo(char n)
   strcpy(lasttime,cas);
   draw_time_online();
  }
-#endif
+#endif//textonly
 
 }//end sub
 
@@ -109,7 +110,7 @@ void xChLogoTICK(char Style) // animation of logo
 {
 #ifndef NOTCPIP
  Backgroundhttp();
-#endif
+#endif//notcpip
 
  if( fullscreen || customerscreen ||
     !user_interface.logoiddle || GLOBAL.backgroundimages>BACKGROUND_SLEEPING)
@@ -123,7 +124,7 @@ void xChLogoTICK(char Style) // animation of logo
   ikniddle+=800;
  }
  else
-#endif
+#endif//posix
   ikniddle++;
  if(ikniddle<user_interface.logoiddle)return;
 
@@ -157,7 +158,7 @@ void xChLogoTICK(char Style) // animation of logo
    ikn=0;
   }
  }
-#endif
+#endif//textonly
 }//end sub
 
 
@@ -169,7 +170,7 @@ void mouseon(void)
 //!!glennmcc: added 'Select test' Feb 18, 2005
 //calling onmouse(0) while in a <SELECT> tag causes a crash
 #ifdef EXP//experimental
-if(activeatom.data1!=SELECT)
+if(activeatom.data1!=SELECT && GLOBAL.clipdel != CLIPBOARD_ADDHOT)
   {
    if(onmouse(0))
    x_yncurs(1,mousex,mousey,user_interface.brightmouse);
@@ -177,7 +178,7 @@ if(activeatom.data1!=SELECT)
    x_yncurs(1,mousex,mousey,user_interface.darkmouse);
   }
   else
-#endif
+#endif//exp
 //the following original single line will still be used if <SELECT>
   x_yncurs(1,mousex,mousey,15);
  }
@@ -205,11 +206,15 @@ void MemInfoLine(char *text1,char *text2,int color,int *y)
  x_settextjusty(2,2);
  x_text_ib(x_maxx()-4,*y,(unsigned char *)text2);
 //!!glennmcc: Aug 22, 2005 -- prevent fontshift >1 from messing-up meminfo
+#ifdef CAV
+ *y+=fonty(0-user_interface.fontshift,NORMAL)-1;
+#else
  *y+=fonty(0-user_interface.fontshift,NORMAL);
+#endif//cav
 // *y+=fonty(0,NORMAL);
  x_settextjusty(0,2);        //always write text for upper left corner
 }
-#endif
+#endif//textonly
 
 int endvtoolbar(void)
 {
@@ -285,7 +290,7 @@ void MemInfo(char forced)
  //XMS used
  sprintf(str,"%5lu",mem_all_xmem());
  MemInfoLine("Used XMS (KB)",str,0,&y);
-#endif
+#endif//posix
 
  //XSWAP free
  ldsp=ie_free()>>10;
@@ -305,17 +310,45 @@ void MemInfo(char forced)
 
 #ifndef POSIX
  //disk space
- ldsp=localdiskspace()>>20;
+//!!glennmcc: Nov 25, 2005 -- check space on the cache drive
+//and the current drive .... display both when not the same drive
+//when cache is on local drive, display only one
+#ifndef NOKEY
+ {
+ ldsp=lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))>>20;
+//local & cache
+/**/
+ if(ldsp==(localdiskspace()>>20))
  sprintf(str,"%4lu",ldsp);
- if(ldsp<(user_interface.mindiskspace>>20))
+ else
+ sprintf(str,"%4lu %4lu",localdiskspace()>>20,ldsp);
+/**/
+//temp & cache
+/*
+ if(ldsp==(lastdiskspace(getenv("TEMP"))>>20))
+ sprintf(str,"cache_%4lu",ldsp);
+ else
+ sprintf(str,"temp_%4lu cache_%4lu",lastdiskspace(getenv("TEMP"))>>20,ldsp);
+*/
+ }
+#else
+//local only
+ {
+ ldsp=localdiskspace()>>20; //original line
+ sprintf(str,"%4lu",ldsp);  //original line
+ }
+#endif//nokey
+ if(ldsp<(user_interface.mindiskspace>>20)
+    || lastdiskspace(getenv("TEMP"))<user_interface.mindiskspace)
  {
   color=2;
   strcat(str,"[!!!]");
  }
  else
   color=0;
- MemInfoLine("Disk space (MB)",str,color,&y);
-#endif
+MemInfoLine("Disk space (MB)",str,color,&y); //original line
+
+#endif//posix
 
  //cache items
  sprintf(str,"%5d",HTTPcache.len);
@@ -350,15 +383,22 @@ void MemInfo(char forced)
   x_line(x_maxx()-147,y,x_maxx()-4,y);
   MemInfoLine("Charset",configvariable(&ARACHNEcfg,"AcceptCharset",NULL),0,&y);
   MemInfoLine("HTTP cookies",configvariable(&ARACHNEcfg,"Cookies",NULL),0,&y);
-  MemInfoLine("Keep POP3 mail",configvariable(&ARACHNEcfg,"KeepOnServer",NULL),0,&y);
+//!!Ray: Feb 09, 2007 -- remove keep pop3 to show DNS instead
+//  MemInfoLine("Keep POP3 mail",configvariable(&ARACHNEcfg,"KeepOnServer",NULL),0,&y);
+//!!Ray: end
   y++;
   x_setcolor(8);
   x_line(x_maxx()-147,y,x_maxx()-4,y);
+//!!Ray: Feb 09, 2007
+  sprintf(str,"%ld.%ld.%ld.%ld", *def_nameservers>>24, (*def_nameservers>>16)&0xFF,
+	      (*def_nameservers>>8)&0xFF, *def_nameservers&0xFF);
+  MemInfoLine("DNS",str,0,&y);
+//!!Ray: end
 //!!JdS 2005/08/16 {
 //Fix the useless "0.0.0.0" IP address info. display ...
 //  MemInfoLine("Local IP",myIPstr,0,&y); //original line
   sprintf(str,"%ld.%ld.%ld.%ld", my_ip_addr>>24, (my_ip_addr>>16)&0xFF,
-              (my_ip_addr>>8)&0xFF, my_ip_addr&0xFF);
+	      (my_ip_addr>>8)&0xFF, my_ip_addr&0xFF);
   MemInfoLine("Local IP",str,0,&y);
 //!!JdS 2005/08/16 }
   lastinfo=0;
@@ -366,6 +406,5 @@ void MemInfo(char forced)
 
  mouseon();
 
-#endif
+#endif//textonly
 }
-

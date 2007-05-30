@@ -120,3 +120,8 @@ extern int lasthisx,lasthisy,lasthisxx,lasthisyy;
 
 #define MAXBUTT 200004l  //max allowed animated button size
 #define MAXHOVER (long)(IE_MAXSWAPLEN-4000l)  //max allowed hover size
+
+//!!glennmcc: Mar 18, 2006 -- for 'hooking' ScreenCapture to 'PrtScr' in toolbar
+//see additional code in guievent.c
+extern int g_PrtScr;
+//!!glennmcc: end

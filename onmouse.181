@@ -4,10 +4,6 @@
 // (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
-// !!JdS 2004/12/01 : Replaced mouse-click literal constants with token
-// symbols (which are now defined in 'gui.h'). Similarly for image-input
-// atom subtype literal constants (token symbols now defined in 'html.h').
-
 #include "arachne.h"
 #include "html.h"
 #include "gui.h"
@@ -24,6 +20,16 @@ char *onmouse(int click)
  struct HTMLrecord *atomptr;
  int count=0;
 
+//!!glennmcc: Mar 02, 2005 -- trying Ray's fix
+//added to compensate for CSS linkhover in a frame
+//#define FRAME p->htmlframe[atomonmouse.frameID].scroll
+//!!glennmcc: end
+
+//!!glennmcc: Begin May 17, 2004
+// added to optionally goback or not on rightmouse click
+char *rmgb=0;
+//!!glennmcc: end
+
  if(mousey<p->htscrn_ytop && !customerscreen)
  {
   x=mousex-p->htscrn_xtop;
@@ -32,10 +38,10 @@ char *onmouse(int click)
   if(click && click!=MOUSE_RELEASE && !lmouse && atomptr->x<=x && atomptr->xx>=x && atomptr->y<=y && atomptr->yy>=y)
   {
    activeurl("");
-   if(click==MOUSE_MIDDLE) //paste
+   if(click==4) //paste
     activeatomtick(ASCIICTRLV,0);
    else
-   if(click==MOUSE_RIGHT) //delete
+   if(click==2) //delete
      activeatomtick(ASCIICTRLY,0);
    else if(click!=MOUSE_RELEASE)
    {
@@ -68,7 +74,7 @@ char *onmouse(int click)
   atomptr=&TXTprompt;
   if(atomptr->x<=x && atomptr->xx>=x && atomptr->y<=y && atomptr->yy>=y)
   {
-   if(click==MOUSE_MIDDLE)
+   if(click==4)
    {
     activeatomtick(ASCIICTRLV,0);
    }
@@ -167,26 +173,14 @@ char *onmouse(int click)
 
    if(click) //copy to clipboard
    {
-    if(click==MOUSE_RIGHT && atomptr->type==IMG)
+    if(click==2 && atomptr->type==IMG)
     {
      struct picinfo *imgptr=(struct picinfo *)ie_getswap(atomptr->ptr);
      GLOBAL.postdata=0;
      arachne.target=0;
-     //!!JdS: 2004/12/08 {
-     //Provide the capability to add an image hyperlink to the hotlist
-     atomptr = (struct HTMLrecord *) ie_getswap(atomptr->linkptr);
-     if (atomptr)
-      ptr = (char *) ie_getswap(atomptr->ptr);
-     if (atomptr && ptr)
-     {
-      ie_clipstatus = 0;  //overwrite mode
-      ie_appendclip(ptr);
-      GLOBAL.clipdel = CLIPBOARD_DEFER_ADD;
-     }
-     //!!JdS: 2004/12/08 }
      return imgptr->URL;
     }
-    if(click==MOUSE_LEFT && atomptr->type==TEXT && atomptr->linkptr==IE_NULL)
+    if(click==1 && atomptr->type==TEXT && atomptr->linkptr==IE_NULL)
     {
      ptr=(char *)ie_getswap(atomptr->ptr);
      if(*ptr)
@@ -195,7 +189,7 @@ char *onmouse(int click)
 
       ie_appendclip(ptr);
 
-      GLOBAL.clipdel = CLIPBOARD_DEFAULT;
+      GLOBAL.clipdel=0;
       memcpy(&atomonmouse,atomptr,sizeof(struct HTMLrecord));
 
       highlightatom(&atomonmouse);
@@ -205,10 +199,9 @@ char *onmouse(int click)
    }
 
    linkonmouse=atomptr->linkptr;
-   if(linkonmouse==IE_NULL) goto nolink; //IE_NULL=no link //original line
+   if(linkonmouse==IE_NULL) goto nolink; //IE_NULL=no link
 
    /* okopiruju HTMLatom pro potreby ISMAP, USEMAP, copy link, view image...*/
-   // tr.: I copy HTMLatom for use of ISMAP, USEMAP, copy link, view image...
    memcpy(&atomonmouse,atomptr,sizeof(struct HTMLrecord));
    //now, we won't use "atomptr" pointer until new ie_getswap()
 
@@ -303,7 +296,7 @@ char *onmouse(int click)
 
      textarea_only:
 
-     if(click==MOUSE_MIDDLE && atomonmouse.type==INPUT &&
+     if(click==4 && atomonmouse.type==INPUT &&
 	(atomonmouse.data1==TEXTAREA || atomonmouse.data1==TEXT
 	 || atomonmouse.data1==PASSWORD))
       activeatomtick(ASCIICTRLV,0);
@@ -350,7 +343,7 @@ char *onmouse(int click)
 
 	if(atomonmouse.data1==TEXTAREA)
 	{
-	 if(click==MOUSE_RIGHT && editorptr->blockflag==2) //right mouse button
+	 if(click==2 && editorptr->blockflag==2) //right mouse button
 	 {
 	  activeatomtick(ASCIICTRLX,0); //clean line (URL, etc.)
 	  goto exit_cursor;
@@ -390,13 +383,13 @@ char *onmouse(int click)
 	 textareamode=TEXTAREA_SCROLL;
        }
        else
-       if (click==MOUSE_LEFT && editorptr->blockflag!=2) //left mouse ...
+       if (click==1 && editorptr->blockflag!=2) //left mouse ...
 	editorptr->blockflag=4; //... allow block marking
 
        editorptr->x=newx;
        editorptr->y=newy;
        swapmod=1;
-       if(click==MOUSE_RIGHT)
+       if(click==2)
        {
 	if(atomonmouse.data1!=TEXTAREA)
 	 activeatomtick(ASCIICTRLY,0); //copy to clipboard
@@ -420,7 +413,7 @@ char *onmouse(int click)
     {
      //press button or INPUT TYPE=IMAGE
      if(atomonmouse.type==INPUT && atomonmouse.data1==SUBMIT ||
-	atomonmouse.type==IMG && atomonmouse.data1!=IMG_USEMAP) //not USEMAP!
+	atomonmouse.type==IMG && atomonmouse.data1!=2) //not USEMAP!
      {
       thisx=atomonmouse.x-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
       thisy=(int)(atomonmouse.y-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
@@ -456,10 +449,8 @@ char *onmouse(int click)
    }
    //-------------------------------------------------------------
 
-   if (atomptr->type==HREF || atomptr->type==FORM &&
-			      (atomonmouse.data1==SUBMIT ||
-			       atomonmouse.type==IMG &&
-			       atomonmouse.data1==IMG_INPUT))
+   if(atomptr->type==HREF || atomptr->type==FORM &&
+     (atomonmouse.data1==SUBMIT || atomonmouse.type==IMG && atomonmouse.data1==4))
    {
     char removable=0;
     XSWAP sheetadr=atomptr->linkptr;
@@ -489,12 +480,8 @@ char *onmouse(int click)
 
      if(atomonmouse.type==TEXT && usehover)
      {
-
-//!!glennmcc: Mar 05, 2005
-//see below, no longer need here due to using Ray's new code
-//      int xx,yy,xxx,yyy;
-//      long sz;
-//!!glennmcc: end
+      int xx,yy,xxx,yyy;
+      long sz;
 
       hidehover();
 
@@ -520,14 +507,44 @@ char *onmouse(int click)
 	 atomonmouse.data2-=(atomonmouse.data2&sheet->hoverresetbits);
 	}
 
-//!!glennmcc: Mar 05, 2005 -- This entire block is now superseded by code
-//from Ray's version of onmouse.c, to fix the CSS (frames) hover bug ...
-/*
+
+//!!glennmcc: begin Jan 26, 2005 -- added to compensate for CSS linkhover in a frame
+//!!glennmcc: Mar 02, 2005 -- trying a combination of Ray's fix and mine
+	if(dx<p->htmlframe[atomonmouse.frameID].scroll.xtop)
+//	   dx -= FRAME.xtop;//RAY
+	 dx-=p->htmlframe[atomonmouse.frameID].scroll.xtop;//!!glennmcc
+//!!glennmcc: end
 	xx=atomonmouse.x-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
+//!!glennmcc: begin Feb 27, 2005 -- added to compensate for CSS linkhover in a frame
+	if(p->htmlframe[atomonmouse.frameID].scroll.ytop>p->htscrn_ytop &&
+	   dy<p->htmlframe[atomonmouse.frameID].scroll.ytop)
+//	   dy -= (FRAME.ytop - p->htscrn_ytop);//RAY
+	 dy-=(int)(p->htmlframe[atomonmouse.frameID].scroll.ytop-p->htscrn_ytop);//!!glennmcc
+//!!glennmcc: end
 	yy=(int)(atomonmouse.y-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
 	xxx=atomonmouse.xx-dx+p->htmlframe[atomonmouse.frameID].scroll.xtop;
 	yyy=(int)(atomonmouse.yy-dy+p->htmlframe[atomonmouse.frameID].scroll.ytop);
+//!!glennmcc: begin Jan 26, 2005 -- added to compensate for CSS linkhover in a frame
+	if(xx>p->htmlframe[atomonmouse.frameID].scroll.xtop)
+	   {
+//	    xx -= FRAME.xtop;//Ray
+//	    xxx = atomonmouse.xx + FRAME.xtop;//RAY
+	    xx-=p->htmlframe[atomonmouse.frameID].scroll.xtop;//!!glennmcc
+	    xxx=p->htmlframe[atomonmouse.frameID].scroll.xtop+atomonmouse.xx;//!!glennmcc
+	   }
+//!!glennmcc: end
 	if(xx<p->htscrn_xtop)xx=p->htscrn_xtop;
+//!!glennmcc: begin Feb 28, 2005 -- added to compensate for CSS linkhover in a frame
+	if(p->htmlframe[atomonmouse.frameID].scroll.ytop>p->htscrn_ytop &&
+	   yy>p->htmlframe[atomonmouse.frameID].scroll.ytop)
+	   {
+//	    yy = (int)(atomonmouse.y + FRAME.ytop);//RAY
+//	    yyy = (int)(atomonmouse.yy + FRAME.ytop);//RAY
+	    yy-=(int)(p->htmlframe[atomonmouse.frameID].scroll.ytop-p->htscrn_ytop);//!!glennmcc
+	    yyy=(int)(p->htmlframe[atomonmouse.frameID].scroll.ytop+atomonmouse.yy);//!!glennmcc
+	   }
+//!!glennmcc: end
+
 	if(yy<p->htscrn_ytop)yy=p->htscrn_ytop;
 	if(xxx>x_maxx())xxx=x_maxx();
 	if(yyy>x_maxy())yyy=x_maxy();
@@ -563,142 +580,8 @@ char *onmouse(int click)
      }
      x_yncurs(1,mousex,mousey,(int)user_interface.brightmouse);
     }
-*/
 
-//--------------- begin paste-in from Ray's version of onmouse.c --------
-//!!glennmcc/RAY: 05-03-03: Fix CSS (frames) hover bug:
-
-#define FRAME p->htmlframe[atomonmouse.frameID].scroll
-	{
-/*
-The screen originates at the top left corner.
-
-p->htscrn_ytop
-is the current 'Y' coordinate of the top of the HTML window,
-which varies with screen style, but not with resolution:
-0   when in fullscreen layout
-25  when the small Ikons, URL/title bar are across the top
-50  when the small Ikons, URL bar, Title bar are across the top
-50  when the buttons are on right side, URL bar, Title bar across the top
-100 when the large buttons, URL bar, Title bar are across the top
-
-FRAME.ytop
-is the offset of the current frame within the HTML window.
-
-p->htmlframe[atomptr->frameID].posY
-is the measure of the amount of vertical scrolling that has taken place
-within the active frame (if any).
-
-atomonmouse.y / atomonmouse.yy
-The top / bottom of the atom relative to its absolute position ('dy' below).
-*/
-	 int x1,x2,y1,y2; // Atom horizontal start, stop; vertical start, stop.
-	 long sz;                                 // Size of the atom in bytes.
-// Asignments for 'dx' and 'dy' made above are:
-// dx = p->htmlframe[atomptr->frameID].posX;
-// dy = p->htmlframe[atomptr->frameID].posY;
-
-// Absolute coordinates of atom are: scrolling XY - frame XY + HTML window XY
-// because scrolling right moves absolute positions on the screen left.
-// Changing dx or dy offsets message, but doesn't 'clip' it.
-// Bigger numbers move to the left and up repectively because dx/dy work
-// subtractively.
-	 dx -= FRAME.xtop; // - p->htscrn_xtop // Always 0 with HTML window hard left.
-	 dy -= FRAME.ytop - p->htscrn_ytop;
-
-// If atom's left end moves past frame boundary due to scrolling, we want the
-//  whole atom to pop into view when hot anyway , so don't trim hot
-//  atom on the left unless it is right off the screen (0). NB this will only
-//  work when the HTML window is always hard on the left margin of the screen!
-
-//!!glennmcc: May 08, 2007 -- removed... causing problems :(
-/*
-//!!glennmcc: Mar 04, 2006 -- compensate for _not_ being 'hard left'
-	 x1 = (int)(atomonmouse.x +
-		    FRAME.xtop -
-		    p->htmlframe[atomptr->frameID].posX);
-
-	 if(x1<0)
-//!!glennmcc: end
-*/
-	 x1 = 0;
-
-//Ray: Mar 11, 2005
-// This allows *visible* part of over long link to hover.
-//!!glennmcc: Mar 04, 2006 -- did not work in 1024x768 res
-//this now works in all resolutions
-	 if (FRAME.xtop>(p->htscrn_xsize + p->htscrn_xtop))
-//	 if (FRAME.xtop>p->htscrn_xtop)
-	      x2 = p->htscrn_xsize + p->htscrn_xtop;
-	 else
-	      x2 = atomonmouse.xx + FRAME.xtop;
-//Ray: end
-
-	 y1 = (int)(atomonmouse.y +
-		    FRAME.ytop -
-		    p->htmlframe[atomptr->frameID].posY);
-	 y2 = (int)(atomonmouse.yy +
-		    FRAME.ytop -
-		    p->htmlframe[atomptr->frameID].posY);
-
-//!!glennmcc: Mar 02, 2006 -- removed, caused problems on non-framed pages
-//Ray: Mar 05, 2005
-// Guard against intrusion into the status line.
-//	 if (y2 > p->htscrn_ysize + p->htscrn_ytop)
-//	  y2 = p->htscrn_ysize + p->htscrn_ytop;
-//Ray: end
-//!!glennmcc: end
-
-	 sz = (long)((x2 - x1 + 1) * (y2 - y1 + 1) + 4 * sizeof(int));
-//!!glennmcc: Mar 04, 2006 -- we are now guarding against this by
-//limiting max fontshift to +1 ... therefore, we no longer need this fix
-//!!glennmcc: Mar 13, 2005 -- fixes <font size="greater than 3"> bug (see above)
-//	 if (sz > 0 && sz < MAXHOVER)
-	 if (sz > 0 && 2 * sz < MAXHOVER)//original line now re-enabled
-//!!glennmcc: end
-
-	 {                  // RAY: typecast made same form as one below.
-	  char *buf = malloc((unsigned)((long)(2L * sz)));
-	  if (buf)
-	  {
-	   x_getimg(x1, y1, x2, y2, buf);
-//       p->restorehoveradr = IE_NULL; // Moved from a few lines up.
-	   p->restorehoveradr =
-	    ie_putswap(buf, (unsigned)((long)(2L * sz)), CONTEXT_TMPIMG);
-	   free(buf);
-	  }
-	  p->restorehoverx = x1;
-	  p->restorehovery = y1;
-	  bigfonts_allowed();
-
-// hidehover(); // This prevents hover going off!
-// drawatom() Draws highlighted atom, but not unhighlighted atom!
-
-	  drawatom(&atomonmouse, dx, dy, // (See drawatom() L80)
-		   p->htscrn_xsize + p->htscrn_xtop -
-		   p->htmlframe[activeatom.frameID].scroll.xtop,
-		   // select window can overwrite other
-		   p->htscrn_ysize + p->htscrn_ytop -
-		   p->htmlframe[activeatom.frameID].scroll.ytop,
-		   p->htmlframe[activeatom.frameID].scroll.xtop,
-		   p->htmlframe[activeatom.frameID].scroll.ytop);  // frames...
-
-	  bigfonts_forbidden();
-	 } // End: if (sz > 0 && 2 * sz < MAXHOVER)
-	} // End: block
-       } // End: if (atomptr->linkptr != linkonmouse)
-      } // End: if (atomptr->linkptr != linkonmouse)
-      atomptr=(struct HTMLrecord *)ie_getswap(linkonmouse);
-      ptr=(char *)ie_getswap(atomptr->ptr);
-      if(!atomptr || !ptr)
-       return NULL;
-     } // End: if (atomonmouse.type==TEXT && usehover)
-     x_yncurs(1,mousex,mousey,(int)user_interface.brightmouse);
-    } // End: if (linkonmouse!=lastonmouse)
-//____end paste-in from Ray's version of onmouse.c __________
-
-
-    if(click==MOUSE_RIGHT) //copy link to clipboard
+    if(click==2) //copy link to clipboard
     {
      if(!removable)
       ie_clipstatus=0;
@@ -721,7 +604,7 @@ The top / bottom of the atom relative to its absolute position ('dy' below).
      return NULL;
     }
 
-    if(*ptr=='#' && click && click!=MOUSE_RELEASE) //clicking on A NAME
+    if(*ptr=='#' && click && click!=MOUSE_RELEASE) //kliknuti na A NAME
     {
      Goto_A_NAME(&ptr[1]);
      goto nolink;
@@ -731,12 +614,6 @@ The top / bottom of the atom relative to its absolute position ('dy' below).
     return ptr;
    }
    else
-//JdS 2006/02/05 {
-//Per Ray : Make sure mouse's off-link colour is correct;
-//          must turn mouse off then on to change colour.
-    x_yncurs(0,mousex,mousey,(int)user_interface.darkmouse);
-    x_yncurs(1,mousex,mousey,(int)user_interface.darkmouse);
-//JdS 2006/02/05 }
    if(atomptr->type==FORM)
     return NULL;
 
@@ -746,52 +623,31 @@ The top / bottom of the atom relative to its absolute position ('dy' below).
  }//loop
 
  nolink:
-//!!glennmcc: Feb 12, 2007 -- display 'alt text'
-//imgflag enhancement by Ray
-  {
-   static int imgflag=0;
-   if(atomptr->type==IMG)
-   {
-    struct picinfo *imgptr=(struct picinfo*)ie_getswap(atomptr->ptr);
-    if(strncmpi(imgptr->alt,"IMAGE",5))
-    {
-     outs(imgptr->alt);
-     imgflag=1;
-    }
-   }
-   else if(imgflag)
-    {
-     imgflag=0;
-     defaultmsg();
-    }
-  }
-//!!glennmcc: end
-
- if(click==MOUSE_RIGHT)
+ if(click==2)
  {
   if(p->activeframe) //right click on frame source
   {
    arachne.target=0;
    return p->htmlframe[p->activeframe].cacheitem.URL;
   }
-  else
-   if(!ontoolbar)
-   {
+  else if(!ontoolbar)
 //!!glennmcc: Begin May 17, 2004 -- only go back in history if
 // 'RightMouseGoesBack Yes' is in arachne.cfg
 //!!glennmcc: Dec 19, 2004 -- changed to goback by default
 //now it _will_ goback unless we say "No"
- if(*configvariable(&ARACHNEcfg,"RMGB",NULL)=='N') return 0;
+ rmgb=configvariable(&ARACHNEcfg,"RightMouseGoesBack",NULL);
+// if(rmgb && toupper(*rmgb)=='Y') return "arachne:back";
+ if(!rmgb || toupper(*rmgb)!='N') return "arachne:back";
  else
- return "arachne:back"; //original line had no such option
+   return 0;
+// return "arachne:back"; //original line had no such option
 //!!glennmcc: end
-   }
  }
  else
- if(click==MOUSE_MIDDLE && !ontoolbar) //middle button
+ if(click==4 && !ontoolbar) //middle button
    return "arachne:fullscreen";
  else
- if(click==MOUSE_LEFT)
+ if(click==1)
  {
   activeatomcursor(0);
   activeatomptr=NULL;
@@ -800,17 +656,12 @@ The top / bottom of the atom relative to its absolute position ('dy' below).
  }
  else
  if(lastonmouse!=IE_NULL && click!=MOUSE_RELEASE)
-  {
+ {
   defaultmsg();
   mouseoff();
   hidehover();
   x_yncurs(1,mousex,mousey,(int)user_interface.darkmouse);
-  }
-//!!glennmcc: May 08, 2007 -- also call hidehover() here to make extra-sure
-// that hover gets turned off when the mouse is move off of the link.
- else
- hidehover();
-//!!glennmcc: end
+ }
  lastonmouse=IE_NULL;
  return NULL;
 }
@@ -900,13 +751,13 @@ XSWAP AnalyseCSIM(int x, int y,struct HTMLrecord *map)
        if(x2<0 || y2<0) //automaticly close main polygon
        {
 	x2=array[0];
-        y2=array[1];
+	y2=array[1];
        }
 
        if(x1>x2)
        {
-        pom=x1;x1=x2;x2=pom;
-        pom=y1;y1=y2;y2=pom;
+	pom=x1;x1=x2;x2=pom;
+	pom=y1;y1=y2;y2=pom;
        }
 
        //is mouse pointer located in this sub-polygon ?

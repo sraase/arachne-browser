@@ -212,7 +212,9 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
 
     if(*value=='C' || j%10==0)
     {
-     if(bioskey(1) || ImouseRead( &x, &y ) || x!=px || y!=py)
+//!!RAY: Sep 30, 2006 -- CTRL key will now deactivate the screensaver
+     if((bioskey(1) || bioskey(2) &4) || ImouseRead( &x, &y ) || x!=px || y!=py)
+//     if(bioskey(1) || ImouseRead( &x, &y ) || x!=px || y!=py)
       done=1;
     }
     px=x;py=y;
