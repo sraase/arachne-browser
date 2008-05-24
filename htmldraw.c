@@ -245,8 +245,8 @@ void drawatom(struct HTMLrecord *atom,
        {
         border--;
         x_setcolor(bordercolor);
-        x_rect((int)(image->pic_x+border-1),(int)(image->pic_y+border-1),
-               (int)(screen_x+x2)-border-1,(int)(screen_y+y2)-border-1);
+	x_rect((int)(image->pic_x+border-1),(int)(image->pic_y+border-1),
+	       (int)(screen_x+x2)-border-1,(int)(screen_y+y2)-border-1);
        }
        return;
       }
@@ -362,7 +362,7 @@ return;
      x_setcolor(c2);
 
     x_line((int)(screen_x+x1),(int)(screen_y+y2),
-           (int)(screen_x+x2),(int)(screen_y+y2));
+	   (int)(screen_x+x2),(int)(screen_y+y2));
     x_line((int)(screen_x+x2),(int)(screen_y+y1),
            (int)(screen_x+x2),(int)(screen_y+y2));
 
@@ -375,7 +375,7 @@ return;
    x_line((int)(screen_x+x1),(int)(screen_y+y1),
           (int)(screen_x+x2),(int)(screen_y+y1));
    x_line((int)(screen_x+x1),(int)(screen_y+y1),
-          (int)(screen_x+x1),(int)(screen_y+y2));
+	  (int)(screen_x+x1),(int)(screen_y+y2));
  break;
 
   case INPUT: // ******************************************************* INPUT
@@ -408,7 +408,7 @@ return;
     if(fonty(SYSFONT,0)<=16 || atom!=&URLprompt)
      y2-=2;
     Cell3D((int)(screen_x+x1),(int)(screen_y+y1),
-           (int)(screen_x+x2),(int)(screen_y+y2),user_interface.paper);
+	   (int)(screen_x+x2),(int)(screen_y+y2),user_interface.paper);
 
     if(checked)
      will_activate_atom((int)(screen_x+x2),(int)(screen_y+y2));
@@ -419,11 +419,11 @@ return;
     if(y2<=y1+user_interface.scrollbarsize+5+fonty(SYSFONT,0) ||
        x2<=x1+user_interface.scrollbarsize+5+fontx(SYSFONT,0,' ') ||
        y2<=y1+40 || x2<=x1+40+5+fontx(SYSFONT,0,' ')) //dve rolovaci tlacitka vedle sebe...
-          // tr.: two scroll buttons side by side
+	  // tr.: two scroll buttons side by side
      break;
 
     Cell3D((int)(screen_x+x1),(int)(screen_y+y1),
-           (int)(screen_x+x2),(int)(screen_y+y2),user_interface.paper);
+	   (int)(screen_x+x2),(int)(screen_y+y2),user_interface.paper);
     if(checked)
      will_activate_atom((int)(screen_x+x2),(int)(screen_y+y2));
    }
@@ -431,18 +431,18 @@ return;
    if((type==SUBMIT || type==RESET || type==SELECT)&& y2>y1+2)
 //    Box3D1pix((int)(screen_x+x1),(int)(screen_y+y1),
     Box3Dh((int)(screen_x+x1),(int)(screen_y+y1),
-           (int)(screen_x+x2),(int)(screen_y+y2-2));
+	   (int)(screen_x+x2),(int)(screen_y+y2-2));
    if(type==BUTTON && y2>y1+2)
     Cell3D((int)(screen_x+x1),(int)(screen_y+y1),
-          (int)(screen_x+x2),(int)(screen_y+y2-2),-1);
+	  (int)(screen_x+x2),(int)(screen_y+y2-2),-1);
    else
    if(type==RADIO && y2>y1+6)
     Cell3D((int)(screen_x+x1+2),(int)(screen_y+y1+3),
-           (int)(screen_x+x2-1),(int)(screen_y+y2-4),user_interface.paper);
+	   (int)(screen_x+x2-1),(int)(screen_y+y2-4),user_interface.paper);
    else
    if(type==CHECKBOX && y2>y1+6)
     Cell3D((int)(screen_x+x1),(int)(screen_y+y1+3),
-           (int)(screen_x+x2),(int)(screen_y+y2-3),user_interface.paper);
+	   (int)(screen_x+x2),(int)(screen_y+y2-3),user_interface.paper);
 
    editorptr=(struct ib_editor *)ie_getswap(atom->ptr);
 
@@ -509,20 +509,20 @@ return;
        if(!user_interface.scrollbarstyle)
        {
         user_interface.scrollbarstyle='N';
-        resetstyle=1;
+	resetstyle=1;
        }
 
        scroll.xvisible=0;
        scroll.yvisible=1;
        ScrollInit(&scroll,
-                  (int)(x2-x1-user_interface.scrollbarsize-6),
+		  (int)(x2-x1-user_interface.scrollbarsize-6),
                   (int)(y2-y1-8),
                   (int)(y2-y1-8),
-                  (int)(screen_x+x1+3),
+		  (int)(screen_x+x1+3),
                   (int)(screen_y+y1+3),1,1);
        ScrollButtons(&scroll);
        if(scroll.scrollbarstyle)
-        vidimscroll=1;
+	vidimscroll=1;
        if(resetstyle)
         user_interface.scrollbarstyle=0;
       }
@@ -548,7 +548,7 @@ return;
      if(y2-y1<2*fonty(OPTIONFONT,0))
      {
       putoptionline((int)(screen_x+x1+2),(int)(screen_y+y1+3),
-                    x2-x1-user_interface.scrollbarsize,
+		    x2-x1-user_interface.scrollbarsize,
                     &tmpeditor,tmpeditor.y,checked);
      }
      else
@@ -557,7 +557,7 @@ return;
       while(y1<y2-fonty(OPTIONFONT,0)-4 && l<tmpeditor.lines)
       {
        putoptionline((int)(screen_x+x1+2),(int)(screen_y+y1+3),
-                     x2-x1-user_interface.scrollbarsize,
+		     x2-x1-user_interface.scrollbarsize,
                      &tmpeditor,l,checked);
        y1+=fonty(OPTIONFONT,0);
        l+=2;
@@ -606,7 +606,7 @@ return;
     {
      x_setfill(0,user_interface.ink);
      x_bar(x1+screen_x+5,
-           (int)(screen_y+y1+6),
+	   (int)(screen_y+y1+6),
            x1+screen_x+fontx(SYSFONT,0,' '),
            (int)(y1+screen_y+fontx(SYSFONT,0,' ')+3));
      break;
@@ -648,7 +648,7 @@ return;
 
      x_setcolor(user_interface.ink);
      x_text_ib((int)(x1+screen_x+2),(int)(screen_y+y1+2),
-               (unsigned char *)txt);
+	       (unsigned char *)txt);
 
     }
    }
@@ -684,14 +684,14 @@ void dumpvirtual(struct HTMLframe *frame,struct TMPframedata *htmldata, int from
  xv_set_actvirt(htmldata->whichvirtual);
  xv_to_scr(fromx-virtualxstart[htmldata->whichvirtual],
            (int)(fromy-virtualystart[htmldata->whichvirtual]),
-           frame->scroll.xtop,
+	   frame->scroll.xtop,
            frame->scroll.ytop,
            frame->scroll.xsize+1,
-           frame->scroll.ysize+1);
+	   frame->scroll.ysize+1);
 }
 
 void redrawatoms(char frame,
-                 int from_x, long from_y,
+		 int from_x, long from_y,
                  int draw_x, int draw_y,
                  int screen_x, int screen_y)
 
@@ -778,7 +778,7 @@ void redrawHTML(char nomsg, char virt)
   redrawatoms(p->activeframe,
               frame->posX,frame->posY,
               frame->scroll.xsize,frame->scroll.ysize,
-              frame->scroll.xtop,frame->scroll.ytop);
+	      frame->scroll.xtop,frame->scroll.ytop);
   if(frame->allowscrolling)
   {
    ScrollButtons(&frame->scroll);
@@ -847,10 +847,26 @@ void redrawHTML(char nomsg, char virt)
    {
     if(frame->scroll.total_x>frame->scroll.xsize)
     {
-     if(frame->scroll.total_x<1600)
+//!!Ray: July 07, 2007 -- increase from 1600 to 2048
+//!!glennmcc: July 08, 2007 -- '<=' instead of simply '<'
+//!!glennmcc: July 09, 2007 -- use BMPwidth CFG variable.
+//defaults to min of 640 and max of 2048
+ int value=atoi(configvariable(&ARACHNEcfg,"BMPwidth",NULL));
+     if(!value || value<640) value=640;
+     if(value>2048) value=2048;
+//!!glennmcc: July 13, 2008 -- prevent 'split screen'
+// when BMPwidth is less than screen width
+     if(value<x_maxx()) value=x_maxx();
+//!!glennmcc: end
+
+     if(frame->scroll.total_x<=value)
+//   if(frame->scroll.total_x<=2048)
+//   if(frame->scroll.total_x<2048)
       frame->scroll.xsize=frame->scroll.total_x+FUZZYPIX;
      else
-      frame->scroll.xsize=1600; // !!! will be definable in ARACHNE.CFG !!!
+      frame->scroll.xsize=value;//_NOW_ it _is_ definable in ARACHNE.CFG ;-)
+//    frame->scroll.xsize=2048; // !!! will be definable in ARACHNE.CFG !!!
+//!!Ray: end
     }
     else
      frame->scroll.xsize+=FUZZYPIX;
@@ -884,7 +900,7 @@ void redrawHTML(char nomsg, char virt)
 
     if(xv_new_virt(fname,        // File name for disk file
                    frame->scroll.xsize+FUZZYPIX,
-                   frame->scroll.ysize+FUZZYPIX,  // Size in pixels dx,dy
+		   frame->scroll.ysize+FUZZYPIX,  // Size in pixels dx,dy
                    0,                   // Default color
 		   TypVirt,             // HARO // 3-1bit/pixel, 0-8bit/pixel, -1-16bit/pixel
 		   256,                 // Length of palette
@@ -1128,7 +1144,7 @@ return;
     x_bar(frame->scroll.xtop+frame->scroll.xsize+1,
           frame->scroll.ytop,
           frame->scroll.xtop+frame->scroll.xsize+user_interface.scrollbarsize,
-          frame->scroll.ytop+frame->scroll.ymax);
+	  frame->scroll.ytop+frame->scroll.ymax);
    ScrollButtons(&frame->scroll);
    ScrollDraw(&frame->scroll,frame->posX,frame->posY);
   }
@@ -1271,7 +1287,7 @@ void drawframeborder(char i)
   x_bar(scroll->xtop-1,
          scroll->ytop-1,
          scroll->xtop-1,
-         scroll->ytop+scroll->ymax+1);
+	 scroll->ytop+scroll->ymax+1);
   x_bar(scroll->xtop-1,
          scroll->ytop-1,
          scroll->xtop+scroll->xsize+scrollbarsize+1,
@@ -1284,7 +1300,7 @@ void drawframeborder(char i)
   x_bar(scroll->xtop+scroll->xsize+scrollbarsize+1,
          scroll->ytop-1,
          scroll->xtop+scroll->xsize+scrollbarsize+1,
-         scroll->ytop+scroll->ymax+1);
+	 scroll->ytop+scroll->ymax+1);
   x_bar(scroll->xtop-1,
          scroll->ytop+scroll->ymax+1,
          scroll->xtop+scroll->xsize+scrollbarsize+1,
@@ -1304,8 +1320,10 @@ void drawactiveframe(void)
 
 void will_activate_atom(int setx, int sety)
 {
+//!!Ray: Oct 22, 2007 -- guard against activated textarea being off-screen
+ if(setx-2 > x_maxx() || sety-2 > x_maxy()) return;
+//!!Ray: end
  mousex=setx-2;
  mousey=sety-2;
  GLOBAL.activate_textarea=1;
 }
-

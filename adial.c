@@ -183,9 +183,12 @@ char *ArachneDIAL(void)
 //!!glennmcc: July 6, 2002 always write pppdrc.cfg
 // if(strstr(strupr(value),"PPP"))
 //!!glennmcc: end
+
+//!!glennmcc: Jan 16, 2008 -- write data into both pppdrc.cfg & lsppp.cfg
  {
   int f=a_open("pppdrc.cfg",O_TEXT|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-  if(f!=-1)
+  int f2=a_open("lsppp.cfg",O_TEXT|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+  if(f!=-1 && f2!=-1)
   {
    char *base,*default_base[4]={"0x3f8","0x2f8","0x3e8","0x2e8"};
    char *irq,*default_irq[4]={"4","3","4","3"};
@@ -206,27 +209,31 @@ char *ArachneDIAL(void)
     base=configvariable(&ARACHNEcfg,"Base",NULL);
    }
 
-//!!glennmcc: Mar 06, 2006 -- allow use of %DNS1 with miniterm/epppd
    dns=configvariable(&ARACHNEcfg,"NameServer",NULL);
-   if(strstr(dns,"%"))
-      makestr(dns,getenv(&dns[1]),19);
+   if(*dns=='%')
+     {
+      char *ptr=strchr(&dns[1],'%');
+      if(ptr) *ptr='\0';
+      dns=getenv(&dns[1]);
+     }
    if(strlen(dns)>6)
       sprintf(nameserver,"namsrv %s\n",dns);
       else
       strcpy(nameserver,"\0");
-//!!glennmcc: end
 
-//!!glennmcc: Mar 06, 2006 -- allow use of %DNS2 with miniterm/epppd
    altdns=configvariable(&ARACHNEcfg,"AltNameServer",NULL);
-   if(strstr(altdns,"%"))
-      makestr(altdns,getenv(&altdns[1]),19);
+   if(*altdns=='%')
+     {
+      char *ptr=strchr(&altdns[1],'%');
+      if(ptr) *ptr='\0';
+      altdns=getenv(&altdns[1]);
+     }
    if(strlen(altdns)>6)
       sprintf(altnameserver,"namsrv %s\n",altdns);
       else
       strcpy(altnameserver,"\0");
-//!!glennmcc: end
 
-
+//write pppdrc.cfg
    sprintf(buf,"\
 %s\n\
 irq %s\n\
@@ -240,17 +247,45 @@ user \"%s\"\n\
 passwd \"%s\"\n",
    configvariable(&ARACHNEcfg,"Speed",NULL),
    irq,base,
-//!!glennmcc: Mar 06, 2006 -- allow use of %DNS1 with miniterm/epppd
    nameserver,
-// configvariable(&ARACHNEcfg,"NameServer",NULL), //original line
-// also changed "namsrv %s\n\" to simply "%s\" above
-//(now matches altnameserver section)
-//!!glennmcc: end
    altnameserver,
    configvariable(&ARACHNEcfg,"PPPusername",NULL),
    configvariable(&ARACHNEcfg,"PPPpassword",NULL));
    write(f,buf,strlen(buf));
    a_close(f);
+
+//write lsppp.cfg
+   sprintf(buf,"\
+/M:%s\n\
+/d:%s\n\
+/B:%s\n\
+/i:%s\n\
+/b:%s\n\
+/U:%s\n\
+/P:%s\n\
+/V:60\n",
+   configvariable(&ARACHNEcfg,"InitString",NULL),
+   configvariable(&ARACHNEcfg,"PhoneNumber",NULL),
+   configvariable(&ARACHNEcfg,"Speed",NULL),
+   irq,base,
+   configvariable(&ARACHNEcfg,"PPPusername",NULL),
+   configvariable(&ARACHNEcfg,"PPPpassword",NULL));
+//!!glennmcc: Feb 14, 2008 -- also write DNSs into lsppp.cfg
+if(strlen(dns)>6)
+ {
+  strcat(buf,"/N:");
+  strcat(buf,dns);
+ }
+if(strlen(altdns)>6)
+ {
+  strcat(buf,",");
+  strcat(buf,altdns);
+ }
+if(strlen(dns)>6)
+   strcat(buf,"\n");
+//!!glennmcc: end, Feb 14, 2008
+   write(f2,buf,strlen(buf));
+   a_close(f2);
   }
   dospppd=1;
   pausemsg=MSG_ESC;

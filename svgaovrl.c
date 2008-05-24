@@ -34,7 +34,7 @@ void zoommsg(void)
 
 extern char egamode,cgamode,vga16mode,vgamono;
 
-//-------------------- globalni promenne (IBASE, X_LOPIF) ---------------
+//-------------------- global variable (IBASE, X_LOPIF) ---------------
 
 //char commBase[64];
 //char scratchBase[64];
@@ -46,7 +46,7 @@ char *vgadetected=NULL;
 void detectgraphics(void)
 //===========================================================================
 {
- //char Grafmode[30];  //pozadovany graf.mod -
+ //char Grafmode[30];  //requested graphical mode -
  int i;
 
  vgadetected=farmalloc(30);
@@ -64,7 +64,7 @@ void graphicsinit(char *svgamode)
 //===========================================================================
 {
 
-char *ptr,Grafmode[30];  //pozadovany graf.mod -
+char *ptr,Grafmode[30];  //requested graphical mode -
 int irc,gmode;
 
 //!!glennmcc: begin Feb 11, 2005
@@ -72,13 +72,13 @@ int irc,gmode;
 //the next block  of data is the original cursor
 /*
 const short cur[32] =
-	 {
-	   0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
-	   0xF001, 0xF000, 0xF800, 0xF800, 0xF800, 0xFC00, 0xFC00, 0xFC00,
-	   0x0000, 0x6000, 0x7000, 0x3800, 0x1C00, 0x0E00, 0x0700, 0x0018,
-	   0x07EC, 0x07EE, 0x001E, 0x03EE, 0x03EE, 0x001E, 0x00EC, 0x0002 };
+         { 0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
+           0xF001, 0xF000, 0xF800, 0xF800, 0xF800, 0xFC00, 0xFC00, 0xFC00,
+           0x0000, 0x6000, 0x7000, 0x3800, 0x1C00, 0x0E00, 0x0700, 0x0018,
+           0x07EC, 0x07EE, 0x001E, 0x03EE, 0x03EE, 0x001E, 0x00EC, 0x0002 };
 */
 //!!glennmcc:end
+
 //------------------------------------------------------
 
 //exit with invalid gr. mode?
@@ -196,7 +196,7 @@ strcpy(svgamode,Grafmode);
 */
 setmode:
 
-  // Nastaveni grafickeho modu
+  // Setting graphical mode
   if(!strcmpi(Grafmode,"VGAMONO"))
   {
    strcpy(Grafmode,"VGA");
@@ -227,7 +227,7 @@ setmode:
 //!!glennmcc: begin Feb 11, 2005
 //moved to config.c to make it configurable via CursorType in arachne.cfg
 //origianl sinle line follows
-//  x_defcurs( (short *)cur, (short *)&cur[16], 15); //myssii kursor
+//  x_defcurs( (short *)cur, (short *)&cur[16], 15); //mouse cursor
 //!!glennmcc: end
 
  if(!strcmpi(Grafmode,"EGA"))
@@ -241,13 +241,13 @@ setmode:
 
  initpalette();
 
- x_setcolor(15); //bila!
+ x_setcolor(15); //white!
  x_charmod(1);
 
  return;
 
  //========================================================================
- //chyba pri otevirani grafiky >>
+ //error while opening graphic >>
  //========================================================================
  GrError:
  x_grf_mod(3);
@@ -255,7 +255,7 @@ setmode:
  exit(EXIT_GRAPHICS_ERROR);
 
 /*
-  x_grf_mod(3);  //chyba pri otevirani grafiky >>
+  x_grf_mod(3);  //error while opening graphic >>
 
   puts(MSG_VERR1);
   puts(MSG_VERR2);
@@ -291,7 +291,7 @@ void finfo(void)
    htmlfont(f,style);
    finf->y[f-1][style]=x_txheight("A");
 
-   //korekce jsou pro font Arial !!!
+   //corrections apply to font Arial !!!
    if(style==0)
    {
     if(f>2)finf->y[f-1][style]--;
@@ -345,13 +345,17 @@ void finfo(void)
  }
 // htmlfont(SYSFONT,0);
 
- f=a_open(fntinf,O_WRONLY|O_CREAT|O_BINARY,S_IREAD|S_IWRITE);
+//!!glennmcc: Mar 06, 2008 -- preserve entity data at end of original fontinfo.bin
+ f=a_open(fntinf,O_WRONLY|O_BINARY,S_IREAD|S_IWRITE);
+//f=a_open(fntinf,O_WRONLY|O_CREAT|O_BINARY,S_IREAD|S_IWRITE);//original line
  if(f!=-1)
  {
-  write(f,finf,sizeof(struct Finf));
+  write(f,finf,sizeof(struct Finf)-768);
+//write(f,finf,sizeof(struct Finf));//original ine
+//!!glennmcc: end
   a_close(f);
   puts(fntinf);
-  exit(EXIT_TO_DOS);//!!glennmcc: Jun 13, 2005
+  exit(EXIT_TO_DOS); //!!glennmcc: Jun 13, 2005
  }
  else
  {

@@ -132,3 +132,23 @@ int strcmpi(char *str1,char *str2)
 }
 
 #endif
+
+#ifdef LINUX
+char* itoa(int val, int base)
+{
+ static char buf[32] = {0};
+ int i = 30;
+ for(; val && i ; --i, val /= base)
+ buf[i] = "0123456789abcdef"[val % base];
+ return &buf[i+1];
+}
+
+char* ltoa(long val, long base)
+{
+ static char buf[32] = {0};
+ int i = 30;
+ for(; val && i ; --i, val /= base)
+ buf[i] = "0123456789abcdef"[val % base];
+ return &buf[i+1];
+}
+#endif

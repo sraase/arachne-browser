@@ -41,6 +41,8 @@ extern long g_PrevImg;
 
 #ifdef OVRL
 #ifndef XTVERSION
+#ifndef LINUX
 #define XANIMGIF
+#endif
 #endif
 #endif

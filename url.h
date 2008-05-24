@@ -14,7 +14,12 @@
 #define URLSIZE 400 //(UE version)
 #endif
 #define PROTOCOLSIZE 11
+//!!Udo: -- Dec 27, 2007 -- increase 'stringsize'
+#ifdef NOKEY
+#define STRINGSIZE 96 //was 48
+#else
 #define STRINGSIZE 48
+#endif
 #define PASSWORDSIZE 16
 
 struct Url

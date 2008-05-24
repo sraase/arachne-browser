@@ -20,6 +20,15 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
  char isdir=0,retry=0;//,ascii=0;
  long total=0;
 
+//!!glennmcc: Nov 11, 2007 -- for 'dblp code' below
+ int dblp=0;
+//!!glennmcc: end
+
+//!!glennmcc: Nov 13, 2007 -- for EZNOS2 fix below
+int eznos2=0;
+//!!glennmcc: end
+int log;
+
  if(!tcpip)return 0;
  free_socket();
 
@@ -38,6 +47,9 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
   return 0;
  }
 
+ if(!uploadfile)
+   log=a_open("FTP.LOG",O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
+
  GlobalLogoStyle=2;			//SDL set connect animation
  if (!tcp_open( socket, locport(), host, url->port, NULL ))
  {
@@ -47,6 +59,8 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
  }
  sprintf(str,msg_con,url->host,url->port);
  outs(str);
+ write(log,str,strlen(str));
+ write(log,"\r\n",2);
  sock_wait_established(socket, sock_delay, (sockfunct_t) TcpIdleFunc,
 		       &status);		//SDL
 
@@ -60,6 +74,10 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
 		   &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
+  write(log,buffer,strlen(buffer));
+  write(log,"\r\n",2);
+
+
 //  printf("FTP daemon said>");
 //  puts(buffer);
   if ( *buffer != '2' && buffer[0]!=' ') goto quit;
@@ -72,11 +90,16 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
   ptr=url->user;
 
  sprintf( str, "USER %s", ptr);
+ write(log,str,strlen(str));
+ write(log,"\r\n",2);
  sock_puts(socket,(unsigned char *)str);
  sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
 		  &status );		//SDL
  sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
  outs(buffer);
+ write(log,buffer,strlen(buffer));
+ write(log,"\r\n",2);
+
 //  printf("FTP daemon said>");
 //  puts(buffer);
 
@@ -92,7 +115,10 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
   strcpy(cache->locname,"FTP.LOG");
  else
  {
-  ptr=strchr(cache->locname,'.');
+//!!glennmcc: Oct 22, 2008 -- strchr() was preventing the use of 'CachePath .\cache\'
+//  ptr=strchr(cache->locname,'.');
+  ptr=strrchr(cache->locname,'.');
+//!!glennmcc: end
   if(ptr)
   {
    strcpy(&ptr[1],"FTP");
@@ -129,16 +155,27 @@ int ftpsession(struct Url *url,struct HTTPrecord *cache,char *uploadfile)
 //some sites do not require a password after 'anonymous'
 //therefer, this entire block is now within this 'if()' so that
 //the password (email address), will only be sent if asked for
-if (strstr(buffer,"sword"))
+//!!glennmcc: Nov 13, 2007 -- EZNOS2 says "Enter PASS command"
+if (strstr(buffer,"sword") || strstr(buffer,"Enter PASS command"))
+//if (strstr(buffer,"sword"))//original line
 {
  sprintf( str, "PASS %s", ptr);
  sock_puts(socket,(unsigned char *)str);
+ write(log,str,strlen(str));
+ write(log,"\r\n",2);
+}//!!glennmcc: inserted Mar 02, 2008
+//Some servers need the following 'do/while' section,
+//therfore, only the section above for sending the password needs to be
+//'blocked' when no password was requested.
+
  do
  {
   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
 		   &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
+  write(log,buffer,strlen(buffer));
+  write(log,"\r\n",2);
 //  printf("FTP daemon said>");
 //  puts(buffer);
   if ( *buffer != '2' && buffer[0]!=' ')
@@ -155,7 +192,7 @@ if (strstr(buffer,"sword"))
   }
  }
  while(buffer[3]=='-' || buffer[0]==' '); //continued message!
-}//!!glennmcc: end May 11, 2005
+//}//!!glennmcc: end May 11, 2005 -- removed on Mar 02, 2008
 
  //ask server where we have to connect:
 
@@ -164,6 +201,10 @@ if (strstr(buffer,"sword"))
 		  &status );		//SDL
  sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
  outs(buffer);
+ write(log,buffer,strlen(buffer));
+ write(log,"\r\n",2);
+
+
 
 //  printf("FTP daemon said>");
 //  puts(buffer);
@@ -172,7 +213,12 @@ if (strstr(buffer,"sword"))
 
  if ( *buffer != '2' ) goto quit;
  datahostptr=strchr(buffer,'(');
- if(!datahostptr) goto quit;
+//!!glennmcc: Nov 13, 2007 -- EZNOS2 doesn't enclose the info in ()
+//therefore, if '(' is not found... look for the last 'space'.
+ if(!datahostptr) {datahostptr=strrchr(buffer,' '); eznos2=1;}
+//if that still fails... 'quit'
+//!!glennmcc: end
+ if(!datahostptr) goto quit;//original line
 
  ptr=++datahostptr;
  {
@@ -196,12 +242,23 @@ if (strstr(buffer,"sword"))
      *ptr='\0';
      dataport=256*(word)atoi(portptr);  // ,x,y -> 256*x+y
      portptr=ptr+1;
+//!!glennmcc: Nov 13, 2007 -- part of above fix for EZNO2 info not in ()
+ if(eznos2) dataport+=atoi(portptr);      // ,x,y -> 256*x+y
+//!!glennmcc: end
     }
    }
    else if(*ptr==')' && portptr)
    {
+//!!glennmcc: Nov 11, 2007 -- some servers have double ')'
+// at the end of the port address info...
+// this 'dblp code' will prevent that from adding the final set twice
+//eg: (99,167,219,186,234,255)) instead of.... (99,167,219,186,234,255)
+//without this fix ... 255 gets added a 2nd time and
+//we end-up-with... port 60414 instead of the correct port of 60159
     *ptr='\0';
+    if(!dblp)//!!glennmcc: Nov 11, 2007
     dataport+=atoi(portptr);      // ,x,y -> 256*x+y
+    dblp=1;//!!glennmcc: Nov 11, 2007
    }
    ptr++;
   }
@@ -218,6 +275,12 @@ if (strstr(buffer,"sword"))
  {
   if(url->file[0])
   {
+//!!glennmcc: Oct 15, 2007 -- fix problems with CWD on FTP servers
+//which interpret the leading '/' as an attempted CD to 'root'
+   if(url->file[0]=='/')
+   sprintf( str, "CWD %s", url->file+1);
+   else
+//!!glennmcc: end Oct 15, 2007
    sprintf( str, "CWD %s", url->file);
    sock_puts(socket,(unsigned char *)str);
    do
@@ -226,6 +289,7 @@ if (strstr(buffer,"sword"))
 		     &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
+
 //!!glennmcc: Apr 08, 2005 -- commented-out this block
 // to fix the problem of 'broken dir listing' when the
 // 'FTP welcome message' contains linefeeds
@@ -295,10 +359,14 @@ if (strstr(buffer,"sword"))
   strcpy(cache->mime,mimestr);
 
   sock_puts(socket,(unsigned char *)str);
+  write(log,str,strlen(str));
+  write(log,"\r\n",2);
   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
 		  &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
+  write(log,buffer,strlen(buffer));
+  write(log,"\r\n",2);
 //  printf("FTP daemon said>");
 //  puts(buffer);
   if ( *buffer != '2' || uploadfile)
@@ -312,12 +380,29 @@ if (strstr(buffer,"sword"))
    goto quit;
   }
   if(!uploadfile)
+
+//!!glennmcc: Oct 17, 2007 -- fix problems with FTP servers
+//which interpret the leading '/' as an attempted CD to 'root'
+   if(url->file[0]=='/')
+   sprintf( str, "RETR %s", url->file+1);
+   else
    sprintf( str, "RETR %s", url->file);
+//original single line above this comment
+//!!glennmcc: end
   else
    sprintf( str, "STOR %s", url->file);
  }
  sock_puts(socket,(unsigned char *)str);
-if(isdir) sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Apr 10, 2007
+ write(log,str,strlen(str));
+ write(log,"\r\n",2);
+//!!glennmcc: Oct 19, 2008 -- back to original fix
+//!!glennmcc: Nov 15, 2007 -- always 'close' the connection when done
+//with both dir listings and file downloads
+//Apr 10, 2007 fix did it only for dir listings
+if(isdir || strstr(str,"RETR"))
+//if(isdir)
+ sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Apr 10, 2007
+//!!glennmcc: end
 
  if(!retry)
  {
@@ -337,10 +422,30 @@ if(isdir) sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Apr 10, 2007
   }
   sprintf(str,msg_con,datahost,dataport);
   outs(str);
+  write(log,str,strlen(str));
+  write(log,"\r\n",2);
 
   //wait for datasocket to open:
   sock_wait_established(&datasocket, sock_delay, (sockfunct_t) TcpIdleFunc,
 			&status);	//SDL
+
+//!!glennmcc: Sep 27, 2008 -- increase D/L speed on cable & DSL
+//many thanks to 'mik' for pointing me in the right direction. :)
+{
+#ifdef DEBUG
+ char sp[80];
+ sprintf(sp,"Available stack = %u bytes",_SP);
+ outs(sp);
+ Piip(); Piip();
+#endif
+ if(_SP>(1024*20))
+ {
+  char setbuf[1024*20];
+  sock_setbuf(&datasocket, (unsigned char *)setbuf, 1024*20);
+ }
+}
+//!!glennmcc: end
+
   GlobalLogoStyle=1;		//SDL set data animation
  }
  //wait for "110 openning connection" (or "550 ....error....")
@@ -349,6 +454,10 @@ if(isdir) sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Apr 10, 2007
 
  sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
  outs(buffer);
+ write(log,buffer,strlen(buffer));
+ write(log,"\r\n",2);
+
+
 // printf("FTP daemon said>");
 // puts(buffer);
  if ( *buffer != '1' || uploadfile)
@@ -423,7 +532,11 @@ if(isdir) sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Apr 10, 2007
    {
     sprintf(pom,MSG_UPLOAD,length,filel);
     outs(pom);
-    percentbar((int)(100*length/filel));
+//!!glennmcc:Oct 23, 2008 -- 'reversed the logic'
+// to keep from overflowing at 21megs
+    if(filel>100)
+    percentbar((int)(length/(filel/100)));
+//  percentbar((int)(100*length/filel));
     lenread=a_read(f,buffer,BUFLEN);
     length+=lenread;
     if(lenread<=0)
@@ -454,10 +567,16 @@ if(isdir) sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Apr 10, 2007
 
 
 dataquit:
- sock_abort( &datasocket );
+//!!glennmcc: Nov 15,  2007 -- removed sock_abort because it was
+// sometimes preventing the connection from being closed,
+// therefore preventing access to several files within a short time
+// due to too many connections open from the same IP
+// sock_abort( &datasocket );//original line
+//!!glennmcc: end
 
 dataclose:
  outs(MSG_CLOSE);
+
  sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Dec 04, 2006
  sock_wait_closed( &datasocket, sock_delay, (sockfunct_t) TcpIdleFunc,
 		   &status );		//SDL
@@ -470,14 +589,11 @@ dataclose:
   outs(buffer);
  }
 
-
-
 quit:
   sock_puts(socket,(unsigned char *)"QUIT");
   sock_close( socket );
   closing[socknum]=1;
   sock_keepalive[socknum][0]='\0';
-
 //    sock_wait_closed( socket, sock_delay, NULL, &status );
 
 //we will better wait because we are about to deallocate datasocket
@@ -485,10 +601,16 @@ quit:
 sock_err:
     switch (status) {
 	case 1 : /* foreign host closed */
+		 write(log,MSG_CLOSE,strlen(MSG_CLOSE));
+		 write(log,"\r\n",2);
+		 close(log);
 		 break;
 	case -1: /* timeout */
 		 sprintf(str,MSG_TCPERR, sockerr(socket));
 		 outs(str);
+		 write(log,str,strlen(str));
+		 write(log,"\r\n",2);
+		 close(log);
 		 break;
     }
 

@@ -533,7 +533,10 @@ int ie_openf_lim(struct ib_editor *fajl,int context,int max) //load, or open, 1.
  fajl->bey=0;
  fajl->blockflag=0;
  fajl->insert=1;
- fajl->wordwrap=0;
+//!!glennmcc: Apr 07, 2008 -- default to wrap (see also html.c)
+ fajl->wordwrap=1;
+// fajl->wordwrap=0;
+//!!glennmcc: end
  fajl->swapcontext=context;
  fajl->cols=0;
  fajl->killstr[0]='\0';

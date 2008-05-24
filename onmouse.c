@@ -545,7 +545,10 @@ char *onmouse(int click)
 
 	 p->restorehoverx=xx;
 	 p->restorehovery=yy;
+
+#ifndef POSIX
 	 bigfonts_allowed();
+#endif
 
 	 drawatom(&atomonmouse,dx,dy,
 		   p->htscrn_xsize+p->htscrn_xtop-p->htmlframe[activeatom.frameID].scroll.xtop,
@@ -669,7 +672,9 @@ The top / bottom of the atom relative to its absolute position ('dy' below).
 	  }
 	  p->restorehoverx = x1;
 	  p->restorehovery = y1;
+#ifndef POSIX
 	  bigfonts_allowed();
+#endif	  
 
 // hidehover(); // This prevents hover going off!
 // drawatom() Draws highlighted atom, but not unhighlighted atom!
@@ -683,7 +688,9 @@ The top / bottom of the atom relative to its absolute position ('dy' below).
 		   p->htmlframe[activeatom.frameID].scroll.xtop,
 		   p->htmlframe[activeatom.frameID].scroll.ytop);  // frames...
 
+#ifndef POSIX
 	  bigfonts_forbidden();
+#endif	  
 	 } // End: if (sz > 0 && 2 * sz < MAXHOVER)
 	} // End: block
        } // End: if (atomptr->linkptr != linkonmouse)
@@ -700,8 +707,10 @@ The top / bottom of the atom relative to its absolute position ('dy' below).
 
     if(click==MOUSE_RIGHT) //copy link to clipboard
     {
+#ifndef CAV
      if(!removable)
       ie_clipstatus=0;
+#endif
      if(!strncmpi("mailto:",ptr,7))
       ptr+=7;
      ie_appendclip(ptr);

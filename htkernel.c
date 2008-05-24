@@ -37,7 +37,9 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
  if(p->httplen) //flush rest of header...
  {
   count=p->httplen;
+#ifndef LINUX
   sock_datalen[socknum]+=count;
+#endif  
   p->httplen=0;
   if(cache->handle!=-1)
    write(cache->handle,buf,count);
@@ -48,8 +50,10 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
  if(cache->knowsize)
  {
   if (cache->size<=0) return 0;
+#ifndef LINUX
   if(sock_datalen[socknum]>=cache->size)
    return 0;
+#endif   
  }
  else if (cache->handle==-1)
   return 0;
@@ -91,7 +95,9 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
 #endif
    if(count>0)
    {
+#ifndef LINUX
     sock_datalen[socknum]+=count;
+#endif    
     if(cache->handle!=-1)
      write(cache->handle,buf,count);
     Backgroundhttp();
@@ -164,16 +170,21 @@ void Backgroundhttp(void)
 #endif
    if(count>0)
    {
+#ifndef LINUX
     sock_datalen[GLOBAL.back_socknum]+=count;
+#endif
     if(GLOBAL.back_handle!=-1)
     {
      char str[80];
      long fpos=a_filelength(GLOBAL.back_handle);
      write(GLOBAL.back_handle,buffer,count);
      GLOBAL.back_iddle=0;
-     if (GLOBAL.back_knowsize && GLOBAL.back_size>0)
+     if (GLOBAL.back_knowsize && GLOBAL.back_size>100)
      {
-      int prc=(int)(100*fpos/GLOBAL.back_size);
+//!!glennmcc:Oct 23, 2008 -- 'reversed the logic'
+// to keep from overflowing at 21megs
+      int prc=(int)(fpos/(GLOBAL.back_size/100));
+//    int prc=(int)(100*fpos/GLOBAL.back_size);
 //      sprintf(str,MSG_X_OF_Y_BASIC,MSG_BACKGR,fpos,GLOBAL.back_size); //JdS
     sprintf(str,MSG_X_OF_Y,MSG_BACKGR,fpos,GLOBAL.back_size);
       outs(str);

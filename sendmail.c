@@ -57,7 +57,8 @@ int xsendmail(struct Url *url, char helo, char logfile)
 {
  longword host;
  long length;
- char str[128],pom[128];
+//!!glennmcc: Feb 05, 2008 -- increased from 128 to 512
+ char str[512/*128*/],pom[512/*128*/];
 
 //!!glennmcc Apr 30, 2004 -- for AuthSMTP
  char AuthSMTPusername[128]="",AuthSMTPpassword[128]="";
@@ -564,7 +565,11 @@ else //begin else HELO
     {
      sprintf(pom,MSG_SEND,length,fll);
      outs(pom);
-     percentbar((int)(100*length/fll));
+//!!glennmcc:Oct 23, 2008 -- 'reversed the logic'
+// to keep from overflowing at 21megs
+     if(fll>100)
+     percentbar((int)(length/(fll/100)));
+//   percentbar((int)(100*length/fll));
      lenread=a_read(f,buffer,BUFLEN);
      length+=lenread;
      if(lenread<=0)
@@ -610,8 +615,15 @@ if(bcc)
     }
     str[j]=buffer[i++];
 
-    if(j>=127 || str[j]=='\n' || done)
+//!!glennmcc: Feb 05, 2008 -- prevent character from being lost at line break
+//by breaking at a space instead of 127 explicitly
+//also increased line length limit to the next space past 200
+//instead of just 127 explicitly
+    if((j>=200 && str[j]==' ') || str[j]=='\n' || done)
+//  if(j>=127 || str[j]=='\n' || done) //original line
+//!!glennmcc: end
     {
+
      str[j]='\0';
      length++; //ASCI mode !!!
 

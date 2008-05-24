@@ -131,6 +131,21 @@ void process_form(char cgi, XSWAP formID)
 	qlen+=cgiquery((unsigned char *)value,(unsigned char *)&querystring[qlen],cgi&2); //cgi&2=true if http:..
 	swapmod=1; //novy platny querystring:
        }
+//!!glennmcc: Apr 18, 2008 -- save form data into $query$.tmp
+if(!strstr(GLOBAL.location,"file:"))
+      {
+       char q[80];
+       int f;
+       tempinit(q);
+       strcat(q,"$query$.tmp");
+       f=a_fast_open(q,O_BINARY|O_CREAT|O_TRUNC|O_WRONLY,S_IREAD|S_IWRITE);
+       if(f>=0)
+       {
+	write(f,querystring,strlen(querystring));
+	a_close(f);
+       }
+      }
+//!!glennmcc: end
       }
       else //<form action=arachne:internal....>
       {

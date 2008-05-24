@@ -598,7 +598,6 @@ while (url->protocol[0] == ' ' || url->protocol[0] == '.' ||
    }
    else
     ptr=strptr;
-
    makestr(url->host,ptr,STRINGSIZE-1);
 
    ptr=strchr(url->host,':'); //port ?  2
@@ -775,8 +774,8 @@ if(!strcmpi(configvariable(&ARACHNEcfg,"Mail2Hist",NULL),"No") &&
 //!!glennmcc: end
 
 //!!glennmcc: Jan 13, 2005 -- also don't add some of the mail .DGIs
-//#ifndef NOKEY
-#ifdef EXP
+#ifndef NOKEY
+//#ifdef EXP
   if(strstr(URL,"//movemail") || strstr(URL,"//delmail") ||
      strstr(URL,"emptytrash.dgi")
     ) return;

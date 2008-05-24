@@ -181,7 +181,7 @@ void try2readHTMLcolor(char *str,unsigned char *r,unsigned char *g,unsigned char
  if(strstr(str,"LIME"))
   {*r=0;*g=0xFF;*b=0;}
  else
- if(strstr(str,"GRAY"))
+ if(strstr(str,"GRAY") || strstr(str,"GREY"))
   {*r=0x80;*g=0x80;*b=0x80;}
  else
  if(strstr(str,"OLIVE"))
@@ -347,8 +347,13 @@ int FastTagDetect(char *tagname)
    return TAG_LI;
   if(!strcmp(ptr,"D"))
    return TAG_DD;
+#ifdef CAV
+  if(!strcmp(ptr,"L"))// || !strcmp(ptr,"IR"))
+   return TAG_OL;
+#else
   if(!strcmp(ptr,"L") || !strcmp(ptr,"IR"))
    return TAG_OL;
+#endif
   if(!strcmp(ptr,"IV"))
    return TAG_DIV;
 //!!glennmcc: Feb 27, 2007 -- <S> has been depreciated to <DEL>
@@ -472,6 +477,10 @@ int FastTagDetect(char *tagname)
 // return TAG_B;//original line
 //!!glennmcc: end
   strupr(ptr);
+//!!glennmcc: Aug 13, 2007 -- support <strike> in addition to <s>
+  if(!strcmp(ptr,"TRIKE"))
+   return TAG_S;
+//!!glennmcc: end
   if(!strcmp(ptr,"ELECT"))
    return TAG_SELECT;
   if(!strcmp(ptr,"MALL"))

@@ -65,7 +65,13 @@ char *anykey=MSG_ANYKEY;
 #ifdef NOKEY
 //char *regkey="",reg=1;
 //char *regkey="GPL  Version",reg=1;//!!glennmcc: Apr 06, 2003 --- GPL now
-char *regkey="v1.91;GPL,387+",reg=1;
+#if defined(LINUX)
+char *regkey="v1.93;Linux",reg=1;
+#elif defined(XT086)
+char *regkey="v1.93;GPL,286-",reg=1;
+#else
+char *regkey="v1.93;GPL,387+",reg=1;
+#endif//LINUX
 #else
 char regkey[KEYLEN+1]=MSG_UNREG,reg=0;
 #endif

@@ -156,6 +156,12 @@ void ScrollDraw(struct ScrollBar *scroll,int fromx,long fromy)
 
    pom=fromy*(long)scroll->max_yscrsz;
    scroll->yscr=(int)(pom/scroll->total_y);
+
+//!!Ray: Dec 17, 2007 -- fix BSOD
+// Return if overflow:
+if(scroll->yscr < 0) return;
+//!!Ray: end
+
    if(scroll->yscr+scroll->yscrsz>scroll->max_yscrsz)scroll->yscr=scroll->max_yscrsz-scroll->yscrsz;
   }
 

@@ -8,7 +8,7 @@ int PrintScreen2BMP(char virtscr)
  struct
  {
   short sigBMP;                  // that it is a BMP  "BM" -- File_header
-  long size;                       // size of file 
+  long size;                       // size of file
   long resWin;                    // Reserve Windows 4 bytes
   long offBit;                     // Beginning of picture
 
@@ -26,12 +26,16 @@ int PrintScreen2BMP(char virtscr)
   long CltImport;                  // number of important colours
  } bmp_hed;                          // Sum = 54bytes
 
- unsigned char buf[4000];        //2*1600 + 4 + secure overhead
- int j,f,depth=8,max,zblo;
- long x,y,offbit;
- unsigned long fsize;
+//!!Ray: July 07, 2007 increase buffer size to handle 2048 width
+   unsigned char buf[5100];        //2*2048 + 4 + secure overhead
+// unsigned char buf[4000];        //2*1600 + 4 + secure overhead
+   int j,f,depth=8,max,zblo;
+   long x,y,offbit;
+   unsigned long fsize;
 #ifdef HICOLOR
- unsigned char *RGBquadbuf;
+//!!Ray: July 07, 2007 -- allocate size here instead of with farmalloc below
+   unsigned char RGBquadbuf[3096];
+// unsigned char *RGBquadbuf;
  int i;
 #endif
  char *charhed=(char *)&bmp_hed;
@@ -72,10 +76,12 @@ int PrintScreen2BMP(char virtscr)
 
 #ifdef HICOLOR
 
- RGBquadbuf=farmalloc(3096);
- if(!RGBquadbuf)
+//!!Ray: July 07, 2007 -- new method above
+/*
+  RGBquadbuf=farmalloc(3096);
+  if(!RGBquadbuf)
   return 0;
-
+*/
  if(xg_256 == MM_Hic)
  {
   depth=24;
@@ -180,7 +186,8 @@ int PrintScreen2BMP(char virtscr)
   y--;
  }
 #ifdef HICOLOR
- free(RGBquadbuf);
+//!!RAY:July 07, 2007 -- no longer needed
+// free(RGBquadbuf);
 #endif
  close(f);
  sprintf(GLOBAL.location,"file:%s",fname);

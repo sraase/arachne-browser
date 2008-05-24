@@ -164,10 +164,21 @@ IveGotNewUrl:
 //!!glennmcc: Apr 13, 2007 -- duplicated 'define:' with 'webster:'
 //added 'oxford:' and combined all 4
 //(define:, webster:, oxford:, wiki:) into the same block of code
-      strncmpi(GLOBAL.location,"define:",7) &&
-      strncmpi(GLOBAL.location,"webster:",8) &&
-      strncmpi(GLOBAL.location,"oxford:",7) &&
-      strncmpi(GLOBAL.location,"wiki:",5))
+      strncmpi(GLOBAL.location,"define:",7)
+   && strncmpi(GLOBAL.location,"webster:",8)
+   && strncmpi(GLOBAL.location,"oxford:",7)
+   && strncmpi(GLOBAL.location,"wiki:",5)
+//!!glennmcc: Jan 19, 2008 -- added spellchecker
+   && strncmpi(GLOBAL.location,"spell:",6)
+//!!glennmcc: Jan 24, 2008 -- added ping of domain_name or IP_address
+   && strncmpi(GLOBAL.location,"ping:",5)
+//!!glennmcc: Jan 24, 2008 -- added traceroute to domain_name or IP_address
+   && strncmpi(GLOBAL.location,"traceroute:",11)
+//!!glennmcc: Jan 24, 2008 -- added whois of domain_name
+   && strncmpi(GLOBAL.location,"whois:",6)
+//!!glennmcc: Jan 24, 2008 -- added whois of IP_address
+   && strncmpi(GLOBAL.location,"whoisip:",8)
+      )
   {
    int i=0;
    char *ptr=configvariable(&ARACHNEcfg,"SearchEngine",NULL);
@@ -190,24 +201,89 @@ IveGotNewUrl:
      || !strncmpi(GLOBAL.location,"webster:",8)
      || !strncmpi(GLOBAL.location,"oxford:",7)
      || !strncmpi(GLOBAL.location,"wiki:",5)
+//!!glennmcc: Jan 19, 2008 -- added spellchecker
+     || !strncmpi(GLOBAL.location,"spell:",6)
+//!!glennmcc: Jan 24, 2008 -- added ping
+     || !strncmpi(GLOBAL.location,"ping:",5)
+//!!glennmcc: Jan 24, 2008 -- added traceroute
+     || !strncmpi(GLOBAL.location,"traceroute:",11)
+//!!glennmcc: Jan 24, 2008 -- added whois of domain_name
+     || !strncmpi(GLOBAL.location,"whois:",6)
+//!!glennmcc: Jan 24, 2008 -- added whois of IP_address
+     || !strncmpi(GLOBAL.location,"whoisip:",8)
     )
   {
    int i=7;
    char buf[4*URLSIZE];
-   char *ptr="http://www.webster.com/cgi-bin/dictionary?";
+   char *ptr="http://www.learnersdictionary.com/search/";
+// char *ptr="http://www.merriam-webster.com/cgi-bin/dictionary?";
    if (!strncmpi(GLOBAL.location,"webster:",8)) i=8;
    if (!strncmpi(GLOBAL.location,"oxford:",7))
-   ptr="http://www.askoxford.com/concise_oed/";
+//!!glennmcc: June 06, 2007 -- much better than /concise_oed/ ;-)
+   ptr="http://www.askoxford.com/results/?view=dict&freesearch=";
+//   ptr="http://www.askoxford.com/concise_oed/";
    if (!strncmpi(GLOBAL.location,"wiki:",5))
    {
     i=5;
     ptr="http://en.wikipedia.org/wiki/Special:Search?search=";
    }
+//!!glennmcc: Jan 19, 2008 -- added spellchecker
+   if (!strncmpi(GLOBAL.location,"spell:",6))
+   {
+    i=6;
+    ptr="http://www.spellcheck.net/cgi-bin/spell.exe?action=CHECKWORD&string=";
+//must disable keepalive due to spellcheck.net being on MS IIS v6 server :(
+    http_parameters.keepalive=0;
+   }
+//!!glennmcc: Jan 24, 2008 -- added ping
+   if (!strncmpi(GLOBAL.location,"ping:",5))
+   {
+    i=5;
+#ifdef CAV
+    ptr="file:ping.dgi ";
+#else
+    ptr="http://www.fifi.org/services/ping?packetcount=1&packetwait=1&formatted=yes&hostname=";
+#endif
+   }
+//!!glennmcc: Jan 24, 2008 -- added traceroute
+   if (!strncmpi(GLOBAL.location,"traceroute:",11))
+   {
+    i=11;
+#ifdef CAV
+    ptr="file:traceroute.dgi ";
+#else
+    ptr="http://www.fifi.org/services/traceroute?nprobes=1&resolved=yes&submit=Traceroute&hostname=";
+#endif
+   }
+//!!glennmcc: Jan 24, 2008 -- added whois of domain_name
+   if (!strncmpi(GLOBAL.location,"whois:",6))
+   {
+    i=6;
+    ptr="http://www.networksolutions.com/whois/results.jsp?domain=";
+   }
+//!!glennmcc: Jan 24, 2008 -- added whois of IP_address
+   if (!strncmpi(GLOBAL.location,"whoisip:",8))
+   {
+    i=8;
+    ptr="http://www.networksolutions.com/whois/results.jsp?ip=";
+   }
+#ifdef CAV
+   if(strstr(ptr,"traceroute.dgi") || strstr(ptr,"ping.dgi"))
+   {
+    strcat(ptr,&GLOBAL.location[i]);
+    strcpy(GLOBAL.location,ptr);
+   }
+   else
+#endif
+//the next 3 lines are common to all added protocols.
+  {
    cgiquery((unsigned char *)&GLOBAL.location[i],(unsigned char *)buf,1);
    strcpy(GLOBAL.location,ptr);
    makestr(&GLOBAL.location[strlen(ptr)],buf,URLSIZE-strlen(ptr)-2);
   }
 //!!glennmcc: end
+
+  }
   else
   if(!strcmpi(GLOBAL.location,"arachne:addressbook"))
   {
@@ -354,7 +430,7 @@ IveGotNewUrl:
    if(plugin)
    {
     make_cmd(text,buf,
-             p->htmlframe[arachne.target].cacheitem.URL,
+	     p->htmlframe[arachne.target].cacheitem.URL,
 	     url.host, url.file, text, "NUL");
    }
    else
@@ -372,6 +448,27 @@ IveGotNewUrl:
 #endif
   }
   //------------------------------------------------------------------------
+
+  //--------------------------------------------------------- rtsp: and mms:
+  if(!strcmpi(url.protocol,"rtsp") || !strcmpi(url.protocol,"mms"))
+  //------------------------------------------------------------------------
+  {
+   char buf[IE_MAXLEN+2];
+   sprintf(buf,"call mp-get.bat %s://%s%s\n",url.protocol,url.host,url.file);
+
+#ifdef POSIX
+   printf("Executing command:\n%s\n",buf);
+   system(buf);
+   goto Wait4Orders;
+#else
+   closebat(buf,RESTART_REDRAW);
+   returnvalue=willexecute(buf);
+   x_grf_mod(3);
+   goto end;
+#endif
+  }
+  //----------------------------------------------------- end rtsp: and mms:
+
   else if(!tcpip) //other protocols are available only online...
   //------------------------------------------------------------------------
   {
@@ -480,6 +577,14 @@ IveGotNewUrl:
    else //error - bad host name, connection reset, etc.
    {
     Abort:
+
+//!!glennmcc: May 31, 2007 -- add2history upon aborting transfer
+//but only when no data has yet been received and cached
+#ifndef CAV
+if(GLOBAL.abort==ABORT_TRANSFER && GLOBAL.location != cacheitem->URL)
+add2history(GLOBAL.location);
+#endif
+//!!glennmcc: end
 
     if(GLOBAL.redirection)
     {
@@ -1193,9 +1298,8 @@ PageDone:
   char dummy[128];
   sprintf(dummy,MSG_DOCDON,copyright,pagetime/60,(int)(pagetime % 60));
   outs(dummy);
-  defaultmsg();
  }
-//}//!!glennmcc: added for 'Xswap clear code' above
+/*}//!!glennmcc: added for 'Xswap clear code' above*/
 
  if(GLOBAL.activate_textarea)
  {
@@ -1283,7 +1387,7 @@ ReadScriptLine:
 #ifdef GGI
   WaitForEvent(NULL);//NULL pointer means >>wait forever for mouse or keystroke<<
                      //later, timeval structure with time limit will be passed,
-                     //considering  animation, JavaScript and redirection timouts,
+		     //considering  animation, JavaScript and redirection timouts,
                      //and also DrawTime function - used in fullscreen version...                   
 #else
  {
@@ -1483,4 +1587,3 @@ userend:
 end:
  return Terminate_Arachne(returnvalue);
 }
-

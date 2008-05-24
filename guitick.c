@@ -13,6 +13,10 @@
 #include "html.h"//!!glennmcc: Feb 18, 2005 -- for 'Select test' in mouseon()
 #endif//exp
 
+#ifdef LINUX
+#include <time.h>
+#endif
+
 int TcpIdleFunc(void)
 {
    if(GLOBAL.abort || GUITICK())
@@ -384,22 +388,29 @@ MemInfoLine("Disk space (MB)",str,color,&y); //original line
   MemInfoLine("Charset",configvariable(&ARACHNEcfg,"AcceptCharset",NULL),0,&y);
   MemInfoLine("HTTP cookies",configvariable(&ARACHNEcfg,"Cookies",NULL),0,&y);
 //!!Ray: Feb 09, 2007 -- remove keep pop3 to show DNS instead
-//  MemInfoLine("Keep POP3 mail",configvariable(&ARACHNEcfg,"KeepOnServer",NULL),0,&y);
+#ifdef LINUX
+  MemInfoLine("Keep POP3 mail",configvariable(&ARACHNEcfg,"KeepOnServer",NULL),0,&y);
+#endif
 //!!Ray: end
   y++;
   x_setcolor(8);
   x_line(x_maxx()-147,y,x_maxx()-4,y);
 //!!Ray: Feb 09, 2007
+#ifndef LINUX
   sprintf(str,"%ld.%ld.%ld.%ld", *def_nameservers>>24, (*def_nameservers>>16)&0xFF,
 	      (*def_nameservers>>8)&0xFF, *def_nameservers&0xFF);
   MemInfoLine("DNS",str,0,&y);
+#endif  
 //!!Ray: end
 //!!JdS 2005/08/16 {
 //Fix the useless "0.0.0.0" IP address info. display ...
-//  MemInfoLine("Local IP",myIPstr,0,&y); //original line
+#ifdef LINUX
+  MemInfoLine("Local IP",myIPstr,0,&y); //original line
+#else  
   sprintf(str,"%ld.%ld.%ld.%ld", my_ip_addr>>24, (my_ip_addr>>16)&0xFF,
 	      (my_ip_addr>>8)&0xFF, my_ip_addr&0xFF);
   MemInfoLine("Local IP",str,0,&y);
+#endif
 //!!JdS 2005/08/16 }
   lastinfo=0;
  }

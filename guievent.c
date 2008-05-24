@@ -572,8 +572,11 @@ unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
     if(gotoactiveatom(asc,&formID))
     {
 //!!glennmcc: July 10, 2006 -- duplicate action of F2 in forms
-//     link=gotoactiveatom(asc,&formID);
+#ifndef NOKEY
+     link=gotoactiveatom(asc,&formID);
+#else
      link=activeislastinput(); //original line
+#endif
 //!!glennmcc: end
      if(link)
       goto submit;
@@ -753,7 +756,7 @@ unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
    }
   }
   else if(key==F1) //F1 key
-   return gotohelppage();
+   return gotohelppage();//orginal single line
   else if(key==0x3d00 || key==27136)//F3, Alt+F3
   {
    char newurl[URLSIZE]="file:*.htm";
@@ -856,7 +859,12 @@ ptr=strupr(configvariable(&ARACHNEcfg,"RIAD",NULL));
 if(*ptr=='Y' && strstr(GLOBAL.location,"file:"))
 return reloadpage(); //reload if local
 else
-return 1; //do not reload if not local
+{
+//!!glennmcc: Feb 14, 2008 -- removed last year's fix
+//see new code in urlovrl.c
+// HTTPcache.len--; //!!glennmcc: Feb 24, 2007 -- decrement cache item count by 1
+ return 1; //do not reload if not local
+}
    }
    else if(asc=='/' || asc==17 || key==F7) // F7 || ^Q - search for string
     return searchevent();
@@ -1330,8 +1338,10 @@ Piip();
     return gotosearchpage();
 #endif
 
+#ifndef ERIC
    else if(key==F8)//F8 - clean cache
     return erasecache();
+#endif
 
    else if(key==REDRAW_KEY)//F5 or F9
     return repaint();
@@ -1392,6 +1402,50 @@ else if(key==8454)
    return GLOBAL.needrender=1;
   }
 //!!glennmcc: end
+
+//!!glennmcc: Nov 23, 2007 -- temporarilly change to 'AlwaysUseCFGcolors'
+//and no CSS for viewing of pages with hard to read color schemes
+else if(key==11776)//Alt+C
+  {
+   static int csstoggle=0, colortoggle=0;
+
+   if(csstoggle==0 && user_interface.css==1)
+   {
+    csstoggle=1;
+    user_interface.css=0;
+   }
+   else
+   if(csstoggle==1)
+   {
+    csstoggle=0;
+    user_interface.css=1;
+   }
+
+   if(colortoggle==0 && user_interface.alwaysusecfgcolors==0)
+   {
+    colortoggle=1;
+    user_interface.alwaysusecfgcolors=1;
+   }
+   else
+   if(colortoggle==1)
+   {
+    colortoggle=0;
+    user_interface.alwaysusecfgcolors=0;
+   }
+    return GLOBAL.needrender=1;
+  }
+//!!glennmcc: end
+
+//!!glennmcc: Sep 17, 2008 -- 'kill' cookies & history
+//in mime.cfg --- file/privacy.dgi |del $kcookiefile \n del $h
+   else if(key==26368)//Ctrl+F10
+   {
+    sprintf(GLOBAL.location,"file:privacy.dgi",exepath);
+    arachne.target=0;
+    return gotoloc();
+   }
+//!!glennmcc: end
+
 #ifdef CAV
    else if(key==0x1800)//Alt+O
    {
@@ -1626,8 +1680,21 @@ submit:
       ql=strlen(querystring);
       if(ql+strlen(GLOBAL.location)+1>=URLSIZE || http==0)
        GLOBAL.postdata=2; //zkusim metodu post (tr.: try method post)
-      else
+       else
       {
+//!!Udo: Feb 29, 2008 -- trim post URL query string at '?'
+       char *t;
+       t=GLOBAL.location;
+       while (*t!=0)
+       {
+	if (*t=='?')
+	{
+	 *t=0;
+	 break;
+	}
+       else t++;
+       }
+//!!Udo: end
        strcat(GLOBAL.location,"?");
        strcat(GLOBAL.location,querystring);
        GLOBAL.postdata=0;
@@ -1704,7 +1771,9 @@ submit:
       {
        if(methodarg[0]=='\'')
 //!!glennmcc: Mar 18, 2006
+#ifndef LINUX
 if(strstr(methodarg,"PrtScr")){g_PrtScr=1; return 1;} else
+#endif
 //!!glennmcc: end
 	return GUIEVENT((int)methodarg[1],0);
        else

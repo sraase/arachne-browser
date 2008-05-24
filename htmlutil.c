@@ -248,8 +248,12 @@ void HTTPcharset(char *charset)
   RENDER.translatecharset=0;
   // werner scholz begin  Nov 8,2006  --- utf8 ---
 //   RENDER.utf8=0;
-   if(strstr(charset,"utf-8")) RENDER.utf8=1;
-   if(strstr(charset,"UTF-8")) RENDER.utf8=1;
+//!!glennmcc: Apr 01, 2008 -- Werner's method was not 'catching' both upper & lower case
+   if(strstr(charset,"f-8") || strstr(charset,"F-8")) RENDER.utf8=1;
+//   if(strstr(charset,"utf-8")) RENDER.utf8=1;
+//   if(strstr(charset,"UTF-8")) RENDER.utf8=1;
+//Werner's original 2 lines above this comment
+//!!glennmcc: end
 //   if(RENDER.utf8!=0)
 //    {if(strstr(my,"-8859-1")) RENDER.utf8=1;
 //     if(strstr(my,"-8859-2")) RENDER.utf8=2;}
@@ -353,6 +357,8 @@ void METAtag(void)
    if(getvar("CONTENT",&tagarg))
    {
     char *set=strstr(tagarg,"charset=");
+//!!glennmcc: Apr 01, 2008
+    if(!set) set=strstr(tagarg,"CHARSET=");
     if(set)
      HTTPcharset(set);
    }

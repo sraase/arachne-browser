@@ -65,10 +65,14 @@ void cfgerr (struct ib_editor *f)
 //!!JdS 2004/3/6 {
 void badcookiesfile ()
 {
+#ifndef LINUX
  x_grf_mod(3);
  printf("Error: The 'cookies.lst' file is either broken or incompatible.");
  memory_destroy();
  exit(EXIT_TO_DOS);
+#else
+return;
+#endif
 }
 //!!JdS 2004/3/6 }
 

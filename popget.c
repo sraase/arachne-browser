@@ -54,7 +54,7 @@ int xpopdump(struct Url *url,char dele,char logfile)
 //!!glennmcc: Nov 25, 2005 -- for checking the drivespace (see below)
 int toobig=0, mult=1;
 //!!glennmcc: end
-char *value=configvariable(&ARACHNEcfg,"MailTop",NULL);
+char *mailtop=configvariable(&ARACHNEcfg,"MailTop",NULL);
 
  if(!tcpip)return 0;
  free_socket();
@@ -87,6 +87,23 @@ char *value=configvariable(&ARACHNEcfg,"MailTop",NULL);
  sock_wait_established( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
 			&status);  	//SDL
  GlobalLogoStyle=1;			//SDL set data animation
+
+//!!glennmcc: Sep 27, 2008 -- increase D/L speed on cable & DSL
+//many thanks to 'mik' for pointing me in the right direction. :)
+{
+#ifdef DEBUG
+ char sp[80];
+ sprintf(sp,"Available stack = %u bytes",_SP);
+ outs(sp);
+ Piip(); Piip();
+#endif
+ if(_SP>(1024*20))
+ {
+  char setbuf[1024*20];
+  sock_setbuf(socket, (unsigned char *)setbuf, 1024*20);
+ }
+}
+//!!glennmcc: end
 
  sock_mode( socket, TCP_MODE_ASCII );
  outs(MSG_LOGIN);
@@ -206,7 +223,11 @@ char *value=configvariable(&ARACHNEcfg,"MailTop",NULL);
 
 	sprintf(str,MSG_GET2, process,locallength,count,totallength,MSG_GET3 );
 	outs(str);
-	percentbar((int)(100*read/totallength));
+//!!glennmcc:Oct 23, 2008 -- 'reversed the logic'
+// to keep from overflowing at 21megs
+	if(totallength>100)
+	percentbar((int)(read/(totallength/100)));
+//      percentbar((int)(100*read/totallength));
 //!!glennmcc: Oct 19, 2005
 //check space on drive where mailpath is located instead of the current drive.
 toobig=0;
@@ -230,8 +251,7 @@ if(toobig)
 //!!glennmcc: end this section.....more below
 	}
 
-//   value=configvariable(&ARACHNEcfg,"MailTop",NULL);
-     if(!strncmpi(value,"Y",1))
+     if(!strncmpi(mailtop,"Y",1))
 	sprintf( str, "TOP %lu 1000000", process ); else
 	sprintf( str, "RETR %lu", process );
 	if(log!=-1)
@@ -239,6 +259,26 @@ if(toobig)
 	 write(log,str,strlen(str));
 	 write(log,"\r\n",2);
 	}
+/*
+//!!glennmcc: Sep 27, 2008 -- increase D/L speed on cable & DSL
+//many thanks to 'mik' for pointing me in the right direction. :)
+if(!bufset)
+{
+#ifdef DEBUG
+ char sp[80];
+ sprintf(sp,"Available stack = %u bytes",_SP);
+ outs(sp);
+ Piip(); Piip();
+#endif
+if(_SP>(1024*20))
+{
+ char setbuf[1024*20];
+ bufset=1;
+ sock_setbuf(socket, (unsigned char *)setbuf, 1024*20);
+}
+}
+//!!glennmcc: end
+*/
 	sock_puts(socket,(unsigned char *)str);
 	sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
 			 &status );		//SDL
@@ -357,11 +397,14 @@ if(toobig)
 
 //!!glennmcc: Jun 27, 2005 -- This one finally works correctly :))
 #ifdef EXP//experimental
+if(!strncmpi(mailtop,"Y",1))
+{
 if(strlen(ptr)<1 || !buffer || (locallength<1 && strstr(ptr,"\n\0\n.\n")
 //!!glennmcc: Sep 29, 2005 -- next line was still causing a few aborts
 //  || strstr(ptr,"\r\n\0\r\n.\r\n")
    )
   ) done=1;
+}
 #endif
 //!!glennmcc: end
 
@@ -443,7 +486,11 @@ else
 	thisfile+=len;
 
 //        if(read % 512l == 0l) //kresleni tycky kazdy 1 kB
-	 percentbar((int)(100*read/totallength));
+//!!glennmcc:Oct 23, 2008 -- 'reversed the logic'
+// to keep from overflowing at 21megs
+	 if(totallength>100)
+	 percentbar((int)(read/(totallength/100)));
+//       percentbar((int)(100*read/totallength));
        }
 	while (!done /*&& locallength>0*/);
 

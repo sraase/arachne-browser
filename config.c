@@ -276,9 +276,18 @@ char *configvariable(struct ib_editor *fajl,char *keystring,char *newvalue)
  fajl->y=0;
  while(fajl->y<fajl->lines)
  {
+reaquire://!!glennmcc: Mar 08, 2008 -- case sensitive for entity.cfg
   line=ie_getline(fajl,fajl->y);
-  if(line && strlen(line)>l && !strncmpi(line,keystring,l))
+  if(line && strlen(line)>l && !strncmpi(line,keystring,l))//original line
   {
+//!!glennmcc: Mar 08, 2008 -- case sensitive for entity.cfg
+   char *filename=fajl->filename;
+   if(strstr(filename,"entity.cfg") && strncmp(line,keystring,l))
+     {
+      fajl->y++;
+      goto reaquire;
+     }
+//!!glennmcc: end
    if(newvalue)
    {
     newval:
@@ -824,10 +833,10 @@ the right side if the tail fix is not desired:
 
 //!!glennmcc: begin Dec 11, 2001
 // added to fix "HTTPS verifying images" loop by trying HTTP instead
-// (defaults to Yes if "Https2Http Disabled" line is not in Arachne.cfg)
+// (defaults to Yes if "Https2Http No" line is not in Arachne.cfg)
 //!!glennmcc: Jan 24, 2005 -- changed defult to "Yes"
  value=configvariable(&ARACHNEcfg,"HTTPS2HTTP",NULL);
- if(value && toupper(*value)=='D')   //JdS 2005/4/30 (parenthesis)
+ if(value && toupper(*value)=='N')   //JdS 2005/4/30 (parenthesis)
   http_parameters.https2http=0;
  else
   http_parameters.https2http=1;
@@ -838,9 +847,9 @@ the right side if the tail fix is not desired:
 // (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
  value=configvariable(&ARACHNEcfg,"IGNOREJS",NULL);
  if(value && toupper(*value)=='Y')   //JdS 2004/9/3 (parenthesis)
-  http_parameters.ignorejs=1;
+  user_interface.ignorejs=1;
  else
-  http_parameters.ignorejs=0;
+  user_interface.ignorejs=0;
 //!!glennmcc: end
 
 //!!glennmcc: begin July 14, 2003
@@ -858,9 +867,9 @@ the right side if the tail fix is not desired:
 //(defaults to No if "AlwaysUseCFGcolors Yes" line is not in Arachne.cfg)
  value = configvariable(&ARACHNEcfg,"AlwaysUseCFGcolors",NULL);
  if(value && toupper(*value)=='Y')   //JdS 2005/8/4 (parenthesis)
-  http_parameters.alwaysusecfgcolors=1;
+  user_interface.alwaysusecfgcolors=1;
  else
-  http_parameters.alwaysusecfgcolors=0;
+  user_interface.alwaysusecfgcolors=0;
 //!!glennmcc: end
 
 }

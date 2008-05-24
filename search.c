@@ -103,6 +103,12 @@ void SearchString(void)
        frame->posX=frame->scroll.total_x-frame->scroll.xsize;
   }
 
+//!!glennmcc: Sep 21, 2007 -- place pointer at new postion
+#ifdef CAV
+   ImouseSet((int)foundatom.x,(int)foundatom.y);
+#endif
+//!!glennmcc: end
+
   if(arachne.framescount)
   {
    p->activeframe=0;

@@ -57,6 +57,17 @@ char vfat;
 #ifdef GGI
 int ggifastscroll;
 #endif
+//!!glennmcc: Nov 24, 2007 -- move both ignorejs & alwaysusecfgcolors
+//from internet.h to uiface.h and changed both from http_parameters.
+//into user_interface. in all places where they are used.
+//!!glennmcc: begin May 03, 2002
+// added to optionally "ignore" <script> tag
+// (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
+char ignorejs;
+//!!glennmcc: end
+//!!glennmcc: July 14, 2005
+char alwaysusecfgcolors;
+//!!glennmcc: end
 };
 
 extern struct uiface user_interface;

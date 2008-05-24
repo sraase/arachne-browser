@@ -506,11 +506,13 @@ else
 
 //!!glannmcc: Dec 06, 2006 -- add $z to pass only the drive letter to dosshell.dgi
 //and dosshell.bat so that FreeDos can be returned to the correct drive.
+#ifndef LINUX
     case 'Z':
     fnsplit(exepath,drive,dir,file,ext);
     strcpy(out,drive);
     out+=strlen(drive)-1;
     break;
+#endif
 //!!glennmc: end
 
     case 'F':  //file browser WWWMANE.EXE mode
@@ -546,6 +548,19 @@ strncat(pom,configvariable(&ARACHNEcfg,"CacheDirList",NULL),1);
     case 'X':
     pom=configvariable(&ARACHNEcfg,"Netmask",NULL);
     goto cont;
+//!!glennmcc & Ray: Sep 05 & 06, 2008 -- $Y == everything after the 1st space
+//in any DGI ... ex: file:ping.dgi www.glennmcc.org 5 <-- ping the domain 5 times
+// in mime.cfg ---> file/ping.dgi >txt|ping.exe $Y>$2
+//many thanks to Ray Andrews for showing me how to do this correctly. :)
+    case 'Y':
+    {
+//     char *ptr;
+//     ptr=strchr(GLOBAL.location,' ');
+//     pom=&GLOBAL.location[strchr(GLOBAL.location,' ')-GLOBAL.location];
+     pom=strchr(GLOBAL.location,' ')+1;
+    }
+    goto cont;
+//!!glennmcc & Ray: end
     case 'A':
     a:
     pom=configvariable(&ARACHNEcfg,"CachePath",NULL);

@@ -280,7 +280,6 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
    value=configvariable(&ARACHNEcfg,"POP3server",NULL);
    if(value)
     makestr(url->host,value,STRINGSIZE-1);
-
   }
   if(!url->user[0])
   {

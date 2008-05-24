@@ -1,7 +1,7 @@
 
 // ========================================================================
 // Initialization and deinitialization of Arachne WWW browser
-// (c)1997-2000 Michael Polak, Arachne Labs 
+// (c)1997-2000 Michael Polak, Arachne Labs
 // ========================================================================
 
 #include "arachne.h"
@@ -101,7 +101,7 @@ if(argc>1)
    grsetup=askgraphics();
   }
   else
-#endif  
+#endif
   if(argv[1][1]=='x')
   {
    tcpip=-1; //setup mode
@@ -196,7 +196,7 @@ else
 InitInput(&tmpeditor,"","",1,CONTEXT_SYSTEM);//text input prompt
 MakeInputAtom(&TXTprompt,&tmpeditor,
 	      64,p->htscrn_ysize/2,
-              p->htscrn_xsize-128,p->htscrn_ysize/2+fonty(SYSFONT,0)+4);
+	      p->htscrn_xsize-128,p->htscrn_ysize/2+fonty(SYSFONT,0)+4);
 
 
 //initialization of certain global variables:
@@ -532,7 +532,7 @@ void init_bin(void)
  ptr=configvariable(&ARACHNEcfg,"Toolbar",NULL);
  if(!ptr)
 #ifdef POSIX
-  strcpy(TOOLBARcfg.filename,"toolbar.cfg");
+  sprintf(TOOLBARcfg.filename,"%stemplates/toolbar.cfg",sharepath);
 #else
   sprintf(TOOLBARcfg.filename,"%stoolbar.cfg",exepath);
 #endif
@@ -549,16 +549,24 @@ void init_bin(void)
 //!!glennmcc: May 27, 2007 -- read entity conversions from entity.cfg
  //---entity.cfg
 #ifdef POSIX
-  strcpy(ENTITYcfg.filename,"entity.cfg");
+  sprintf(ENTITYcfg.filename,"%stemplates/entity.cfg",sharepath);
 #else
   sprintf(ENTITYcfg.filename,"%sentity.cfg",exepath);
 #endif
  ENTITYcfg.killcomment=1;
- rc=ie_openf_lim(&ENTITYcfg,CONTEXT_SYSTEM,100);
+#ifdef MINIMAL
+ rc=ie_openf_lim(&ENTITYcfg,CONTEXT_SYSTEM,256);
+#else
+ rc=ie_openf_lim(&ENTITYcfg,CONTEXT_SYSTEM,512);
+#endif
  if(rc==2)
   memerr0();
  else if(rc!=1 || ENTITYcfg.lines==0)
+#ifndef CAV
   cfgerr(&ENTITYcfg);
+#else
+  ie_insline(&ENTITYcfg,0,"");
+#endif
 //!!glennmcc: end
 
  //---History of visited URLs

@@ -56,7 +56,7 @@ struct Http_parameters
 //!!glennmcc: begin May 03, 2002
 // added to optionally "ignore" <script> tag
 // (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
-char ignorejs;
+//char ignorejs;
 //!!glennmcc: end
 
 //!!glennmcc: begin July 14, 2003
@@ -66,7 +66,7 @@ char ignorebasehref;
 //!!glennmcc: end
 
 //!!glennmcc: July 14, 2005
-char alwaysusecfgcolors;
+//char alwaysusecfgcolors;
 //!!glennmcc: end
 
 };

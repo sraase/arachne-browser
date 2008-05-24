@@ -126,12 +126,11 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
  {
   cacheptr=(struct HTTPrecord *)ie_getswap(HTTPcache.lineadr[HTTPcache.cur]);
   if(!cacheptr)
-//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
-//"Page too long !" message will then be displayed
-//and the incomplete page can be viewed.
+//!!glennmcc: Mar 03, 2007 -- return instead of crashing
 return NULL;
 //    MALLOCERR();
 //!!glennmcc: end
+
   if(!strcmp(cacheptr->URL,cacheitem->URL))
   {
    if(!cachefull)
@@ -155,7 +154,6 @@ return NULL;
   HTTPcache.cur++;
  }
 
-
  if(HTTPcache.len<HTTPcache.maxlines && !cachefull ||
     HTTPcache.len==0)
  {
@@ -174,9 +172,7 @@ return NULL;
   {
    cacheptr=(struct HTTPrecord *)ie_getswap(HTTPcache.lineadr[HTTPcache.cur]);
    if(!cacheptr)
-//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
-//"Page too long !" message will then be displayed
-//and the incomplete page can be viewed.
+//!!glennmcc: Mar 03, 2007 -- return instead of crashing
 return NULL;
 //    MALLOCERR();
 //!!glennmcc: end
@@ -278,9 +274,7 @@ void DeleteFromCache(XSWAP cacheadr)
 
  cacheptr=(struct HTTPrecord *)ie_getswap(cacheadr);
  if(!cacheptr)
-//!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
-//"Page too long !" message will then be displayed
-//and the incomplete page can be viewed.
+//!!glennmcc: Mar 03, 2007 -- return instead of crashing
 return;
 //   MALLOCERR();
 //!!glennmcc: end
@@ -288,7 +282,11 @@ return;
  cacheptr->URL[0]='\0';
  cacheptr->rawname[0]='\0';
  cacheptr->lastseen=0l;
- unlink(cacheptr->locname);
+//!!glennmcc: Feb 14, 2008 -- decrement counter when deleting from cache
+if(unlink(cacheptr->locname)==0)
+   HTTPcache.len--;
+//unlink(cacheptr->locname);//original line
+//!!glennmcc: end
  strcpy(cacheptr->locname,"NUL");
  swapmod=1;
 }

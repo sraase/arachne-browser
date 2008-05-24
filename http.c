@@ -23,6 +23,7 @@ extern int posixErrNo;
 
 struct Http_parameters http_parameters;
 
+#ifndef LINUX
 void find_keepalive_socket(char *hostname)
 {
  if(GLOBAL.backgroundimages==BACKGROUND_EMPTY)
@@ -35,7 +36,7 @@ void find_keepalive_socket(char *hostname)
   }
  }
 }
-
+#endif
 
 char exestr[40]="\0";
 void makeexestr(char *exestr);
@@ -73,6 +74,10 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
 #endif
  char willkeepalive=0;
  char *keepalive="\0";
+
+//!!glennmcc: Dec 21, 2007 -- at Ray's suggestion, also write outgoing traffic
+ char outgoing[1024]="\0";
+//!!glennmcc: end
 
  if(!tcpip && !httpstub)return 0;
 #ifdef MSDOS
@@ -146,7 +151,9 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  if(url->port!=80)
   sprintf(portstr,":%d",url->port);
 
+#ifndef LINUX
  find_keepalive_socket(pocitac);
+#endif
  if(tcpip && !httpstub && strcmpi(sock_keepalive[socknum],pocitac))
  {
   GlobalLogoStyle=0;            //SDL set resolve animation
@@ -333,6 +340,25 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
    return 0;
   }
 
+//!!glennmcc: Sep 27, 2008 -- increase D/L speed on cable & DSL
+//many thanks to 'mik' for pointing me in the right direction. :)
+if(status==1)
+{
+#ifdef DEBUG
+ char sp[80];
+ sprintf(sp,"Available stack = %u bytes",_SP);
+ outs(sp);
+ Piip(); Piip();
+#endif
+ if(_SP>(1024*20))
+ {
+  char setbuf[1024*20];
+  sock_setbuf(socket, (unsigned char *)setbuf, 1024*20);
+  user_interface.multitasking=MULTI_NO;
+ }
+}
+//!!glennmcc: end
+
   sprintf(str,msg_con,pocitac,port);
   outs(str);
   if (_ip_delay0(socket, delay, (sockfunct_t) TcpIdleFunc, &status ))          //SDL
@@ -357,10 +383,12 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
  else
   alive=1;
 
+#ifndef LINUX
  //initialize keepalive mechanism:
  if(http_parameters.keepalive)
   makestr(sock_keepalive[socknum],pocitac,STRINGSIZE);
  sock_datalen[socknum]=0;
+#endif
 
  //SDL set data animation
  GlobalLogoStyle=1;
@@ -395,9 +423,7 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
   ql=strlen(querystring);
   httpcommand="POST";
 //the problem with CGI forms was "x-www-form-urlencoded"....
-  sprintf(contentlength,"\
-Content-type: application/x-www-form-urlencoded\r\n\
-Content-length: %d\r\n",ql);
+  sprintf(contentlength,"Content-type: application/x-www-form-urlencoded\r\nContent-length: %d\r\n",ql);
  }
  if(GLOBAL.reload || GLOBAL.postdata)
   cachecontrol=nocache;
@@ -405,6 +431,13 @@ Content-length: %d\r\n",ql);
   cachecontrol="\0";
 
  {
+//!!glennmcc: Sep 10, 2008 -- configurable useragent string
+  char useragent[120];
+  ptr=configvariable(&ARACHNEcfg,"UserAgent",NULL);
+  if(ptr) sprintf(useragent,"%s",ptr);
+  if(!ptr || strlen(useragent)<10)
+  sprintf(useragent,"xChaos_Arachne/5.%s%s (www.glennmcc.org)",VER,beta);
+//!!glennmcc: end
 
 //!!glennmcc: Aug 20, 2005
 //don't include 'exestr' nor video settings in User-agent
@@ -433,11 +466,16 @@ Content-length: %d\r\n",ql);
 //also changed to my own web site address
  sprintf(p->buf,"\
 %s %s HTTP/1.0\r\n\
-User-agent: xChaos_Arachne/5.%s%s (www.cisnet.com/glennmcc/)\r\n\
+User-agent: %s\r\n\
 Accept: */*\r\n\
 Host: %s%s\r\n\
 %s%s%s%s%s%s%s\r\n",
-     httpcommand,uri,VER,beta,
+     httpcommand,uri,
+//!!glennmcc: Sep 10, 2008 -- configurable useragent string
+//VER,beta,//moved above for configurable useragent string
+// replaced with 'useragent'
+useragent,
+
 //   httpcommand,uri,VER,beta,exestr,x_maxx()+1,x_maxy()+1,c,
 //removed as indicated by '^'_^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^___
 //!!glennmcc: end
@@ -451,6 +489,12 @@ Host: %s%s\r\n\
  acceptcharset);
  }
 
+//!!glennmcc: Dec 21, 2007 -- at Ray's suggestion, also write outgoing traffic
+if(!outgoing[0])
+ sprintf(outgoing,"<b>Sent to Server:</b>\r\n\r\n\
+ %s<hr><b>Received from Server:</b>\r\n\r\n",p->buf);
+//!!glennmcc: end
+
  if(tcpip && !httpstub)    //if TCP/IP is enabled
  {
 #ifdef POSIX
@@ -460,6 +504,7 @@ Host: %s%s\r\n\
    return 0;
   }
 #else
+
   sock_puts(socket, (unsigned char *)p->buf); //send HTTP reques....
 #endif
 
@@ -529,9 +574,11 @@ Host: %s%s\r\n\
 #endif
   }//endif posting querystring...
  }//endif tcpip
+
 //!!glennmcc: begin Oct 17, 2004 -- re-enable HTTPSTUB
 //(this entire section had been commented-out)
 // /*
+#ifndef LINUX
  else //httpstub = non TCP/IP stuf ========================================
  {
   int f,l;
@@ -598,6 +645,7 @@ Host: %s%s\r\n\
 
   goto analyse;
  } // ====================================================================
+#endif
 // */
 //!!glennmcc: end Oct 17, 2004 -- re-enable HTTPSTUB
 
@@ -750,11 +798,30 @@ analyse:
     *ptr='\0';
 
     // ----------------------------------------------- Content-type:
-
     if(!strcmpi(str,"Content-type"))
     {
-     makestr(cache->mime,&ptr[2],STRINGSIZE-1); /* including charset= */
-     strlwr(cache->mime);
+    makestr(cache->mime,&ptr[2],STRINGSIZE-1); /* including charset= */
+    strlwr(cache->mime);
+
+#ifdef EXP
+  {
+   char ext[5], *mimestr="\0", mime=0;
+   get_extension(cache->URL,ext);
+
+if(strstr(cache->mime,"text/plain") && (!strcmpi(ext,"wmv") || !strcmpi(ext,"mpg") || !strcmpi(ext,"mpeg")))
+   {
+    Piip();
+    strcpy(mimestr,"video/");
+    mimestr[79]='\0';
+    strncat(mimestr,ext,70);
+    makestr(cache->mime,mimestr,STRINGSIZE-1);
+    mime=1;
+   }
+if(!mime)
+   makestr(cache->mime,&ptr[2],STRINGSIZE-1); /* including charset= */
+   strlwr(cache->mime);
+  }
+#endif
     }
 
     // ----------------------------------------------- Content-length:
@@ -787,7 +854,11 @@ if(GLOBAL.backgr==2) GLOBAL.backgr=0;
 
     // ----------------------------------------------- Set-Cookie:
 
-    else if(!strcmpi(str,"Set-Cookie") && http_parameters.acceptcookies)
+//!!Ray: Dec 18, 2007 -- some servers say simply 'cookie' instead
+    else if((!strcmpi(str,"Set-Cookie") || !strcmpi(str,"Cookie"))
+	    && http_parameters.acceptcookies)
+//    else if(!strcmpi(str,"Set-Cookie") && http_parameters.acceptcookies)
+//!!Ray: end
     {
 //!!JdS 2004/2/15 {
 //   char *pom1=NULL,*pom2=NULL,*p,*newcookie=NULL;
@@ -925,7 +996,7 @@ if(GLOBAL.backgr==2) GLOBAL.backgr=0;
      ie_inscookie(&cookies,cookies.lines,cookiestr);
 /**** End of newer cookie code [JdS 2004/3/6] ****/
 
-     cont:
+     cont:;
 //!!JdS 2004/2/15 {
 //   farfree(newcookie);
 //   farfree(pom2);
@@ -958,14 +1029,22 @@ if(GLOBAL.backgr==2) GLOBAL.backgr=0;
 	 char *realm;
 	 ptr+=6;
 	 realm=ptr;
+#ifdef LINUX
+	 if(*ptr=="\"")
+#else
 	 if(*ptr=='\"')
+#endif
 	 {
 	  ptr++;
 	  realm=ptr;
-          while (*ptr && *ptr!='\"')ptr++;
+#ifdef LINUX
+	  while (*ptr && *ptr!="\"")ptr++;
+#else
+	  while (*ptr && *ptr!='\"')ptr++;
+#endif
 	  *ptr='\0';
-         }
-         if(!strcmpi(AUTHENTICATION->host,url->host) &&
+	 }
+	 if(!strcmpi(AUTHENTICATION->host,url->host) &&
 	    !strcmp(AUTHENTICATION->realm,realm))
 	   AUTHENTICATION->flag=AUTH_OK;
 	 else
@@ -985,6 +1064,27 @@ if(GLOBAL.backgr==2) GLOBAL.backgr=0;
     else if(!strcmpi(str,"Location"))
     {
      struct Url newurl;
+
+//!!glennmcc: Feb 28, 2008 -- abort to prevent 'looping' when an image
+//is sent with 'Location: ' (redirect with 'empty' location)
+//this problem seems to be caused by 'expired' hit counter accounts
+/*
+     static int loop;
+     loop++;
+     if(loop>5) {loop=0; goto abort;}
+*/
+
+//!!Ray: Feb 29, 2008 -- much better than the 'loop counter method'
+     if(!ptr[2])
+{
+//!!glennmcc: Feb 29, 2008 -- display error page
+ GLOBAL.gotolocation=1;
+ puts(cache->locname);
+ sprintf(GLOBAL.location,"file:%s%serr_red.ah",sharepath,GUIPATH);
+ return 0;
+}
+//!!glennmcc: end
+
      outs(MSG_REDIR);
      url2str(url,GLOBAL.location);
      strcpy(Referer,GLOBAL.location);
@@ -1014,7 +1114,9 @@ write2cache:
  }
  else
  {
+#ifndef LINUX
   closing[socknum]=0;
+#endif
  // printf("[keepalive enabled]");
  }
 
@@ -1066,15 +1168,17 @@ if(http_parameters.keepalive &&
 
     sprintf(pom,"<TITLE>%s %s</TITLE><PRE>\n",MSG_HTTP,cache->URL);
     write(htt,pom,strlen(pom));
+//!!glennmcc: Dec 21, 2007 -- at Ray's suggestion, also write outgoing traffic
+    write(htt,outgoing,strlen(outgoing));
+//!!glennmcc: end
     write(htt,p->buf,count);
     ptr=strrchr(cache->locname,'\\');
     if(ptr)
      ptr++;
     else
      ptr=cache->locname;
-    sprintf(pom,"\
-</PRE>\n<HR>URL: <A HREF=\"%s\">%s</A><BR>\n\
-Local: <A HREF=\"file:%s\">%s</A><HR>\n\
+    sprintf(pom,"</PRE>\n<HR>URL: <A HREF=\"%s\">%s</A><BR>\n\
+Local: <A HREF=\"file:..\\%s\">%s</A><HR>\n\
 ",cache->URL,cache->URL,ptr,cache->locname);
     write(htt,pom,strlen(pom));
     farfree(pom);
@@ -1090,17 +1194,24 @@ Local: <A HREF=\"file:%s\">%s</A><HR>\n\
   cache->handle=a_fast_open(cache->locname,O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
 //!!glennmcc: Nov 25, 2006 -- abort attempt if cache drive
 //has too little space available
-//  if(cache->handle<0) // original line
+#ifdef LINUX
+  if(cache->handle<0) // original line
+#else
   if(cache->handle<0
      || lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))
 	<cache->size)//user_interface.mindiskspace)
+#endif
   {
 //!!glennmcc: Nov 25, 2006 -- close and delete file if it was opened
 //but cache drive had too little space available
+#ifdef LINUX
+  if(cache->handle<0) // original line
+#else
   if(cache->handle>=0
      && lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))
      <cache->size)//user_interface.mindiskspace)
-     {a_close(cache->handle); unlink(cache->locname);}
+#endif
+     {a_close(cache->handle); unlink(cache->locname);}//origianl line
 //!!glennmcc: end
    GLOBAL.gotolocation=1;
    puts(cache->locname);
@@ -1241,8 +1352,11 @@ long starttime=(int)(time(NULL)), elapsedtime=0, lastsec=0, bytesec=0;
 
 //!!glennmcc: Nov 26, 2006 -- abort download when file size is not known,
 //and disk gets full during download
+
 if(!cache->knowsize
+#ifndef LINUX
    && lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))
+#endif
       <(fpos+rd))// rd=-1;
       //!!glennmcc: Nov 26, 2006 -- disk filled during download
 //   if(rd<0)
@@ -1261,9 +1375,12 @@ if(!cache->knowsize
   if (!sock_dataready(socket ) || rd==0)
   {
 #endif
-   if (cache->knowsize && cache->size>0)
+   if (cache->knowsize && cache->size>100)
    {
-    prc=(int)(100*fpos/cache->size);
+//!!glennmcc:Oct 23, 2008 -- 'reversed the logic'
+// to keep from overflowing at 21megs
+    prc=(int)(fpos/(cache->size/100));
+//  prc=(int)(100*fpos/cache->size);
 
 //!!glennmcc: Nov 17, 2004 -- include bytes/sec rate
 //!!glennmcc: Aug 20, 2005 -- restore original MSG_X_of_Y for use by 2nd image
@@ -1281,8 +1398,13 @@ if(lastsec==0 || prc>99 || !strstr(configvariable(&ARACHNEcfg,"UseByteSec",NULL)
 sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);//original line
 //!!glennmcc: end
 
+//#ifdef NOKEY
+//if(elapsedtime>1)
+//#endif
+//{
     outs(str);
     percentbar(prc);
+//}
     if(fpos>=cache->size)
      rd=0; //force connection close
    }
@@ -1296,8 +1418,8 @@ sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);//original line
 #endif
 
  }//loop
-diskfull:
-}//end sub
+diskfull:;
+}//end sub download()
 
 //. current HTTP download will continue as "background task"
 char GoBackground(struct HTTPrecord *cache)
@@ -1310,7 +1432,9 @@ char GoBackground(struct HTTPrecord *cache)
  {
   if(cache->handle!=-1)
    write(cache->handle,p->buf,p->httplen);
+#ifndef LINUX
   sock_datalen[socknum]+=p->httplen;
+#endif
   p->httplen=0;
  }
 
@@ -1335,6 +1459,7 @@ void FinishBackground(char mode)
   return;
 
 
+
  {
   struct HTTPrecord cacheitem;
 
@@ -1351,6 +1476,7 @@ void FinishBackground(char mode)
 
   if(mode!=BG_ABORT)
   {
+#ifndef LINUX
    if(cacheitem.knowsize)
    {
     char str[256];
@@ -1359,11 +1485,14 @@ void FinishBackground(char mode)
    }
    else
    outs(MSG_PARALL);
+#endif   
 //!!glennmcc: Mar 08, 2006 -- fix intermittent freeze on final image
 //when 'HTTPkeepAlive Yes' and 'Multitasking Yes'
+#ifndef LINUX
     if(sock_datalen[socknum]<0)
        mode=BG_ABORT;
        else
+#endif       
 //!!glennmcc: end
    Download(&cacheitem);
   }

@@ -172,7 +172,7 @@ RENDER.utf8=0;
  if(!text || !thistable || !img || !tagargptr)
   memerr();
 
-//!!Bernie: Mar 01, 2007 -- moved from up above to prevent possibility of crash 
+//!!Bernie: Mar 01, 2007 -- moved from up above to prevent possibility of crash
   text[0]='\0';
 //!!Bernie: end
 
@@ -524,8 +524,11 @@ loopstart: //------------- vlastni cykl - analyza HTML i plain/text---------
     }//endif draw scrallbar
    }//endif !p->rendering_target (=hidden output)
 
-   if(cache->size)
-    prc=(int)(100*fpos/cache->size);
+   if(cache->size>100)
+//!!glennmcc:Oct 23, 2008 -- 'reversed the logic'
+// to keep from overflowing at 21megs
+    prc=(int)(fpos/(cache->size/100));
+//  prc=(int)(100*fpos/cache->size);
    else
     prc=0;
 
@@ -614,7 +617,21 @@ knowsize:
   if(RENDER.translatecharset)
    in=GLOBAL.codepage[(unsigned char)p->buf[i]];
   else
-   in=(unsigned char)p->buf[i];
+{  in=(unsigned char)p->buf[i];
+
+//!!glennmcc: June 07, 2007 -- use entity.cfg to 'recode' these situations
+//!!glennmcc: July 31, 2007 -- do not use entity.cfg recoding when
+//Werner's (much better), UTF8 recoding is 'in-play'
+ if(in>127 && !utf8)
+// if(in>127)
+ {
+  char recode[3];
+  itoa(in,recode,10);
+  if(configvariable(&ENTITYcfg,recode,NULL))
+  in=*configvariable(&ENTITYcfg,recode,NULL);
+ }
+}
+//!!glennmcc: end
 
    // werner scholz Nov 11,2006    '<' has priority and ends utf8sequence
    if((utf8)&&(in!='<'))goto utf8start;
@@ -1029,8 +1046,23 @@ if((in=='<' &&
       {
        char target;
 
+//!!glennmcc: Apr 23, 2008 -- convert unicoded 'hot links'
+   if(tagarg[0]=='&' && tagarg[1]=='#')
+    {
+     entity2str(tagarg);
+    }
+//!!glennmcc: end
+
        if(!strncmpi(tagarg,"mailto:",7))
+//!!glennmcc: Apr 23, 2008 -- convert unicoded 'hot links'
+{
+   if(tagarg[7]=='&' && tagarg[8]=='#')
+    {
+     entity2str(tagarg);
+    }
+//!!glennmcc: end
 	target=findtarget(0);
+}//!!glennmcc: Apr 23, 2008
        else
 	target=findtarget(basetarget);
 
@@ -1136,8 +1168,10 @@ if((in=='<' &&
 
 //!!glennmcc: Nov 29, 2006 -- fix problems with '&amp;' in <img src="
    if(strstr(img->URL,"&amp;"))
+   {
     entity2str(img->URL);
-   tagarg=img->URL;
+    tagarg=img->URL;
+   }
 //!!glennmcc: end
 
        //printf("Image URL is: %s\n",img->URL);
@@ -1153,7 +1187,7 @@ if((in=='<' &&
     get_extension(HTTPdoc.mime,ext);
     //printf("image extension: %s\n",ext);
     if(strcmpi(ext,"IKN")) // != IKN
-         {
+	 {
      if(drawanyimage(img)==1)
       znamrozmerx=znamrozmery=1;
 	  else
@@ -1166,7 +1200,7 @@ if((in=='<' &&
      img->size_x=60;
      znamrozmerx=znamrozmery=1;
     }
-        }//endif nasel jsem neco (tr.: I have found something)
+	}//endif nasel jsem neco (tr.: I have found something)
        }
       }
       else
@@ -1463,12 +1497,13 @@ if(orderedlist[listdepth])
       goto br;
      break;
 
-     case TAG_SUP: //<CENTER>
+     case TAG_SUP: //<SUP>
 
      align=align | SUP;
      font-=1;
      if(p->sizeRow<3*fonty(font,style)/2)
       p->sizeRow+=fonty(font,style)/2;
+     if(pre) p->sizeRow+=fonty(font,style)/2;
      break;
 
      case TAG_SLASH_SUP:
@@ -1478,9 +1513,12 @@ if(orderedlist[listdepth])
       align=align - SUP;
       font=htmldata->basefontsize;
      }
+//!!glennmcc: Mar 07, 2008 -- allow use of <sup> within <pre>
+if(pre) alignrow(x,y,NULL);
+//!!glennmcc: end
      break;
 
-     case TAG_SUB: //<CENTER>
+     case TAG_SUB: //<SUB>
 
      align=align | SUB;
      font-=1;
@@ -1495,6 +1533,9 @@ if(orderedlist[listdepth])
       align=align - SUB;
       font=htmldata->basefontsize;
      }
+//!!glennmcc: Mar 07, 2008 -- allow use of <sub> within <pre>
+if(pre) alignrow(x,y,NULL);
+//!!glennmcc: end
      break;
 
      case TAG_NOBR: //</NOBR>
@@ -1671,7 +1712,10 @@ if(orderedlist[listdepth])
       //here, for the future I plan extension/improvement like/similar Netscape
      }
 
-     if(getvar("COLOR",&tagarg))
+//!!glennmcc: Nov 27, 2007 -- also enable AlwaysUseCFGcolors for font colors
+// in addition to text color in <body> tag
+     if(getvar("COLOR",&tagarg) && (!user_interface.alwaysusecfgcolors || !strcmpi(url.protocol,"file")))
+//   if(getvar("COLOR",&tagarg)) //original line
      {
       try2readHTMLcolor(tagarg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
      }
@@ -1979,7 +2023,12 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
       //final width of HTMLatom should be equal to table->realwidth (?)
 
       thistable->maxwidth=p->docRight-p->docLeft-2*border;
-      if(getvar("WIDTH",&tagarg))
+//!!glennmcc: Sep 24, 2007 -- fix problem of 'empty width'
+//eg: <table width="">
+      if(getvar("WIDTH",&tagarg) && *tagarg)
+//    if(getvar("WIDTH",&tagarg))
+//original line above this comment
+//!!glennmcc: end
       {
        char *perc=strchr(tagarg,'%');
        thistable->maxwidth=try2getnum(tagarg,thistable->maxwidth);
@@ -1987,7 +2036,7 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
        thistable->fixedmax=PERCENTS_FIXED_TABLE;
        else
        {
-   thistable->fixedmax=PIXELS_FIXED_TABLE;
+	thistable->fixedmax=PIXELS_FIXED_TABLE;
 	thistable->maxwidth-=2*border;
        }
       }
@@ -2035,7 +2084,7 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
        if(!strcmpi(tagarg,"RIGHT") || !alignarg && (align & RIGHT))
        {
 	if(GLOBAL.validtables==TABLES_UNKNOWN && thistable->fixedmax==0)
-        {
+	{
     thistable->maxwidth/=2;
 	 twidth/=2;
    }
@@ -2064,7 +2113,10 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
       if(!alignarg) //in this case, table won't behave like aligned image
        tabalign=0;
 
-      if(getvar("BGCOLOR",&tagarg))
+//!!glennmcc: Nov 28, 2007 -- also enable AlwaysUseCFGcolors for TABLE bgcolor
+// in addition to text color in <body> tag
+      if(getvar("BGCOLOR",&tagarg) && (!user_interface.alwaysusecfgcolors || !strcmpi(url.protocol,"file")))
+//    if(getvar("BGCOLOR",&tagarg)) //original line
       {
        try2readHTMLcolor(tagarg,&(thistable->tablebgR),&(thistable->tablebgG),&(thistable->tablebgB));
        thistable->usetablebg=1;
@@ -2087,7 +2139,12 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
       }
 
       img->URL[0]='\0';
-      if(getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode && strcmp(tagarg,"0")) //???
+      if(
+//!!glennmcc: May 19, 2008 - optionally do not display bgimages
+   (!configvariable(&ARACHNEcfg,"BGimages",NULL) ||
+    configvariable(&ARACHNEcfg,"BGimages",NULL)[0]=='Y') &&
+//!!glennmcc: end
+      getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode && strcmp(tagarg,"0")) //???
       {
        AnalyseURL(tagarg,&url,p->currentframe);
        url2str(&url,img->URL);
@@ -2672,17 +2729,25 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
 	yspan=atoi(tagarg);
        }
 
+//!!glennmcc: Nov 28, 2007 -- also enable AlwaysUseCFGcolors for TD bgcolor
+// in addition to text color in <body> tag
 //!!glennmcc: Nov 30, 2005 -- compensate for 'empty' bgcolor
 //such-as <td bgcolor=>
-   if(getvar("BGCOLOR",&tagarg) && strlen(tagarg)>=3 && strcmpi(&tagarg[1]," ")>0)
-//       if(getvar("BGCOLOR",&tagarg)) //original line
+   if(getvar("BGCOLOR",&tagarg)//)//original line
+   && strlen(tagarg)>=3 && strcmpi(&tagarg[1]," ")>0//)//Nov 30, 2005
+   && (!user_interface.alwaysusecfgcolors || !strcmpi(url.protocol,"file")))//Nov 28, 2007
 //!!glennmcc: end
        {
    try2readHTMLcolor(tagarg,&(HTMLatom.R),&(HTMLatom.G),&(HTMLatom.B));
    bgcolor=1;
        }
 
-       if(getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode)
+       if(
+//!!glennmcc: May 19, 2008 - optionally do not display bgimages
+   (!configvariable(&ARACHNEcfg,"BGimages",NULL) ||
+    configvariable(&ARACHNEcfg,"BGimages",NULL)[0]=='Y') &&
+//!!glennmcc: end
+       getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode)
        {
    AnalyseURL(tagarg,&url,p->currentframe);
 	url2str(&url,img->URL);
@@ -2808,7 +2873,10 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
 //!!glennmcc: May 05, 2007 -- fix problem with <td> widths when
 //one was speced in percent and the next is not speced at-all
 //eg: <td width="25%"><td>
-// perc=0;
+// value=configvariable(&ARACHNEcfg,"FixTD",NULL);
+// if(value && toupper(*value)=='Y')
+//!!Ray: Sep 22, 2007
+if (perc>99) perc=0;
 //!!glennmcc: end
 
 	if(thistableadr==parenttableadr)
@@ -3073,6 +3141,7 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
       if(getvar("URL",&tagarg))
        strcpy(value,cache->URL);
 
+
 //!!glennmcc: Mar 27, 2007 -- cut mailto URLs at '?'
 //and grab that subject from mailto addresses
 //mailto:someone@somewhere.net?subject=something
@@ -3083,6 +3152,7 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
 //<TD ALIGN=RIGHT><B><FONT 3D>Subject:
 //<TD COLSPAN=2><INPUT TYPE=TEXT SIZE=61 NAME="$SUBJ" SUBJECT>
 //____________________________________________________^^^^^^^ 'SUBJECT' added
+#ifndef LINUX
       if(getvar("TO",&tagarg))
       {
        AnalyseURL(cache->URL,&url,p->currentframe); //(plne zneni...)
@@ -3105,6 +3175,7 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
        }
        else value[0]='\0';
       }
+#endif
 //!!glennmcc: end
 
       //end of official extensions
@@ -3144,15 +3215,20 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
    goto butt;
        }
        else
-       if(!strcmpi(tagarg,"BUTTON"))
+     if(!strcmpi(tagarg,"BUTTON"))
        {
 //!!glennmcc: Feb 26, 2007 -- now duplicates type=submit in our compiles
 #ifdef NOKEY
    break; //not yet implemented ! //won't break in our compiles
 #else
+//!!glennmcc: Jan 21, 2008 -- only for remote... not local
+if(!strncmpi(url.protocol,"http:",5))
+  {
    type=SUBMIT;//new line added to duplicate type=submit in our compiles <G>
 // type=BUTTON;//had been commeneted-out
    goto butt;  //had been commeneted-out
+  }
+   else break;
 #endif
 //!!glennmcc: end
        }
@@ -3398,6 +3474,13 @@ ReAnalyse:
    AnalyseURL(tagarg,&url,p->currentframe); //(plne zneni...)
    //tr.: entire text
    url2str(&url,text);
+//!!glennmcc: July 26, 2008 -- fix problems with '&amp;' in <form action="
+   if(strstr(text,"&amp;"))
+   {
+    entity2str(text);
+    tagarg=text;
+   }
+//!!glennmcc: end
        }
        //vyrobim si pointr na link, a od ted je vsechno link:
        //tr.: I create a pointer for link, and from now on
@@ -3406,6 +3489,17 @@ ReAnalyse:
   if(strcmpi(url.protocol,"file:") && strstr(text,"?") && strlen(tagarg)<1)
     {strcat(tagarg,"../"); goto ReAnalyse;}
 //!!glennmcc: end
+
+//!!glennmcc: Feb 27, 2008 -- if form action is speced as current page...
+//'null it out' and use existing code which uses current page
+//when action is blank or missing.
+/*
+  if(strcmpi(url.protocol,"file:") && strstr(url.file,text)
+     && strlen(tagarg)>10)
+    {tagarg[0]='\0'; goto ReAnalyse;}
+*/
+//!!glennmcc: end
+
        addatom(&HTMLatom,text,strlen(text),FORM,align,target,method,IE_NULL,1);
        currentform=p->lastHTMLatom;
       }
@@ -3453,7 +3547,7 @@ ReAnalyse:
 //!!glennmcc: begin May 03, 2002
 // added to optionally "ignore" <script> tag
 // (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
-   if(http_parameters.ignorejs){insidetag=0;}else
+   if(user_interface.ignorejs){insidetag=0;}else
 //!!glennmcc: end
       insidetag=tag;
 //   case TAG_HEAD: //<HEAD>
@@ -3570,11 +3664,11 @@ ReAnalyse:
         char *ptr;
         memcpy(&tmpeditor,editorptr,sizeof(struct ib_editor));
    ptr=ie_getline(&tmpeditor,0);
-        if(ptr)
+	if(ptr)
 	{
     ptr[0]='1';
-         swapmod=1;
-        }
+	 swapmod=1;
+	}
        }
       }
 
@@ -3616,6 +3710,8 @@ ReAnalyse:
      if(getvar("ROWS",&tagarg))
      {
       rows=atoi(tagarg);
+//!!glennmcc: Sep 10, 2008 -- min of 2 to fix 'invisible textarea'
+      if(rows<2)rows=2;
      }
 
      if(getvar("ARACHNEROWS",&tagarg))
@@ -3623,6 +3719,8 @@ ReAnalyse:
       //recalculate for current system font:
       rows=14*rows/fonty(SYSFONT,0);
       rows-=(540-frame->scroll.ysize+fonty(SYSFONT,0)/2)/fonty(SYSFONT,0);
+//!!glennmcc: Sep 10, 2008 -- min of 2 to fix 'invisible textarea' at 640x480
+      if(rows<2)rows=2;
      }
 
      if(rows<1)rows=1;
@@ -3663,8 +3761,13 @@ ReAnalyse:
       insidetag=tag; //flag: read contens of <TEXTAREA>... </TEXTAREA>!
      }
 
-     if(getvar("WRAP",&tagarg) && toupper(tagarg[0])!='N')
-      tmpeditor.wordwrap=1;
+//!!glennmcc: Apr 07, 2008 -- default to wrap
+     if(getvar("WRAP",&tagarg) && toupper(tagarg[0])=='N')
+     tmpeditor.wordwrap=0;
+//     if(getvar("WRAP",&tagarg) && toupper(tagarg[0])!='N')
+//      tmpeditor.wordwrap=1;
+//original 2 lines above this comment
+//!!glennmcc: end
 
 //!!glennmcc: Feb 14, 2006 -- optionally ignore 'active'
      if(getvar("ACTIVE",&tagarg) &&
@@ -3734,6 +3837,7 @@ ReAnalyse:
       }
       //printf("background image=%s\n",img->URL);
      }
+//!!glennmcc: June 27, 2007 -- only do this for remote pages... not local
 //!!glennmcc: July 14, 2005 -- use a new config setting to override instead
 //"AlwaysUseCFGcolors Yes" will override 'bgcolor' , 'text' and 'link'
 //!!glennmcc: begin Jan 3, 2003
@@ -3741,12 +3845,14 @@ ReAnalyse:
 //if(getvar("BGCOLOR",&tagarg) && getvar("TEXT",&tagarg))
 //{//(closing '}' below)//no longer needed... commented-out
 
-     if(getvar("BGCOLOR",&tagarg) && !http_parameters.alwaysusecfgcolors)
+// if(getvar("BGCOLOR",&tagarg) && !user_interface.alwaysusecfgcolors)
+   if(getvar("BGCOLOR",&tagarg) && (!user_interface.alwaysusecfgcolors || !strcmpi(url.protocol,"file")))
      {
       try2readHTMLcolor(tagarg,&htmldata->backR,&htmldata->backG,&htmldata->backB);
      }
 
-     if(getvar("TEXT",&tagarg) && !http_parameters.alwaysusecfgcolors)
+// if(getvar("TEXT",&tagarg) && !user_interface.alwaysusecfgcolors)
+   if(getvar("TEXT",&tagarg) && (!user_interface.alwaysusecfgcolors || !strcmpi(url.protocol,"file")))
      {
       try2readHTMLcolor(tagarg,&htmldata->textR,&htmldata->textG,&htmldata->textB);
      }
@@ -3756,7 +3862,7 @@ ReAnalyse:
 //no matter what bgcolor might be
 /*
      else if (htmldata->backR<8 && htmldata->backG<8 && htmldata->backB<8 &&
-              htmldata->backgroundptr==IE_NULL )
+	      htmldata->backgroundptr==IE_NULL )
      {
       htmldata->textR=255;
       htmldata->textG=255;
@@ -3765,7 +3871,8 @@ ReAnalyse:
 */
 //}//!!glennmcc: end -- Jan 3, 2003
 
-     if(getvar("LINK",&tagarg) && !http_parameters.alwaysusecfgcolors)
+// if(getvar("LINK",&tagarg) && !user_interface.alwaysusecfgcolors)
+   if(getvar("LINK",&tagarg) && (!user_interface.alwaysusecfgcolors || !strcmpi(url.protocol,"file")))
      {
       try2readHTMLcolor(tagarg,&htmldata->linkR,&htmldata->linkG,&htmldata->linkB);
      }
@@ -3901,12 +4008,22 @@ DrawTitle(0);
       if(getvar("ROWS",&tagarg) && strchr(tagarg,','))
       {
        makestr(text,tagarg,STRINGSIZE);
+//!!glennmcc: Nov 28, 2007 -- prevent problems caused by rows="100%,*"
+//!!glennmcc: Sep 16, 2008 -- this works even better ;-)
+       if(strstr(text,"100%,*")) strcpy(text,"99%,*");
+//     if(!strstr(text,"100%"))
+//!!glennmcc: end
        addframeset(0,&emptyframeset,framewantborder,text);
       }
       else
       if(getvar("COLS",&tagarg))
       {
        makestr(text,tagarg,STRINGSIZE);
+//!!glennmcc: Nov 28, 2007 -- prevent problems caused by cols="100%,*"
+//!!glennmcc: Sep 16, 2008 -- this works even better ;-)
+       if(strstr(text,"100%,*")) strcpy(text,"99%,*");
+//     if(!strstr(text,"100%"))
+//!!glennmcc: end
        addframeset(1,&emptyframeset,framewantborder,text);
       }
      }
@@ -4013,7 +4130,13 @@ DrawTitle(0);
      }
 
      if(getvar("NOCACHE",&tagarg))
+     {
       GLOBAL.del=2;
+//!!glennmcc: Feb 14, 2008 -- removed last year's fix
+//see new code in urlovrl.c
+//    HTTPcache.len--; //!!glennmcc: Feb 24, 2007 -- decrement cache item count
+//!!glennmcc: end
+     }
 
      if(getvar("TARGET",&tagarg))
       configvariable(&ARACHNEcfg,"FTPpath",tagarg);

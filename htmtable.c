@@ -554,8 +554,14 @@ void expand(struct HTMLtable *tab)
     if(delta>prebytek)
      delta=prebytek;
 
-    if(delta<0  || delta+tab->realwidth>tab->maxwidth+FUZZYPIX)
-     delta=0;
+//!!Ray & !!glennmcc: Sep 21, 2007 -- fix TD width problem
+if(delta<0) delta=0;
+if(delta+tab->realwidth>tab->maxwidth+FUZZYPIX)
+   delta=tab->maxwidth+FUZZYPIX-tab->realwidth;
+//    if(delta<0  || delta+tab->realwidth>tab->maxwidth+FUZZYPIX)
+//     delta=0;
+// original 2 lines of code above this comment
+//!!Ray & !!glennmcc: end
 
     //for tables with undefined width, where delta is bigger than necessary
     if(tab->fixedmax==0 && delta>tab->xsum[i])

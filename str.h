@@ -40,5 +40,3 @@ int strcmpi(char *str1,char *str2);
 #endif
 
 #endif
-
-

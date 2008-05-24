@@ -21,8 +21,15 @@ unsigned char HTMLentity(char *name)
 //!!glennmcc: Jan 04, 2005 -- 'bullet'
  else
  if(!strcmpi(name,"bul") || !strcmpi(name,"bull") || !strcmpi(name,"bullet"))
-  return atoi("127");
+  return atoi("183");
 //!!glennmcc: end
+
+//!!glennmcc: MAY 30, 2005 -- 'trade' == small 'TM' Trade Mark symbol
+ else
+ if(!strcmpi(name,"trade"))
+  return atoi("153");
+//!!glennmcc: end
+
 //!!glennmcc: May 27, 2007 -- next section no-longer needed
 //!!glennmcc: May 27, 2007 -- read entity conversions from entity.cfg
 //using this format
@@ -89,8 +96,9 @@ ndash -
 //!!glennmcc: May 27, 2007 -- added 8212 == -
 //!!glennmcc: May 29, 2007 -- next section no-longer needed
 //also read numeric entity conversions from entity.cfg
- if(configvariable(&ENTITYcfg,itoa(value,number,10),NULL))
- return *configvariable(&ENTITYcfg,itoa(value,number,10),NULL);
+if(value>127
+   && configvariable(&ENTITYcfg,itoa(value,number,10),NULL))
+   return *configvariable(&ENTITYcfg,itoa(value,number,10),NULL);
 /*
      if (value==146 || value==8217)
       return 39; // 39 == '
@@ -106,12 +114,20 @@ ndash -
      else if (value==8194 || value==8195 || value==8201)
       return 32; // 32 == space
 //!!glennmcc: end
+
+//!!glennmcc: Mar 26, 2008 --
+     else if (value==710)
+      return 94; // 94 == caret
+     else if (value==732)
+      return 126; // 126 == tilde
+//!!glennmcc: end
+
      else if(value>255)
       return 127; // 127 == 
      else
       return value;
     }
-//!!glennmcc: end
+//!!glennmcc: end -- Dec 29, 2004
 
 //!!glennmcc: Feb 06, 2007 -- commented-out entire original block
 // in-favor of new method above for HEX, OCT and DEC format entities
