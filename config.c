@@ -20,9 +20,9 @@ char *ARACHNEPICK="arachne.pck";
 #ifndef POSIX
 int askgraphics(void)
 {
-//!!glennmcc: Oct 23, 2005 -- always use VGA by simply commenting-out
-//this entire block
-/*
+//!!glennmcc: Oct 23, 2005 -- always use VGA on 387+
+//by using this entire block only for 286 and below
+#ifdef XT086
 int i;
   puts(MSG_VGASEL);
   puts(MSG_VGAVGA);
@@ -49,7 +49,7 @@ int i;
   else if (i!='0' && i!=13)
    goto vga;
   else
-*/
+#endif
 //!!glennmcc: end -- Oct 23, 2005
   {
    strcpy(arachne.graphics,"VGA");
@@ -60,7 +60,7 @@ int i;
 #endif
 
 int loadpick( char *exename) //nahrat konfiguraci
-                // tr.: load configuration
+		// tr.: load configuration
 {
  int f,i,rv=0;
  char *str1;
@@ -137,9 +137,9 @@ int loadpick( char *exename) //nahrat konfiguraci
   memset(&arachne,0,sizeof(struct ArachnePick));
 
 #ifndef POSIX
-//!!glennmcc: Oct 23, 2005 -- always use XMS by simply commenting-out
-//this entire block
-/*
+//!!glennmcc: Oct 23, 2005 -- always use XMS on 387+
+//by using this entire block only for 286 and below
+#ifdef XT086
   puts(MSG_MEMSEL);
   puts(MSG_MEMXMS);
   puts(MSG_MEMEMS);
@@ -163,7 +163,7 @@ int loadpick( char *exename) //nahrat konfiguraci
    goto mem;
 
   printf("\n");
-*/
+#endif
 //!!glennmcc: end -- Oct 23, 2005
   rv=askgraphics();
 

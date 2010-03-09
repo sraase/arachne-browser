@@ -1,13 +1,13 @@
 #include "arachne.h"
 
 #ifndef CUSTOMER
-char *VER="1.93";
+char *VER="1.95";
 
 //!!glennmcc: Begin Apr 06, 2003--- NOKEY==GPL now
 #ifndef NOKEY
 
 #ifdef MSDOS
-char *beta=";UE12,r11"; //MS-DOS version is stable
+char *beta=";UE13"; //MS-DOS version is stable
 #else
 char *beta=";beta";    //for other platforms, not even beta....
 #endif//MSDOS

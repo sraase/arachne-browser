@@ -189,6 +189,8 @@ void percentbar(int prc)
  if(fullscreen)
   return;
 
+ if(prc>99) prc=100;
+
  if(mousex>PERCENTBAR_X-130 && mousey>x_maxy()-32)
   mouseoff();
 

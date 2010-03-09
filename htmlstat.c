@@ -286,6 +286,9 @@ int FastTagDetect(char *tagname)
    return TAG_I;
   if(!strcmp(ptr,"RACHNE"))
    return TAG_ARACHNE_BONUS;
+//!!glennmcc: Aug 05, 2011 --- added support for HTML5 'AUDIO' & 'VIDEO'
+  if(!strcmp(ptr,"UDIO"))
+   return TAG_AUDIO;
   break;
 
   case 'T':   //second most frequend tag: <TABLE>, <TD>, etc.
@@ -505,6 +508,13 @@ int FastTagDetect(char *tagname)
    return TAG_UL;
   break;
 
+//!!glennmcc: Aug 05, 2011 --- added support for HTML5 'AUDIO' & 'VIDEO'
+  case 'V':
+  strupr(ptr);
+  if(!strcmp(ptr,"IDEO"))
+   return TAG_VIDEO;
+  break;
+//!!glennmcc: end
  }
  return 0;
 }

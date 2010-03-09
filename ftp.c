@@ -165,7 +165,7 @@ if (strstr(buffer,"sword") || strstr(buffer,"Enter PASS command"))
  write(log,"\r\n",2);
 }//!!glennmcc: inserted Mar 02, 2008
 //Some servers need the following 'do/while' section,
-//therfore, only the section above for sending the password needs to be
+//therefore, only the section above for sending the password needs to be
 //'blocked' when no password was requested.
 
  do
@@ -178,7 +178,9 @@ if (strstr(buffer,"sword") || strstr(buffer,"Enter PASS command"))
   write(log,"\r\n",2);
 //  printf("FTP daemon said>");
 //  puts(buffer);
-  if ( *buffer != '2' && buffer[0]!=' ')
+if (strstr(buffer,"Enter PASS command")) eznos2=1;
+
+  if (*buffer != '2' && buffer[0]!=' ' && !eznos2)
   {
    write(cache->handle,buffer,strlen(buffer));
    rv=1;
@@ -191,7 +193,7 @@ if (strstr(buffer,"sword") || strstr(buffer,"Enter PASS command"))
    write(cache->handle,buffer,strlen(buffer));
   }
  }
- while(buffer[3]=='-' || buffer[0]==' '); //continued message!
+ while(buffer[3]=='-' || buffer[0]==' ' || buffer[0]=='3'); //continued message!
 //}//!!glennmcc: end May 11, 2005 -- removed on Mar 02, 2008
 
  //ask server where we have to connect:
@@ -267,7 +269,19 @@ if (strstr(buffer,"sword") || strstr(buffer,"Enter PASS command"))
  if(!dataport)
   goto quit;
 
- makestr(datahost,datahostptr,79);
+//!!glennmcc: Aug 31, 2009
+//EZNOS2 sends the IP of the machine on a router as datahost
+//therefore we need to go back to the original host
+if(eznos2)
+{
+makestr(datahost,url->host,79);
+outs(datahost);
+Piip();
+}
+else
+//!!glennmcc:end
+
+ makestr(datahost,datahostptr,79);//original line
 
  retry:
 
@@ -395,6 +409,7 @@ if (strstr(buffer,"sword") || strstr(buffer,"Enter PASS command"))
  sock_puts(socket,(unsigned char *)str);
  write(log,str,strlen(str));
  write(log,"\r\n",2);
+
 //!!glennmcc: Oct 19, 2008 -- back to original fix
 //!!glennmcc: Nov 15, 2007 -- always 'close' the connection when done
 //with both dir listings and file downloads

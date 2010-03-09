@@ -154,6 +154,9 @@ p->xsum=0;
 #define EMBED  13
 //!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
 #define BGSOUND 14
+//!!glennmcc: Aug 05, 2011 --- added support for HTML5 'AUDIO' & 'VIDEO'
+#define AUDIO 15
+#define VIDEO 16
 
 //special HTML atoms:
 #define STYLESHEET    97
@@ -304,6 +307,9 @@ p->xsum=0;
 
 //!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
 #define TAG_BGSOUND          64
+//!!glennmcc: Aug 05, 2011 --- added support for HTML5 'AUDIO' & 'VIDEO'
+#define TAG_AUDIO 67
+#define TAG_VIDEO 68
 
 //!!JDS: Feb 28, 2007 -- add support for <S> (strike)
 //(see code in htmldraw.c)

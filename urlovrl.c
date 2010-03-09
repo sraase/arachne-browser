@@ -295,7 +295,7 @@ if(unlink(cacheptr->locname)==0)
 //works in tandom with the increase of LINES define in init.c
 //and history file size in main.c
 #ifdef NOKEY
-#define MAXCONV 255
+#define MAXCONV 624
 #else
 #ifdef EXPMAX
 #define MAXCONV 624
@@ -389,8 +389,9 @@ return NULL;
   type = atomptr->type;
 
 //!!glennmcc: Jan 19, 2003 -- added support for 'BGSOUND'
+//!!glennmcc: AUG 05, 2011 -- added support for HTML5 'AUDIO' & 'VIDEO'
   if (type==IMG || type==EMBED || type==BGSOUND || type==BACKGROUND ||
-      type==TD_BACKGROUND || type==STYLESHEET)
+      type==TD_BACKGROUND || type==STYLESHEET || type==AUDIO || type==VIDEO)
   {
    if (atomptr->yy>p->htmlframe[atomptr->frameID].posY &&
        atomptr->xx>p->htmlframe[atomptr->frameID].posX &&
@@ -481,9 +482,12 @@ if(type==EMBED && !strncmpi(&URLptr[strlen(URLptr)-4],".SWF",4)) found=1; else
      else //conversion only
       if (GLOBAL.nowimages!=IMAGES_SEEKCACHE && type!=STYLESHEET &&
 	  (search_mime_cfg(HTTPdoc.mime, ext,command)==1 ||
-	  type==EMBED && search_mime_cfg(HTTPdoc.mime, ext, command)==2 //)
+	  type==EMBED && search_mime_cfg(HTTPdoc.mime, ext, command)==2
 //!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
-	  || type==BGSOUND && search_mime_cfg(HTTPdoc.mime, ext, command)==2)
+	  || type==BGSOUND && search_mime_cfg(HTTPdoc.mime, ext, command)==2
+//!!glennmcc: AUG 05, 2011 -- added support for HTML5 'AUDIO' & 'VIDEO'
+	  || type==AUDIO && search_mime_cfg(HTTPdoc.mime, ext, command)==2
+	  || type==VIDEO && search_mime_cfg(HTTPdoc.mime, ext, command)==2)
 
 	  && willconvert<MAXCONV)
        imageptr[willconvert++] = IMGatom;
@@ -561,7 +565,9 @@ return NULL;
         search_mime_cfg(HTTPdoc.mime, ext, command)==1
         || type==EMBED //)
 //!!glennmcc: Jan 19, 2003 --- added support for 'BGSOUND'
-        || type==BGSOUND)
+	|| type==BGSOUND
+//!!glennmcc: AUG 05, 2011 -- added support for HTML5 'AUDIO' & 'VIDEO'
+	|| type==AUDIO || type==VIDEO)
     {
      if (!ie_getswap(uptr))
      {

@@ -565,11 +565,13 @@ else //begin else HELO
     {
      sprintf(pom,MSG_SEND,length,fll);
      outs(pom);
+/*
 //!!glennmcc:Oct 23, 2008 -- 'reversed the logic'
 // to keep from overflowing at 21megs
      if(fll>100)
      percentbar((int)(length/(fll/100)));
-//   percentbar((int)(100*length/fll));
+*/
+   percentbar((int)(100*length/fll));
      lenread=a_read(f,buffer,BUFLEN);
      length+=lenread;
      if(lenread<=0)

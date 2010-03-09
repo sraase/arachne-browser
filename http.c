@@ -354,7 +354,7 @@ if(status==1)
  {
   char setbuf[1024*20];
   sock_setbuf(socket, (unsigned char *)setbuf, 1024*20);
-  user_interface.multitasking=MULTI_NO;
+  user_interface.multitasking=MULTI_SAFE;
  }
 }
 //!!glennmcc: end
@@ -422,6 +422,7 @@ if(status==1)
    MALLOCERR();
   ql=strlen(querystring);
   httpcommand="POST";
+
 //the problem with CGI forms was "x-www-form-urlencoded"....
   sprintf(contentlength,"Content-type: application/x-www-form-urlencoded\r\nContent-length: %d\r\n",ql);
  }
@@ -436,7 +437,7 @@ if(status==1)
   ptr=configvariable(&ARACHNEcfg,"UserAgent",NULL);
   if(ptr) sprintf(useragent,"%s",ptr);
   if(!ptr || strlen(useragent)<10)
-  sprintf(useragent,"xChaos_Arachne/5.%s%s (www.glennmcc.org)",VER,beta);
+  sprintf(useragent,"xChaos_Arachne/5.%s%s",VER,beta);
 //!!glennmcc: end
 
 //!!glennmcc: Aug 20, 2005
@@ -457,6 +458,10 @@ if(status==1)
 
  if(http_parameters.keepalive)
   keepalive="Connection: Keep-Alive\n";
+
+//!!glennmcc: Jan 18, 2011 -- fix intermittent posting problems
+if(querystring) sleep(1);//Piip();
+//!!glennmcc: end
 
 //!!glennmcc: Aug 20, 2005
 //don't include 'exestr' nor video settings in User-agent
@@ -519,6 +524,7 @@ if(!outgoing[0])
     return 0;
    }
 #else
+
 //!!glennmcc Jul 16, 2005 -- fix intermitant posting problem
 // by sending 16 byte chunks instead of 512 bytes
    while(postindex+16<ql)
@@ -792,15 +798,24 @@ analyse:
    if(!str[0] && !GLOBAL.redirection && AUTHENTICATION->flag!=AUTH_REQUIRED)
     goto write2cache;
 
-   ptr=strstr(str,": ");
+//!!glennmcc: Mar 29, 2010 -- compensate for some servers not having a space
+//between the ':' and the spec in the HTTP header
+//such-as 'content-type:text/plain' instead of the correct
+//format  'content-type: text/plain'
+//   ptr=strstr(str,": ");//original line
+   ptr=strstr(str,":");
+//changed that line and changed several ocurrences below
+//of ptr[2] to ptr[1+space]
    if(ptr)
    {
+    int space=0;
+    if(ptr[1]==' ') space=1;
     *ptr='\0';
 
     // ----------------------------------------------- Content-type:
     if(!strcmpi(str,"Content-type"))
     {
-    makestr(cache->mime,&ptr[2],STRINGSIZE-1); /* including charset= */
+    makestr(cache->mime,&ptr[1+space],STRINGSIZE-1); /* including charset= */
     strlwr(cache->mime);
 
 #ifdef EXP
@@ -808,7 +823,25 @@ analyse:
    char ext[5], *mimestr="\0", mime=0;
    get_extension(cache->URL,ext);
 
-if(strstr(cache->mime,"text/plain") && (!strcmpi(ext,"wmv") || !strcmpi(ext,"mpg") || !strcmpi(ext,"mpeg")))
+if(
+   (
+    strstr(cache->mime,"text/plain") ||
+    strstr(cache->mime,"application/octet-stream")
+   ) &&
+    (
+     !strcmpi(ext,"avi")  ||
+     !strcmpi(ext,"f4v")  ||
+     !strcmpi(ext,"flv")  ||
+     !strcmpi(ext,"mp4")  ||
+     !strcmpi(ext,"mpeg") ||
+     !strcmpi(ext,"mpg")  ||
+     !strcmpi(ext,"mov")  ||
+     !strcmpi(ext,"ogg")  ||
+     !strcmpi(ext,"oggv") ||
+     !strcmpi(ext,"webm") ||
+     !strcmpi(ext,"wmv")
+    )
+  )
    {
     Piip();
     strcpy(mimestr,"video/");
@@ -818,7 +851,7 @@ if(strstr(cache->mime,"text/plain") && (!strcmpi(ext,"wmv") || !strcmpi(ext,"mpg
     mime=1;
    }
 if(!mime)
-   makestr(cache->mime,&ptr[2],STRINGSIZE-1); /* including charset= */
+   makestr(cache->mime,&ptr[1+space],STRINGSIZE-1); /* including charset= */
    strlwr(cache->mime);
   }
 #endif
@@ -828,7 +861,7 @@ if(!mime)
 
     else if(!strcmpi(str,"Content-length"))
     {
-     cache->size=atol(&ptr[2]);
+     cache->size=atol(&ptr[1+space]);
      cache->knowsize=1;
 //!!glennmcc: July 08, 2006 -- only do a BGDL if it was
 // specifcally requested via CTRL+Enter/CTRL+LeftClick
@@ -847,7 +880,7 @@ if(GLOBAL.backgr==2) GLOBAL.backgr=0;
     // ----------------------------------------------- Connection:
 
     else if((!strcmpi(str,"Connection") || !strcmpi(str,"Proxy-Connection"))
-	     && !strncmpi(&ptr[2],"Keep-Alive",10))
+	     && !strncmpi(&ptr[1+space],"Keep-Alive",10))
     {
      willkeepalive=1;
     }
@@ -1424,8 +1457,8 @@ diskfull:;
 //. current HTTP download will continue as "background task"
 char GoBackground(struct HTTPrecord *cache)
 {
- if(GLOBAL.backgroundimages!=BACKGROUND_EMPTY ||
-    user_interface.multitasking==MULTI_NO)
+ if(GLOBAL.backgroundimages!=BACKGROUND_EMPTY
+ || user_interface.multitasking==MULTI_NO)
   return 0;
 
  if(p->httplen) //flush rest of header...

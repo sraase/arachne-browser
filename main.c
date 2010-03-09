@@ -824,7 +824,7 @@ if(!strstr(url.protocol,"arachne:"))
 //works in tandom with the increase of LINES define in init.c
 //and MAXCONV define in urlovrl.c
 #ifdef NOKEY
-     if(ie_openf_lim(&history,CONTEXT_SYSTEM,256)==1) //historie - max. 256 radku
+     if(ie_openf_lim(&history,CONTEXT_SYSTEM,1024)==1) //historie - max. 256 radku
 #else
 #ifdef EXPMAX
      if(ie_openf_lim(&history,CONTEXT_SYSTEM,1024)==1)

@@ -18,7 +18,7 @@
 #ifdef NOKEY
 #define STRINGSIZE 96 //was 48
 #else
-#define STRINGSIZE 48
+#define STRINGSIZE 96
 #endif
 #define PASSWORDSIZE 16
 

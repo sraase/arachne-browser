@@ -1228,6 +1228,17 @@ unlink("textarea.tmp");
     return gotoloc();
    }
 
+//!!glennmcc: June 22, 2010
+//for recovering text from textarea.tmp when a page with a textarea
+//was left without saving the contents of that textarea
+   if(key==0x1400) //Alt+T
+   {
+    sprintf(GLOBAL.location,"file:%s%stextarea.ah",sharepath,GUIPATH);
+    arachne.target=0;
+    return gotoloc();
+   }
+//!!glennmcc: end
+
    if(key==0x3200) //Alt+M
    {
     MemInfo(FORCED);

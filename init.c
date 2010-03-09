@@ -417,7 +417,7 @@ void cfgerr (struct ib_editor *f);
 //works in tandom with the increase of history file size in main.c
 //and MAXCONV define in urlovrl.c
 #ifdef NOKEY
-#define LINES 256
+#define LINES 1024
 #else
 #ifdef EXPMAX
 #define LINES 1024

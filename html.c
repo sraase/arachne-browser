@@ -95,7 +95,7 @@ char *maxwidth="";
 //#endif
  struct picinfo *img;
  long percflag;
- char *text;
+ char *text="";
  char *value;
 
 // werner scholz Nov 08,2006  --- utf8 ---
@@ -1047,7 +1047,9 @@ if((in=='<' &&
        char target;
 
 //!!glennmcc: Apr 23, 2008 -- convert unicoded 'hot links'
-   if(tagarg[0]=='&' && tagarg[1]=='#')
+//!!glennmcc; Jan 24, 2009 -- better fix ;-)
+   if(strstr(tagarg,"&#"))
+// if(tagarg[0]=='&' && tagarg[1]=='#')
     {
      entity2str(tagarg);
     }
@@ -1056,7 +1058,9 @@ if((in=='<' &&
        if(!strncmpi(tagarg,"mailto:",7))
 //!!glennmcc: Apr 23, 2008 -- convert unicoded 'hot links'
 {
-   if(tagarg[7]=='&' && tagarg[8]=='#')
+//!!glennmcc; Jan 24, 2009 -- better fix ;-)
+   if(strstr(tagarg,"&#"))
+// if(tagarg[7]=='&' && tagarg[8]=='#')
     {
      entity2str(tagarg);
     }
@@ -3696,6 +3700,12 @@ ReAnalyse:
       else
        strcpy(&text[1],tagarg);
 
+//!!glennmcc: Apr 02, 2010
+//to prevent problems due to <option value="">blabla</option>
+      if(getvar("VALUE",&tagarg) && strlen(tagarg)==0)
+       strcpy(&text[1]," ");
+//!!glennmcc: end
+
       appendline(currenttextarea,text,(text[0]=='1'));
      }//endif
      break;
@@ -3728,6 +3738,10 @@ ReAnalyse:
      if(getvar("COLS",&tagarg))
      {
       cols=atoi(tagarg);
+//!!glennmcc: Nov 23, 2008 -- fix width problem with textarea in nested table
+      if(user_interface.scrollbarsize)
+      cols-=2;
+//!!glennmcc: end
       if(cols<2)cols=2;
      }
 
@@ -4105,6 +4119,10 @@ DrawTitle(0);
      case TAG_EMBED:
 //!!glennmcc: Jan 19, 2003 added support for 'BGSOUND'
      case TAG_BGSOUND:
+//!!glennmcc: Aug 05, 2011 --- added support for 'AUDIO' & 'VIDEO'
+     case TAG_AUDIO:
+     case TAG_VIDEO:
+
      if(getvar("SRC",&tagarg) || getvar("FILENAME",&tagarg))// && !strncmpi(cache->URL,"file",4))
 //!!glennmcc: Oct 30, 2002... re-enabled embed for remote pages
 //by commenting out " && !strncmpi(cache->URL,"file",4))" on line above
