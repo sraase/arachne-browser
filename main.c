@@ -215,9 +215,12 @@ IveGotNewUrl:
   {
    int i=7;
    char buf[4*URLSIZE];
+//!glennmcc: Mar 03, 2013 -- define == learnersdictionary, webster == merriam-webster
    char *ptr="http://www.learnersdictionary.com/search/";
-// char *ptr="http://www.merriam-webster.com/cgi-bin/dictionary?";
-   if (!strncmpi(GLOBAL.location,"webster:",8)) i=8;
+   if (!strncmpi(GLOBAL.location,"webster:",8))
+  {i=8; ptr="http://www.merriam-webster.com/dictionary/";
+  // ptr="http://www.merriam-webster.com/cgi-bin/dictionary?";
+  }
    if (!strncmpi(GLOBAL.location,"oxford:",7))
 //!!glennmcc: June 06, 2007 -- much better than /concise_oed/ ;-)
    ptr="http://www.askoxford.com/results/?view=dict&freesearch=";

@@ -8,10 +8,12 @@
 #ifndef __URL_H
 #define __URL_H
 
+#define SETBUFSIZE 20 //!!glennmcc: Oct 21, 1012
+
 #ifdef NOKEY
-#define URLSIZE 512 //(GPL version)
+#define URLSIZE 704 //(GPL version)
 #else
-#define URLSIZE 400 //(UE version)
+#define URLSIZE 704 //(UE version)
 #endif
 #define PROTOCOLSIZE 11
 //!!Udo: -- Dec 27, 2007 -- increase 'stringsize'

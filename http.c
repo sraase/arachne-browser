@@ -350,10 +350,10 @@ if(status==1)
  outs(sp);
  Piip(); Piip();
 #endif
- if(_SP>(1024*20))
+ if(_SP>(1024*SETBUFSIZE))
  {
-  char setbuf[1024*20];
-  sock_setbuf(socket, (unsigned char *)setbuf, 1024*20);
+  char setbuf[1024*SETBUFSIZE];
+  sock_setbuf(socket, (unsigned char *)setbuf, 1024*SETBUFSIZE);
   user_interface.multitasking=MULTI_SAFE;
  }
 }
@@ -437,7 +437,7 @@ if(status==1)
   ptr=configvariable(&ARACHNEcfg,"UserAgent",NULL);
   if(ptr) sprintf(useragent,"%s",ptr);
   if(!ptr || strlen(useragent)<10)
-  sprintf(useragent,"xChaos_Arachne/5.%s%s",VER,beta);
+  sprintf(useragent,"xChaos_Arachne (DOS /5.%s%s)",VER,beta);
 //!!glennmcc: end
 
 //!!glennmcc: Aug 20, 2005

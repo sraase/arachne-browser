@@ -97,10 +97,10 @@ char *mailtop=configvariable(&ARACHNEcfg,"MailTop",NULL);
  outs(sp);
  Piip(); Piip();
 #endif
- if(_SP>(1024*20))
+ if(_SP>(1024*SETBUFSIZE))
  {
-  char setbuf[1024*20];
-  sock_setbuf(socket, (unsigned char *)setbuf, 1024*20);
+  char setbuf[1024*SETBUFSIZE];
+  sock_setbuf(socket, (unsigned char *)setbuf, 1024*SETBUFSIZE);
  }
 }
 //!!glennmcc: end

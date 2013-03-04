@@ -7,7 +7,7 @@ char *VER="1.97";
 #ifndef NOKEY
 
 #ifdef MSDOS
-char *beta=";UE14"; //MS-DOS version is stable
+char *beta=";UE13"; //MS-DOS version is stable
 #else
 char *beta=";beta";    //for other platforms, not even beta....
 #endif//MSDOS
