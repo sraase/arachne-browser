@@ -89,7 +89,9 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  if(!*exestr)
   makeexestr(exestr);
 
- if(http_parameters.referer)
+//!!glennmcc: Dec 05, 2013 -- do not send blank Referer: in header
+ if(http_parameters.referer && strlen(Referer)>0)
+// if(http_parameters.referer)
   sprintf(referstr,"Referer: %s\r\n",Referer);
 
  if(!GLOBAL.isimage)

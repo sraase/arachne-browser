@@ -1,4 +1,3 @@
-
 #include "arachne.h"
 
 #define fname "_4prt.bmp"
@@ -7,34 +6,33 @@ int PrintScreen2BMP(char virtscr)
 {
  struct
  {
-  short sigBMP;                  // that it is a BMP  "BM" -- File_header
+  short sigBMP;                    // that it is a BMP  "BM" -- File_header
   long size;                       // size of file
-  long resWin;                    // Reserve Windows 4 bytes
+  long resWin;                     // Reserve Windows 4 bytes
   long offBit;                     // Beginning of picture
 
-  short  zn28;                       // No. 28 (length) -- INFOHEADER
+  short  zn28;                     // No. 28 (length) -- INFOHEADER
   short  nic;
-  long  dx_bm;                      // number of columns
-  long  dy_bm;                      // number of rows
-  short  rovin;                      // number of levels 1
-  short  bit_pix;                    // bits in pixel
+  long  dx_bm;                     // number of columns
+  long  dy_bm;                     // number of rows
+  short  rovin;                    // number of levels 1
+  short  bit_pix;                  // bits in pixel
   long compress;                   // compression
   long sizeimg;                    // size of picture
   long Xpelmet;                    // resolution
   long Ypelmet;
   long ClrUsed;                    // number of used colours
   long CltImport;                  // number of important colours
- } bmp_hed;                          // Sum = 54bytes
+ } bmp_hed;                        // Sum = 54bytes
 
 //!!Ray: July 07, 2007 increase buffer size to handle 2048 width
-   unsigned char buf[5100];        //2*2048 + 4 + secure overhead
-// unsigned char buf[4000];        //2*1600 + 4 + secure overhead
+   unsigned char buf[5100];        // 2*2048 + 4 + secure overhead
    int j,f,depth=8,max,zblo;
    long x,y,offbit;
    unsigned long fsize;
 #ifdef HICOLOR
-//!!Ray: July 07, 2007 -- allocate size here instead of with farmalloc below
-   unsigned char RGBquadbuf[3096];
+//!!RayeR: 13.2.2011 -- increased line buffer for HiColor modes up to 1600x1200
+   unsigned char RGBquadbuf[4800]; // 3*1600
 // unsigned char *RGBquadbuf;
  int i;
 #endif

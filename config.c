@@ -1,4 +1,3 @@
-
 #include "arachne.h"
 #include "internet.h"
 #include "alttab.h"
@@ -424,13 +423,13 @@ the right side if the tail fix is not desired:
 
  value=configvariable(&ARACHNEcfg,"CursorType",NULL);
  if(!value || toupper(*value)=='H')
-    x_defcurs( (short *)cur, (short *)&cur[16], 15); //original 'Hand' cursor
+    x_defcurs( (void *)cur, (void *)(&cur[16]), 15); //original 'Hand' cursor
   else
   if (toupper(*value)=='C')
-    x_defcurs( (short *)cur1, (short *)&cur1[16], 15); // 'Cross' cursor
+    x_defcurs( (void *)cur1, (void *)&cur1[16], 15); // 'Cross' cursor
  else
   if(toupper(*value)=='A')
-   x_defcurs( (short *)cur2, (short *)&cur2[16], 15); // new 'Arrow' cursor
+   x_defcurs( (void *)cur2, (void *)&cur2[16], 15); // new 'Arrow' cursor
 //!!glennmcc:end
 
  value=configvariable(&ARACHNEcfg,"SmallIcons",NULL);
@@ -644,9 +643,7 @@ the right side if the tail fix is not desired:
  else
   user_interface.screenmode=0; //default = A...Auto
  }
-
-#endif
-
+#endif // VIRT_SCR
 
  value=configvariable(&ARACHNEcfg,"ScrollBarStyle",NULL);
  if(value && *value!='A')

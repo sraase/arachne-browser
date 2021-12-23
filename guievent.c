@@ -1387,7 +1387,7 @@ else if(key==12032 && !strncmpi(GLOBAL.location,"http://",7))
 //the 'check?url=' method will work even with 'HTTPreferer No'
 if(!strcmpi(configvariable(&ARACHNEcfg,"HttpReferer",NULL),"Yes"))
 //method #1
-    strcpy(GLOBAL.location,"http://validator.w3.org/check/referer");
+    strcpy(GLOBAL.location,"http://validator.w3.org/check?uri=referer");
 else
 //method #2
    {

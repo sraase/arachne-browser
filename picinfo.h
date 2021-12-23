@@ -2,9 +2,9 @@
 //(c)1998 xChaos software
 
 #ifdef NOKEY
-#define URLSIZE 704 //(GPL version)
+#define URLSIZE 1024 //(GPL version)
 #else
-#define URLSIZE 704 //(UE version)
+#define URLSIZE 1024 //(UE version)
 #endif
 #define MAXPALMIX 20
 

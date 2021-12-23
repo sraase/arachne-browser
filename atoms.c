@@ -842,6 +842,7 @@ void SelectSwitch(int x,long y,int key) //x coord will be maybe used in future
  int fromx=p->htmlframe[activeatom.frameID].posX;
  long fromy=p->htmlframe[activeatom.frameID].posY;
 
+ x++; // dummy, just supress warning
  if(selecty<fromy)
   selecty=fromy;
  selected=(int)(y-selecty-1)/fonty(OPTIONFONT,0)*2;

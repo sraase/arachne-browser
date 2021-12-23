@@ -11,9 +11,9 @@
 #define SETBUFSIZE 20 //!!glennmcc: Oct 21, 1012
 
 #ifdef NOKEY
-#define URLSIZE 704 //(GPL version)
+#define URLSIZE 1024 //(GPL version)
 #else
-#define URLSIZE 704 //(UE version)
+#define URLSIZE 1024 //(UE version)
 #endif
 #define PROTOCOLSIZE 11
 //!!Udo: -- Dec 27, 2007 -- increase 'stringsize'

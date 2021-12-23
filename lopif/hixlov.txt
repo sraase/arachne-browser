@@ -1,0 +1,7 @@
+For your convenience, two builds of HIXLOV.LIB (the standard version
+of the xLopif library used for Arachne) are included here :
+
+HIXLOV.086 = 8086 build
+HIXLOV.387 = 80386+80387 build
+
+Copy (or rename) the build of your choice to HIXLOV.LIB ...

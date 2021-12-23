@@ -1,0 +1,20 @@
+	LOPIF Graphics Library - Revision History
+	-----------------------------------------
+
+990610 : Michael Polak (Arachne Labs) - Original code, released under
+         the GNU General Public License.
+
+040612 : Michal H. Tyc - Update of 'zbitbyte.asm', correcting
+         the code segment assigned by the linker, performing some
+         optimizations and fully commenting the source code.
+
+041017 : Joe da Silva - Revision of 'vesa.h', 'x_mod.c', 'xh_putpx.asm',
+         'xh_getpx.asm', 'wrt_vide.asm', 'x_putpix.asm', 'x_getpix.asm',
+         'rea_w256.asm', 'x_bar256.asm', 'xh_wrchr.asm', 'xh_write.asm',
+         'xh_barx.asm', 'xh_read.asm' and 'wrt_chr.asm', such that the
+         VESA bytes/line value is used when available. This corrects a
+         compatibility problem with the Matrox Millenium II AGP video
+         card in 800x600 modes (and potentially other graphics cards in
+         certain SVGA modes). Minor improvements in error handling were
+         also made in a couple of places. Minor improvements were also
+         made to the 'vv.cc' test application code.

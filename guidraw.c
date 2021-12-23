@@ -225,7 +225,7 @@ void buttons(void)
 }
 
 
-void GUIInit(void)             // inicializace mysi, etc.
+void GUIInit(void)	       // inicializace mysi, etc.
 {
  if(!mousex && !mousey ||
     mousex>x_maxx()-MOUSEPIX ||
@@ -261,7 +261,7 @@ char *gettitle(char *buf)
 
 #endif //CUSTOMER
 
-void PaintTitle(void)    // vykresleni nazvu stranky
+void PaintTitle(void)	 // vykresleni nazvu stranky
 {
 #ifndef CUSTOMER
  if(fullscreen || customerscreen)
@@ -324,7 +324,7 @@ ____________^<--fill color
   decorated_text(10,p->htscrn_ytop-22,"URL",colormap);
   x_settextjusty(2,2);
   decorated_text(x_maxx()-192,p->htscrn_ytop-47,title,colormap);
-  x_settextjusty(0,2);        // vzdycky psat pismo od leveho horniho rohu
+  x_settextjusty(0,2);	      // vzdycky psat pismo od leveho horniho rohu
   x_setcolor(0);
  }
 #endif //CUSTOMER
@@ -346,7 +346,7 @@ void PaintStatus(void)
 
 }
 
-void RedrawALL()                       // redraw entire user interface
+void RedrawALL()		       // redraw entire user interface
 {
  char oldshift=user_interface.fontshift;
  user_interface.fontshift=0;
@@ -404,7 +404,7 @@ if(arachne.GUIstyle==2) arachne.GUIstyle=3;
   if(arachne.GUIstyle>STYLE_SMALL2)
   {
    arachne.GUIstyle=STYLE_ARACHNE;
-   if(!ptr || ptr[1]!='A' && ptr[1]!='C' && ptr[1]!='E' && ptr[1]!='J' && ptr[1]!='K')
+   if(!ptr || ptr[1]!='A' && ptr[1]!='C' && ptr[1]!='E' && ptr[1]!='J' && ptr[1]!='K' && ptr[1]!='L' && ptr[1]!='M')
     arachne.GUIstyle++;
   }
 
@@ -414,33 +414,41 @@ if(arachne.GUIstyle==2) arachne.GUIstyle=3;
    return;
  else
  {
-  if(plus)
+  if(plus) // prepni na vyssi rozlisnei
   {
-   if(!strncmpi(arachne.graphics,"VESA.X",6))//X==640x400x256c
-    ptr[1]='B';//B==640x480x256c
+   if(!strncmpi(arachne.graphics,"VESA.X",6)) //X==640x400x256c
+    ptr[1]='B';         //B==640x480x256c
    else if(ptr[1]=='B' && *maxres>'1')
-    ptr[1]='C';//C==800x600x256c
+    ptr[1]='C';         //C==800x600x256c
    else if(ptr[1]=='C' && *maxres>'2')
-    ptr[1]='E';//E==1024x768x256c
+    ptr[1]='E';         //E==1024x768x256c
 #ifdef HICOLOR
-	       //I==640x480xHiColor
+	          	//I==640x480xHiColor
    else if(ptr[1]=='I' && *maxres>'1')
-    ptr[1]='J';//J==800x600xHiColor
+    ptr[1]='J';         //J==800x600xHiColor
    else if(ptr[1]=='J' && *maxres>'2')
-    ptr[1]='K';//K==1024x768xHiColor
+    ptr[1]='K';         //K==1024x768xHiColor
+   else if(ptr[1]=='K' && *maxres>'3')
+    ptr[1]='L';         //L==1280x1024xHiColor
+   else if(ptr[1]=='L' && *maxres>'4')
+    ptr[1]='M';         //M==1600x1200xHiColor
 #endif
   }
-  else if(minus)
+  else if(minus) // prepni na nizsi rozlisnei
   {
-   if(ptr[1]=='E')//E==1024x768x256c
-    ptr[1]='C';//C==800x600x256c
+   if(ptr[1]=='E')      //E==1024x768x256c
+    ptr[1]='C';         //C==800x600x256c
    else if(ptr[1]=='C')
-    ptr[1]='B';//B==640x480x256c
+    ptr[1]='B';         //B==640x480x256c
 #ifdef HICOLOR
-   else if(ptr[1]=='K')//K==1024x768xHiColor
-    ptr[1]='J';//J==800x600xHiColor
-   else if(ptr[1]=='J')
-    ptr[1]='I';//I==640x480xHiColor
+   else if(ptr[1]=='M') //M==1600x1200xHiColor
+    ptr[1]='L';
+   else if(ptr[1]=='L') //L==1280x1024xHiColor
+    ptr[1]='K';
+   else if(ptr[1]=='K') //K==1024x768xHiColor
+    ptr[1]='J';
+   else if(ptr[1]=='J') //J==800x600xHiColor
+    ptr[1]='I'; 	//I==640x480xHiColor
 #endif
 #ifndef ERIC
    else if(!strncmpi(arachne.graphics,"VESA.B",6))
@@ -505,7 +513,7 @@ void statusmsg(void)
  x_settextjusty(2,2);
 // x_text_ib(x_maxx()-29,x_maxy()-15,(unsigned char *)msg);
  x_text_ib(x_maxx()-4,x_maxy()-15,(unsigned char *)msg);
- x_settextjusty(0,2);        // vzdycky psat pismo od leveho horniho rohu
+ x_settextjusty(0,2);	     // vzdycky psat pismo od leveho horniho rohu
 
  mouseon();
 #endif // CALDERA
@@ -746,20 +754,20 @@ if(user_interface.fontshift<0) htmlfont(3+user_interface.fontshift,0); else
   titleptr=arachne.title;
 
 
- x_settextjusty(0,1);        // na stred!
+ x_settextjusty(0,1);	     // na stred!
 
  if(arachne.GUIstyle==STYLE_SMALL1)
   x_text_ib(156,p->htscrn_ytop-12,(unsigned char *)titleptr);
  else
   x_text_ib(50,p->htscrn_ytop-37,(unsigned char *)titleptr);
- x_settextjusty(0,2);        // vzdycky psat pismo od leveho horniho rohu
+ x_settextjusty(0,2);	     // vzdycky psat pismo od leveho horniho rohu
 
  mouseon();
 #endif //CUSTOMER
  title_ok=1;
 #ifdef GGI
   Smart_ggiFlush();
-#endif 
+#endif
 }
 
 
@@ -780,7 +788,7 @@ void hidehighlight(void)
   lasthisx=-1;
 #ifdef GGI
   Forced_ggiFlush();
-#endif 
+#endif
  }
 }
 
@@ -1025,7 +1033,7 @@ else
   // ?b=0;
 #ifdef GGI
   Smart_ggiFlush();
-#endif 
+#endif
  }
 
 }
@@ -1033,10 +1041,10 @@ else
 
 static char *grabstr (char *src, char *dest, int maxlen) {
    char c;
-   
+
    while (isspace(*src)) src++;
 
-   while (((c = *src) != '\0') && (!isspace(c)) && (maxlen--)) 
+   while (((c = *src) != '\0') && (!isspace(c)) && (maxlen--))
    {
       *dest++ = c;
       src++;
@@ -1063,7 +1071,7 @@ int geticoninfo(char *name,char *icon,char *method,char *methodarg,char *desc1,c
   ptr = grabstr (ptr, methodarg, 79);
   ptr = grabstr (ptr, desc1, 39);
   (void) grabstr (ptr, desc2, 9);
-  
+
   ptr=desc1;
   while(*ptr)
   {
@@ -1128,9 +1136,9 @@ void zoom(void)
  p->htmlframe[0].scroll.xvisible=0;
  p->htmlframe[0].scroll.yvisible=1;
  ScrollInit(&(p->htmlframe[0].scroll),
-             p->htscrn_xsize,
-             p->htscrn_ysize,
-             p->htscrn_ysize,
+	     p->htscrn_xsize,
+	     p->htscrn_ysize,
+	     p->htscrn_ysize,
 	     p->htscrn_xtop,
 	     p->htscrn_ytop,
 	     p->htmlframe[0].scroll.total_x,

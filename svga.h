@@ -12,7 +12,7 @@ extern ggi_visual_t ggiVis;
 
 //LOPIF mouse
  int ImouseIni( int xmin, int ymin, int xmax, int ymax,
-		int xstart, int ystart);
+                int xstart, int ystart);
  int ImouseRead( int *xcurs, int *ycurs);
 void ImouseSet( int xstart, int ystart);
 void ImouseWait(void);

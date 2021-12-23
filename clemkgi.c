@@ -873,13 +873,13 @@ void graphicsinit(char *dummy)
   xg_256=MM_Hic; //set Hicolor flag...
   initpalette();
   x_settextjusty(0,2);  // always write text from upper left corner
-  
+
   view->kgi->Init();
 
   view->kgi->GetGraphMode (&oldvisx, &oldvisy,
     &oldvirtx, &oldvirty, &oldgt, &oldframes, &oldfontx, &oldfonty);
   doShutdown = TRUE;
-   
+
 #ifndef CLEMTEXT
 #ifndef CLEMVGA
   result = view->kgi->SetGraphMode (800, 600,
@@ -905,17 +905,17 @@ void graphicsinit(char *dummy)
   frameBufPtr = view->memory->malloc (640*400*2*2);
 
   for (i = 0; i < 256; i++)
-     clut.clut[i].r = 
-        clut.clut[i].g = 
+     clut.clut[i].r =
+        clut.clut[i].g =
         clut.clut[i].b = (i << 8) | i;
 
   view->kgi->SetClut (&clut);
 #endif
-    
+
 #else
   screenwidth = 800;
   screenheight = 600;
-  frameBufPtr = view->memory->malloc (800*600*2*2);   
+  frameBufPtr = view->memory->malloc (800*600*2*2);
 #endif
 }
 

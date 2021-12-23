@@ -163,6 +163,8 @@ if(!strncmpi(Grafmode,"VESA",4))
  puts("1. 640x480,HiColor (32/64K colors, 1MB)");
  puts("2. 800x600,HiColor (32/64K colors, 1MB, recommended)");
  puts("3. 1024x768,HiColor (32/64K colors, 2MB)");
+ puts("4. 1280x1024,HiColor (32/64K colors, 4MB)");
+ puts("5. 1600x1200,HiColor (32/64K colors, 4MB)");
 }
 #endif
 printf("\n");
@@ -184,6 +186,10 @@ printf(MSG_RESOL);
   strcpy(Grafmode,"Hi16.J");
  else if (i=='3')
   strcpy(Grafmode,"Hi16.K");
+ else if (i=='4')
+  strcpy(Grafmode,"Hi16.L");
+ else if (i=='5')
+  strcpy(Grafmode,"Hi16.M");
 #endif
  else
   goto resolution;
@@ -192,19 +198,18 @@ printf(MSG_RESOL);
 resolutionok:
 
 strcpy(svgamode,Grafmode);
-
 */
+
 setmode:
 
-  // Setting graphical mode
+  // Setting graphical mode. change VGAMONO -> VGA and set vgamono=1
   if(!strcmpi(Grafmode,"VGAMONO"))
   {
    strcpy(Grafmode,"VGA");
    vgamono=1;
   }
-
-  ptr=strstr(Grafmode,".M");
-  if(ptr)
+  // Change modes end with .M to .A and set vgamono=1 except for HiColor modes
+  if (((ptr=strstr(Grafmode,".M"))!=NULL) && (strstr(Grafmode,"Hi1")==NULL) && (strstr(Grafmode,"HI1")==NULL))
   {
    strcpy(ptr,".A");
    vgamono=1;

@@ -1,4 +1,3 @@
-
 // ========================================================================
 // Initialization and deinitialization of Arachne WWW browser
 // (c)1997-2000 Michael Polak, Arachne Labs
@@ -14,6 +13,8 @@
 #ifndef NOTCPIP
 #include "internet.h"
 #endif
+
+int mem_xmem(unsigned *total, unsigned *free);
 
 void Initialize_Arachne(int argc,char **argv,struct Url *url)
 {
@@ -146,7 +147,7 @@ init_bin();                     //initialization of memory, conf. files, etc.
 configure_user_interface();     //icons, hotkeys, scrollbuttons, font...
 init_xms();                     //font caching+animated GIFs
 
-#else           //LINUX, etc. - graphics mode information in arachne.conf
+#else                           //LINUX, etc. - graphics mode information in arachne.conf
 
 if(ie_initswap()!=1)            //initialization of swapping system ie_swap
  memerr0();
@@ -154,6 +155,7 @@ init_bin();                     //initialization of memory, conf. files, etc.
 
 {
  char *ptr=configvariable(&ARACHNEcfg,"GraphicsMode",NULL);
+printf("c2.ptr=%p\n",ptr);
  if(ptr)
   strcpy(arachne.graphics,ptr);
  else
@@ -169,9 +171,8 @@ configure_user_interface();     //icons, hotkeys, scrollbuttons, font...
 x_fnt_initxms(50);              //initialize font table...
 #ifdef LINUX
 bioskey_init();//switch terminal to raw mode
-#endif
-#endif
-
+#endif // LINUX
+#endif // not POSIX
 
 
 if(arachne.GUIstyle==8) //first start ?
@@ -195,14 +196,14 @@ else
 
 InitInput(&tmpeditor,"","",1,CONTEXT_SYSTEM);//text input prompt
 MakeInputAtom(&TXTprompt,&tmpeditor,
-	      64,p->htscrn_ysize/2,
-	      p->htscrn_xsize-128,p->htscrn_ysize/2+fonty(SYSFONT,0)+4);
+              64,p->htscrn_ysize/2,
+              p->htscrn_xsize-128,p->htscrn_ysize/2+fonty(SYSFONT,0)+4);
 
 
 //initialization of certain global variables:
 
 GLOBAL.needrender=1;        //na zacatku potrebuju prekreslit
-		  // tr.: in the beginning I need to redraw
+                  // tr.: in the beginning I need to redraw
 GLOBAL.isimage=0;           //to co nactu po startu, to nebude inline...
                   // tr.: what I load/read after start, will not be inline
 GLOBAL.nothot=0;

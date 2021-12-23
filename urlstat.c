@@ -450,7 +450,8 @@ void AnalyseURL(char *str,struct Url *url,int frame)
 //!!glennmcc: begin Dec 11,2001---- made it configurable y/n
 if(http_parameters.https2http)
 {
-  if(!strcmpi(url->protocol,"https"))
+  if(!strcmpi(url->protocol,"https") ||
+     !strcmpi(url->protocol,"data"))//!!glennmcc: Jan 21, 2014
    strcpy(url->protocol,"http");
 }
 //!!glennmcc: end

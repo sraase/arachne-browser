@@ -27,7 +27,7 @@ int filelength (int handle) {
    lseek (handle, 0, SEEK_END);
    length = lseek (handle, 0, SEEK_CUR);
    lseek (handle, curpos, SEEK_SET);
-   
+
    return length;
 }
 
@@ -61,16 +61,16 @@ void bioskey_init(void)
 struct termios new_termios;
 
 /* put the tty into "straight through" mode. */
-if (tcgetattr(STDIN_FILENO, &old_termios) < 0) 
+if (tcgetattr(STDIN_FILENO, &old_termios) < 0)
 {
  perror("tcgetattr failed");
 }
 
 memcpy(&new_termios,&old_termios,sizeof(struct termios));
 
-new_termios.c_lflag &= ~(ICANON | ECHO  | ISIG);
+new_termios.c_lflag &= ~(ICANON | ECHO	| ISIG);
 new_termios.c_iflag &= ~(ISTRIP | IGNCR | ICRNL | INLCR | IXOFF | IXON);
-new_termios.c_cc[VMIN]  = 0;
+new_termios.c_cc[VMIN]	= 0;
 new_termios.c_cc[VTIME] = 0;
 
 if (tcsetattr(STDIN_FILENO, TCSANOW, &new_termios) < 0)
@@ -89,7 +89,7 @@ else
  if(pipe(CancelWaitForKey_pipeline)<0)
  perror("pipe failed.\n");
 */
- 
+
 if(pipe(WaitForMouse_pipeline)<0)
  perror("pipe failed.\n");
 
@@ -115,9 +115,9 @@ int bioskey(int cmd)
    ggi_event ev;
 
    ggiEventRead(ggiVis, &ev, emKey);
-    
+
    modifiers=ev.key.modifiers;
-    
+
    if (ev.any.type == evKeyPress || ev.any.type == evKeyRepeat)
    {
     return ev.key.sym;
@@ -127,8 +127,8 @@ int bioskey(int cmd)
 
  return 0;
 #else
- fd_set	readset;
- struct timeval	t={0,0};
+ fd_set readset;
+ struct timeval t={0,0};
  unsigned char	buf[6];
 
  if(buffered!=0)
@@ -145,7 +145,7 @@ int bioskey(int cmd)
 
  FD_ZERO(&readset);
  FD_SET(0, &readset);
-                           	
+
  if (select(STDIN_FILENO+1, &readset, NULL, NULL, &t) <= 0)
  {
   return 0;
@@ -175,46 +175,46 @@ if (select(STDIN_FILENO+1, &readset, NULL, NULL, &t) <= 0)
 /* Timed out : must have been plain escape key */
  return (int)buf[0];
 }
-	
+
  read(STDIN_FILENO, buf+1, 1);
 
- if (buf[1] != '[') 
+ if (buf[1] != '[')
  {
   /* Nope, not an ANSI key sequence */
   buffered=(int)buf[1];
   return (int)buf[0];
  }
-	
+
 /* handle the ANSI key sequences */
 
  read(STDIN_FILENO, buf+2, 1);
 
  buf[3] = buf[4] = buf[5] = 0;
 
- if (isdigit(buf[2]) || (buf[2] == '[')) 
+ if (isdigit(buf[2]) || (buf[2] == '['))
  {
   read(STDIN_FILENO, buf+3, 1);
  }
-	
- if (isdigit(buf[3])) 
+
+ if (isdigit(buf[3]))
  {
   read(STDIN_FILENO, buf+4, 1);
  }
 
 #define CMP_KEY(S,K) if (strcmp(buf+2, (S)) == 0) {return (int)(K);}
-		
-	CMP_KEY("A", UPARROW);    CMP_KEY("B", DOWNARROW);
+
+	CMP_KEY("A", UPARROW);	  CMP_KEY("B", DOWNARROW);
 	CMP_KEY("C", RIGHTARROW); CMP_KEY("D", LEFTARROW);
 
 	CMP_KEY("1~", HOMEKEY);   CMP_KEY("4~", ENDKEY);
 	CMP_KEY("2~", INSERT); CMP_KEY("3~", DELETEKEY);
 	CMP_KEY("5~", PAGEUP); CMP_KEY("6~", PAGEDOWN);
 
-	CMP_KEY("[A",  F1); CMP_KEY("[B",  F2); 
-	CMP_KEY("[C",  F3); CMP_KEY("[D",  F4); 
-	CMP_KEY("[E",  F5); CMP_KEY("17~", F6); 
-	CMP_KEY("18~", F7); CMP_KEY("19~", F8); 
-	CMP_KEY("20~", F9); CMP_KEY("21~", F10); 
+	CMP_KEY("[A",  F1); CMP_KEY("[B",  F2);
+	CMP_KEY("[C",  F3); CMP_KEY("[D",  F4);
+	CMP_KEY("[E",  F5); CMP_KEY("17~", F6);
+	CMP_KEY("18~", F7); CMP_KEY("19~", F8);
+	CMP_KEY("20~", F9); CMP_KEY("21~", F10);
 	CMP_KEY("23~", F11); CMP_KEY("24~", F12);
 
 #undef CMP_KEY
@@ -229,7 +229,7 @@ void bioskey_close(void)
 {
 #ifdef GGI
 #else
- if (tcsetattr(STDIN_FILENO, TCSANOW, &old_termios) < 0) 
+ if (tcsetattr(STDIN_FILENO, TCSANOW, &old_termios) < 0)
   perror("tcsetattr failed");
  else
   printf("Console switched back to original mode.\n");
@@ -277,32 +277,32 @@ void tempinit(char *path)
 int xg_256;
 int xg_video_XMS=0; //real screen
 unsigned short xg_hival[256]; //hicolor values for palette
-int xg_hi16=1;    // mode : 16bit=1,15bit=0
+int xg_hi16=1;	  // mode : 16bit=1,15bit=0
 int xg_hipalmod=0;// x_setcolor(), x_setfill():0=index, 1=direct hicolor
 int xg_chrmod=1;
 unsigned char xg_hipal[768];  // Pal for HiCol mode (set through x_setpal())
 
-int xg_color;                 /* Set colour (rect,text)      */
-int xg_fillc;                 /* Set colour for x_bar()      */
-int xg_wrt;                   /* 0=overwrite, 1=XOR          */
-int xg_style;                 /* Definition of line          */
-int xg_xr,xg_yr;              /* ratio                       */
-int xg_view[4];               /* Viewport                    */
-int xg_xfnt,xg_yfnt;          /* Font size in pixels         */
-int xg_tjustx;                /* Aligning text in X direction*/
-int xg_tjusty;                /* Aligning text in Y direction*/
-int xg_clip;                  /* Whether to cut in viewport  */
-int xg_fbyt;                  /* Number of bytes in one char of the font */
-int xg_flag;                  /* Types: bit 0 - spec EGA pal */
-                              /*        bit 1 - aktive patt  */
+int xg_color;		      /* Set colour (rect,text)      */
+int xg_fillc;		      /* Set colour for x_bar()      */
+int xg_wrt;		      /* 0=overwrite, 1=XOR	     */
+int xg_style;		      /* Definition of line	     */
+int xg_xr,xg_yr;	      /* ratio			     */
+int xg_view[4]; 	      /* Viewport		     */
+int xg_xfnt,xg_yfnt;	      /* Font size in pixels	     */
+int xg_tjustx;		      /* Aligning text in X direction*/
+int xg_tjusty;		      /* Aligning text in Y direction*/
+int xg_clip;		      /* Whether to cut in viewport  */
+int xg_fbyt;		      /* Number of bytes in one char of the font */
+int xg_flag;		      /* Types: bit 0 - spec EGA pal */
+			      /*	bit 1 - aktive patt  */
 unsigned char xg_fonlen[256];  // Widths of chars for proportional fonts
 long  int     xg_fonadr[256];  // Beginning of chars for proportional fonts
 unsigned char xg_foncon;       // Flag - const/prop font [0/average]
 unsigned char xg_fonmem;       // Where is the font: 0-MEM(xg_fbuf),1-XMS,2-DISK
-int           xg_fonhan;       // Handle for XMS/DISK
-unsigned int  xg_lbfnt;        // length of buffer with font data 
+int	      xg_fonhan;       // Handle for XMS/DISK
+unsigned int  xg_lbfnt;        // length of buffer with font data
 
-char *xg_fbuf;                /* font bufffer                 */
+char *xg_fbuf;		      /* font bufffer		      */
 int xg_fnt_zoo=1;      /* For zooming text 1 | 2 */
 char xg_fnt_akt[64];  // Name of active font
 
@@ -311,7 +311,7 @@ int  xg_fnt_fre;       // first free/available in table
 int  xg_fnt_xms;       // handle XMS
 long xg_fnt_xlen;      // total length in XMS
 long xg_fnt_xoff;      // free space in XMS
-struct FNTXTAB *xg_fnt_xtab;   // font table 
+struct FNTXTAB *xg_fnt_xtab;   // font table
 int   xg_31yn=0;      //ASCII 1 ... ASCII 31 interpreted as 1..31 pixel space
 
 //---------------------------------------------------------------------------
@@ -348,17 +348,17 @@ static ggi_pixel ggi_getcolor (int index) {
  col.r = ((int) (*palptr++)) << 10;
  col.g = ((int) (*palptr++)) << 10;
  col.b = ((int) (*palptr)) << 10;
- 
+
  return ggiMapColor (ggiVis, &col);
 }
 #endif
 
-void x_setcolor(int color) 
+void x_setcolor(int color)
 {
 #ifndef TXTDEBUG
  //set foreground color
  xg_color=color;
-#ifdef  GGI
+#ifdef	GGI
  ggiSetGCForeground (ggiVis, ggi_getcolor (xg_color));
 #else
  vga_setrgbcolor(xg_hipal[3*xg_color]<<2,xg_hipal[3*xg_color+1]<<2,xg_hipal[3*xg_color+2]<<2);
@@ -370,7 +370,7 @@ void x_line(int x1, int y1, int x2, int y2 )
 {
 // draw line
 #ifndef TXTDEBUG
-#ifdef  GGI
+#ifdef	GGI
  ggiSetGCForeground (ggiVis, ggi_getcolor (xg_color));
  ggiDrawLine (ggiVis, x1, y1, x2, y2);
 #else
@@ -382,13 +382,13 @@ void x_line(int x1, int y1, int x2, int y2 )
 void x_bar(int xz, int yz, int xk, int yk)
 {
 #ifndef TXTDEBUG
-#ifdef  GGI
+#ifdef	GGI
  ggiSetGCForeground (ggiVis, ggi_getcolor (xg_fillc));
  ggiDrawBox (ggiVis, xz, yz, xk-xz+1, yk-yz+1);
 #else
  unsigned char *palptr = xg_hipal + 3*xg_fillc;
  int r, g, b;
- 
+
  r = ((int) (*palptr++)) << 2;
  g = ((int) (*palptr++)) << 2;
  b = ((int) (*palptr)) << 2;
@@ -478,7 +478,7 @@ int x_getmaxcol(void)
 void x_palett(int len, char *paleta)
 {
  //set palette to array or (3 R-G-B bytes)*len
-  if(xg_256 == MM_Hic)           // only a copy into xg_hipal
+  if(xg_256 == MM_Hic)		 // only a copy into xg_hipal
   {
    int i;
 
@@ -489,7 +489,7 @@ void x_palett(int len, char *paleta)
        }
   }
   //else real palette mapping.... later....
- 
+
 }
 
 /*
@@ -537,7 +537,7 @@ void z_bitbyte(unsigned char *buf1, unsigned char *buf2, int delka)
 // Prevod bufru s bytovym obrazem na Hi-color
 // Pozn: Predpoklada se, ze byla volana fce x_palett() s paletou obrazu.
 // tr.: Convert buffer with bitmap to Hi-color
-//      Note: provides that fce x_palett() has been called with palette of picture
+//	Note: provides that fce x_palett() has been called with palette of picture
 void xh_ByteToHi(unsigned char *Ibuf, unsigned char *Hi,
 		short Pixs, short Rows, short LenLine)
 {
@@ -546,7 +546,7 @@ void xh_ByteToHi(unsigned char *Ibuf, unsigned char *Hi,
 // Pixs- pixels in a line
 // Rows- number of rows (-Rows => Rows in Hi in reverse order)
 // LenLine - length Ibuf of row/rows in Bytes
-   int   i,j, Rows2;
+   int	 i,j, Rows2;
    unsigned char *Ibufx;
    unsigned short  *Hix;
 
@@ -587,7 +587,7 @@ int xv_set_actvirt(int Index)
 {
  //set active virtual screen
  return 1;
-}; 
+};
 
 int  xv_to_scr(int xs, int ys, int xo, int yo, int dx, int dy)
 {
@@ -595,8 +595,8 @@ int  xv_to_scr(int xs, int ys, int xo, int yo, int dx, int dy)
  return 1;
 }
 
-int  xv_cls_virt(int Xwrt,        // 0-only free XMS, 1-write XMS on disk
-		int Index)        // number of virtual videoram
+int  xv_cls_virt(int Xwrt,	  // 0-only free XMS, 1-write XMS on disk
+		int Index)	  // number of virtual videoram
 {
  //clear virt. screen
  return 0;
@@ -604,12 +604,12 @@ int  xv_cls_virt(int Xwrt,        // 0-only free XMS, 1-write XMS on disk
 
 int xv_new_virt(char *filenam, // File name for disk file
 	      int dx, int dy,  // Size in pixels
-	      int col,         // Default color
+	      int col,	       // Default color
 	      int bitpix,      // 3-1bit/pixel, 0-8bit/pixel, -1-16bit/pixel
 	      int npal,        // Length of palette
 	      char *pal,       // Palette, range RGB 0..63, max. 256 entries
 	      int Index,       // Index 0..5, number of virtual videoram
-	      int Typ)        // 0-XMS or DISK, 1-XMS, 2-DISK
+	      int Typ)	      // 0-XMS or DISK, 1-XMS, 2-DISK
 {
  return 1;
 }
@@ -631,7 +631,7 @@ int  xv_int_rea(int xs, int ys, int dx, int dy, char *buf)
 // GIF animations - hanimgif.c, needs to rework memory management....
 //---------------------------------------------------------------------------
 
-int  g_NumAnim=0;       // number of animated GIFs
+int  g_NumAnim=0;	// number of animated GIFs
 
 int  XInitAnimGIF(int XmsKby)
 {
@@ -654,7 +654,7 @@ int  XAnimateGifs(void)
 {
  return 0;
  //called from loop to animage GIFs
-}        
+}
 
 void XSetAllAnim1(void)
 {
@@ -719,15 +719,15 @@ int ImouseRead( int *xcurs, int *ycurs)
  {
   ggi_event ev;
   int oldbutton=xg_mousebutton;
-  
+
   ggiEventRead(ggiVis, &ev, emPointer);
 
   if (ev.any.type == evPtrButtonPress)
-   xg_mousebutton = ev.pbutton.button; 
+   xg_mousebutton = ev.pbutton.button;
 
   if (ev.any.type == evPtrButtonRelease)
    xg_mousebutton = 0;
-  
+
   if (ev.any.type == evPtrRelative)
   {
    *xcurs += ev.pmove.x;
@@ -738,7 +738,7 @@ int ImouseRead( int *xcurs, int *ycurs)
   {
    *xcurs = ev.pmove.x;
    *ycurs = ev.pmove.y;
-  } 
+  }
   if(*xcurs<xg_mouserange_xmin)
    *xcurs=xg_mouserange_xmin;
   if(*xcurs>xg_mouserange_xmax)
@@ -813,7 +813,7 @@ int Smart_ggiFlush_maxusec=0;
 
 void Smart_ggiFlush(void)
 {
- struct timeval tv_current; 
+ struct timeval tv_current;
 
  gettimeofday(&tv_current,NULL);
 
@@ -827,7 +827,7 @@ void Smart_ggiFlush(void)
   Smart_ggiFlush_maxusec=1000000/ Smart_ggiFlush_maxusec;
  }
 
- if(tv_current.tv_sec!=tv_lastflush.tv_sec || 
+ if(tv_current.tv_sec!=tv_lastflush.tv_sec ||
    tv_current.tv_usec-tv_lastflush.tv_usec>Smart_ggiFlush_maxusec)
  {
   ggiFlush(ggiVis);
@@ -915,7 +915,7 @@ void WaitForKey_thread(void)
 /*
 //---------------------------------------------------------------------------
 //This is the main CPU saving function in Arachne. It is not used at all in
-//DOS, in Linux/SVGAlib, Linux/GGI and others 
+//DOS, in Linux/SVGAlib, Linux/GGI and others
 //---------------------------------------------------------------------------
 */
 
@@ -928,7 +928,7 @@ void WaitForEvent(struct timeval *tv) //waits for user input or whatever...
  IfRequested_ggiFlush();
  ggiEventPoll(ggiVis, emPointer | emKey, tv);
 #else //SVGALIB
-/* old version of event polling: 
+/* old version of event polling:
  {
   struct timeval now={0,0};
   pthread_t keythread;
@@ -997,10 +997,10 @@ void WaitForEvent(struct timeval *tv) //waits for user input or whatever...
 /*
 //---------------------------------------------------------------------------
 // graphicsinit() is graphics initialization function.
-// argument will be string describing resolution 
+// argument will be string describing resolution
 // graphics mode is read by x_maxx(), x_maxy(), x_getmaxcoll(). Arachne also
 // accesses "private" variable xg_256 because public API for detecting HiColor
-// modes is missing.. 
+// modes is missing..
 //---------------------------------------------------------------------------
 */
 
@@ -1012,10 +1012,10 @@ const short cur[32] =
 	   0x0000, 0x6000, 0x7000, 0x3800, 0x1C00, 0x0E00, 0x0700, 0x0018,
 	   0x07EC, 0x07EE, 0x001E, 0x03EE, 0x03EE, 0x001E, 0x00EC, 0x0002 };
 
- 
+
   xg_256=MM_Hic; //set Hicolor flag...
   initpalette();
-  x_settextjusty(0,2);  // always write text from upper left corner
+  x_settextjusty(0,2);	// always write text from upper left corner
 
 #ifdef GGI
 // printf("Initializing GGI visual target.\n");
@@ -1044,6 +1044,20 @@ const short cur[32] =
   SVGAy=767;
  }
  else
+ if(strstr(svgamode,".L"))
+ {
+  vga_setmode(G1280x1024x64K);
+  gl_setcontextvga(G1280x1024x64K);
+  SVGAx=1279;
+  SVGAy=1023;
+ }
+ if(strstr(svgamode,".M"))
+ {
+  vga_setmode(G1600x1200x64K);
+  gl_setcontextvga(G1600x1200x64K);
+  SVGAx=1599;
+  SVGAy=1199;
+ }
  {
   vga_setmode(G800x600x64K);
   gl_setcontextvga(G800x600x64K);

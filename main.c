@@ -215,15 +215,15 @@ IveGotNewUrl:
   {
    int i=7;
    char buf[4*URLSIZE];
-//!glennmcc: Mar 03, 2013 -- define == learnersdictionary, webster == merriam-webster
-   char *ptr="http://www.learnersdictionary.com/search/";
-   if (!strncmpi(GLOBAL.location,"webster:",8))
-  {i=8; ptr="http://www.merriam-webster.com/dictionary/";
-  // ptr="http://www.merriam-webster.com/cgi-bin/dictionary?";
-  }
+// char *ptr="http://www.learnersdictionary.com/search/";
+   char *ptr="http://www.merriam-webster.com/dictionary/";
+// char *ptr="http://www.merriam-webster.com/cgi-bin/dictionary?";
+   if (!strncmpi(GLOBAL.location,"webster:",8)) i=8;
    if (!strncmpi(GLOBAL.location,"oxford:",7))
-//!!glennmcc: June 06, 2007 -- much better than /concise_oed/ ;-)
-   ptr="http://www.askoxford.com/results/?view=dict&freesearch=";
+//!!glennmcc: June 16, 2013 -- askoxford no-longer working
+   ptr="http://oxforddictionaries.com/definition/english/";
+//!!glennmcc: June 06, 2007 -- much better than /concise_oed/
+//   ptr="http://www.askoxford.com/results/?view=dict&freesearch=";
 //   ptr="http://www.askoxford.com/concise_oed/";
    if (!strncmpi(GLOBAL.location,"wiki:",5))
    {
@@ -262,13 +262,15 @@ IveGotNewUrl:
    if (!strncmpi(GLOBAL.location,"whois:",6))
    {
     i=6;
-    ptr="http://www.networksolutions.com/whois/results.jsp?domain=";
+//    ptr="http://www.networksolutions.com/whois/results.jsp?domain=";
+    ptr="http://www.whois.com/whois/";
    }
 //!!glennmcc: Jan 24, 2008 -- added whois of IP_address
    if (!strncmpi(GLOBAL.location,"whoisip:",8))
    {
     i=8;
-    ptr="http://www.networksolutions.com/whois/results.jsp?ip=";
+//    ptr="http://www.networksolutions.com/whois/results.jsp?ip=";
+    ptr="http://www.whois.com/whois/";
    }
 #ifdef CAV
    if(strstr(ptr,"traceroute.dgi") || strstr(ptr,"ping.dgi"))
@@ -433,8 +435,8 @@ IveGotNewUrl:
    if(plugin)
    {
     make_cmd(text,buf,
-	     p->htmlframe[arachne.target].cacheitem.URL,
-	     url.host, url.file, text, "NUL");
+             p->htmlframe[arachne.target].cacheitem.URL,
+             url.host, url.file, text, "NUL");
    }
    else
     sprintf(buf,"telnet %s\n",url.host);
@@ -513,8 +515,8 @@ IveGotNewUrl:
     {
      char buf[IE_MAXLEN+2];
      make_cmd(text,buf,
-	      p->htmlframe[arachne.target].cacheitem.URL,
-	      url.host, url.file, text, "NUL");
+              p->htmlframe[arachne.target].cacheitem.URL,
+              url.host, url.file, text, "NUL");
 
 #ifdef POSIX
      printf("Executing command:\n%s\n",buf);
@@ -672,7 +674,7 @@ add2history(GLOBAL.location);
      char buf[IE_MAXLEN+2];
      make_cmd(cmd,buf,
 	      p->htmlframe[arachne.target].cacheitem.URL,
-	      url.host, url.file, cmd, "NUL");
+              url.host, url.file, cmd, "NUL");
 
 #ifdef POSIX
      printf("Executing command:\n%s\n",buf);
@@ -933,7 +935,7 @@ if(//!strstr(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Y")
     cacheitem->dynamic=1;
 
     mode=make_cmd(command,buf,cacheitem->URL,
-		  url.host, url.file, str,cacheitem->locname);
+                  url.host, url.file, str,cacheitem->locname);
     unlink(cacheitem->locname);
     UpdateInCache(*cacheitem_writeadr,cacheitem);
     *cacheitem_status=VIRTUAL;
@@ -991,7 +993,7 @@ if(//!strstr(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Y")
     sprintf(str,MSG_PLUGIN,cacheitem->mime,ctrlbreak);
     outs(str);
     mode=make_cmd(command,buf , cacheitem->URL,
-		  url.host, url.file,cacheitem->locname, "NUL");
+                  url.host, url.file,cacheitem->locname, "NUL");
 #ifdef POSIX
     system(buf);
     goto Wait4Orders;
@@ -1390,16 +1392,16 @@ ReadScriptLine:
 #ifdef GGI
   WaitForEvent(NULL);//NULL pointer means >>wait forever for mouse or keystroke<<
                      //later, timeval structure with time limit will be passed,
-		     //considering  animation, JavaScript and redirection timouts,
-                     //and also DrawTime function - used in fullscreen version...                   
+                     //considering  animation, JavaScript and redirection timouts,
+                     //and also DrawTime function - used in fullscreen version...
 #else
  {
   struct timeval tv={0,500000};
   WaitForEvent(&tv); //NULL pointer means >>wait forever for mouse or keystroke<<
-		     //later, timeval structure with time limit will be passed,
+                     //later, timeval structure with time limit will be passed,
                      //considering  animation, JavaScript and redirection timouts,
-                     //and also DrawTime function - used in fullscreen version...                   
- }                 
+                     //and also DrawTime function - used in fullscreen version...
+ }
 #endif
 
 #endif
