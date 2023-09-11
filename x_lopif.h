@@ -771,9 +771,13 @@ extern long          xg_fntalloc;     // Fixni delka bufru pro font
 
 struct FNTXTAB             // pro jeden font v pameti
 {
+#ifdef POSIX
+   void         *ptr;
+   void         *fbuf;
+#else
    long         Offset;    // offset bufru s fontem v XMS
    unsigned int Size;      // delka fontu v XMS
-//mp:!!! updated!!!
+#endif
    char         Name[80];  // jmeno fontu
 };
 
