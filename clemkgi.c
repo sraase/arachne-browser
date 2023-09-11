@@ -708,7 +708,7 @@ void z_bitbyte(unsigned char *buf1, unsigned char *buf2, int delka)
 //      palette of picture
 
 void xh_ByteToHi(unsigned char *Ibuf, unsigned char *Hi,
-		short Pixs, short Rows, short LenLine)
+		int Pixs, int Rows, int LenLine)
 {
 // Ibuf- (in) buffer with rows of palette picture (1B/pixel)
 // Hi  - (out)buffer with rows HiCol

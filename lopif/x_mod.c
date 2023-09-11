@@ -38,18 +38,18 @@
  char xg_f_cur=0;
  unsigned int xg_c_col;        /* On/Off,barva kurzoru	   */
  int	  xg_x_cur,xg_y_cur;   /* Posledni souradnice	   */
- int	  xg_s1[16] =  {0xFFFF,0xFC3F,0xFC3F,0xFC3F, /* Screen mask */
+ unsigned short xg_s1[16] =  {0xFFFF,0xFC3F,0xFC3F,0xFC3F, /* Screen mask */
 					  0xFC3F,0xF00F,0x0000,0x0000,
 					  0x0000,0x0000,0xF00F,0xFC3F,
 					  0xFC3F,0xFC3F,0xFC3F,0xFFFF};
- int	  xg_s2[16] =  {0x0000,0x0000,0x0180,0x0180, /* Cursor mask  */
+ unsigned short xg_s2[16] =  {0x0000,0x0000,0x0180,0x0180, /* Cursor mask  */
 					  0x0180,0x0180,0x07E0,0x7FFE,
 					  0x7FFE,0x07E0,0x0180,0x0180,
 					  0x0180,0x0180,0x0000,0x0000};
  int xg_svga;
  int xg_intern;
- unsigned int xg_and16[68];    // Masky pro 16 bar. cursor.
- unsigned int xg_or16[68];
+ unsigned short xg_and16[68];  // Masky pro 16 bar. cursor.
+ unsigned short xg_or16[68];
  int   xg_fnt_zoo = 1;
  int   xg_col_plan;	       // Pocet bitovych rovin 1..4 (impl.4)
 						 // Getimg,Putimg,Imgsiz
@@ -116,8 +116,8 @@ int xg_hi16= 0;
 int xg_xgr=0;		       // poradi RGB v tripletu pro true color, 0=BGR,1=RGB
 int xg_round=0; 	       // pro vypocet delky radku v B (0=dle ncol, 1-nas. ctyr(BMP))
 int xg_hipalmod=0;	       // x_setcolor(), x_setfill():0=index, 1=primo hicolor
-unsigned char xg_hipal[768];   // Pal pro HiCol mode (nastavit pres x_setpal())
-unsigned int  xg_hival[256];   // Hi-col hodnoty k palete
+unsigned char  xg_hipal[768];  // Pal pro HiCol mode (nastavit pres x_setpal())
+unsigned short xg_hival[256];  // Hi-col hodnoty k palete
 
 void xh_CrePal256(unsigned char *Pal);
 

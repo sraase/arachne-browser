@@ -80,7 +80,7 @@ void xh_ByteToHi(unsigned char *Ibuf, unsigned char *Hi,
 }
 
 // Prevod RGB (0..63) na Hi-color
-unsigned xh_RgbHiPal(unsigned char R, unsigned char G, unsigned char B)
+unsigned short xh_RgbHiPal(unsigned char R, unsigned char G, unsigned char B)
 {
    if(xg_hi16 == 1)
     return(RGBHI16(R,G,B));

@@ -54,8 +54,8 @@ unsigned int xg_c_col;       /* On/Off, colour of cursor     */
 int  xg_x_cur,xg_y_cur;      /* Last coordinates             */
 unsigned short xg_and16[68];   // Mask for 16 col. cursor.
 unsigned short xg_or16[68];
-short xg_s1[16];   /* Screen mask  */
-short xg_s2[16];   /* Cursor mask  */
+unsigned short xg_s1[16];   /* Screen mask  */
+unsigned short xg_s2[16];   /* Cursor mask  */
 
 
 // Nova fce na orezavani img v 16 barvach ve smeru dx - spec pro cursor

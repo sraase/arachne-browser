@@ -741,16 +741,16 @@ extern char xg_curs[260];            /* Image pod kursorem          */
 extern char xg_f_cur;
 extern unsigned int xg_c_col;       /* On/Off,barva kurzoru     */
 extern int  xg_x_cur,xg_y_cur;      /* Posledni souradnice      */
-extern int xg_s1[16];   /* Screen mask  */
-extern int xg_s2[16];   /* Cursor mask  */
+extern unsigned short xg_s1[16];    /* Screen mask  */
+extern unsigned short xg_s2[16];    /* Cursor mask  */
 extern int xg_svga;     /* Bit. mapa pro SVGA mody       */
                         /* nizsi byte : bit 0..3 delka radku 320..1024 */
                         /*              bit 7    0=16/1=256 barev      */
                         /* vyssi byte : 0..6 typ graf karty (7=VESA)   */
 extern int xg_intern;   /* Interni cislo graf. modu 0..7 */
 extern char xg_egapal[17];  /* Paleta pro EGU */
-extern unsigned int xg_and16[68];   // Masky pro 16 bar. cursor.
-extern unsigned int xg_or16[68];
+extern unsigned short xg_and16[68];   // Masky pro 16 bar. cursor.
+extern unsigned short xg_or16[68];
 extern int xg_fnt_zoo;      /* Pro zooming textu 1 | 2 */
 extern int xg_col_plan;     // Pocet. bit. rovin
 extern int xg_notview;      // 0-do vieportu, 1-absolutne (jen text)
@@ -843,7 +843,7 @@ void xh_ByteToHi(unsigned char *Ib1, unsigned char *Hi,
 //LenLin- in - Delka vstupniho radku v bytech
 
 //##---- Prevod R,G,B (paleta 0..63) do Hi-col
-unsigned xh_RgbHiPal(unsigned char R, unsigned char G, unsigned char B);
+unsigned short xh_RgbHiPal(unsigned char R, unsigned char G, unsigned char B);
 // R,G,B - in - polozky palety R,G,B v rozsahu 0..63
 // return  :    Hi-color pixel
 
@@ -884,8 +884,8 @@ extern int xg_hi16;    // mode : 16bit=1,15bit=0
 extern int xg_xgr;     // poradi RGB v tripletu pro true color, 0=BGR,1=RGB
 extern int xg_hipalmod;// x_setcolor(), x_setfill():0=index, 1=primo hicolor
 extern int xg_round;   // pro vypocet delky radku v B (0=dle ncol, 1-nas. ctyr(BMP))
-extern unsigned char xg_hipal[768];  // Pal pro HiCol mode (nastavit pres x_setpal())
-extern unsigned int  xg_hival[256];  // Hi-col hodnoty k palete
+extern unsigned char  xg_hipal[768]; // Pal pro HiCol mode (nastavit pres x_setpal())
+extern unsigned short xg_hival[256]; // Hi-col hodnoty k palete
 #endif
 
 #ifdef VIRT_SCR
