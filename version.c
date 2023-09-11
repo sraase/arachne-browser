@@ -1,7 +1,7 @@
 #include "arachne.h"
 
 #ifndef CUSTOMER
-char *VER="1.99";
+char *VER="2.0-dev";
 
 //!!glennmcc: Begin Apr 06, 2003--- NOKEY==GPL now
 #ifndef NOKEY
@@ -16,9 +16,9 @@ char *beta=";beta";    //for other platforms, not even beta....
 #if defined(LINUX)
 char *beta=";Linux";
 #elif defined(XT086)
-char *beta=";Final,286-";
+char *beta=";286-";
 #else
-char *beta=";Final,387+";
+char *beta=";387+";
 #endif
 #endif//ifndef NOKEY
 
