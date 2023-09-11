@@ -465,8 +465,9 @@ void ie_destroy(void)
 {
  int i=0;
 
-
+#ifndef POSIX
  if(swapstr!=NULL)farfree(swapstr);swapstr=NULL;
+#endif
  firstswap=0;
  while(i<IE_MAXSWAP)
   ie_killswap(i++);
