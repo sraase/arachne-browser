@@ -3,7 +3,8 @@
 
 #ifdef GGI
 #include <ggi/ggi.h>
-#else
+#endif
+#ifdef SVGALIB
 #include <vga.h>
 #endif
 
@@ -31,7 +32,8 @@ int main (int argc, char **argv) {
     {
 #ifdef GGI
      printf("Arachne/GGI V%s%s %s\n",VER,beta,copyright);
-#else
+#endif
+#ifdef SVGALIB
      printf("Arachne/SVGAlib V%s%s %s\n",VER,beta,copyright);
 #endif
      return 0;
@@ -48,7 +50,8 @@ int main (int argc, char **argv) {
          return 100;
       }
    }
-#else
+#endif
+#ifdef SVGALIB
    result = vga_init ();
 #endif
 
@@ -64,7 +67,8 @@ int main (int argc, char **argv) {
    }
 #ifdef GGI
    else printf ("Error initialising GGI.\n");
-#else
+#endif
+#ifdef SVGALIB
    else printf ("Error initialising svgalib.\n");
 #endif
 

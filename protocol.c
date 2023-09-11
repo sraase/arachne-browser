@@ -6,7 +6,7 @@ int protocol_arachne(struct HTTPrecord *cacheitem,struct Url *url,int *returnval
 {
  char *value;
 #ifndef NOTCPIP
-#ifndef CLEMTEST
+#ifndef POSIX
   if(!strncmpi(url->file,"ftp-",4))
   {
    char back=1;
@@ -83,7 +83,7 @@ if(!strstr(value,"file:ppp")) value="file:ppp_init.htm";
    }
   }
   else
-#ifndef CLEMTEST
+#ifndef POSIX
   if(!strcmpi(url->file,"dialer"))
   {
    *returnvalue=willexecute(ArachneDIAL());
@@ -125,7 +125,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 {
  char *value;
 
-#ifndef CLEMTEST
+#ifndef POSIX
 #ifdef OVRL
 #ifndef XTVERSION
  //---------------------------------------------------------------- finger:
@@ -454,10 +454,10 @@ if(strlen(url->authuser)>0 && strlen(url->authpassword)>0 &&
    return GOTO_READSCRIPT;
  }
  else
-#endif //CLEMTEST
+#endif
  //--------------------------------------------------------------- error?
   return UNKNOWN_PROTOCOL;
-#ifndef CLEMTEST
+#ifndef POSIX
  return CONTINUE_TO_RENDER;
-#endif //CLEMTEST
+#endif
 }

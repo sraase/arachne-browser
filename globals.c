@@ -16,7 +16,8 @@ unsigned _stklen=65500u;
 #ifdef LINUX
 #ifdef GGI
 char *exetype="; GGI";
-#else
+#endif
+#ifdef SVGALIB
 char *exetype="; svgalib";
 #endif
 #else

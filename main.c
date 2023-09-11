@@ -35,7 +35,7 @@ ARACHNE WWW BROWSER (TM) is a trademark of Michael Polak, Arachne Labs (TM)
 // Arachne WWW browser main() function:
 // ========================================================================
 
-#ifdef CLEMTEST
+#ifdef POSIX
 int arachne_main(int argc, char **argv )
 #else
 int main(int argc, char **argv )
@@ -1394,7 +1394,8 @@ ReadScriptLine:
                      //later, timeval structure with time limit will be passed,
                      //considering  animation, JavaScript and redirection timouts,
                      //and also DrawTime function - used in fullscreen version...
-#else
+#endif
+#ifdef SVGALIB
  {
   struct timeval tv={0,500000};
   WaitForEvent(&tv); //NULL pointer means >>wait forever for mouse or keystroke<<

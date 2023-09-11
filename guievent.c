@@ -951,7 +951,7 @@ unlink("textarea.tmp");
     arachne.target=0;
     return gotoloc();
    }
-#ifndef CLEMTEST
+#ifndef POSIX
 #ifndef ERIC
 //!!glennmcc: Feb 12, 2005 -- at the request of Michal H. Tyc
    else if(key==0x2004)//Ctrl+D
@@ -974,7 +974,7 @@ unlink("textarea.tmp");
     outs(str);
     return 0;
    }
-#endif //CLEMTEST
+#endif //POSIX
 #endif
    else if(asc=='K')
    {

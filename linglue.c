@@ -7,7 +7,7 @@
 #include "arachne.h"
 #include "pckbrd.h"
 
-#ifndef GGI
+#ifdef SVGALIB
 #include <vga.h>
 #include <vgagl.h>
 #include <termios.h>
@@ -41,7 +41,7 @@ int SVGAx=799,SVGAy=599;
 
 // Interface functions: bioskey_init(), bioskey_close(), bioskey().
 
-#ifndef GGI
+#ifdef SVGALIB
 //In SVGAlib, there is no need for screen flushing, but we need rather
 //sophisticated waitformouse and waitfor keyboard threads....
 
@@ -56,8 +56,7 @@ int MouseWasUpdatedInThread=0;
 
 void bioskey_init(void)
 {
-#ifdef GGI
-#else
+#ifdef SVGALIB
 struct termios new_termios;
 
 /* put the tty into "straight through" mode. */
@@ -126,7 +125,8 @@ int bioskey(int cmd)
  }
 
  return 0;
-#else
+#endif
+#ifdef SVGALIB
  fd_set readset;
  struct timeval t={0,0};
  unsigned char	buf[6];
@@ -227,8 +227,7 @@ if (select(STDIN_FILENO+1, &readset, NULL, NULL, &t) <= 0)
 
 void bioskey_close(void)
 {
-#ifdef GGI
-#else
+#ifdef SVGALIB
  if (tcsetattr(STDIN_FILENO, TCSANOW, &old_termios) < 0)
   perror("tcsetattr failed");
  else
@@ -360,7 +359,8 @@ void x_setcolor(int color)
  xg_color=color;
 #ifdef	GGI
  ggiSetGCForeground (ggiVis, ggi_getcolor (xg_color));
-#else
+#endif
+#ifdef SVGALIB
  vga_setrgbcolor(xg_hipal[3*xg_color]<<2,xg_hipal[3*xg_color+1]<<2,xg_hipal[3*xg_color+2]<<2);
 #endif
 #endif
@@ -373,7 +373,8 @@ void x_line(int x1, int y1, int x2, int y2 )
 #ifdef	GGI
  ggiSetGCForeground (ggiVis, ggi_getcolor (xg_color));
  ggiDrawLine (ggiVis, x1, y1, x2, y2);
-#else
+#endif
+#ifdef SVGALIB
  vga_drawline(x1,y1,x2,y2);
 #endif
 #endif
@@ -385,7 +386,8 @@ void x_bar(int xz, int yz, int xk, int yk)
 #ifdef	GGI
  ggiSetGCForeground (ggiVis, ggi_getcolor (xg_fillc));
  ggiDrawBox (ggiVis, xz, yz, xk-xz+1, yk-yz+1);
-#else
+#endif
+#ifdef SVGALIB
  unsigned char *palptr = xg_hipal + 3*xg_fillc;
  int r, g, b;
 
@@ -410,7 +412,8 @@ void x_rect(int xz, int yz, int xk, int yk)
  ggiDrawLine(ggiVis,xk,yz,xk,yk);
  ggiDrawLine(ggiVis,xz,yk,xk,yk);
  ggiDrawLine(ggiVis,xz,yz,xz,yk);
-#else
+#endif
+#ifdef SVGALIB
  vga_drawline(xz,yz,xk,yz);
  vga_drawline(xk,yz,xk,yk);
  vga_drawline(xz,yk,xk,yk);
@@ -448,7 +451,8 @@ void x_getimg(int x1, int y1, int x2, int y2, char *bitmap)
 // if(x1>=0 && x2<=x_maxx() && y1>=0 && y2<=x_maxy())
 #ifdef GGI
  ggiGetBox(ggiVis, x1, y1, w, h, (void *) &bitmap[2*sizeof(short int)]);
-#else
+#endif
+#ifdef SVGALIB
  gl_getbox(x1, y1, w, h,&bitmap[2*sizeof(short int)]);
 #endif
 }
@@ -464,7 +468,8 @@ void x_putimg(int xz,int yz, char *bitmap, int op)
 // if(xz>=0 && xz+w<=x_maxx() && yz>=0 && yz+h<=x_maxy())
 #ifdef GGI
  ggiPutBox(ggiVis, xz, yz, w, h, (void *) &bitmap[2*sizeof(short int)]);
-#else
+#endif
+#ifdef SVGALIB
  gl_putbox(xz,yz,w,h,&bitmap[2*sizeof(short int)]);
 #endif
 }
@@ -505,7 +510,8 @@ void x_cleardev(void)
  ggiSetGCForeground (ggiVis, ggi_getcolor (0));
  ggiFillscreen(ggiVis);
  ggiSetGCForeground (ggiVis, ggi_getcolor (xg_color));
-#else
+#endif
+#ifdef SVGALIB
  vga_clear();
 #endif
 }
@@ -688,7 +694,8 @@ int ImouseIni( int xmin, int ymin, int xmax, int ymax,
  xg_mouserange_ymin=ymin;
  xg_mouserange_ymax=ymax;
  return 1;
-#else
+#endif
+#ifdef SVGALIB
  mouse_init("/dev/mouse",vga_getmousetype(),10);
 
  {
@@ -753,7 +760,8 @@ int ImouseRead( int *xcurs, int *ycurs)
  }//loop
  return xg_mousebutton;
 
-#else
+#endif
+#ifdef SVGALIB
  if(MouseWasUpdatedInThread || mouse_update())
  {
   MouseWasUpdatedInThread=0;
@@ -783,8 +791,7 @@ int ImouseRead( int *xcurs, int *ycurs)
 //set mouse coordinates
 void ImouseSet( int xstart, int ystart)
 {
-#ifdef GGI
-#else
+#ifdef SVGALIB
  mouse_setposition(xstart,ystart);
 #endif
 }
@@ -795,7 +802,8 @@ void ImouseWait(void)
 #ifdef GGI
  struct timeval forever={FOREVER,0};  //one hour is like forever, for most CPUs
  ggiEventPoll(ggiVis, emPointer, &forever);
-#else
+#endif
+#ifdef SVGALIB
  int dummy;
  while (ImouseRead(&dummy,&dummy))
   usleep(10000); //don't let it eat all CPU time...
@@ -851,7 +859,8 @@ void IfRequested_ggiFlush(void)
   Forced_ggiFlush();
 }
 
-#else
+#endif
+#ifdef SVGALIB
 
 
 void WaitForMouse_thread(void)
@@ -927,7 +936,8 @@ void WaitForEvent(struct timeval *tv) //waits for user input or whatever...
 #ifdef GGI
  IfRequested_ggiFlush();
  ggiEventPoll(ggiVis, emPointer | emKey, tv);
-#else //SVGALIB
+#endif
+#ifdef SVGALIB
 /* old version of event polling:
  {
   struct timeval now={0,0};
@@ -1025,7 +1035,8 @@ const unsigned short cur[32] =
  SVGAx=799;
  SVGAy=599;
  ggiAddFlags(ggiVis,GGIFLAG_ASYNC);
-#else
+#endif
+#ifdef SVGALIB
  strupr(svgamode);
 // printf("Console switched to graphics mode.\n");
  if(strstr(svgamode,".I"))

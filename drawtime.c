@@ -20,7 +20,7 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
  timestr(cas2);
  if (strcmp(lasttime,cas2) == 0 ) return;
 
-#ifndef CLEMTEST
+#ifndef GGI
 #ifndef AGB
  if((ScreenSaver>0l||lasttime[0]=='*') && SecondsSleeping>(long)ScreenSaver*60l)
  {
@@ -277,7 +277,7 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
   SecondsSleeping=0l;
  }//endif screensaver
 #endif// AGB
-#endif// CLEMTEST
+#endif// GGI
 
 #ifndef GGI //it doesn't make sense to show time in X11 app..
  if(!fullscreen)

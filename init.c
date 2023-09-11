@@ -335,7 +335,7 @@ if(argc>1)
 else //no arguments !
 {
  toolbarpage=0;
-#ifndef CLEMTEST
+#ifndef POSIX
  if(cacheisfull())
   sprintf(GLOBAL.location,"file:%s%smaintain.ah",sharepath,GUIPATH);
 #endif
@@ -777,7 +777,7 @@ void exitmsg(void)
 #endif
 }
 
-#ifndef CLEMTEST
+#ifndef POSIX
 char cacheisfull(void)
 {
  //struct ffblk ff;

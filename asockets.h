@@ -15,7 +15,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <stdarg.h>
-#else if defined (CLEMENTINE)
+#elif defined (CLEMENTINE)
 #include <clementine/types.h>
 #include <clementine/fdset.h>
 #include <clementine/socket.h>
