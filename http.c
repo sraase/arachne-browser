@@ -459,7 +459,7 @@ if(status==1)
 //!!glennmcc: end
 
  if(http_parameters.keepalive)
-  keepalive="Connection: Keep-Alive\n";
+  keepalive="Connection: Keep-Alive\r\n";
 
 //!!glennmcc: Jan 18, 2011 -- fix intermittent posting problems
 if(querystring) sleep(1);//Piip();
