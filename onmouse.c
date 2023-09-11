@@ -759,7 +759,7 @@ The top / bottom of the atom relative to its absolute position ('dy' below).
 //imgflag enhancement by Ray
   {
    static int imgflag=0;
-   if(atomptr->type==IMG)
+   if(atomptr && atomptr->type==IMG)
    {
     struct picinfo *imgptr=(struct picinfo*)ie_getswap(atomptr->ptr);
     if(strncmpi(imgptr->alt,"IMAGE",5))
