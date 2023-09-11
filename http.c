@@ -1422,6 +1422,7 @@ if(!cache->knowsize
 //during parallel image download & use MSG_X_of_Y_byte for the 1st image only
 elapsedtime=(int)(time(NULL))-(int)(starttime);
 if(elapsedtime>lastsec && prc<=99 &&
+ configvariable(&ARACHNEcfg,"UseByteSec",NULL) &&
  strstr(configvariable(&ARACHNEcfg,"UseByteSec",NULL),"Y"))
 {
  lastsec++;
@@ -1429,7 +1430,9 @@ if(elapsedtime>lastsec && prc<=99 &&
 }
  sprintf(str,MSG_X_OF_Y_byte,dl,fpos,cache->size,bytesec);
 
-if(lastsec==0 || prc>99 || !strstr(configvariable(&ARACHNEcfg,"UseByteSec",NULL),"Y"))
+if(lastsec==0 || prc>99 ||
+ (configvariable(&ARACHNEcfg,"UseByteSec",NULL) &&
+ !strstr(configvariable(&ARACHNEcfg,"UseByteSec",NULL),"Y")))
 sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);//original line
 //!!glennmcc: end
 

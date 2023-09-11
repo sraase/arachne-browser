@@ -1132,6 +1132,7 @@ if((in=='<' &&
      case TAG_IMG: //<IMG>
 //!!glennmcc: Dec 03, 2005 - optionally do not display any remote images
    if(((!strncmpi(cache->URL,"http:",5) || !strncmpi(cache->URL,"ftp:",4)) &&
+       configvariable(&ARACHNEcfg,"IgnoreImages",NULL) &&
        configvariable(&ARACHNEcfg,"IgnoreImages",NULL)[0]=='Y'))
       break;
 //!!glennmcc: end
@@ -1290,7 +1291,7 @@ if((in=='<' &&
 //defaults to max 2048 if variable missing from CFG
 //min setting 100
 maxwidth=configvariable(&ARACHNEcfg,"MaxImgWidth",NULL);
-if(atoi(maxwidth)<100) strcpy(maxwidth,"2048");
+if(!maxwidth || atoi(maxwidth)<100) maxwidth="2048";
 if(img->size_x>atoi(maxwidth))
    break;
 //!!glennmcc: end
