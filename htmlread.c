@@ -117,6 +117,7 @@ void closeHTML(struct HTTPrecord *cache,char source)
 unsigned char utf8table(unsigned char x1,unsigned char x2,unsigned char x3,unsigned char x4)
 {
  long uc;//!!glennmcc: Mar 27, 2008 -- convert UTF-8 into numerical equiv
+ char number[11];
 
  unsigned char c;
    c=127;          // square is default if utf8 converting fails !
@@ -150,10 +151,10 @@ unsigned char utf8table(unsigned char x1,unsigned char x2,unsigned char x3,unsig
   }
 
    if((uc>31 && uc<128)/* || (uc>159 && uc<256)*/) return uc;
-   if(configvariable(&ENTITYcfg,ltoa(uc,"\0",10),NULL))
+   if(configvariable(&ENTITYcfg,ltoa(uc,number,10),NULL))
    {
 //    Piip();//during testing... 'beep' when a conversion takes place
-    return *configvariable(&ENTITYcfg,ltoa(uc,"\0",10),NULL);
+    return *configvariable(&ENTITYcfg,ltoa(uc,number,10),NULL);
    }
 return c;//1st part of Werners code returns char when not found in entity.cfg
 }

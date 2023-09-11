@@ -79,7 +79,7 @@ ndash -
  if(*name=='#')
     {
      int value;
-     char *number="\0";
+     char number[11];
      if(name[1]=='x' || name[1]=='X')
      value=(int)strtoul(&name[2],NULL,16);//HEX format
 //!!glennmcc: Feb 07, 2007 -- OCTAL is not needed after-all,

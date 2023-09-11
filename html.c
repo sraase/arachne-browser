@@ -625,7 +625,7 @@ knowsize:
  if(in>127 && !utf8)
 // if(in>127)
  {
-  char recode[3];
+  char recode[11];
   itoa(in,recode,10);
   if(configvariable(&ENTITYcfg,recode,NULL))
   in=*configvariable(&ENTITYcfg,recode,NULL);

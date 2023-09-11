@@ -134,21 +134,25 @@ int strcmpi(char *str1,char *str2)
 #endif
 
 #ifdef LINUX
-char* itoa(int val, int base)
+char *itoa(int val, char *s, int base)
 {
- static char buf[32] = {0};
- int i = 30;
- for(; val && i ; --i, val /= base)
- buf[i] = "0123456789abcdef"[val % base];
- return &buf[i+1];
+    switch(base) {
+    case  8: sprintf(s, "%o", val); break;
+    case 10: sprintf(s, "%d", val); break;
+    case 16: sprintf(s, "%x", val); break;
+    default: abort();
+    }
+    return s;
 }
 
-char* ltoa(long val, long base)
+char *ltoa(long val, char *s, long base)
 {
- static char buf[32] = {0};
- int i = 30;
- for(; val && i ; --i, val /= base)
- buf[i] = "0123456789abcdef"[val % base];
- return &buf[i+1];
+    switch(base) {
+    case  8: sprintf(s, "%lo", val); break;
+    case 10: sprintf(s, "%ld", val); break;
+    case 16: sprintf(s, "%lx", val); break;
+    default: abort();
+    }
+    return s;
 }
 #endif
