@@ -14,6 +14,21 @@
 #include <pthread.h>
 #endif
 
+#ifdef SDL2
+#include <SDL2/SDL.h>
+
+static SDL_Window   *window   = NULL;
+static SDL_Renderer *renderer = NULL;
+static SDL_Surface  *surface  = NULL;
+
+static unsigned short sdlcolor = 0xFFFF;
+static int need_update = 0;
+static int key_queue[16];
+static int key_queue_len;
+static int mouse_range[4];
+static int mouse_state[3];
+#endif
+
 #define FOREVER 3600 //60min * 60sec == one hour == close enough to forever..
 
 //#define TXTDEBUG
@@ -54,6 +69,182 @@ int MouseWasUpdatedInThread=0;
 
 #endif
 
+#ifdef SDL2
+static int utf8_decode(char byte, unsigned short *out, int *state)
+{
+    switch (*state) {
+    case 0:
+        if ((byte & 0x80) == 0x00) {
+            *state = 0; *out = byte; return 0;
+        } else if ((byte & 0xF8) == 0xF0) {
+            *state = 3; *out = (byte & 0x07);
+        } else if ((byte & 0xF0) == 0xE0) {
+            *state = 2; *out = (byte & 0x0F);
+        } else if ((byte & 0xC0) == 0xC0) {
+            *state = 1; *out = (byte & 0x1F);
+        } else {
+            *state = 0; *out = 0xFFFD; return 0;
+        }
+        break;
+    case 1:
+    case 2:
+        if ((byte & 0xC0) == 0x80) {
+            *out = (*out << 6) | (byte & 0x3F);
+            if (!--*state) return 0;
+        } else {
+            *state = 0; *out = 0xFFFD; return 0;
+        }
+        break;
+    case 3:
+        if ((byte & 0xC0) != 0x80) {
+            *state = 0; *out = 0xFFFD; return 0;
+        }
+        break;
+    }
+    return 1;
+}
+
+static unsigned short get_color(int index)
+{
+    unsigned int r = (xg_hipal[3 * index + 0] >> 1) & 0x1F;
+    unsigned int g = (xg_hipal[3 * index + 1]     ) & 0x3F;
+    unsigned int b = (xg_hipal[3 * index + 2] >> 1) & 0x1F;
+    return (r << 11 | g << 5 | b);
+}
+
+static int get_button(Uint8 button)
+{
+    switch (button) {
+    case SDL_BUTTON_LEFT:   return 0x01;
+    case SDL_BUTTON_RIGHT:  return 0x02;
+    case SDL_BUTTON_MIDDLE: return 0x04;
+    }
+    return 0;
+}
+
+static int get_button_mask(Uint32 state)
+{
+    int ret = 0;
+    if (state & SDL_BUTTON_LMASK) ret |= 0x01;
+    if (state & SDL_BUTTON_RMASK) ret |= 0x02;
+    if (state & SDL_BUTTON_MMASK) ret |= 0x04;
+    return ret;
+}
+
+static int get_key(SDL_Keycode code)
+{
+    switch (code) {
+    case SDLK_BACKSPACE:    return BACKSPACE;
+    case SDLK_UP:           return UPARROW;
+    case SDLK_DOWN:         return DOWNARROW;
+    case SDLK_LEFT:         return LEFTARROW;
+    case SDLK_RIGHT:        return RIGHTARROW;
+    case SDLK_INSERT:       return INSERT;
+    case SDLK_DELETE:       return DELETEKEY;
+    case SDLK_HOME:         return HOMEKEY;
+    case SDLK_END:          return ENDKEY;
+    case SDLK_PAGEUP:       return PAGEUP;
+    case SDLK_PAGEDOWN:     return PAGEDOWN;
+    case SDLK_PRINTSCREEN:  return PRTSCR;
+    case SDLK_F1:           return F1;
+    case SDLK_F2:           return F2;
+    case SDLK_F3:           return F3;
+    case SDLK_F4:           return F4;
+    case SDLK_F5:           return F5;
+    case SDLK_F6:           return F6;
+    case SDLK_F7:           return F7;
+    case SDLK_F8:           return F8;
+    case SDLK_F9:           return F9;
+    case SDLK_F10:          return F10;
+    case SDLK_F11:          return F11;
+    case SDLK_F12:          return F12;
+    default: if (code < 32) return code;
+    }
+
+   return 0;
+}
+
+static void add_key(int key)
+{
+    if (key && (key_queue_len < sizeof(key_queue) / sizeof(key_queue[0]))) {
+        key_queue[key_queue_len++] = key;
+    }
+}
+
+static void add_text(const char *text)
+{
+    int state = 0;
+    unsigned short codepoint;
+    while (*text) {
+        if (utf8_decode(*text++, &codepoint, &state))
+            continue;
+
+        // TODO: handle characters outside ISO-8859-1
+        add_key(codepoint < 0x0100 ? codepoint : '?');
+    }
+}
+
+static void do_events(int timeout)
+{
+    SDL_Event ev;
+
+    // avoid interface lag when screen update is needed
+    // but event queue is empty
+    if (need_update && !SDL_PollEvent(NULL))
+        goto doupdate;
+
+    SDL_WaitEventTimeout(NULL, timeout);
+    while (SDL_PollEvent(&ev)) {
+        switch (ev.type) {
+        case SDL_QUIT:
+            GLOBAL.abort = ABORT_PROGRAM;
+            break;
+
+        case SDL_KEYDOWN:
+            add_key(get_key(ev.key.keysym.sym));
+            break;
+
+        case SDL_TEXTINPUT:
+            add_text(ev.text.text);
+            break;
+
+        case SDL_MOUSEBUTTONDOWN:
+            mouse_state[0]  = ev.button.x;
+            mouse_state[1]  = ev.button.y;
+            mouse_state[2] |= get_button(ev.button.button);
+            break;
+
+        case SDL_MOUSEBUTTONUP:
+            mouse_state[0]  = ev.button.x;
+            mouse_state[1]  = ev.button.y;
+            mouse_state[2] &= ~get_button(ev.button.button);
+            break;
+
+        case SDL_MOUSEMOTION:
+            mouse_state[0]  = ev.button.x;
+            mouse_state[1]  = ev.button.y;
+            mouse_state[2]  = get_button_mask(ev.motion.state);
+            break;
+
+        case SDL_WINDOWEVENT:
+            need_update = 1;
+            break;
+        }
+    }
+
+doupdate:
+    if (need_update) {
+        SDL_RenderClear(renderer);
+        SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+        if (texture)
+            SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_RenderPresent(renderer);
+        need_update = 0;
+    }
+}
+#endif
+
+
 void bioskey_init(void)
 {
 #ifdef SVGALIB
@@ -92,6 +283,11 @@ else
 if(pipe(WaitForMouse_pipeline)<0)
  perror("pipe failed.\n");
 
+#endif
+#ifdef SDL2
+    memset(key_queue, 0, sizeof(key_queue));
+    key_queue_len = 0;
+    SDL_StartTextInput();
 #endif
 }
 
@@ -222,6 +418,38 @@ if (select(STDIN_FILENO+1, &readset, NULL, NULL, &t) <= 0)
  printf("Unrecognized ANSI sequence: %s\n",buf+2);
  return 0;
 #endif
+#ifdef SDL2
+    // handle pending events to update keyboard queue
+    do_events(0);
+    switch (cmd) {
+    case 0:
+        // return next key (consumeing)
+        if (key_queue[0]) {
+            int key = key_queue[0];
+            memmove(&key_queue[0], &key_queue[1],
+                sizeof(key_queue) - sizeof(int));
+            key_queue_len--;
+            return key;
+        }
+        return 0;
+    case 1:
+        // return next key (non-consuming)
+        return key_queue[0];
+    case 2:
+        // return modifier keys
+        {
+            int ret = 0;
+            SDL_Keymod mod = SDL_GetModState();
+            if (mod & KMOD_LSHIFT) ret |= LEFTSHIFT;
+            if (mod & KMOD_RSHIFT) ret |= RIGHTSHIFT;
+            if (mod & KMOD_LCTRL)  ret |= CTRLKEY;
+            if (mod & KMOD_RCTRL)  ret |= CTRLKEY;
+            if (mod & KMOD_LALT)   ret |= ALT;
+            if (mod & KMOD_RALT)   ret |= ALT;
+            return ret;
+        }
+    }
+#endif
 }
 
 
@@ -232,6 +460,9 @@ void bioskey_close(void)
   perror("tcsetattr failed");
  else
   printf("Console switched back to original mode.\n");
+#endif
+#ifdef SDL2
+    SDL_StopTextInput();
 #endif
 }
 
@@ -363,6 +594,9 @@ void x_setcolor(int color)
 #ifdef SVGALIB
  vga_setrgbcolor(xg_hipal[3*xg_color]<<2,xg_hipal[3*xg_color+1]<<2,xg_hipal[3*xg_color+2]<<2);
 #endif
+#ifdef SDL2
+    sdlcolor = get_color(xg_color);
+#endif
 #endif
 }
 
@@ -376,6 +610,35 @@ void x_line(int x1, int y1, int x2, int y2 )
 #endif
 #ifdef SVGALIB
  vga_drawline(x1,y1,x2,y2);
+#endif
+#ifdef SDL2
+    // Bresenham line drawing algorithm
+    unsigned short *dst = surface->pixels;
+    unsigned int pitch = surface->pitch;
+    int dx = (x2 > x1) ? x2 - x1 : x1 - x2;
+    int sx = x1 < x2 ? 1 : -1;
+    int dy = (y2 > y1) ? y1 - y2 : y2 - y1;
+    int sy = y1 < y2 ? 1 : -1;
+    int e  = dx + dy;
+    while (1) {
+        if (x1 <= SVGAx && y1 <= SVGAy)
+            dst[y1 * pitch/2 + x1] = sdlcolor;
+        if (x1 == x2 && y1 == y2)
+            break;
+        if (dy < 2*e) {
+            if (x1 == x2)
+                break;
+            e  += dy;
+            x1 += sx;
+        }
+        if (dx >= 2*e) {
+            if (y1 == y2)
+                break;
+            e  += dx;
+            y1 += sy;
+        }
+    }
+    need_update = 1;
 #endif
 #endif
 }
@@ -400,6 +663,19 @@ void x_bar(int xz, int yz, int xk, int yk)
  gl_fillbox(xz,yz,xk-xz+1,yk-yz+1,
    gl_rgbcolor(r,g,b));
 #endif
+#ifdef SDL2
+    unsigned short *dst = surface->pixels;
+    unsigned int pitch = surface->pitch;
+    unsigned short c = get_color(xg_fillc);
+    for (int y = yz; y < yk; y++) {
+        for (int x = xz; x < xk; x++) {
+            if (x <= SVGAx && y <= SVGAy) {
+                dst[y * pitch/2 + x] = c;
+            }
+        }
+    }
+    need_update = 1;
+#endif
 #endif
 }
 
@@ -418,6 +694,12 @@ void x_rect(int xz, int yz, int xk, int yk)
  vga_drawline(xk,yz,xk,yk);
  vga_drawline(xz,yk,xk,yk);
  vga_drawline(xz,yz,xz,yk);
+#endif
+#ifdef SDL2
+    x_line(xz, yz, xk, yz);
+    x_line(xk, yz, xk, yk);
+    x_line(xz, yk, xk, yk);
+    x_line(xz, yz, xz, yk);
 #endif
 #endif
 }
@@ -455,6 +737,16 @@ void x_getimg(int x1, int y1, int x2, int y2, char *bitmap)
 #ifdef SVGALIB
  gl_getbox(x1, y1, w, h,&bitmap[2*sizeof(short int)]);
 #endif
+#ifdef SDL2
+    unsigned short *src = surface->pixels;
+    unsigned int pitch = surface->pitch;
+    unsigned short *dst = (unsigned short *)&bitmap[2 * sizeof(short int)];
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            dst[y * w + x] = src[(y + y1) * pitch/2 + (x + x1)];
+        }
+    }
+#endif
 }
 
 //put image (real screen only)
@@ -471,6 +763,19 @@ void x_putimg(int xz,int yz, char *bitmap, int op)
 #endif
 #ifdef SVGALIB
  gl_putbox(xz,yz,w,h,&bitmap[2*sizeof(short int)]);
+#endif
+#ifdef SDL2
+    unsigned short *src = (unsigned short *)&bitmap[2 * sizeof(short int)];
+    unsigned short *dst = surface->pixels;
+    unsigned int pitch = surface->pitch;
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            if ((x + xz) <= SVGAx && (y + yz) <= SVGAy) {
+                dst[(y + yz) * pitch/2 + (x + xz)] = src[y * w + x];
+            }
+        }
+    }
+    need_update = 1;
 #endif
 }
 
@@ -513,6 +818,12 @@ void x_cleardev(void)
 #endif
 #ifdef SVGALIB
  vga_clear();
+#endif
+#ifdef SDL2
+    if (surface) {
+        memset(surface->pixels, 0, surface->pitch * (SVGAy + 1));
+        need_update = 1;
+    }
 #endif
 }
 
@@ -711,6 +1022,20 @@ int ImouseIni( int xmin, int ymin, int xmax, int ymax,
  mouse_setposition(xstart,ystart);
  return 1;
 #endif
+#ifdef SDL2
+    // set mouse range and position
+    mouse_range[0] = xmin;
+    mouse_range[1] = ymin;
+    mouse_range[2] = xmax;
+    mouse_range[3] = ymax;
+    mouse_state[0] = xstart;
+    mouse_state[1] = ystart;
+    mouse_state[2] = 0;
+
+    // hide system cursor, we draw our own
+    SDL_ShowCursor(SDL_DISABLE);
+    return 1;
+#endif
 }
 
 
@@ -786,6 +1111,13 @@ int ImouseRead( int *xcurs, int *ycurs)
  }
  return xg_mousebutton;
 #endif
+#ifdef SDL2
+    // handle all pending events to update mouse state
+    do_events(0);
+    *xcurs = min(mouse_range[2], max(mouse_range[0], mouse_state[0]));
+    *ycurs = min(mouse_range[3], max(mouse_range[1], mouse_state[1]));
+    return mouse_state[2];
+#endif
 }
 
 //set mouse coordinates
@@ -807,6 +1139,11 @@ void ImouseWait(void)
  int dummy;
  while (ImouseRead(&dummy,&dummy))
   usleep(10000); //don't let it eat all CPU time...
+#endif
+#ifdef SDL2
+    // handle all events until mouse buttons released
+    while (mouse_state[2])
+        do_events(-1);
 #endif
 }
 
@@ -930,14 +1267,17 @@ void WaitForKey_thread(void)
 
 void WaitForEvent(struct timeval *tv) //waits for user input or whatever...
 {
+#ifdef GGI
  struct timeval forever={FOREVER,0};  //one hour is like forever, for most CPUs
  if(!tv)
   tv=&forever;
-#ifdef GGI
  IfRequested_ggiFlush();
  ggiEventPoll(ggiVis, emPointer | emKey, tv);
 #endif
 #ifdef SVGALIB
+ struct timeval forever={FOREVER,0};  //one hour is like forever, for most CPUs
+ if(!tv)
+  tv=&forever;
 /* old version of event polling:
  {
   struct timeval now={0,0};
@@ -1000,7 +1340,13 @@ void WaitForEvent(struct timeval *tv) //waits for user input or whatever...
   else if(term_thread)
    pthread_cancel(mousethread);
  }
-
+#endif
+#ifdef SDL2
+    // wait for events and handle them
+    int timeout = -1;
+    if (tv)
+        timeout = tv->tv_sec * 1000 + tv->tv_usec / 1000;
+    do_events(timeout);
 #endif
 }
 
@@ -1082,6 +1428,32 @@ const unsigned short cur[32] =
  //gl_setfont(8,8,gl_font8x8);
  gl_setrgbpalette();
  gl_enableclipping();
+#endif
+#ifdef SDL2
+    // get window size from mode string (e.g. "800x600")
+    char *ptr;
+    if (svgamode && (ptr = strchr(svgamode, 'x'))) {
+        SVGAx = atoi(svgamode) - 1;
+        SVGAy = atoi(ptr + 1)  - 1;
+        if (SVGAx <= 0 || SVGAy <= 0) {
+            SVGAx = 799;
+            SVGAy = 599;
+        }
+    }
+
+    // initialize SDL2 and open window
+    SDL_InitSubSystem(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+    window = SDL_CreateWindow("Arachne",
+        SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+        SVGAx + 1, SVGAy + 1, 0);
+    renderer = SDL_CreateRenderer(window, -1,
+        SDL_RENDERER_PRESENTVSYNC);
+    surface = SDL_CreateRGBSurfaceWithFormat(0,
+        SVGAx + 1, SVGAy + 1, 16, SDL_PIXELFORMAT_RGB565);
+    if (!window || !renderer || !surface) {
+        fprintf(stderr, "Failed to initialize SDL2.\n");
+        exit(EXIT_TO_DOS);
+    }
 #endif
  x_defcurs( cur, &cur[16], 15); //mouse kursor
 }

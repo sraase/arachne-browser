@@ -1404,6 +1404,12 @@ ReadScriptLine:
                      //and also DrawTime function - used in fullscreen version...
  }
 #endif
+#ifdef SDL2
+ {
+  struct timeval tv = { 0, 500000 };
+  WaitForEvent(&tv);
+ }
+#endif
 
 #endif
 

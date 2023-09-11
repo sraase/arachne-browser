@@ -36,6 +36,9 @@ int main (int argc, char **argv) {
 #ifdef SVGALIB
      printf("Arachne/SVGAlib V%s%s %s\n",VER,beta,copyright);
 #endif
+#ifdef SDL2
+     printf("Arachne/SDL2 V%s%s %s\n",VER,beta,copyright);
+#endif
      return 0;
     }
    }

@@ -20,6 +20,9 @@ char *exetype="; GGI";
 #ifdef SVGALIB
 char *exetype="; svgalib";
 #endif
+#ifdef SDL2
+char *exetype="; SDL2";
+#endif
 #else
 char *exetype="";
 #endif
