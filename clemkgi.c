@@ -679,7 +679,7 @@ int x_fnt_load(char *fnt_file, int num, int mod)
 }
 */
 
-void x_defcurs(short *screen, short *cursor, int color)
+void x_defcurs(const unsigned short *screen, const unsigned short *cursor, int color)
 {
  //define cursor shape
 }

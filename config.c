@@ -381,7 +381,7 @@ void configure_user_interface(void)
 //!!glennmcc: begin Feb 11, 2005 -- Arrow cursor courtesy of Andrej Cuckov
 // THANK YOU !!! Mr. Cuckov
 //moved to config.c to make it configurable via CursorType in arachne.cfg
- const short cur2[32] =
+ const unsigned short cur2[32] =
  {
 //!!glennmcc: July 27, 2005 -- small mod to arrow by 'un-named SRC'
 	   0x1FFF, 0x0FFF, 0x07FF, 0x03FF, 0x01FF, 0x00FF, 0x007F, 0x003F,
@@ -404,7 +404,7 @@ the right side if the tail fix is not desired:
  };
 
 //!!glennmcc: July 27, 2005 -- Alternate 'cross' courtesy of 'un-named SRC'
- const short cur1[32] =
+ const unsigned short cur1[32] =
  {
 	   0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0x0001, 0x0101,
 	   0x0001, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFC7F, 0xFFFF,
@@ -413,7 +413,7 @@ the right side if the tail fix is not desired:
  };
 
 //the next block  of data is the original 'hand' cursor
- const short cur[32] =
+ const unsigned short cur[32] =
  {
    0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
    0xF001, 0xF000, 0xF800, 0xF800, 0xF800, 0xFC00, 0xFC00, 0xFC00,
@@ -423,13 +423,13 @@ the right side if the tail fix is not desired:
 
  value=configvariable(&ARACHNEcfg,"CursorType",NULL);
  if(!value || toupper(*value)=='H')
-    x_defcurs( (void *)cur, (void *)(&cur[16]), 15); //original 'Hand' cursor
+    x_defcurs( cur, (&cur[16]), 15); //original 'Hand' cursor
   else
   if (toupper(*value)=='C')
-    x_defcurs( (void *)cur1, (void *)&cur1[16], 15); // 'Cross' cursor
+    x_defcurs( cur1, &cur1[16], 15); // 'Cross' cursor
  else
   if(toupper(*value)=='A')
-   x_defcurs( (void *)cur2, (void *)&cur2[16], 15); // new 'Arrow' cursor
+   x_defcurs( cur2, &cur2[16], 15); // new 'Arrow' cursor
 //!!glennmcc:end
 
  value=configvariable(&ARACHNEcfg,"SmallIcons",NULL);

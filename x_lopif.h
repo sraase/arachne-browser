@@ -596,7 +596,7 @@ void x_cursor(int x, int y);
 /*##------------- x_defcurs ----------------------------------------*/
 /* Definuje tvar kursoru pomoci screen a cursor poli (jako v GMOUSE)*/
 
-void x_defcurs(int *screen, int *cursor, int color);
+void x_defcurs(const unsigned short *screen, const unsigned short *cursor, int color);
 
 /* int screen[16], cursor[16] - bitove masky 16x16 definice kurzoru */
 

@@ -275,7 +275,7 @@ void x_yncurs(int on, int x, int y, int col)
 
 }
 
-void x_defcurs(int *screen, int *cursor, int col)
+void x_defcurs(const unsigned short *screen, const unsigned short *cursor, int col)
 {
   int i,j,inx,c4,c3,c2,c1;
   unsigned int mask,cosi;

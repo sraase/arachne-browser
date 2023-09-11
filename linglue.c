@@ -1006,7 +1006,7 @@ void WaitForEvent(struct timeval *tv) //waits for user input or whatever...
 
 void graphicsinit(char *svgamode) //initialization of graphics, mode according to X_LOPIF
 {
-const short cur[32] =
+const unsigned short cur[32] =
 	 { 0x9FFF, 0x0FFF, 0x07FF, 0x83FF, 0xC1FF, 0xE0FF, 0xF067, 0xF003,
 	   0xF001, 0xF000, 0xF800, 0xF800, 0xF800, 0xFC00, 0xFC00, 0xFC00,
 	   0x0000, 0x6000, 0x7000, 0x3800, 0x1C00, 0x0E00, 0x0700, 0x0018,
@@ -1072,6 +1072,6 @@ const short cur[32] =
  gl_setrgbpalette();
  gl_enableclipping();
 #endif
- x_defcurs( (short *)cur, (short *)&cur[16], 15); //mouse kursor
+ x_defcurs( cur, &cur[16], 15); //mouse kursor
 }
 
