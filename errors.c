@@ -13,7 +13,9 @@ void memory_destroy(void)
 #ifdef VIRT_SCR
  deallocvirtual();
 #endif
+#ifndef POSIX
  x_fnt_cls();
+#endif
 #endif
  mouseoff();
  ie_destroy();
