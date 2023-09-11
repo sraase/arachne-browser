@@ -43,7 +43,7 @@ int x_fnt_load(char *fntfile, int xro, int mod)
 
   // 3) ------ Neni v XMS : nacist ze souboru jako aktuakni
   fntf = open(fntfile,O_RDONLY|O_BINARY);
-  if(fntf <= 0) 
+  if(fntf < 0)
   { 
    return(-2);
   }
