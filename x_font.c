@@ -97,7 +97,15 @@ int x_fnt_load(char *fntfile, int xro, int mod)
     len4 = lseek(fntf, -1280L, SEEK_END);
     ir = read(fntf,xg_fonlen,256);
     if(ir<256) { ire = -6; goto End_x;}
-    ir = read(fntf,xg_fonadr,1024);
+    if (sizeof(long) == 4) {
+        ir = read(fntf,xg_fonadr,1024);
+    } else {
+        // workaround for some 64-bit systems
+        int tmp[256], i;
+        ir = read(fntf, tmp, 1024);
+        for (i = 0; i < 256; i++)
+            xg_fonadr[i] = tmp[i];
+    }
     if(ir<1024) { ire = -6; goto End_x;}
     lseek(fntf,8L,SEEK_SET);
 
