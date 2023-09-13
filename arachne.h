@@ -558,6 +558,7 @@ extern char exepath[65];    // read-only
 #ifdef POSIX
 extern char helppath[80];   // read-only
 extern char sharepath[80];  // read-only
+extern char cachepath[80];  // read-only
 extern char dotarachne[65]; // read-only
 extern char fntpath[80];    // read-only
 extern char fntinf[80];     // read-only
@@ -565,6 +566,7 @@ extern char fntinf[80];     // read-only
 #define helppath exepath
 #define sharepath exepath
 extern char *fntinf;
+extern char *cachepath;
 #endif
 
 //extern char *buf;
@@ -665,7 +667,6 @@ extern XSWAP lastonmouse,activeadr,focusedatom;
 extern XSWAP lastfound;
 extern long lastfoundY;
 extern int lastfoundX;
-extern char *cachepath;
 extern char *tempdir;
 
 extern long ScreenSaver;

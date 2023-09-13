@@ -76,56 +76,34 @@ int loadpick( char *exename) //nahrat konfiguraci
  strlwr(exepath);
 
 #ifdef POSIX
- if(!strcmp(exepath,"./"))
-  helppath[0]='\0';
- else
-  strcpy(helppath,exepath);
+    // set system directories
+    strcpy(sharepath, "/usr/share/arachne/");
+    strcpy(helppath, "/usr/share/doc/arachne/");
 
- str1= strrchr( helppath, '/');
- if(str1)
- {
-  *str1='\0';
-  str1= strrchr( helppath, '/');
-  if(str1)
-   str1[1]='\0';
-  else
-   helppath[0]='\0';
- }
- else
-  strcat(helppath,"../");
+    // set user directory
+    str1 = getenv("HOME");
+    if (!str1) str1 = "/";
+    snprintf(dotarachne, sizeof(dotarachne), "%s/.arachne/", str1);
+    snprintf(cachepath, sizeof(cachepath), "%scache/", dotarachne);
+    snprintf(ARACHNEPICK, sizeof(ARACHNEPICK), "%sarachne.pck", dotarachne);
+    snprintf(CLIPBOARDNAME, sizeof(CLIPBOARDNAME), "%sclipboard.bin", dotarachne);
 
- strcpy(sharepath,helppath);
- strcat(helppath,"doc/arachne/html/");
- strcat(sharepath,"share/arachne/");
+    // create user and cache directories
+    mkdir(dotarachne, 0700);
+    mkdir(cachepath, 0700);
 
- str1=getenv("HOME");
- if(str1)
-  sprintf(dotarachne,"%.60s/.arachne/",str1);
-
- sprintf(ARACHNEPICK,"%sruntime-data.bin",dotarachne);
- sprintf(CLIPBOARDNAME,"%sclipboard",dotarachne);
-#endif
-
-#ifdef POSIX
- f=a_open(ARACHNEPICK,O_RDONLY,0);
+    // open runtime file
+    f = a_open(ARACHNEPICK, O_RDONLY, 0);
 #else
- f=a_open(ARACHNEPICK,O_BINARY|O_RDONLY,0);
-#endif
-
-#ifdef POSIX
- if(f<0) //global pick ? First start ?
- {
-  char cmd[256];
-  sprintf(cmd,"%sarachne-install %s",sharepath,sharepath);
-  system(cmd);
- }
-#else
- if(f<0) //global pick ? First start ?
- {
-  char str[80];
-  sprintf(str,"%s%s",exepath,ARACHNEPICK);
-  f=a_open(str,O_BINARY|O_RDONLY,0);
- }
+    // open runtime file
+    f = a_open(ARACHNEPICK, O_BINARY | O_RDONLY, 0);
+    if (f < 0)
+    {
+        // try again in exepath
+        char str[80];
+        sprintf(str,"%s%s", exepath, ARACHNEPICK);
+        f = a_open(str, O_BINARY | O_RDONLY, 0);
+    }
 #endif
 
  if(f>=0)

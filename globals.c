@@ -46,6 +46,7 @@ char exepath[65]="\0";
 #ifdef POSIX
 char helppath[80]="\0";
 char sharepath[80]="\0";
+char cachepath[80]="\0";
 char dotarachne[65]="\0";
 char fntinf[80]="\0";
 char fntpath[80]="\0";
@@ -157,9 +158,7 @@ XSWAP lastfound=IE_NULL;
 long lastfoundY=0l;
 int lastfoundX=0;
 
-#ifdef POSIX
-char *cachepath="cache/";
-#else
+#ifndef POSIX
 char *cachepath="CACHE\\";
 #endif
 char *hotlist="hotlist.htm";
