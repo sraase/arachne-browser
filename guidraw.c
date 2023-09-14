@@ -457,7 +457,6 @@ if(arachne.GUIstyle==2) arachne.GUIstyle=3;
 void statusmsg(void)
 {
 #ifndef CUSTOMER
-#ifndef CALDERA
  char *msg;
 
  if(fullscreen)
@@ -494,7 +493,6 @@ void statusmsg(void)
  x_settextjusty(0,2);	     // vzdycky psat pismo od leveho horniho rohu
 
  mouseon();
-#endif // CALDERA
 #endif //CUSTOMER
 }
 

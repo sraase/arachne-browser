@@ -381,9 +381,6 @@ return;
   case INPUT: // ******************************************************* INPUT
   {
    char type, checked;
-#ifdef CALDERA
-   char font;
-#endif // CALDERA
 
    type=atom->data1;
    checked=atom->data2;
@@ -403,7 +400,7 @@ return;
     break;
 
    //careful redraw
-   if((type==TEXT || type==PASSWORD /*|| type==LARGEEDIT*/) && y2>y1+2)
+   if((type==TEXT || type==PASSWORD) && y2>y1+2)
    {
     if(fonty(SYSFONT,0)<=16 || atom!=&URLprompt)
      y2-=2;
@@ -570,7 +567,7 @@ return;
 
     else
     if(type==TEXT || type==PASSWORD || type==SUBMIT ||
-       type==RESET /*|| type==LARGEEDIT*/ || type==BUTTON)
+       type==RESET || type==BUTTON)
     {
      char *txtptr=txt;
 

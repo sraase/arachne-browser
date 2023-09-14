@@ -354,10 +354,6 @@ int onbutton(int x,int y)
 
   if(user_interface.iconsoff)
    return 0;
-#ifdef CALDERA
-  if(iconsoff)
-   return 0;
-#endif // CALDERA
 
   //customizable toolbar
 

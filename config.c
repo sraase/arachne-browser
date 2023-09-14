@@ -2,16 +2,11 @@
 #include "internet.h"
 #include "alttab.h"
 
-#ifdef CALDERA
-#include "link.h"
-#include "keyboard.h"
-#endif // CALDERA
-
 #ifdef POSIX
 char ARACHNEPICK[80];
 #else
 char *ARACHNEPICK="arachne.pck";
-#endif // CALDERA
+#endif
 
 #ifndef MINITERM
 
@@ -183,9 +178,6 @@ int loadpick( char *exename) //nahrat konfiguraci
 
 void defaultGUIstyle(void)
 {
-#ifdef CALDERA
-  arachne.GUIstyle = STYLE_MOZILLA;
-#endif
 
   if(x_maxx()<640)
    arachne.GUIstyle = STYLE_SMALL2;

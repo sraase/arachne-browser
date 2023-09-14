@@ -181,7 +181,6 @@ p->xsum=0;
 #define CHECKBOX  7
 #define TEXTAREA  8
 #define EDITOR    9
-//#define LARGEEDIT 10 //for CALDERA
 #define BUTTON    11
 #define OUTPUT    12
 

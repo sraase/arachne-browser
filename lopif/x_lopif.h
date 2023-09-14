@@ -1,7 +1,3 @@
-#ifdef CALDERA
-#include "link.h"
-#endif // CALDERA
-
 /*==============================================================*/
 /*   Graficke funkce pro EGA,VGA, a ruzne SVGA                  */
 /*==============================================================*/
@@ -561,11 +557,7 @@ void x_putimg(int xz,int yz, char *bitmap, int op);
 /* Zjisti maximalni velikost souradnic pro aktivni graf. mod        */
 
 int x_maxx(void);       /* Ve smeru X */
-#ifdef CALDERA
-#define x_maxy() my_x_maxy()    // Screen size excludes S/W keyboard
-#else
 int x_maxy(void);       /* Ve smeru Y */
-#endif // CALDERA
 
 
 /*##------------- x_yncurs -----------------------------------------*/

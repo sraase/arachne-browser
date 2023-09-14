@@ -16,13 +16,7 @@ void closebat(char *cmd, char nomode)
 
  if(nomode==RESTART_TEST_ERRORLEVEL)
  {
-/*
-#ifdef CALDERA
-  strcat(cmd,"if errorlevel 128 webspydr -");
-#else
-*/
   strcat(cmd,"if errorlevel 128 arachne -");
-//#endif // CALDERA
   if(tcpip)
 //!!glennmcc: begin Jan 09, 2005
 // on email attachment errors, goto err_mail.ah instead of nonfatal.ah
