@@ -603,7 +603,5 @@ void makeexestr(char *exestr)
   if(!hosttype)
    hosttype="i386";
   sprintf(exestr,"%s %s%s",ostype,hosttype,exetype);
-#else
-  sprintf(exestr,"Clementine%s",exetype);
 #endif
 }

@@ -11,19 +11,8 @@
 void makehttfilename(char *locname, char *httname)
 {
 #ifdef POSIX
-#ifdef CLEMENTINE
- char *endp;
-
- strcpy(httname,locname);
- endp=strrchr(httname,'.');
- if (endp)
-   strcpy (endp,".htt");
- else
-   strcat (httname, ".htt");
-#else
  strcpy(httname,locname);
  strcat(httname,".http");
-#endif
 #else
  char drive[MAXDRIVE]="\0";
  char dir[MAXDIR]="\0";
@@ -47,7 +36,7 @@ void removefromcache(struct HTTPrecord *cacheptr)
  }
 }
 
-#if defined (POSIX) && !defined (CLEMENTINE)
+#if defined (POSIX)
 #define MAX_FNLEN 20
 #else
 #define MAX_FNLEN 10
@@ -116,9 +105,6 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
 //!!glennmcc: Mar 18, 2006 -- check the drive containing 'cachepath'
  cachefull=lastdiskspace(cachepath)<user_interface.mindiskspace;
 // cachefull=lastdiskspace(cacheitem->locname)<user_interface.mindiskspace;
-#endif
-#ifdef CLEMENTINE
- cachefull=getfreespace("/cache")<0x80000;
 #endif
 
  HTTPcache.cur=0;
@@ -586,14 +572,6 @@ return NULL;
       if (file_exists(HTTPdoc.rawname) && !strstr(cmdbuf,HTTPdoc.rawname) && //exclude dupes...
           cmdlen<CMD_BUF_SIZE-300)  //JdS (was BUF-IE_MAXLEN)
       {
-#ifdef CLEMENTINE
-       if (!strcmp (command, "djpeg $j -outfile $2 $1"))
-       {
-        jpeg2bmp(HTTPdoc.rawname, HTTPdoc.locname);
-       }
-       else
-       {
-#endif
         //we will try to convert image, if there is enough space
         //in $roura$.bat (means "pipe"), and if the image is already not
         //in converting queue:
@@ -611,9 +589,6 @@ return NULL;
         if (maxmem && mode>maxmem || mode<=0)
          maxmem = mode;
         converting++;
-#ifdef CLEMENTINE
-       } //else
-#endif
       } //if (file_exists ...)
      } //if (pom) nothing to convert
 

@@ -9,10 +9,6 @@
 #include "internet.h"
 #ifdef LINUX
 #include <errno.h>
-#elif defined (CLEMENTINE)
-#include <clementine/errno.h>
-extern int posixErrNo;
-#define errno posixErrNo
 #endif
 
 #define BACKBUF 2048

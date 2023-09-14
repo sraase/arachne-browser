@@ -93,14 +93,6 @@ longword resolve_fn ( char *hostname, sockfunct_t fn )
  threaded_DNS_flag=0;
  if(pthread_create(&thread,NULL,DNSthread,hostname)!=0)
   return 0;
-#elif defined (CLEMENTINE)
- int tid;
- 
- threaded_DNS_flag=0;
- tid = createthread ((int (*)(void *)) DNSthread, hostname);
- if (!tid) return 0;
-#else
-#error Unsupported operating system.
 #endif
 
  while(threaded_DNS_flag==0)
@@ -110,8 +102,6 @@ longword resolve_fn ( char *hostname, sockfunct_t fn )
 #if defined (LINUX)
 // it is not really necessary to kill threads... it is safer...
    pthread_cancel(thread);
-#elif defined (CLEMENTINE)
-   destroythread (tid);
 #endif
    return 0;
   }

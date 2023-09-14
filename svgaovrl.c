@@ -364,11 +364,7 @@ void finfo(void)
  }
  else
  {
-#ifdef CLEMENTINE
-  printf("%s: error %d.\n", fntinf, posixErrNo);
-#else
   perror(fntinf);
-#endif
   exit(EXIT_TO_DOS);
  }
 }

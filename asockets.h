@@ -15,17 +15,6 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <stdarg.h>
-#elif defined (CLEMENTINE)
-#include <clementine/types.h>
-#include <clementine/fdset.h>
-#include <clementine/socket.h>
-#include <clementine/string.h>
-#include <libc/fcntl.h>
-#include <libc/arpa/inet.h>
-#include <libc/sys/time.h>
-#include <libc/netinet/in.h>
-#include <libc/netdb.h>
-#include <stdarg.h>
 #endif
 
 typedef int           tcp_Socket;       /* POSIX file descriptor is int */

@@ -883,10 +883,8 @@ if(//!strstr(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Y")
 
    if(GLOBAL.abort)
    {
-#ifndef CLEMENTINE
     unlink("download.tmp");
     rename(cacheitem->locname,"download.tmp");
-#endif
     goto PageDone;
    }
   }

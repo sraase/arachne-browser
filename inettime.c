@@ -1,10 +1,6 @@
 
-#ifdef CLEMENTINE
-#include "posix.h"
-#else
 #include <time.h>
 #include <string.h>
-#endif
 
 void inettime(char *tm)
 {
