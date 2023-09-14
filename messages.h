@@ -1,7 +1,3 @@
-#ifdef AGB
-#include "agb_msg.h"
-#else
-
 #ifdef TELEMED
 #include "telemed.h"
 #else
@@ -216,5 +212,4 @@ Notes for translators:
 //(aproximately)   >------<
 #define MSG_TITLE  "Title"
 
-#endif
 #endif

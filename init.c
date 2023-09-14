@@ -331,7 +331,6 @@ if(argc>1)
 #endif
  }
 }
-#ifndef AGB
 else //no arguments !
 {
  toolbarpage=0;
@@ -340,7 +339,6 @@ else //no arguments !
   sprintf(GLOBAL.location,"file:%s%smaintain.ah",sharepath,GUIPATH);
 #endif
 }
-#endif
 
 if(!GLOBAL.location[0])
  gohome();

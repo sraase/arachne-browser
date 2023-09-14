@@ -875,7 +875,6 @@ else
    }
    else if(asc=='R')
     return reloadpage();
-#ifndef AGB
    else if(asc=='D')
     return gotodialpage();
    else if(asc=='M')
@@ -975,21 +974,18 @@ unlink("textarea.tmp");
     return 0;
    }
 #endif //POSIX
-#endif
    else if(asc=='K')
    {
     sprintf(GLOBAL.location,"file:%shotkeys.htm",exepath);
     arachne.target=0;
     return gotoloc();
    }
-#ifndef AGB
    else if(asc=='T')
    {
     sprintf(GLOBAL.location,"telnet:",exepath);
     arachne.target=0;
     return gotoloc();
    }
-#endif
 #ifndef CAV
    else if(asc=='X')
    {
@@ -1184,7 +1180,6 @@ unlink("textarea.tmp");
     return PrintScreen2BMP(0);
 #endif
 
-#ifndef AGB
    if(key==0x2300) //Alt+H
    {
     strcpy(GLOBAL.location,"arachne:hangup");
@@ -1198,7 +1193,6 @@ unlink("textarea.tmp");
     arachne.target=0;
     return gotoloc();
    }
-#endif
 
    if(key==0x1200) //Alt+E
    {
@@ -1245,13 +1239,11 @@ unlink("textarea.tmp");
     return 0;
    }
 
-#ifndef AGB
    if(key==0x5200) //Insert
    {
     GLOBAL.nowimages=IMAGES_LOAD;
     return 1;
    }
-#endif
 
    if(key==0x3c00)//F2
    {
@@ -1306,7 +1298,6 @@ Piip();
     return 1;
    }
 
-#ifndef AGB
    if(key==0x3f00)//F5 - zoom
    {
     if(!GLOBAL.allowdealloc)
@@ -1321,7 +1312,6 @@ Piip();
     ChangeZoom(1,0,0);
     return 1;
    }
-#endif
 
    if(key==0x4000)//F6 - source
    {
@@ -1344,10 +1334,8 @@ Piip();
     return gotoloc();
    }
 
-#ifndef AGB
    if(key==0x6e00)//Alt+F7 - search engine
     return gotosearchpage();
-#endif
 
 #ifndef ERIC
    else if(key==F8)//F8 - clean cache
@@ -1356,7 +1344,6 @@ Piip();
 
    else if(key==REDRAW_KEY)//F5 or F9
     return repaint();
-#ifndef AGB
 
    else if(key==F10)//F10 - local home
     return gotolochome();
@@ -1472,7 +1459,6 @@ else if(key==11776)//Alt+C
    }
 #endif
 
-#endif
    else if(key>=0x5400 && key<=0x5d00 /* &&reg*/)
    {
     char arachnomania[10];
@@ -1821,11 +1807,7 @@ if(strstr(methodarg,"PrtScr")){g_PrtScr=1; return 1;} else
      return gotoloc();
 
      case CLICK_RELOAD:
-#ifdef AGB
-     return printtxt();
-#else
      return reloadpage();
-#endif
 
      //-----------------------------------------------------------------
      case CLICK_ADDHOTLIST: //add to hotlist
@@ -1839,21 +1821,13 @@ if(strstr(methodarg,"PrtScr")){g_PrtScr=1; return 1;} else
      return gotohotlist();
 
      case CLICK_ABORT: //esc
-#ifndef AGB
      GLOBAL.abort=ABORT_TRANSFER;
      return escape();
-#else
-     return exitbrowser();
-#endif
 
      //-----------------------------------------------------------------
      case CLICK_SEARCHENGINE: //F7
      //-----------------------------------------------------------------
-#ifdef AGB
-     return searchevent();
-#else
      return gotosearchpage();
-#endif
 
      //-----------------------------------------------------------------
      case CLICK_HELP: //go to help
@@ -1963,21 +1937,16 @@ else
      return gotohistory();
 
      case CLICK_ZOOM://zoom
-#ifndef AGB
      ChangeZoom(1,0,0);
      return 1;
-#else
-     return repaint();
-#endif //AGB
 
-#ifndef AGB
      case CLICK_MEMINFO:
      MemInfo(FORCED);
      return 0;
 
      case CLICK_TCPIP:
      return gotodialpage();     
-#endif
+
      case CLICK_EXIT:
      GLOBAL.abort=ABORT_PROGRAM;
      arachne.target=0;

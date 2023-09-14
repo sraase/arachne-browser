@@ -78,18 +78,6 @@ void toolbar(char newtoolbarmode,char forced)
      //DrawIconLater( "SMALL3",580,27);
     }
    }//end if
-#ifdef AGB
-   if(x_maxx()>640)
-   {
-    htmlfont(5,BOLD|ITALIC);
-    x_setcolor(3);
-    x_text_ib(endicons+5,5,(unsigned char *)"Agrobanka");
-    x_line(endicons+5,30,x_maxx()-156,30);
-    htmlfont(1,ITALIC);
-    x_setcolor(0);
-    x_text_ib(endicons+5,30,(unsigned char *)"A GE Capital Company");
-   }
-#endif
   }
   else
   {
@@ -332,17 +320,12 @@ ____________^<--fill color
 
 void PaintStatus(void)
 {
-#ifndef AGB
 
 #ifdef CUSTOMER
   Box3D(0,x_maxy()-15,x_maxx(),x_maxy());
 #else
   Box3D(0,x_maxy()-15,x_maxx()-152,x_maxy());
 #endif // CUSTOMER
-
-#else
-  Box3D(0,x_maxy()-15,x_maxx(),x_maxy());
-#endif // AGB
 
 }
 
@@ -478,7 +461,6 @@ if(arachne.GUIstyle==2) arachne.GUIstyle=3;
 void statusmsg(void)
 {
 #ifndef CUSTOMER
-#ifndef AGB
 #ifndef CALDERA
  char *msg;
 
@@ -517,7 +499,6 @@ void statusmsg(void)
 
  mouseon();
 #endif // CALDERA
-#endif // AGB
 #endif //CUSTOMER
 }
 
@@ -923,7 +904,6 @@ else
   case CLICK_DESKTOP:
   outs(MSG_HOME);
   break;
-#ifndef AGB
   case CLICK_MEMINFO:
   outs(MSG_INFO2);
   break;
@@ -1011,7 +991,6 @@ else
   outs(arachne.title);
   break;
 
-#endif
   default:
 
 #ifdef CUSTOMER_MODULE

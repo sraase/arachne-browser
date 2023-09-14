@@ -191,10 +191,6 @@ void defaultGUIstyle(void)
   arachne.GUIstyle = STYLE_MOZILLA;
 #endif
 
-#ifdef AGB
-  arachne.GUIstyle = STYLE_MOZILLA;
-#endif
-
   if(x_maxx()<640)
    arachne.GUIstyle = STYLE_SMALL2;
   else

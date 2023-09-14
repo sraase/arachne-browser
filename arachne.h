@@ -18,19 +18,12 @@ JAVASCRIPT ... include JavaScript support to executable (not finished)
 XTVERSION  ... maximal optimizaton for speed and memory savings
 
 CUSTOMER   ... general customization (currently, module for Vadem is included)
-AGB        ... CORE.EXE for G.E.Capital Bank in Czech Republic (acquired AGB)
 TELEMED    ... for TeleMED (Germany)
 HWWILSON   ... H.W.Wilson customization
 CALDERA    ... Caldera Webspyder (no longer functional - being cleaned up)
 */
 
 #include "messages.h"
-
-#ifdef AGB
-#define NOTCPIP
-#define NOPS
-#define NOKEY
-#endif
 
 #include "posix.h"
 
@@ -122,9 +115,6 @@ void outs(char *str); //change browser status message
 #define MAXQUERY 16000    //maximum query length
 
 //maximum frame number (visible frames -= 1)
-#ifdef AGB
-#define MAXFRAMES 3
-#else
 #ifdef OVRL
 #ifdef TELEMED
 #define MAXFRAMES 24      //TELEMED
@@ -134,7 +124,6 @@ void outs(char *str); //change browser status message
 #else
 #define MAXFRAMES 8       //static
 #endif
-#endif//maxframes
 
 #define MAXARGNAMES 256
 #define MAXARGS 25        //!!JdS 2004/1/27

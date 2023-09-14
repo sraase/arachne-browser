@@ -20,7 +20,6 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
  timestr(cas2);
  if (strcmp(lasttime,cas2) == 0 ) return;
 
-#ifndef AGB
  if((ScreenSaver>0l||lasttime[0]=='*') && SecondsSleeping>(long)ScreenSaver*60l)
  {
  /*
@@ -275,7 +274,6 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
  }
   SecondsSleeping=0l;
  }//endif screensaver
-#endif// AGB
 
  if(!fullscreen)
  {
@@ -283,13 +281,6 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
   if(mousey>x_maxy()-30 && mousex>x_maxx()-230)
    mouseoff();
  #ifdef CUSTOMER
-  x_bar(x_maxx()-56,x_maxy()-13,x_maxx()-2,x_maxy()-2);
-  x_setcolor(0); //cerna
-  htmlfont(1,0);
-  x_text_ib( x_maxx()-56,x_maxy()-15,(unsigned char *)cas2);
-
- #elif AGB
-
   x_bar(x_maxx()-56,x_maxy()-13,x_maxx()-2,x_maxy()-2);
   x_setcolor(0); //cerna
   htmlfont(1,0);

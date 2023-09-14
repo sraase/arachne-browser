@@ -179,7 +179,6 @@ int onbutton(int x,int y)
  }
  }
 
-#ifndef AGB
  if(x>x_maxx()-150 && y>x_maxy()-13)
  {
 #ifndef XTVERSION
@@ -194,7 +193,6 @@ int onbutton(int x,int y)
    return CLICK_MEMINFO;
   }
  }
-#endif
 
  //------------------------------------------------------------------------
  else if(arachne.GUIstyle==STYLE_SMALL1)
@@ -422,10 +420,8 @@ int onbutton(int x,int y)
   thisxx=0;
 #endif
 #endif
-#ifndef AGB
   if(toolbarmode==0)
    return CLICK_MEMINFO;
-#endif
  }
 #endif //!CUSTOMER
  return 0;

@@ -40,11 +40,7 @@ void hidehover(void);
 #define MOUSE_RELEASE           3
 #define MOUSE_MIDDLE            4  //JdS
 
-#ifdef AGB
-#define REDRAW_KEY 0x3f00
-#else
 #define REDRAW_KEY 0x4300
-#endif
 
 //click events for online help, etc.
 #define CLICK_PREVIOUS       1
