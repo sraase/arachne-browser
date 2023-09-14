@@ -18,7 +18,6 @@ JAVASCRIPT ... include JavaScript support to executable (not finished)
 XTVERSION  ... maximal optimizaton for speed and memory savings
 
 CUSTOMER   ... general customization (currently, module for Vadem is included)
-HWWILSON   ... H.W.Wilson customization
 CALDERA    ... Caldera Webspyder (no longer functional - being cleaned up)
 */
 

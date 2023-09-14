@@ -1125,7 +1125,6 @@ void zoom(void)
 
 void gohome(void)
 {
-#ifndef HWWILSON
 #ifndef NOKEY
  if(reg==2) //multireg
  {
@@ -1151,9 +1150,6 @@ void gohome(void)
   strcpy(GLOBAL.location,homepage);
  else
   sprintf(GLOBAL.location,"file:%shome.htm",exepath);
-#endif
-#else
- sprintf(GLOBAL.location,"file:%s%swilson.htm",exepath);
 #endif
 }
 
