@@ -5,10 +5,6 @@
 // ========================================================================
 
 #include "x_lopif.h"  // LOPIF header file
-#ifdef GGI
-#include <ggi/ggi.h>  //for ggiFlush();
-extern ggi_visual_t ggiVis;
-#endif
 
 //LOPIF mouse
  int ImouseIni( int xmin, int ymin, int xmax, int ymax,

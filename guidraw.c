@@ -765,9 +765,6 @@ if(user_interface.fontshift<0) htmlfont(3+user_interface.fontshift,0); else
  mouseon();
 #endif //CUSTOMER
  title_ok=1;
-#ifdef GGI
-  Smart_ggiFlush();
-#endif
 }
 
 
@@ -786,9 +783,6 @@ void hidehighlight(void)
   x_rect(lasthisx,lasthisy,lasthisxx,lasthisyy);
   mouseon();
   lasthisx=-1;
-#ifdef GGI
-  Forced_ggiFlush();
-#endif
  }
 }
 
@@ -807,9 +801,6 @@ void showhighlight(void)
  x_line(lasthisxx,lasthisy,lasthisxx,lasthisyy);
  x_line(lasthisx,lasthisyy,lasthisxx,lasthisyy);
  mouseon();
-#ifdef GGI
- Forced_ggiFlush();
-#endif
 }
 
 void onlinehelp(int b)
@@ -1031,9 +1022,6 @@ else
   if(lastonbutton)
    defaultmsg();
   // ?b=0;
-#ifdef GGI
-  Smart_ggiFlush();
-#endif
  }
 
 }

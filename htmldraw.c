@@ -1182,9 +1182,6 @@ return;
  XAnimateGifs();
 #endif
  mouseon();
-#ifdef GGI
- Smart_ggiFlush();
-#endif
 }
 
 //===========================================================================

@@ -760,9 +760,6 @@ void activeatomcursor(char cursor)
     x_text_ib((int)xc,(int)yc,(unsigned char *)zn);
    }
    mouseon();
-#ifdef GGI
-  Smart_ggiFlush();
-#endif 
   }
   else
    MALLOCERR();

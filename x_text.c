@@ -1,6 +1,6 @@
 
 // ========================================================================
-// X_LOPIF text output port to pure POSIX enviroment,  for SVGAlib or GGI
+// X_LOPIF text output port to pure POSIX enviroment
 // (c) 2000 Arachne Labs, based on X_LOPIF for DOS (c) Zdenek Harovnik
 // ========================================================================
 

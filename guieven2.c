@@ -64,18 +64,12 @@ void pressthatbutton(int nowait)
    x_line(thisx,thisyy,thisx,thisy);
    x_line(thisx,thisy,thisxx,thisy);
   }
-#ifdef GGI
-  Forced_ggiFlush();
-#endif
   if(!nowait)
   {
    mouseon();
    ImouseWait();
    mouseoff();
    x_putimg(thisx,thisy,hideiknbuf,0);
-#ifdef GGI
-   Forced_ggiFlush();
-#endif
   }
   mouseon();
   farfree(pressiknbuf);
@@ -479,9 +473,6 @@ void smothscroll(long from,long to)
    dumpvirtual(frame,htmldata,frame->posX,from);
    if(frame->allowscrolling)
     ScrollDraw(&frame->scroll,frame->posX,from);
-#ifdef GGI
-  Smart_ggiFlush();
-#endif 
   }
   else
    break;
@@ -515,10 +506,6 @@ void Try2DumpActiveVirtual(void)
     frame->posY+frame->scroll.ysize<virtualyend[p->tmpframedata[p->activeframe].whichvirtual])
  {
   dumpvirtual(frame,&(p->tmpframedata[p->activeframe]),frame->posX,frame->posY);
-#ifdef GGI
-  Smart_ggiFlush();
-#endif 
-  
  }
 }
 #endif

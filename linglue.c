@@ -1,6 +1,6 @@
 
 // =========================================================================
-// Arachne WWW browser - Linux glue code, SVGAlib and GGI graphics libraries
+// Arachne WWW browser - Linux glue code, SVGAlib graphics libraries
 // By Michael Polak (Arachne Labs) and Emannuel Marty (Suntech)
 // =========================================================================
 
@@ -49,9 +49,7 @@ int filelength (int handle) {
 int SVGAx=799,SVGAy=599;
 
 // =========================================================================
-// bioskey() simulation using stdin, for SVGAlib version; in libGGI version
-// this will be probably handled by libGII. This code was anyway stolen from
-// libGII stdin input module.
+// bioskey() simulation using stdin, for SVGAlib version.
 // =========================================================================
 
 // Interface functions: bioskey_init(), bioskey_close(), bioskey().
@@ -295,33 +293,6 @@ int buffered=0,modifiers=0;
 
 int bioskey(int cmd)
 {
-#ifdef GGI
- struct timeval tv={0,0};
-
- if(cmd==2)
-  return modifiers;
-
- if (ggiEventPoll(ggiVis, emKey, &tv) > 0)
- {
-  if(cmd==1)
-   return 1;
-  else
-  {
-   ggi_event ev;
-
-   ggiEventRead(ggiVis, &ev, emKey);
-
-   modifiers=ev.key.modifiers;
-
-   if (ev.any.type == evKeyPress || ev.any.type == evKeyRepeat)
-   {
-    return ev.key.sym;
-   }//endif
-  }
- }
-
- return 0;
-#endif
 #ifdef SVGALIB
  fd_set readset;
  struct timeval t={0,0};
@@ -570,27 +541,11 @@ void x_video_XMS(int vidXMS, int bincol)
  //toggle graphics output to real or virtual screen.
 }
 
-#ifdef GGI
-static ggi_pixel ggi_getcolor (int index) {
- unsigned char *palptr = xg_hipal + 3*index;
- ggi_color col;
-
- col.r = ((int) (*palptr++)) << 10;
- col.g = ((int) (*palptr++)) << 10;
- col.b = ((int) (*palptr)) << 10;
-
- return ggiMapColor (ggiVis, &col);
-}
-#endif
-
 void x_setcolor(int color)
 {
 #ifndef TXTDEBUG
  //set foreground color
  xg_color=color;
-#ifdef	GGI
- ggiSetGCForeground (ggiVis, ggi_getcolor (xg_color));
-#endif
 #ifdef SVGALIB
  vga_setrgbcolor(xg_hipal[3*xg_color]<<2,xg_hipal[3*xg_color+1]<<2,xg_hipal[3*xg_color+2]<<2);
 #endif
@@ -604,10 +559,6 @@ void x_line(int x1, int y1, int x2, int y2 )
 {
 // draw line
 #ifndef TXTDEBUG
-#ifdef	GGI
- ggiSetGCForeground (ggiVis, ggi_getcolor (xg_color));
- ggiDrawLine (ggiVis, x1, y1, x2, y2);
-#endif
 #ifdef SVGALIB
  vga_drawline(x1,y1,x2,y2);
 #endif
@@ -646,10 +597,6 @@ void x_line(int x1, int y1, int x2, int y2 )
 void x_bar(int xz, int yz, int xk, int yk)
 {
 #ifndef TXTDEBUG
-#ifdef	GGI
- ggiSetGCForeground (ggiVis, ggi_getcolor (xg_fillc));
- ggiDrawBox (ggiVis, xz, yz, xk-xz+1, yk-yz+1);
-#endif
 #ifdef SVGALIB
  unsigned char *palptr = xg_hipal + 3*xg_fillc;
  int r, g, b;
@@ -683,12 +630,6 @@ void x_rect(int xz, int yz, int xk, int yk)
 {
  // draw empty rectangle
 #ifndef TXTDEBUG
-#ifdef GGI
- ggiDrawLine(ggiVis,xz,yz,xk,yz);
- ggiDrawLine(ggiVis,xk,yz,xk,yk);
- ggiDrawLine(ggiVis,xz,yk,xk,yk);
- ggiDrawLine(ggiVis,xz,yz,xz,yk);
-#endif
 #ifdef SVGALIB
  vga_drawline(xz,yz,xk,yz);
  vga_drawline(xk,yz,xk,yk);
@@ -731,9 +672,6 @@ void x_getimg(int x1, int y1, int x2, int y2, char *bitmap)
  memcpy(&bitmap[sizeof(short int)],&h,sizeof(short int));
 
 // if(x1>=0 && x2<=x_maxx() && y1>=0 && y2<=x_maxy())
-#ifdef GGI
- ggiGetBox(ggiVis, x1, y1, w, h, (void *) &bitmap[2*sizeof(short int)]);
-#endif
 #ifdef SVGALIB
  gl_getbox(x1, y1, w, h,&bitmap[2*sizeof(short int)]);
 #endif
@@ -758,9 +696,6 @@ void x_putimg(int xz,int yz, char *bitmap, int op)
  w = *(short int *)bitmap;
  h = *(short int *)&bitmap[sizeof(short int)];
 // if(xz>=0 && xz+w<=x_maxx() && yz>=0 && yz+h<=x_maxy())
-#ifdef GGI
- ggiPutBox(ggiVis, xz, yz, w, h, (void *) &bitmap[2*sizeof(short int)]);
-#endif
 #ifdef SVGALIB
  gl_putbox(xz,yz,w,h,&bitmap[2*sizeof(short int)]);
 #endif
@@ -811,11 +746,6 @@ void x_yncurs(int on, int x, int y, int col)
 
 void x_cleardev(void)
 {
-#ifdef GGI
- ggiSetGCForeground (ggiVis, ggi_getcolor (0));
- ggiFillscreen(ggiVis);
- ggiSetGCForeground (ggiVis, ggi_getcolor (xg_color));
-#endif
 #ifdef SVGALIB
  vga_clear();
 #endif
@@ -988,24 +918,11 @@ void XSetAnim1(void)
 //---------------------------------------------------------------------------
 
 int xg_mousebutton=0;
-#ifdef GGI
-int xg_mouserange_xmin;
-int xg_mouserange_xmax;
-int xg_mouserange_ymin;
-int xg_mouserange_ymax;
-#endif
 
  //initialize mouse
 int ImouseIni( int xmin, int ymin, int xmax, int ymax,
 		int xstart, int ystart)
 {
-#ifdef GGI
- xg_mouserange_xmin=xmin;
- xg_mouserange_xmax=xmax;
- xg_mouserange_ymin=ymin;
- xg_mouserange_ymax=ymax;
- return 1;
-#endif
 #ifdef SVGALIB
  mouse_init("/dev/mouse",vga_getmousetype(),10);
 
@@ -1044,48 +961,6 @@ int ImouseIni( int xmin, int ymin, int xmax, int ymax,
 
 int ImouseRead( int *xcurs, int *ycurs)
 {
-#ifdef GGI
- struct timeval tv={0,0};
-
- while (ggiEventPoll(ggiVis, emPointer, &tv) > 0)
- {
-  ggi_event ev;
-  int oldbutton=xg_mousebutton;
-
-  ggiEventRead(ggiVis, &ev, emPointer);
-
-  if (ev.any.type == evPtrButtonPress)
-   xg_mousebutton = ev.pbutton.button;
-
-  if (ev.any.type == evPtrButtonRelease)
-   xg_mousebutton = 0;
-
-  if (ev.any.type == evPtrRelative)
-  {
-   *xcurs += ev.pmove.x;
-   *ycurs += ev.pmove.y;
-  }
-
-  if (ev.any.type == evPtrAbsolute)
-  {
-   *xcurs = ev.pmove.x;
-   *ycurs = ev.pmove.y;
-  }
-  if(*xcurs<xg_mouserange_xmin)
-   *xcurs=xg_mouserange_xmin;
-  if(*xcurs>xg_mouserange_xmax)
-   *xcurs=xg_mouserange_xmax;
-  if(*ycurs<xg_mouserange_ymin)
-   *ycurs=xg_mouserange_ymin;
-  if(*ycurs>xg_mouserange_ymax)
-   *ycurs=xg_mouserange_ymax;
-
-  if(xg_mousebutton!=oldbutton) //otherwise we would catch mouse release event on slow PCs...
-   return xg_mousebutton;
- }//loop
- return xg_mousebutton;
-
-#endif
 #ifdef SVGALIB
  if(MouseWasUpdatedInThread || mouse_update())
  {
@@ -1131,10 +1006,6 @@ void ImouseSet( int xstart, int ystart)
 //wait for user to release mouse key
 void ImouseWait(void)
 {
-#ifdef GGI
- struct timeval forever={FOREVER,0};  //one hour is like forever, for most CPUs
- ggiEventPoll(ggiVis, emPointer, &forever);
-#endif
 #ifdef SVGALIB
  int dummy;
  while (ImouseRead(&dummy,&dummy))
@@ -1147,56 +1018,6 @@ void ImouseWait(void)
 #endif
 }
 
-#ifdef GGI
-ggi_mode origMode;
-
-ggi_visual_t ggiVis;
-
-struct timeval tv_lastflush={0,0};
-int Forced_ggiFlush_request=0;
-int Smart_ggiFlush_maxusec=0;
-
-void Smart_ggiFlush(void)
-{
- struct timeval tv_current;
-
- gettimeofday(&tv_current,NULL);
-
- if(Smart_ggiFlush_maxusec==0)
- {
-  char *ptr=configvariable(&ARACHNEcfg,"GGI_MaxFrameRate",NULL);
-  if(ptr)
-   Smart_ggiFlush_maxusec=atoi(ptr);
-  if(!ptr || Smart_ggiFlush_maxusec<=0 || Smart_ggiFlush_maxusec>100)
-    Smart_ggiFlush_maxusec=10;
-  Smart_ggiFlush_maxusec=1000000/ Smart_ggiFlush_maxusec;
- }
-
- if(tv_current.tv_sec!=tv_lastflush.tv_sec ||
-   tv_current.tv_usec-tv_lastflush.tv_usec>Smart_ggiFlush_maxusec)
- {
-  ggiFlush(ggiVis);
-  tv_lastflush.tv_sec=tv_current.tv_sec;
-  tv_lastflush.tv_usec=tv_current.tv_usec;
-  Forced_ggiFlush_request=0;
- }
- else
-  Forced_ggiFlush_request=1;
-}
-
-void Forced_ggiFlush(void)
-{
- tv_lastflush.tv_sec--; //force flush by modifying last flush date...
- Smart_ggiFlush();
-}
-
-void IfRequested_ggiFlush(void)
-{
- if(Forced_ggiFlush_request)
-  Forced_ggiFlush();
-}
-
-#endif
 #ifdef SVGALIB
 
 
@@ -1260,20 +1081,13 @@ void WaitForKey_thread(void)
 
 /*
 //---------------------------------------------------------------------------
-//This is the main CPU saving function in Arachne. It is not used at all in
-//DOS, in Linux/SVGAlib, Linux/GGI and others
+//This is the main CPU saving function in Arachne.
+//It is not used at all in DOS.
 //---------------------------------------------------------------------------
 */
 
 void WaitForEvent(struct timeval *tv) //waits for user input or whatever...
 {
-#ifdef GGI
- struct timeval forever={FOREVER,0};  //one hour is like forever, for most CPUs
- if(!tv)
-  tv=&forever;
- IfRequested_ggiFlush();
- ggiEventPoll(ggiVis, emPointer | emKey, tv);
-#endif
 #ifdef SVGALIB
  struct timeval forever={FOREVER,0};  //one hour is like forever, for most CPUs
  if(!tv)
@@ -1373,15 +1187,6 @@ const unsigned short cur[32] =
   initpalette();
   x_settextjusty(0,2);	// always write text from upper left corner
 
-#ifdef GGI
-// printf("Initializing GGI visual target.\n");
- ggiVis = ggiOpen (NULL);
- ggiGetMode (ggiVis, &origMode);
- ggiSetSimpleMode (ggiVis, 800, 600, 1, GT_16BIT);
- SVGAx=799;
- SVGAy=599;
- ggiAddFlags(ggiVis,GGIFLAG_ASYNC);
-#endif
 #ifdef SVGALIB
  strupr(svgamode);
 // printf("Console switched to graphics mode.\n");

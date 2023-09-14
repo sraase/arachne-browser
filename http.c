@@ -694,9 +694,6 @@ if(!outgoing[0])
      goto abort;
    }
 
-#ifdef GGI
-  IfRequested_ggiFlush();
-#endif
 #ifdef POSIX
    tv.tv_sec = 0;
    tv.tv_usec = 500;

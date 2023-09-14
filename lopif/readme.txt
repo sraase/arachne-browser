@@ -14,19 +14,19 @@ Development group at : groups.yahoo.com/group/ArachneDevelopment/
 
 No sample files are available so far, sorry. However, compatibility layer
 called LINGLUE exists for porting graphical applications between 16bit
-DOS (using this library) and 32bit Linux (SVGAlib, GGI), and maybe other
+DOS (using this library) and 32bit Linux (SVGAlib), and maybe other
 platforms similar to POSIX. This multiplatform enviroment is currently
 undocumented and not fully tested. The intent of LINGLUE is to form an
 "ideal" platform for writing/porting smaller apps (eg. games) between
 16bit DOS, where all modern video cards provide 16bit VESA BIOS interface,
-and 32bit Linux world, using SVGAlib, GGI, and in future maybe Gtk, Qt
+and 32bit Linux world, using SVGAlib, and in future maybe Gtk, Qt
 or directly Xlib libraries. In future, Arachne WWW browser may provide
 natural HTML widget as cornerstone of more advanced GUI toolkit. LINGLUE
 source code, as it exists, is included with the Arachne sources. Further
 information on LINGLUE might be available from the Arachne Development
 group or from Arachne Labs (xchaos@arachne.cz).
 
-LINGLUE = DOS/LOPIF <-> Linux/SVGAlib <-> Linux GGI portability
+LINGLUE = DOS/LOPIF <-> Linux/SVGAlib portability
 
 How to use LOPIF
 ----------------

@@ -71,9 +71,6 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
     return 0;
    }
 
-#ifdef GGI
-  IfRequested_ggiFlush();
-#endif
 #ifdef POSIX
   tv.tv_sec = 0;
   tv.tv_usec = 500; //increased to one milisecond for best results...
@@ -147,9 +144,6 @@ void Backgroundhttp(void)
   GLOBAL.backgroundimages=BACKGROUND_RUNNING; //"semafor"
   status=GLOBAL.back_status;
 
-#ifdef GGI
-  IfRequested_ggiFlush();
-#endif
 #ifdef POSIX
   fcntl (GLOBAL.back_socknum, F_SETFL, O_NONBLOCK);
 

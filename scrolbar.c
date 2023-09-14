@@ -219,9 +219,6 @@ if(scroll->yscr < 0) return;
 
  if(scroll->onscrolly)
  {
-#ifdef GGI
-  Smart_ggiFlush();
-#endif 
   return;
  }
  
@@ -293,10 +290,6 @@ if(scroll->yscr < 0) return;
   x_line(xxx+7,yend,
          xxx+7,ystart);
  }
-#ifdef GGI
-  Smart_ggiFlush();
-#endif 
-
 }
 
 int OnScrollButtons(struct ScrollBar *scroll)

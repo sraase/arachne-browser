@@ -592,14 +592,6 @@ the right side if the tail fix is not desired:
  user_interface.virtualysize=0;
  user_interface.smooth=0;
 
-#ifdef GGI
- value=configvariable(&ARACHNEcfg,"GGI_FastScroll",NULL);
- if(value && toupper(*value)=='N')
-  user_interface.ggifastscroll=0;
- else
-  user_interface.ggifastscroll=1;
-#endif
-
 #ifdef VIRT_SCR
  value=configvariable(&ARACHNEcfg,"VirtualScreen",NULL);
  if(value)
@@ -656,10 +648,6 @@ the right side if the tail fix is not desired:
   user_interface.logoiddle=atoi(value);
  else
   user_interface.logoiddle=2000;
-
-#ifdef GGI
- user_interface.logoiddle*=3; //to avoid unecessary GGI framebuffer flushing...
-#endif
 
  value=configvariable(&ARACHNEcfg,"MinDiskSpace",NULL);
  if(value)

@@ -14,9 +14,6 @@ unsigned _stklen=65500u;
 #ifdef OVRL
 #ifdef HICOLOR
 #ifdef LINUX
-#ifdef GGI
-char *exetype="; GGI";
-#endif
 #ifdef SVGALIB
 char *exetype="; svgalib";
 #endif

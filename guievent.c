@@ -1504,9 +1504,6 @@ else if(key==11776)//Alt+C
 submit:
 
    x_cursor (mousex,mousey);
-#ifdef GGI
-  Smart_ggiFlush();
-#endif
    if(link)
    {
     int maptype, dx, dy;
@@ -2009,14 +2006,8 @@ else
     {
      //=====================================================================
      //scroll buttons
-#ifdef GGI
-     if( !user_interface.smooth && !p->htmlframe[i].hidden && p->htmlframe[i].allowscrolling )
-#else
-
      if((!p->tmpframedata[i].usevirtualscreen || !user_interface.smooth)
       && !p->htmlframe[i].hidden && p->htmlframe[i].allowscrolling )
-
-#endif
      {
       int s=OnScrollButtons(&(p->htmlframe[i].scroll));
 
@@ -2097,53 +2088,15 @@ else
      drawactiveframe();
      redraw=1;
 
-#ifdef GGI
-    if(user_interface.ggifastscroll)
-     redrawHTML(REDRAW_NO_MESSAGE,REDRAW_VIRTUAL);
-
-    else
-
-     ScrollDraw(&(p->htmlframe[p->activeframe].scroll),
-		 p->htmlframe[p->activeframe].posX,
-                 p->htmlframe[p->activeframe].posY);
-#endif
-
 #ifdef VIRT_SCR
      Try2DumpActiveVirtual();
 #endif
 
-#ifndef GGI
      ScrollDraw(&(p->htmlframe[p->activeframe].scroll),
                 p->htmlframe[p->activeframe].posX,
                 p->htmlframe[p->activeframe].posY);
-#endif
      scrolledframe=i;
     }
-
-#ifdef GGI
-    if(user_interface.smooth)
-    {
-     scrollbarbutton=OnScrollButtons(&(p->htmlframe[i].scroll));
-     if(scrollbarbutton)
-     {
-      p->activeframe=i;
-      mouseoff();
-      if(redraw)
-       redrawHTML(REDRAW_WITH_MESSAGE,REDRAW_VIRTUAL);
-      else
-      if(arachne.framescount)
-       drawactiveframe();
-      mouseon();
-      switch(scrollbarbutton)
-      {
-       case 1: return smothup();
-       case 2: return smothdown();
-       case 3: return smothleft();
-       case 4: return smothright();
-      }//end switch
-     }
-    }
-#else
 
 #ifdef VIRT_SCR
     if(user_interface.smooth)
@@ -2180,7 +2133,6 @@ else
       }//end switch
      }
     }
-#endif
 #endif
 
    }

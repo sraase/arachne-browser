@@ -1,5 +1,5 @@
 
-//X_LOPIF font utils port to pure POSIX enviroment,  for SVGAlib or GGI use
+//X_LOPIF font utils port to pure POSIX enviroment
 //(c) 2000 Arachne Labs, based on original X_LOPIF for DOS (c) Zdenek Harovnik
 
 /* Rutina pro nahrani rastrovych fontu ze souboru */

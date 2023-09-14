@@ -20,7 +20,6 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
  timestr(cas2);
  if (strcmp(lasttime,cas2) == 0 ) return;
 
-#ifndef GGI
 #ifndef AGB
  if((ScreenSaver>0l||lasttime[0]=='*') && SecondsSleeping>(long)ScreenSaver*60l)
  {
@@ -277,9 +276,7 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
   SecondsSleeping=0l;
  }//endif screensaver
 #endif// AGB
-#endif// GGI
 
-#ifndef GGI //it doesn't make sense to show time in X11 app..
  if(!fullscreen)
  {
   x_setfill(0,7); //sediva
@@ -312,7 +309,6 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
   if(mousey>x_maxy()-30 && mousex>x_maxx()-230)
    mouseon();
  }
-#endif
 
  if(lasttime[0]) //not if time redraw was forced!
  {

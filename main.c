@@ -1338,9 +1338,6 @@ Wait4Orders:
   ie_savebin(&HTTPcache);
  if(user_interface.logoiddle)
   xChLogo('0');
-#ifdef GGI
- IfRequested_ggiFlush();
-#endif
 
 //-------------------------------------------------------------------------
 ReadScriptLine:
@@ -1381,20 +1378,10 @@ ReadScriptLine:
  JSchecktimeouts(); //JavaScript timeouts will be handled there...
 #endif
 
-#ifdef GGI
- Smart_ggiFlush();
-#endif
-
 #ifdef POSIX
  //redraw is special global flag of GUITICK() system...
  //if justmoved is true or mys ("mouse") is nonzero, we have to do something
  if(!redraw && mys==0 && !justmoved)
-#ifdef GGI
-  WaitForEvent(NULL);//NULL pointer means >>wait forever for mouse or keystroke<<
-                     //later, timeval structure with time limit will be passed,
-                     //considering  animation, JavaScript and redirection timouts,
-                     //and also DrawTime function - used in fullscreen version...
-#endif
 #ifdef SVGALIB
  {
   struct timeval tv={0,500000};

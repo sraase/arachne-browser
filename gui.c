@@ -70,9 +70,6 @@ mammys:
   SecondsSleeping=0l; //pro screensaver
   justmoved=1;
   kbmouse=0;
-#ifdef GGI
-  Smart_ggiFlush();
-#endif
  }
  else
  if(lx==mousex && ly==mousey && justmoved)

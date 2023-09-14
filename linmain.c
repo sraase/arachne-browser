@@ -1,15 +1,8 @@
 
 //temporary stub for executing Arachne's main function
 
-#ifdef GGI
-#include <ggi/ggi.h>
-#endif
 #ifdef SVGALIB
 #include <vga.h>
-#endif
-
-#ifdef GGI
-ggi_visual_t ggiVis;
 #endif
 
 #include "arachne.h"
@@ -30,9 +23,6 @@ int main (int argc, char **argv) {
     else
     if(!strcmp(argv[1],"--version"))
     {
-#ifdef GGI
-     printf("Arachne/GGI V%s%s %s\n",VER,beta,copyright);
-#endif
 #ifdef SVGALIB
      printf("Arachne/SVGAlib V%s%s %s\n",VER,beta,copyright);
 #endif
@@ -43,17 +33,6 @@ int main (int argc, char **argv) {
     }
    }
 
-#ifdef GGI
-   result = ggiInit ();
-   if (!result) {
-      ggiVis = ggiOpen (NULL);
-      if (!ggiVis) {
-         printf ("Error opening GGI visual.\n");
-         ggiExit ();
-         return 100;
-      }
-   }
-#endif
 #ifdef SVGALIB
    result = vga_init ();
 #endif
@@ -62,15 +41,8 @@ int main (int argc, char **argv) {
    {
       result = arachne_main (argc, argv);
 
-#ifdef GGI
-      ggiClose (ggiVis);
-      ggiExit ();
-#endif
     return result;
    }
-#ifdef GGI
-   else printf ("Error initialising GGI.\n");
-#endif
 #ifdef SVGALIB
    else printf ("Error initialising svgalib.\n");
 #endif

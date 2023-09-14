@@ -54,9 +54,6 @@ char vfat;
 // changed variable name to match the keyword
  char keephtt;
 // char nohtt;
-#ifdef GGI
-int ggifastscroll;
-#endif
 //!!glennmcc: Nov 24, 2007 -- move both ignorejs & alwaysusecfgcolors
 //from internet.h to uiface.h and changed both from http_parameters.
 //into user_interface. in all places where they are used.
