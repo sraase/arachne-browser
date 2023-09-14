@@ -18,7 +18,6 @@ JAVASCRIPT ... include JavaScript support to executable (not finished)
 XTVERSION  ... maximal optimizaton for speed and memory savings
 
 CUSTOMER   ... general customization (currently, module for Vadem is included)
-TELEMED    ... for TeleMED (Germany)
 HWWILSON   ... H.W.Wilson customization
 CALDERA    ... Caldera Webspyder (no longer functional - being cleaned up)
 */
@@ -116,11 +115,7 @@ void outs(char *str); //change browser status message
 
 //maximum frame number (visible frames -= 1)
 #ifdef OVRL
-#ifdef TELEMED
-#define MAXFRAMES 24      //TELEMED
-#else
 #define MAXFRAMES 9       //overlayed
-#endif
 #else
 #define MAXFRAMES 8       //static
 #endif

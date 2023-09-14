@@ -233,13 +233,9 @@ int bannerwidth=0;
 
 char *gettitle(char *buf)
 {
-#ifdef TELEMED
-  char *title=configvariable(&ARACHNEcfg,"MainBanner",NULL);
-#else
   char *title=buf;
   strcpy(title,"Arachne ");
   strcat(title,VER);
-#endif // TELEMED
 
  htmlfont(3,BOLD);
  bannerwidth=x_txwidth (title);

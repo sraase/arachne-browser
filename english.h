@@ -1,7 +1,3 @@
-#ifdef TELEMED
-#include "telemed.h"
-#else
-
 /*
 Message file for ARACHNE WWW browser
 
@@ -198,5 +194,3 @@ Notes for translators:
 
 //(aproximately)   >------<
 #define MSG_TITLE  "Title"
-
-#endif
