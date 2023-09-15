@@ -603,9 +603,6 @@ void addatom(struct HTMLrecord *atom,void *ptr,int len,char t, char align,
  atom->next=IE_NULL;
  atom->prev=prevHTMLatom;
  atom->frameID=p->currentframe;
-#ifdef JAVASCRIPT
- atom->jsptr=IE_NULL;
-#endif
 
  p->lastHTMLatom=ie_putswap((char *)atom,sizeof(struct HTMLrecord),CONTEXT_HTML);
  if(p->firstHTMLatom==IE_NULL)

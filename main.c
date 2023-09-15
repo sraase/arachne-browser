@@ -1363,10 +1363,6 @@ ReadScriptLine:
    XAnimateGifs();
 #endif
 
-#ifdef JAVASCRIPT
- JSchecktimeouts(); //JavaScript timeouts will be handled there...
-#endif
-
 #ifdef POSIX
  //redraw is special global flag of GUITICK() system...
  //if justmoved is true or mys ("mouse") is nonzero, we have to do something

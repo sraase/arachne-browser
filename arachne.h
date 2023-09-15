@@ -13,7 +13,6 @@ OVRL       ... optimizations for overlaid executable (Borland C++ 3.1)
 HICOLOR    ... use LOPIF library with support for 16 bits/pixel modes
 VIRT_SCR   ... use LOPIF library with support for virtual screens
 XANIMGIF   ... include animated GIFs to executable
-JAVASCRIPT ... include JavaScript support to executable (not finished)
 XTVERSION  ... maximal optimizaton for speed and memory savings
 */
 
@@ -121,36 +120,7 @@ struct HTMLrecord
  XSWAP prev;       //xSwap pointer to previouces
  XSWAP next;       //xSwap pointer
  char frameID;        //0...MAXFRAMES-1
-#ifdef JAVASCRIPT
- XSWAP jsptr;      //xSwap pointer --> JSrecord
-#endif
 };
-
-#ifdef JAVASCRIPT
-struct JSrecord
-{
- //common - <INPUT>,<IMG>,<A>,<FORM>...
- XSWAP prev;
- XSWAP htmlptr;    //xSwap pointer --> JSrecord
- XSWAP name;       //xSwap pointer to string
-
- //<BODY>
- XSWAP onLoad;
- XSWAP onUnload;
-
- //<INPUT>,<IMG>,<A HREF...>
- XSWAP onMouseover; //Xswap pointer to JavaScript methods (?)
- XSWAP onMouseout;
-
-//<INPUT>,<IMG>
- XSWAP onBlur;      //Xswap pointer to JavaScript methods (?)
- XSWAP onChange;
- XSWAP onFocus;
- XSWAP onSelect;
- XSWAP onSubmit;
- XSWAP onClick;
-}
-#endif
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

@@ -802,19 +802,6 @@ return;
  while(currentHTMLatom!=IE_NULL && atomptr->yy>=y);
 }
 
-
-#ifdef JAVASCRIPT
-
-void addjsevents(int tag)
-{
-
-
-
-}
-
-#endif
-
-
 // FASTDEALLOC is no more needed...
 
 void Deallocmem(void)
