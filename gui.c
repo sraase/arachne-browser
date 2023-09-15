@@ -174,11 +174,7 @@ mammys:
  return 0;
 }
 
-#ifdef CUSTOMER
-#define PERCENTBAR_X x_maxx()
-#else
 #define PERCENTBAR_X x_maxx()-150
-#endif
 
 //bar showing how much percents of document were already processed
 void percentbar(int prc)

@@ -24,7 +24,7 @@ char *onmouse(int click)
  struct HTMLrecord *atomptr;
  int count=0;
 
- if(mousey<p->htscrn_ytop && !customerscreen)
+ if(mousey<p->htscrn_ytop)
  {
   x=mousex-p->htscrn_xtop;
   y=mousey-p->htscrn_ytop;

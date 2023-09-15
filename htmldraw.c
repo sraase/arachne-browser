@@ -527,18 +527,9 @@ return;
       //2*40+~sizeof scratch.. grrr, constant value :(
       if(x2>x1+user_interface.scrollbarsize && !vidimscroll)
       {
- #ifdef CUSTOMER
-       x_setcolor(15);
-       x_line((int)(screen_x+x2-user_interface.scrollbarsize/2),(int)(screen_y+y1+14),
-              (int)(screen_x+x2-3),(int)(screen_y+y1+4));
-       x_setcolor(8);
-       x_line((int)(screen_x+x2-user_interface.scrollbarsize+3),(int)(screen_y+y1+4),
-              (int)(screen_x+x2-3),(int)(screen_y+y1+4));
- #else
        Scratch3D((int)(screen_x+x2-user_interface.scrollbarsize+3),
                  (int)(screen_y+y1+(y2-y1)/2-1),
                  (int)(screen_x+x2-3));
- #endif
       }
      }//end if invisible scrollbars...
 

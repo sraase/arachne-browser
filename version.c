@@ -1,6 +1,5 @@
 #include "arachne.h"
 
-#ifndef CUSTOMER
 char *VER="2.0-dev";
 
 //!!glennmcc: Begin Apr 06, 2003--- NOKEY==GPL now
@@ -43,5 +42,3 @@ char *copyright="Copyright (c)1996-2002 Michael Polak, Arachne Labs";
 #endif//ifdef NOKEY
 
 char *homepage="http://arachne.cz/";
-
-#endif//ifndef CUSTOMER

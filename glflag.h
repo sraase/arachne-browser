@@ -118,7 +118,6 @@ struct GLOBAL_FLAG
 #define STYLE_SMALL1     2
 #define STYLE_SMALL2     3
 //#define STYLE_FULLSCREEN 4  //this is real fullscreen mode
-#define STYLE_CUSTOMER   8  //custom mode
 
 //forced_html
 

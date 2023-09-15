@@ -16,8 +16,6 @@ VIRT_SCR   ... use LOPIF library with support for virtual screens
 XANIMGIF   ... include animated GIFs to executable
 JAVASCRIPT ... include JavaScript support to executable (not finished)
 XTVERSION  ... maximal optimizaton for speed and memory savings
-
-CUSTOMER   ... general customization
 */
 
 #include "messages.h"
@@ -610,7 +608,6 @@ extern int loadrefresh;       //perioda prekreslovani (v bajtech) pro LAN TCP/IP
 extern char noGUIredraw;
 
 #define fullscreen (arachne.GUIstyle & 4)
-#define customerscreen (arachne.GUIstyle & STYLE_CUSTOMER)
 
 extern char iconsoff;            //hide small icons ?
 extern char hotkeys;             //allow hotkeys ?

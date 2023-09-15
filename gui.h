@@ -1,7 +1,6 @@
 
 // ========================================================================
 // Graphical user interface header file... 1998
-// Cooperation with customer.h defined function for STYLE_CUSTOMER layout
 // (c)1996-1999 Michael Polak, Arachne Labs
 // ========================================================================
 
@@ -74,8 +73,6 @@ void hidehover(void);
 //!!glennmcc: end
 
 #define ONMOUSE_TITLE 999
-
-#define CLICK_CUSTOMER 1000
 
 #define MOUSESTEP 8
 

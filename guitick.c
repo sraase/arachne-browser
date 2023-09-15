@@ -71,7 +71,7 @@ void xChLogo(char n)
  char logo[10]="XCHLOGO_";
  int x=x_maxx()-150,y=0;
 
- if(fullscreen || customerscreen)
+ if(fullscreen)
   return;
 
 #ifndef TEXTONLY
@@ -116,7 +116,7 @@ void xChLogoTICK(char Style) // animation of logo
  Backgroundhttp();
 #endif//notcpip
 
- if( fullscreen || customerscreen ||
+ if( fullscreen ||
     !user_interface.logoiddle || GLOBAL.backgroundimages>BACKGROUND_SLEEPING)
   return;
 
@@ -254,7 +254,7 @@ void MemInfo(char forced)
  }
 
  if((x_maxx()<640 || arachne.GUIstyle ||
-     fullscreen || customerscreen || fixedfont) /*fixedfont=printing hack*/
+     fullscreen || fixedfont) /*fixedfont=printing hack*/
   && !forced) return;
 
  if(arachne.GUIstyle)

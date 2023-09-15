@@ -39,19 +39,11 @@ return;
 
  x_setfill(0,7);
 
-#ifdef CUSTOMER
-  x_setcolor(15);
-  x_line(2,x_maxy()-14,x_maxx()-2,x_maxy()-14);
-  x_setcolor(8);
-  x_line(2,x_maxy()-1,x_maxx()-2,x_maxy()-1);
-  x_bar(2,x_maxy()-13,x_maxx()-2,x_maxy()-2);
-#else
   x_setcolor(15);
   x_line(2,x_maxy()-14,x_maxx()-154,x_maxy()-14);
   x_setcolor(8);
   x_line(2,x_maxy()-1,x_maxx()-154,x_maxy()-1);
   x_bar(2,x_maxy()-13,x_maxx()-154,x_maxy()-2);
-#endif // CUSTOMER
 
   if(strlen(s)>l && l>3)
   {

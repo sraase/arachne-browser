@@ -6,7 +6,6 @@
 
 #include "arachne.h"
 #include "gui.h"
-#include "customer.h"
 
 #define MOUSESTEP 8
 
@@ -98,13 +97,6 @@ int onbutton(int x,int y)
 
  if(fullscreen)
   return 0;
-
-#ifdef CUSTOMER_MODULE
- if(customerscreen)
-  return ( customer_onbutton( x, y) );
-#endif
-
-#ifndef CUSTOMER
 
  //Click on logo
  if(arachne.GUIstyle!=STYLE_SMALL1 &&
@@ -419,7 +411,6 @@ int onbutton(int x,int y)
   if(toolbarmode==0)
    return CLICK_MEMINFO;
  }
-#endif //!CUSTOMER
  return 0;
 }
 

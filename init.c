@@ -8,7 +8,6 @@
 #include "html.h"
 
 #include "xanimgif.h"
-#include "customer.h"
 
 #ifndef NOTCPIP
 #include "internet.h"
@@ -114,17 +113,8 @@ if(argc>1)
    tcpip=1;
    arachne.GUIstyle|=4;
   }
-  else
-  if(argv[1][1]=='a')
-  {
-   arachne.GUIstyle=STYLE_CUSTOMER;
-  }
  }
 }
-#ifdef CUSTOMER
- arachne.GUIstyle=STYLE_CUSTOMER;
-#endif
-
 
 //256 color palette - we will allocate it rather here...
 Iipal=farmalloc(768); //3*256 = 256 RGB values
@@ -758,12 +748,6 @@ void exitmsg(void)
 {
  x_grf_mod(3);
 
-#ifdef CUSTOMER
- if(customerscreen)
-//  puts(configvariable(&ARACHNEcfg,"ExitMsg",NULL);
-  puts("Starting Windows...");
- else
-#endif
 #ifdef POSIX
   printf(MSG_ENDX);
 #else

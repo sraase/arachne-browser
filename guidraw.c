@@ -7,7 +7,6 @@
 #include "arachne.h"
 #include "html.h"
 #include "gui.h"
-#include "customer.h"
 
 #define MOUSEPIX 4
 
@@ -15,14 +14,13 @@
 
 void toolbar(char newtoolbarmode,char forced)
 {
-#ifndef CUSTOMER
  focusedatom=activeadr;
  if(toolbarmode==newtoolbarmode && forced)
   return;
  mouseoff();
  toolbarmode=newtoolbarmode;
  if(arachne.GUIstyle!=STYLE_SMALL1 && arachne.GUIstyle!=STYLE_SMALL2
-    && !fullscreen && !customerscreen)
+    && !fullscreen)
  {
   if(arachne.GUIstyle || x_maxx()<640)
   {
@@ -150,7 +148,6 @@ void toolbar(char newtoolbarmode,char forced)
    }
   }
  }
-#endif //CUSTOMER
  DrawIcons();
  mouseon();
  x_settextjusty(0,2);  // vzdycky psat pismo od leveho horniho rohu
@@ -163,16 +160,6 @@ void buttons(void)
  if(fullscreen)
   return;
 
- if(customerscreen)
- {
-#ifdef CUSTOMER_MODULE
-  customer_draw();
-  DrawIcons();
-#endif
-  return;
- }
-
-#ifndef CUSTOMER
  if(arachne.GUIstyle==STYLE_SMALL1)
  {
   DrawIconLater( "alticon1",4,3 );
@@ -209,7 +196,6 @@ void buttons(void)
   //menu
  }
  toolbar(0,0);
-#endif //CUSTOMER
 }
 
 
@@ -228,7 +214,6 @@ void GUIInit(void)	       // inicializace mysi, etc.
 }
 
 
-#ifndef CUSTOMER
 int bannerwidth=0;
 
 char *gettitle(char *buf)
@@ -243,12 +228,9 @@ char *gettitle(char *buf)
  return title;
 }
 
-#endif //CUSTOMER
-
 void PaintTitle(void)	 // vykresleni nazvu stranky
 {
-#ifndef CUSTOMER
- if(fullscreen || customerscreen)
+ if(fullscreen)
   return;
  mouseoff();
  if(arachne.GUIstyle==STYLE_SMALL1)
@@ -311,18 +293,11 @@ ____________^<--fill color
   x_settextjusty(0,2);	      // vzdycky psat pismo od leveho horniho rohu
   x_setcolor(0);
  }
-#endif //CUSTOMER
 }
 
 void PaintStatus(void)
 {
-
-#ifdef CUSTOMER
-  Box3D(0,x_maxy()-15,x_maxx(),x_maxy());
-#else
   Box3D(0,x_maxy()-15,x_maxx()-152,x_maxy());
-#endif // CUSTOMER
-
 }
 
 void RedrawALL()		       // redraw entire user interface
@@ -456,7 +431,6 @@ if(arachne.GUIstyle==2) arachne.GUIstyle=3;
 
 void statusmsg(void)
 {
-#ifndef CUSTOMER
  char *msg;
 
  if(fullscreen)
@@ -493,7 +467,6 @@ void statusmsg(void)
  x_settextjusty(0,2);	     // vzdycky psat pismo od leveho horniho rohu
 
  mouseon();
-#endif //CUSTOMER
 }
 
 //===========================================================================
@@ -681,10 +654,9 @@ void DrawTitle(char force)    // vykresleni nazvu stranky
  char str[256];
  char *titleptr;
 
- if(fullscreen || customerscreen)
+ if(fullscreen)
   return;
 
-#ifndef CUSTOMER
  mouseoff();
 
  drawatom(&URLprompt,0u,0,p->htscrn_xsize,p->htscrn_ysize,p->htscrn_xtop,p->htscrn_ytop);
@@ -738,7 +710,6 @@ if(user_interface.fontshift<0) htmlfont(3+user_interface.fontshift,0); else
  x_settextjusty(0,2);	     // vzdycky psat pismo od leveho horniho rohu
 
  mouseon();
-#endif //CUSTOMER
  title_ok=1;
 }
 
@@ -886,11 +857,7 @@ else
   break;
 
   case CLICK_EXIT:
-#ifdef CUSTOMER
-  outs("Start Windows");
-#else
   outs(MSG_EXIT);
-#endif
   break;
   case CLICK_IMAGES:
   outs(MSG_IMAGES);
@@ -987,11 +954,6 @@ else
 
   default:
 
-#ifdef CUSTOMER_MODULE
-  if(customer_onlinehelp(b))
-   return;
-#endif
-
   if(lastonbutton)
    defaultmsg();
   // ?b=0;
@@ -1050,11 +1012,7 @@ void zoom(void)
 {
  //default for most modes:
  p->htscrn_xsize=x_maxx()-user_interface.scrollbarsize;
-#ifdef CUSTOMER_MODULE
  if(fullscreen)
-#else
- if(fullscreen || customerscreen)
-#endif
  {
   p->htscrn_ysize=x_maxy();
   p->htscrn_ytop=0;
@@ -1069,12 +1027,6 @@ void zoom(void)
   p->htscrn_ysize=x_maxy()-67;
   p->htscrn_ytop=50;
  }
-#ifdef CUSTOMER_MODULE
- else if(customerscreen)
- {
-  customer_zoom();
- }
-#endif
  else if( x_maxx()<640)
  {
   p->htscrn_ysize=x_maxy()-117;

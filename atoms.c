@@ -423,7 +423,7 @@ void activeurl(char *url)
 {
  activeatomcursor(0);
 
- if(fullscreen || customerscreen)
+ if(fullscreen)
  {
   setTXTprompt(url);
   inputatom("URL","");

@@ -252,10 +252,6 @@ int MixPal(struct picinfo *o, int n, char writepal)
 }
 
 
-#ifdef CUSTOMER
-extern char customerpalette[48];
-#endif
-
 //initialization of palette...
 void initpalette(void)
 {
@@ -283,11 +279,6 @@ void initpalette(void)
  }
  else
  {
-#ifdef CUSTOMER
-   if(customerscreen)
-    memcpy(Iipal,customerpalette,48);
-   else
-#endif
    if(egamode)
     memcpy(Iipal,egapal,48);
    else

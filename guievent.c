@@ -6,7 +6,6 @@
 
 #include "arachne.h"
 #include "gui.h"
-#include "customer.h"
 
 //------------------------------------------------------------------------
 //real events, called from GUIEVENT
@@ -1040,8 +1039,7 @@ unlink("textarea.tmp");
    }
    else if(asc=='G') // active URL input field, like in Lynx
    {
-    if(!customerscreen)
-     activeurl("");
+    activeurl("");
     return 0;
    }
    else if(asc=='~')//ignore images
@@ -1306,7 +1304,7 @@ Piip();
      return 0;
     }
     if(fullscreen || x_maxx()<640 &&
-     (arachne.GUIstyle==STYLE_SMALL2 || customerscreen))
+     (arachne.GUIstyle==STYLE_SMALL2))
      return togglefullscreen();
     Deallocmem();
     ChangeZoom(1,0,0);
@@ -1504,10 +1502,6 @@ submit:
      else GLOBAL.backgr=2;
 //!!glennmcc: end
     maptype=activeismap(&dx,&dy);
-#ifdef CUSTOMER_MODULE
-    if(customer_URLcheck())
-     return gotoloc();
-#endif
     if(!strncmpi(GLOBAL.location,"arachne:",8))
     {
 /*
@@ -1709,11 +1703,6 @@ submit:
    else if(mouse<3)//mouse clicked, but not on link
    {
     int choice=onbutton(mousex,mousey);
-
-#ifdef CUSTOMER_MODULE
-    if(customerscreen && customer_event(choice))
-     return gotoloc();
-#endif
 
 #ifdef OVRL
 
@@ -1956,7 +1945,6 @@ else
 
     }//endswith;
 
-#ifndef CUSTOMER
     if(mousex>x_maxx()-206 && mousey>x_maxy()-13 &&
        mousex<x_maxx()-156 && mousey<x_maxy()-2)
 //scrnsvr:
@@ -1966,7 +1954,6 @@ else
      ImouseWait();
      return 0;
     }
-#endif
 
     activeatomScrollBarBUTTONS();
 

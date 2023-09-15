@@ -280,13 +280,6 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
   x_setfill(0,7); //sediva
   if(mousey>x_maxy()-30 && mousex>x_maxx()-230)
    mouseoff();
- #ifdef CUSTOMER
-  x_bar(x_maxx()-56,x_maxy()-13,x_maxx()-2,x_maxy()-2);
-  x_setcolor(0); //cerna
-  htmlfont(1,0);
-  x_text_ib( x_maxx()-56,x_maxy()-15,(unsigned char *)cas2);
-
- #else
 
   x_bar(x_maxx()-206,x_maxy()-13,x_maxx()-156,x_maxy()-2);
   x_setcolor(0); //cerna
@@ -296,7 +289,6 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
 //  htmlfont(1,0);
   x_text_ib( x_maxx()-206,x_maxy()-15,(unsigned char *)cas2);
 
- #endif
   if(mousey>x_maxy()-30 && mousex>x_maxx()-230)
    mouseon();
  }
