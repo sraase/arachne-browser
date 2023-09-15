@@ -707,10 +707,6 @@ The top / bottom of the atom relative to its absolute position ('dy' below).
 
     if(click==MOUSE_RIGHT) //copy link to clipboard
     {
-//#ifdef NOKEY
-//     if(!removable)
-//      ie_clipstatus=0;
-//#endif
      if(!strncmpi("mailto:",ptr,7))
       ptr+=7;
      ie_appendclip(ptr);

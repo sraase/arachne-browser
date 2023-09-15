@@ -9,7 +9,6 @@
 
 NOTCPIP    ... do not use WATTCP TCP/IP stack
 NOPS       ... no PostScript printing
-NOKEY      ... do not use shareware registration key
 OVRL       ... optimizations for overlaid executable (Borland C++ 3.1)
 HICOLOR    ... use LOPIF library with support for 16 bits/pixel modes
 VIRT_SCR   ... use LOPIF library with support for virtual screens
@@ -43,11 +42,6 @@ void outs(char *str); //change browser status message
 
 #include "a_io.h" //arachne i/o stub
 
-#ifndef NOKEY
-#include "security\xchreg.h"
-#endif
-
-
 //----------------------------------------------------------------------------
 //defines:
 //----------------------------------------------------------------------------
@@ -66,22 +60,6 @@ void outs(char *str); //change browser status message
 #define IRC_HTML      3 //not yet implemented
 #define ICQ_HTML      4 //not yet implemented
 
-/*
-//maximum number of lines in CFG files :
-//!!glennmcc: increased to 388 or 1024 (experimental compile only)
-//NOKEY == original value of 256 in GPL
-//works in tandom with the increase of history file size in main.c
-//and MAXCONV define in urlovrl.c
-#ifdef NOKEY
-#define LINES 256
-#else
-#ifdef EXPMAX
-#define LINES 1024
-#else
-#define LINES 388
-#endif//EXPMAX
-#endif//NOKEY
-*/
 //----------------------------------------------------------------------------
 #ifdef POSIX //POSIX-compliant systems - linear access to memory, etc.
 //----------------------------------------------------------------------------
@@ -559,11 +537,6 @@ extern char *ptrmsg;
 extern char *delmsg;
 extern char *ctrlbreak;
 extern char *anykey;
-#ifndef NOKEY
-extern char regkey[KEYLEN+1],reg;
-#else
-extern char *regkey,reg;
-#endif
 
 extern char *imageextensions;
 
@@ -624,9 +597,6 @@ extern char *setupdoc;
 extern char *VER;
 extern char *exetype;
 extern char *beta;
-#ifdef NOKEY
-extern char *ident;
-#endif
 extern char *copyright;
 extern char *homepage;
 

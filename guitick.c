@@ -317,31 +317,9 @@ void MemInfo(char forced)
 //!!glennmcc: Nov 25, 2005 -- check space on the cache drive
 //and the current drive .... display both when not the same drive
 //when cache is on local drive, display only one
-#ifndef NOKEY
- {
- ldsp=lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))>>20;
-//local & cache
-/**/
- if(ldsp==(localdiskspace()>>20))
- sprintf(str,"%4lu",ldsp);
- else
- sprintf(str,"%4lu %4lu",localdiskspace()>>20,ldsp);
-/**/
-//temp & cache
-/*
- if(ldsp==(lastdiskspace(getenv("TEMP"))>>20))
- sprintf(str,"cache_%4lu",ldsp);
- else
- sprintf(str,"temp_%4lu cache_%4lu",lastdiskspace(getenv("TEMP"))>>20,ldsp);
-*/
- }
-#else
 //local only
- {
  ldsp=localdiskspace()>>20; //original line
  sprintf(str,"%4lu",ldsp);  //original line
- }
-#endif//nokey
  if(ldsp<(user_interface.mindiskspace>>20)
     || lastdiskspace(getenv("TEMP"))<user_interface.mindiskspace)
  {

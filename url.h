@@ -10,18 +10,9 @@
 
 #define SETBUFSIZE 20 //!!glennmcc: Oct 21, 1012
 
-#ifdef NOKEY
-#define URLSIZE 1024 //(GPL version)
-#else
-#define URLSIZE 1024 //(UE version)
-#endif
+#define URLSIZE 1024
 #define PROTOCOLSIZE 11
-//!!Udo: -- Dec 27, 2007 -- increase 'stringsize'
-#ifdef NOKEY
-#define STRINGSIZE 96 //was 48
-#else
 #define STRINGSIZE 96
-#endif
 #define PASSWORDSIZE 16
 
 struct Url

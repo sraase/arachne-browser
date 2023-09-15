@@ -774,16 +774,6 @@ if(!strcmpi(configvariable(&ARACHNEcfg,"Mail2Hist",NULL),"No") &&
     ) return;
 //!!glennmcc: end
 
-//!!glennmcc: Jan 13, 2005 -- also don't add some of the mail .DGIs
-#ifndef NOKEY
-//#ifdef EXP
-  if(strstr(URL,"//movemail") || strstr(URL,"//delmail") ||
-     strstr(URL,"emptytrash.dgi")
-    ) return;
-#endif
-//#endif
-//!!glennmcc: end
-
    if(!URL) return;
 
 //  printf("adding to history? GLOBAL.nothot=%d, arachne.scriptline=%d\n",

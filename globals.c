@@ -64,19 +64,6 @@ char *ptrmsg=MSG_XSWAP;
 char *delmsg=MSG_XDEL;
 char *ctrlbreak=MSG_BREAK;
 char *anykey=MSG_ANYKEY;
-#ifdef NOKEY
-//char *regkey="",reg=1;
-//char *regkey="GPL  Version",reg=1;//!!glennmcc: Apr 06, 2003 --- GPL now
-#if defined(LINUX)
-char *regkey="v2.0-dev;Linux",reg=1;
-#elif defined(XT086)
-char *regkey="v2.0-dev;286-",reg=1;
-#else
-char *regkey="v2.0-dev;387+",reg=1;
-#endif//LINUX
-#else
-char regkey[KEYLEN+1]=MSG_UNREG,reg=0;
-#endif
 
 char *imageextensions="GIF IKN BMP gif ikn bmp";
 

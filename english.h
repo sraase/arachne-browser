@@ -34,7 +34,6 @@ Notes for translators:
 #define MSG_TCPIP  "Initializing TCP/IP..."
 #define MSG_FONT   "Updating font information..."
 #define MSG_RETURN "Type 'arachne -r' to return to World Wide Web.\n"
-#define MSG_THIS   "> This is NON-COMMERCIAL (unregistered) version of Arachne,%s<\n"
 #define MSG_HANGUP "Terminating dial-up connection..."
 #define MSG_ERRIMG "Cannot load image..."
 #define MSG_CONV   "Processing '%s' [%s]. %s %s"
@@ -163,9 +162,6 @@ Notes for translators:
 #define MSG_VIDEO  "\nSelect video type [Esc to abort]: "
 
 //Messages with limited size:
-
-//                 >------------<
-#define MSG_UNREG  "Unregistered"
 
 //                 >-------|----|-----<
 #define MSG_INFMSG " device free  used"

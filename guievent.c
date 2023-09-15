@@ -570,13 +570,7 @@ unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
 
     if(gotoactiveatom(asc,&formID))
     {
-//!!glennmcc: July 10, 2006 -- duplicate action of F2 in forms
-#ifndef NOKEY
-     link=gotoactiveatom(asc,&formID);
-#else
      link=activeislastinput(); //original line
-#endif
-//!!glennmcc: end
      if(link)
       goto submit;
      else
@@ -1457,7 +1451,7 @@ else if(key==11776)//Alt+C
    }
 #endif
 
-   else if(key>=0x5400 && key<=0x5d00 /* &&reg*/)
+   else if(key>=0x5400 && key<=0x5d00)
    {
     char arachnomania[10];
 

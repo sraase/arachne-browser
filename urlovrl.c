@@ -277,18 +277,7 @@ if(unlink(cacheptr->locname)==0)
  swapmod=1;
 }
 
-//!!glennmcc: increased to 387 or 624 (experimental compile only)
-//works in tandom with the increase of LINES define in init.c
-//and history file size in main.c
-#ifdef NOKEY
 #define MAXCONV 624
-#else
-#ifdef EXPMAX
-#define MAXCONV 624
-#else
-#define MAXCONV 387
-#endif//EXPMAX
-#endif//NOKEY
 
 // =====================================================================
 // Searching HTML page for missing images  ( jpeg  images)

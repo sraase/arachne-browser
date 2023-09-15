@@ -440,11 +440,6 @@ void statusmsg(void)
 
  Box3D(x_maxx()-150,x_maxy()-15,x_maxx(),x_maxy());
  x_setcolor(0);
-//!!glennmcc: Aug 22, 2005
-//prevent fontshift from causing regkey to over-run the online timer
- htmlfont(1-user_interface.fontshift,0);
-// htmlfont(1,0);
- x_text_ib(x_maxx()-146,x_maxy()-15,(unsigned char *)regkey);
 
  if(httpstub)
  {
@@ -1075,27 +1070,15 @@ void zoom(void)
 
 void gohome(void)
 {
-#ifndef NOKEY
- if(reg==2) //multireg
- {
-  strcpy(GLOBAL.location,&regkey[14]);
-  return;
- }
- else
-#endif
-// if(reg) //single
- {
   char *value=configvariable(&ARACHNEcfg,"HomePage",NULL);
   if(value)
   {
    strcpy(GLOBAL.location,value);
    return;
   }
- }
 #ifdef POSIX
  strcpy(GLOBAL.location,homepage);
 #else
- //unregistered
  if(tcpip)
   strcpy(GLOBAL.location,homepage);
  else

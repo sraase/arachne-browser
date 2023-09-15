@@ -95,7 +95,7 @@ if(!strstr(value,"file:ppp")) value="file:ppp_init.htm";
    char buf[IE_MAXLEN];
    arachne.target=0; //!!!
    outs(MSG_HANGUP);
-   if(reg && tcpip)
+   if(tcpip)
     PPPtimelog();
    process_form(0,IE_NULL); //updateovat Arachne.Cfg
    sprintf(buf,"%s\nif exist PPP.LOG del PPP.LOG\n",configvariable(&ARACHNEcfg,"Hangup",NULL));
@@ -431,9 +431,6 @@ if(strlen(url->authuser)>0 && strlen(url->authpassword)>0 &&
 // back one step too far.
 // Therefore, we only goback once when it's not being sent 'on the spot'
     if(!strstr(GLOBAL.location,"smtp:")) goback(); //return to mailto: page...
-//#ifdef NOKEY
-//    goback();
-//#endif
 //!!glennmcc: end
 
     goback(); //return to page with <A HREF=mailto:...> tag...

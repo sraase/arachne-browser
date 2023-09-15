@@ -481,12 +481,6 @@ write(mailmsg,str,strlen(str));
 	  }//endif
 	 }//endif
 	}//endif
-	if(!reg)
-	{
-	 sprintf(p->buf,"\n-- Arachne V%s%s, NON-COMMERCIAL copy, %s\n",VER,beta,homepage);
-	 write(mailmsg,p->buf,strlen(p->buf));
-	}
-
        }//end if modify/resend
 
 //!!glennmcc: begin July 8, 7 2002

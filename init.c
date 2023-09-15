@@ -24,35 +24,6 @@ void Initialize_Arachne(int argc,char **argv,struct Url *url)
   memerr0();
 #endif
 
-#ifndef NOKEY
-
- //registration
- {
-  char keyname[80];
-  sprintf(keyname,"%sarachne.key",exepath);
-  if(loadkey(keyname,regkey) && regkey[1]=='A')
-  {
-   if(regkey[0]=='m')
-    reg=2;
-   else
-    reg=1;
-   memmove(regkey,&regkey[2],12);
-   regkey[12]='\0';
-  }
- }
-
-#else //freeware
- reg=1;
-#endif
-
-#ifndef NOKEY
- if(!(argc>1 && reg) && !exeisok(argv[0]))
- {
-  puts(MSG_BADEXE);
-  exit(EXIT_ABNORMAL);
- }
-#endif
-
 #ifndef POSIX
  if(argc>1 && argv[1][0]=='-')
  {
@@ -108,7 +79,7 @@ if(argc>1)
    arachne.GUIstyle|=4;
   }
   else
-  if(argv[1][1]=='i' /*&& reg*/) // used to be for registered users only
+  if(argv[1][1]=='i')
   {
    tcpip=1;
    arachne.GUIstyle|=4;
@@ -383,13 +354,6 @@ bioskey_close();
   exitmsg();
   if(tcpip)
    puts(MSG_RETURN);
-#ifndef POSIX
-  if(!reg)
-  {
-   printf(MSG_THIS,anykey);
-   getch();
-  }
-#endif
  }
 
 
@@ -401,19 +365,7 @@ bioskey_close();
 void cfgerr (struct ib_editor *f);
 
 //maximum number of lines in CFG files :
-//!!glennmcc: increased to 388 or 1024 (experimental compiles only)
-//NOKEY == original value of 256 in GPL
-//works in tandom with the increase of history file size in main.c
-//and MAXCONV define in urlovrl.c
-#ifdef NOKEY
 #define LINES 1024
-#else
-#ifdef EXPMAX
-#define LINES 1024
-#else
-#define LINES 388
-#endif//EXPMAX
-#endif//NOKEY
 
 //maximum number of lines in cookies file :
 #define MAX_HTTP_COOKIES 64*CookieCrumbs
@@ -751,11 +703,7 @@ void exitmsg(void)
 #ifdef POSIX
   printf(MSG_ENDX);
 #else
-#ifdef NOKEY
-  printf(MSG_END,VER,beta,ident,exetype,copyright);
-#else
   printf(MSG_END,VER,beta,exetype,copyright);
-#endif
 #endif
 }
 

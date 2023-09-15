@@ -333,7 +333,6 @@ int willexecute(char *cmd) //vykonat nejakou hloupost:
 struct uiface user_interface;
 #endif
 
-//extern char reg;
 extern struct ib_editor ARACHNEcfg;// main configuration
 
 void configure_user_interface(void)
@@ -395,13 +394,13 @@ the right side if the tail fix is not desired:
 //!!glennmcc:end
 
  value=configvariable(&ARACHNEcfg,"SmallIcons",NULL);
- if(value && toupper(*value)=='N' && reg)
+ if(value && toupper(*value)=='N')
   user_interface.iconsoff=1;
  else
   user_interface.iconsoff=0;
 
  value=configvariable(&ARACHNEcfg,"Hotkeys",NULL);
- if(value && toupper(*value)=='N' && reg)
+ if(value && toupper(*value)=='N')
   user_interface.hotkeys=0;
  else
   user_interface.hotkeys=1;

@@ -34,7 +34,6 @@ Notes for translators:
 #define MSG_TCPIP  "Initialisiere TCP/IP..."
 #define MSG_FONT   "Update Schriftinformation..."
 #define MSG_RETURN "Tippe 'arachne -r' um zu Arachne zurckzukehren.\n"
-#define MSG_THIS   "> Arachne GPL Version,%s<\n"
 #define MSG_HANGUP "Verbindung wird beendet..."
 #define MSG_ERRIMG "Bild kann nicht geladen werden..."
 #define MSG_CONV   "Prozess: '%s' [%s]. %s %s"
@@ -162,9 +161,6 @@ Notes for translators:
 #define MSG_VIDEO  "\nW„hle Graphikmodus [Esc zum Abbrechen]: "
 
 //Messages with limited size:
-
-//                 >------------<
-#define MSG_UNREG  "Unregistr.  "
 
 //                 >-------|----|-----<
 #define MSG_INFMSG " device free  used"

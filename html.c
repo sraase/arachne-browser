@@ -920,14 +920,9 @@ if((in=='<' &&
      }
     }//endif viditelny text (tr.: visible text)
 
-#ifndef NOKEY
-// if(in==' ' && !nbsp || in=='/') //wrap also long unix pathnames !
-   if(in==' ' && !nbsp)//!!glennmcc: Apr 06, 2003---do not wrap long pathnames---
-#else
 //!!glennmcc: May 06, 2007---
 //only wrap long pathnames which are in an unordered list ( <ul> ) ---
    if(in==' ' && !nbsp || (in=='/' && orderedlist[listdepth]<0))
-#endif
     {
      lastspcpos=txtlen;
      lastspcx=x;//-fontx(font,' ');
@@ -1285,7 +1280,7 @@ if((in=='<' &&
       }
 
       //kill adds (468x60)?
-      if(user_interface.killadds && reg && img->size_x==468 && img->size_y==60)
+      if(user_interface.killadds && img->size_x==468 && img->size_y==60)
        break;
 //!!glennmcc: July 08, 2006 -- kill any image wider than 'MaxImgWidth'
 //defaults to max 2048 if variable missing from CFG
@@ -3223,18 +3218,7 @@ if (perc>99) perc=0;
      if(!strcmpi(tagarg,"BUTTON"))
        {
 //!!glennmcc: Feb 26, 2007 -- now duplicates type=submit in our compiles
-#ifdef NOKEY
    break; //not yet implemented ! //won't break in our compiles
-#else
-//!!glennmcc: Jan 21, 2008 -- only for remote... not local
-if(!strncmpi(url.protocol,"http:",5))
-  {
-   type=SUBMIT;//new line added to duplicate type=submit in our compiles <G>
-// type=BUTTON;//had been commeneted-out
-   goto butt;  //had been commeneted-out
-  }
-   else break;
-#endif
 //!!glennmcc: end
        }
        else

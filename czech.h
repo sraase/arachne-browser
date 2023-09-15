@@ -31,7 +31,6 @@ Notes for translators:
 #define MSG_TCPIP  "Inicializuji TCP/IP..."
 #define MSG_FONT   "Aktualizuji informace o fontech..."
 #define MSG_RETURN "Pro navrat na WWW napiste 'arachne -r'\n"
-#define MSG_THIS   "> Toto je NEKOMERCNI (neregistrovana) verze Arachne,%s<\n"
 #define MSG_HANGUP "Ukonèuji telefonické spojení..."
 #define MSG_ERRIMG "Obrázek nelze nahrát..."
 #define MSG_CONV   "Zpracovávám '%s' => %s. %s %s"
@@ -138,9 +137,6 @@ Notes for translators:
 #define MSG_MEMORY "\nZvolte druh pameti : "
 
 //Messages with limited size:
-
-//                 >------------<
-#define MSG_UNREG  "Unregistered"
 
 //                 >-------|----|-----<
 #define MSG_INFMSG " device free  used"

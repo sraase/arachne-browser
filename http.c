@@ -1429,13 +1429,8 @@ if(lastsec==0 || prc>99 ||
 sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);//original line
 //!!glennmcc: end
 
-//#ifdef NOKEY
-//if(elapsedtime>1)
-//#endif
-//{
     outs(str);
     percentbar(prc);
-//}
     if(fpos>=cache->size)
      rd=0; //force connection close
    }
