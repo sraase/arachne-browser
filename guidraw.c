@@ -887,7 +887,7 @@ else
 
   case CLICK_EXIT:
 #ifdef CUSTOMER
-  outs("Start Windows"); //for Vadem/Infolio - InstOn/FirstLook/whatevver
+  outs("Start Windows");
 #else
   outs(MSG_EXIT);
 #endif

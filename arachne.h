@@ -17,7 +17,7 @@ XANIMGIF   ... include animated GIFs to executable
 JAVASCRIPT ... include JavaScript support to executable (not finished)
 XTVERSION  ... maximal optimizaton for speed and memory savings
 
-CUSTOMER   ... general customization (currently, module for Vadem is included)
+CUSTOMER   ... general customization
 */
 
 #include "messages.h"
