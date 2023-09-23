@@ -1,6 +1,5 @@
 #include "arachne.h"
 #include "internet.h"
-#include "alttab.h"
 
 #ifdef POSIX
 char ARACHNEPICK[80];

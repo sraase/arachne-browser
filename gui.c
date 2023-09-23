@@ -8,7 +8,6 @@
 #include "gui.h"
 #include "html.h"
 #include "internet.h" //because of background tasks...
-#include "alttab.h"
 
 #define MOUSESTEP 8   //caverge adjustment
 

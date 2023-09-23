@@ -643,3 +643,12 @@ extern char *vgadetected;
 //very dependent on GLOBAL.* family of variables, and more !!!
 
 int renderHTML(struct Page *p);
+
+// related to Alt-Tab handling
+// see int09.c
+void InstalAltTab(void);
+void ReleaseAltTab(void);
+void InstalPrtScr(void);
+void ReleasePrtScr(void);
+extern int g_AltTab;
+extern int g_PrtScr;

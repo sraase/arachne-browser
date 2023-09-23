@@ -1,6 +1,5 @@
 
 #include "arachne.h"
-#include "alttab.h"
 
 void draw_time_online(void);
 
