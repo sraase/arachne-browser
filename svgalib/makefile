@@ -5,7 +5,7 @@ STRIP=strip
 
 CFLAGS  = -O2 -fomit-frame-pointer -g -Wall
 CFLAGS += -D LINUX -D POSIX -D OVRL -D HICOLOR -D SVGALIB
-OFILES  = linmain.o linglue.o iekernel.o ie_fce.o ie_key.o str.o
+OFILES  = linglue.o iekernel.o ie_fce.o ie_key.o str.o
 OFILES += ie_bin.o fexists.o config.o version.o errors.o outs.o html.o 
 OFILES += htmlutil.o htmtable.o htmlread.o htmlstat.o atoms.o scrolbar.o
 OFILES += htmldraw.o svgastat.o svgaovrl.o guidraw.o hdrawgif.o hdrawbmp.o 

@@ -31,15 +31,14 @@ ARACHNE WWW BROWSER (TM) is a trademark of Michael Polak, Arachne Labs (TM)
 #include "xanimgif.h"
 #include "gui.h"
 
+#ifdef SVGALIB
+#include <vga.h>
+#endif
+
 // ========================================================================
 // Arachne WWW browser main() function:
 // ========================================================================
-
-#ifdef POSIX
-int arachne_main(int argc, char **argv )
-#else
-int main(int argc, char **argv )
-#endif
+int arachne_main(struct Url *initurl)
 {
  struct Url url;
  struct HTTPrecord inlineimage;
@@ -65,12 +64,7 @@ int main(int argc, char **argv )
 #endif
  int addobjectsnow=0;  //append embeded objects to .htt file now ?
 
-#ifndef POSIX
-if(argc==1 || argv[1][0]=='-' && argv[1][1]=='s')
-#endif
- printf(MSG_START,VER,beta,copyright);
-
-Initialize_Arachne(argc,argv,&url);
+ memcpy(&url, initurl, sizeof(struct Url));
 
 if(arachne.scriptline!=0)
  goto ReadScriptLine;
@@ -1569,5 +1563,27 @@ userend:
 #endif
 
 end:
- return Terminate_Arachne(returnvalue);
+ return returnvalue;
+}
+
+/* main entry point */
+int main(int argc, char **argv)
+{
+	struct Url url;
+	int ret;
+
+	printf(MSG_START, VER, beta, copyright);
+
+	Initialize_Arachne(argc, argv, &url);
+
+#ifdef SVGALIB
+	if (vga_init()) {
+		printf("Failed to initialize SVGALIB.\n");
+		return 100;
+	}
+#endif
+
+	ret = arachne_main(&url);
+
+	return Terminate_Arachne(ret);
 }
