@@ -291,6 +291,84 @@ reaquire://!!glennmcc: Mar 08, 2008 -- case sensitive for entity.cfg
  return NULL;
 }
 
+/**
+ * read boolean option with default
+ *   returns 1 for "Yes" / "True"  / "Enable"  / "On"
+ *   returns 0 for "No"  / "False" / "Disable" / "Off"
+ */
+int config_get_bool(char *key, int defval)
+{
+	char *ptr = configvariable(&ARACHNEcfg, key, NULL);
+	if (ptr) {
+		switch (toupper(ptr[0])) {
+		case 'Y': /* Yes    */
+		case 'T': /* True   */
+		case 'E': /* Enable */
+			return 1;
+
+		case 'N': /* No      */
+		case 'F': /* False   */
+		case 'D': /* Disable */
+			return 0;
+		}
+
+		/* On / Off */
+		if (!strcmpi(ptr, "on"))
+			return 1;
+		if (!strcmpi(ptr, "off"))
+			return 0;
+	}
+
+	/* return default */
+	return defval ? 1 : 0;
+}
+
+/**
+ * read int option with default
+ *   supports decimal, octal and hexadecimal
+ */
+int config_get_int(char *key, int defval)
+{
+	long val = config_get_long(key, defval);
+	return (int)val;
+}
+
+/**
+ * read long option with default
+ *   supports decimal, octal and hexadecimal
+ */
+long config_get_long(char *key, long defval)
+{
+	char *ptr = configvariable(&ARACHNEcfg, key, NULL);
+	if (ptr) {
+		char *eptr;
+		long val = strtol(ptr, &eptr, 0);
+		if (val || ptr != eptr) {
+			return val;
+		}
+	}
+	return defval;
+}
+
+/**
+ * read string option with default
+ */
+char *config_get_str(char *key, char *defstr)
+{
+	char *ptr = configvariable(&ARACHNEcfg, key, NULL);
+	if (ptr) {
+		return ptr;
+	}
+	return defstr;
+}
+
+/**
+ * update string option with new value
+ */
+void config_set_str(char *key, char *newval)
+{
+	configvariable(&ARACHNEcfg, key, newval);
+}
 
 #ifndef WWWMAN
 #ifndef MINITERM

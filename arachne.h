@@ -208,6 +208,13 @@ struct TMPframedata
 //prototypes:
 //----------------------------------------------------------------------------
 
+// ARACHNE.CFG config access
+int   config_get_bool(char *key, int   defval);
+int   config_get_int (char *key, int   defval);
+long  config_get_long(char *key, long  defval);
+char *config_get_str (char *key, char *defstr);
+void  config_set_str (char *key, char *newstr);
+
 //config
 char *configvariable(struct ib_editor *fajl,char *keystring,char *newvalue);
 
