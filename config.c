@@ -415,6 +415,7 @@ extern struct ib_editor ARACHNEcfg;// main configuration
 void configure_user_interface(void)
 {
  char *value;
+ long numval;
 
  /* Hand cursor */
  static const unsigned short cur[32] = {
@@ -454,57 +455,29 @@ void configure_user_interface(void)
   break;
  }
 
- value=configvariable(&ARACHNEcfg,"SmallIcons",NULL);
- if(value && toupper(*value)=='N')
-  user_interface.iconsoff=1;
- else
-  user_interface.iconsoff=0;
+ user_interface.iconsoff = !config_get_bool("SmallIcons", 1);
+ user_interface.hotkeys = config_get_bool("Hotkeys", 1);
 
- value=configvariable(&ARACHNEcfg,"Hotkeys",NULL);
- if(value && toupper(*value)=='N')
-  user_interface.hotkeys=0;
- else
-  user_interface.hotkeys=1;
-
- user_interface.bigfont=0;
-
- value=configvariable(&ARACHNEcfg,"AltSysFont",NULL);
- if(value && *value!='0')
- {
-  char x = atoi(value);
-  if(x < 0)
-   x = 0;
-  else if(x > 2)/*Will not lock up in 640*480*/
-   x = 2;
-  user_interface.bigfnum = (unsigned char) x;
-  user_interface.bigfont=1;
-  user_interface.bigstyle=FIXED;
+ numval = config_get_long("AltSysFont", 0);
+ if (numval < 0) numval = 0;
+ if (numval > 2) numval = 2; /* prevent lock up in 640x480 */
+ if (numval > 0) {
+  user_interface.bigfnum  = numval;
+  user_interface.bigfont  = 1;
+  user_interface.bigstyle = FIXED;
  }
 
- value=configvariable(&ARACHNEcfg,"BigFont",NULL);
- if(value && toupper(*value)=='Y')
- {
-  user_interface.bigfont=1;
-  user_interface.bigfnum=5;
-  user_interface.bigstyle=BOLD|FIXED;
+ if (config_get_bool("BigFont", 0)) {
+  user_interface.bigfont  = 1;
+  user_interface.bigfnum  = 5;
+  user_interface.bigstyle = BOLD|FIXED;
  }
 
- value=configvariable(&ARACHNEcfg,"ScrollBarSize",NULL);
- if(value)
-  user_interface.scrollbarsize=atoi(value);
- else
-  user_interface.scrollbarsize=10;
- if(user_interface.scrollbarsize>80) user_interface.scrollbarsize=80;
+ user_interface.scrollbarsize = config_get_long("ScrollBarSize", 10);
+ if(user_interface.scrollbarsize > 80)
+  user_interface.scrollbarsize=80;
 
- /*
- value=configvariable(&ARACHNEcfg,"HTTPretry",NULL);
- if(value)
-  user_interface.httpretry=atoi(value);
- else
-  user_interface.httpretry=10;
- */
-
- value=configvariable(&ARACHNEcfg,"Colors",NULL);
+ value = config_get_str("Colors", "11 0"); /* green-on-black */
  if(value)
  {
   char *newvalue;
@@ -518,18 +491,13 @@ void configure_user_interface(void)
   }
   else user_interface.ink=11; //green
  }
- else
- {
-  user_interface.ink=11; //green
-  user_interface.paper=0; //black
- }
 
- value=configvariable(&ARACHNEcfg,"MouseColors",NULL);
+ value = config_get_str("MouseColors", "7 15"); /* grey or white */
  if(value)
  {
   char *newvalue;
 
-  user_interface.darkmouse = (int) strtol (value, &newvalue, 10);
+  user_interface.darkmouse = (int)strtol (value, &newvalue, 10);
   if (newvalue != value) {
     value = newvalue;
     user_interface.brightmouse = (int)strtol (value, &newvalue, 10);
@@ -538,55 +506,16 @@ void configure_user_interface(void)
   }
   else user_interface.darkmouse=7; //white
  }
- else
- {
-  user_interface.darkmouse=7; //white
-  user_interface.brightmouse=15; //black
- }
 
- value=configvariable(&ARACHNEcfg,"Frames",NULL);
- if(value && toupper(*value)=='Y')
-  user_interface.frames=1;
- else
-  user_interface.frames=0;
-
- value=configvariable(&ARACHNEcfg,"QADT",NULL);
- if(value && toupper(*value)=='Y')
-  user_interface.quickanddirty=1;
- else
-  user_interface.quickanddirty=0;
-
- value=configvariable(&ARACHNEcfg,"CacheFonts",NULL);
- if(value && toupper(*value)=='N')
-  user_interface.cachefonts=0;
- else
-  user_interface.cachefonts=1;
-
- value=configvariable(&ARACHNEcfg,"Cache2TEMP",NULL);
- if(value && toupper(*value)=='Y')
-  user_interface.cache2temp=1;
- else
-  user_interface.cache2temp=0;
-
- value=configvariable(&ARACHNEcfg,"Kill468x60",NULL);
- if(value && toupper(*value)=='Y')
-  user_interface.killadds=1;
- else
-  user_interface.killadds=0;
+ user_interface.frames = config_get_bool("Frames", 0);
+ user_interface.quickanddirty = config_get_bool("QADT", 0);
+ user_interface.cachefonts = config_get_bool("CacheFonts", 1);
+ user_interface.cache2temp = config_get_bool("Cache2TEMP", 0);
+ user_interface.killadds = config_get_bool("Kill468x60", 0);
 
 #ifndef POSIX
-//!!JdS 2004/12/05 {
-//Because we now handle Ctrl-Alt-Esc as well as Alt-Tab, introduce a
-//new keyword 'AltKeys', with fallback to the old 'AltTab' keyword :
-//!!glennmcc: Oct 06, 2005 -- no 'ifs' about it... always enabled
-//now there's now need for either 'AltTab' or 'AltKeys' in arachne.cfg
-//!!glennmcc: Nov 09, 2005 -- VERY BAD IDEA !!!! :(
- value = configvariable(&ARACHNEcfg,"AltKeys",NULL);
- if (!value)
-   value = configvariable(&ARACHNEcfg,"AltTab",NULL);
-//!!JdS 2004/12/05 }
- if(value && toupper(*value)=='Y')
- {
+ if (config_get_bool("AltKeys", 0) ||
+     config_get_bool("AltTab", 0)) {
   InstalAltTab();
   atexit(ReleaseAltTab);
  }
@@ -595,193 +524,106 @@ void configure_user_interface(void)
  atexit(ReleasePrtScr);
 #endif
 
- value=configvariable(&ARACHNEcfg,"MailIsDesktop",NULL);
- if(value && toupper(*value)=='N')
-  user_interface.mailisdesktop=0;
- else
-  user_interface.mailisdesktop=1;
-
- value=configvariable(&ARACHNEcfg,"EditHotlistEntry",NULL);
- if(value && toupper(*value)=='N')
-  user_interface.edithotlistentry=0;
- else
-  user_interface.edithotlistentry=1;
-
- value=configvariable(&ARACHNEcfg,"Autodial",NULL);
- if(value && toupper(*value)=='Y')
-  user_interface.autodial=1;
- else
-  user_interface.autodial=0;
+ user_interface.mailisdesktop = config_get_bool("MailIsDesktop", 1);
+ user_interface.edithotlistentry = config_get_bool("EditHotlistEntry", 1);
+ user_interface.autodial = config_get_bool("Autodial", 0);
 
 #if defined(MSDOS) && !defined(XTVERSION)
- value=configvariable(&ARACHNEcfg,"VFAT",NULL);
- if(value && toupper(*value)=='Y')
-  user_interface.vfat=1;
- else
-  user_interface.vfat=0;
+ user_interface.vfat = config_get_bool("VFAT", 0);
 #endif
 
-//!!glennmcc: Feb 13, 2006 -- at Ray's suggestion,
-// changed variable name to match the keyword
- value=configvariable(&ARACHNEcfg,"KeepHTT",NULL);
- if(value && toupper(*value)=='N')
-  user_interface.keephtt=0;
- else
-  user_interface.keephtt=1;
-//  user_interface.nohtt=1;
-// else
-//  user_interface.nohtt=0;
-//!!glennmcc: end
-
- user_interface.virtualysize=0;
- user_interface.smooth=0;
+ user_interface.keephtt = config_get_bool("KeepHTT", 1);
+ user_interface.virtualysize = 0;
+ user_interface.smooth = 0;
 
 #ifdef VIRT_SCR
- value=configvariable(&ARACHNEcfg,"VirtualScreen",NULL);
- if(value)
-  user_interface.virtualysize=atoi(value);
+ user_interface.virtualysize = config_get_int("VirtualScreen", 0);
+ user_interface.smooth = config_get_bool("SmoothScroll", 0);
+ if (user_interface.smooth) {
+  user_interface.step = config_get_int("ScrollStep", 1000);
+ }
 
- value=configvariable(&ARACHNEcfg,"SmoothScroll",NULL);
- if(value && toupper(*value)=='Y')
- {
-  user_interface.smooth=1;
-  value=configvariable(&ARACHNEcfg,"ScrollStep",NULL);
-  if(value)
-   user_interface.step=atoi(value);
-  else
-   user_interface.step=1000;
-
- value=configvariable(&ARACHNEcfg,"ScreenMode",NULL);
- if(value && *value!='A')
-  user_interface.screenmode=*value; //A[uto],S[mart],N[ice]
- else
-  user_interface.screenmode=0; //default = A...Auto
+ /* [A]uto, [S]mart, [N]ice */
+ value = config_get_str("ScreenMode", "Auto");
+ switch (toupper(*value)) {
+ case 'S':
+ case 'N':
+  user_interface.screenmode = toupper(*value);
+  break;
+ case 'A':
+ default:
+  user_interface.screenmode = 0;
+  break;
  }
 #endif // VIRT_SCR
 
- value=configvariable(&ARACHNEcfg,"ScrollBarStyle",NULL);
- if(value && *value!='A')
- {
-  user_interface.scrollbarstyle=*value; //W[indoze],N[extStep],X[experimental]
-  if(*value=='C')
-   user_interface.scrollbarsize=0; //no scrollbars
- }
- else
-  user_interface.scrollbarstyle=0; //default = A...Arachne
-
- value=configvariable(&ARACHNEcfg,"ESC",NULL);
- if(value && toupper(*value)=='I')   //JdS 2004/9/3 (parenthesis)
-  user_interface.esc=ESC_IGNORE;
- else
- if(value && toupper(*value)=='B')   //JdS 2004/9/3 (parenthesis)
-  user_interface.esc=ESC_BACK;
- else
-  user_interface.esc=ESC_EXIT;
-
- value=configvariable(&ARACHNEcfg,"Multitasking",NULL);
- if(value && toupper(*value)=='N')   //JdS 2004/9/3 (parenthesis)
-  user_interface.multitasking=MULTI_NO;
- else
- if(value && toupper(*value)=='S')   //JdS 2004/9/3 (parenthesis)
-  user_interface.multitasking=MULTI_SAFE;
- else
-  user_interface.multitasking=MULTI_YES;
-
- value=configvariable(&ARACHNEcfg,"Logo",NULL);
- if(value)
-  user_interface.logoiddle=atoi(value);
- else
-  user_interface.logoiddle=2000;
-
- value=configvariable(&ARACHNEcfg,"MinDiskSpace",NULL);
- if(value)
-  user_interface.mindiskspace=atol(value)*1024;
- else
-  user_interface.mindiskspace=128000l;
-
- value=configvariable(&ARACHNEcfg,"XMS4allgifs",NULL);
- if(value)
-  user_interface.xms4allgifs=atoi(value);
- else
-  user_interface.xms4allgifs=256;
-
- value=configvariable(&ARACHNEcfg,"XMS4onegif",NULL);
- if(value)
-  user_interface.xms4onegif=atol(value)*1024;
- else
-  user_interface.xms4onegif=32000l;
-
- value=configvariable(&ARACHNEcfg,"ExpireDynamic",NULL);
- if(value)
-  user_interface.expire_dynamic=atol(value);
- else
-  user_interface.expire_dynamic=3600l;
-
- value=configvariable(&ARACHNEcfg,"ExpireStatic",NULL);
- if(value)
-  user_interface.expire_static=atol(value);
- else
-  user_interface.expire_static=86400l;
-
- if(cgamode)
-  user_interface.fontshift=-2;
- else
- {
-  value=configvariable(&ARACHNEcfg,"FontShift",NULL);
-  if(value)
-//!!glennmcc: Aug 22, 2005 -- legal values... -2 through +1
-  {
-   user_interface.fontshift=atoi(value);
-   if(user_interface.fontshift <-2) user_interface.fontshift=-2;
-   if(user_interface.fontshift >1) user_interface.fontshift=1;
-  }
-// user_interface.fontshift=atoi(value); // original single line
-//!!glennmcc: end
-  else
-   user_interface.fontshift=0;
+ value = config_get_str("ScrollBarStyle", "Arachne");
+ switch (toupper(*value)) {
+ case 'A':
+  user_interface.scrollbarstyle = 0; /* [A]rachne */
+  break;
+ case 'C':
+  user_interface.scrollbarstyle = 'C'; /* [C]larence */
+  user_interface.scrollbarsize = 0;    /* no scrollbars */
+  break;
+ default:
+  /* [W]indoze, [N]extstep, [X]perimental, ... */
+  user_interface.scrollbarstyle = toupper(*value);
+  break;
  }
 
- {
-  int w=78;
-  value=configvariable(&ARACHNEcfg,"ASCIIwidth",NULL);
-  if(value)
-  {
-   w=atoi(value);
-   if(w<40)w=40;
-   if(w>255)w=255;
-  }
-  user_interface.printerwidth=w;
+ value = config_get_str("ESC", "X");
+ switch (toupper(*value)) {
+ case 'I':
+  user_interface.esc = ESC_IGNORE;
+  break;
+ case 'B':
+  user_interface.esc = ESC_BACK;
+  break;
+ default:
+  user_interface.esc = ESC_EXIT;
+  break;
+ }
+
+ value = config_get_str("Multitasking", "X");
+ if (toupper(*value) == 'S') {
+  user_interface.multitasking = MULTI_SAFE;
+ } else {
+  int val = config_get_bool("Multitasking", 1);
+  user_interface.multitasking = val ? MULTI_YES : MULTI_NO;
+ }
+
+ user_interface.logoiddle = config_get_int("Logo", 2000);
+ user_interface.mindiskspace = config_get_long("MinDiskSpace", 128) * 1024;
+ user_interface.xms4allgifs = config_get_int("XMS4allgifs", 256);
+ user_interface.xms4onegif = config_get_long("XMS4onegif", 32) * 1024;
+ user_interface.expire_dynamic = config_get_long("ExpireDynamic", 3600);
+ user_interface.expire_static = config_get_long("ExpireStatic", 86400L);
+
+ if (cgamode) {
+  user_interface.fontshift = -2;
+ } else {
+  user_interface.fontshift = config_get_long("FontShift", 0);
+  if (user_interface.fontshift < -2) user_interface.fontshift = -2;
+  if (user_interface.fontshift >  1) user_interface.fontshift =  1;
+ }
+
+ user_interface.printerwidth = config_get_long("ASCIIwidth", 78);
+ if (user_interface.printerwidth <  40) user_interface.printerwidth = 40;
+ if (user_interface.printerwidth > 254) user_interface.printerwidth = 255;
 
 #ifndef NOPS
-  value=configvariable(&ARACHNEcfg,"PostScriptWidth",NULL);
-  if(value)
-  {
-   w=atoi(value);
-   if(w<100)w=100;
-   if(w>1000)w=1000;
-  }
-  else
-   w=210; //A4
+ user_interface.postscript_x = config_get_int("PostScriptWidth",  210); /* A4 */
+ if (user_interface.postscript_x <  100) user_interface.postscript_x = 100;
+ if (user_interface.postscript_x > 1000) user_interface.postscript_x = 1000;
 
-  user_interface.postscript_x=w;
-
-  value=configvariable(&ARACHNEcfg,"PostScriptHeight",NULL);
-  if(value)
-  {
-   w=atoi(value);
-   if(w<100)w=100;
-   if(w>1000)w=1000;
-  }
-  else w=297; //A4
-
-  user_interface.postscript_y=w;
+ user_interface.postscript_y = config_get_int("PostScriptHeight", 297); /* A4 */
+ if (user_interface.postscript_y <  100) user_interface.postscript_y = 100;
+ if (user_interface.postscript_y > 1000) user_interface.postscript_y = 1000;
 #endif
- }
 
- user_interface.keymap=NULL;
- value=configvariable(&ARACHNEcfg,"UseKeyMap",NULL);
- if(value && toupper(*value)=='Y')
- {
+ user_interface.keymap = NULL;
+ if (config_get_bool("UseKeyMap", 0)) {
   value=configvariable(&ARACHNEcfg,"Keymap1",NULL);
   if(value && *value)
   {
@@ -796,89 +638,21 @@ void configure_user_interface(void)
   }
  }
 
- value=configvariable(&ARACHNEcfg,"ScreenSaver",NULL);
- if(value)
-  ScreenSaver=atol(value);
+ ScreenSaver = config_get_long("ScreenSaver", 0);
+ user_interface.refresh = config_get_int("RefreshDelay", 20);
 
- value=configvariable(&ARACHNEcfg,"RefreshDelay",NULL);
- if(value)
-  user_interface.refresh=atoi(value);
- else
-  user_interface.refresh=20;
-
- value=configvariable(&ARACHNEcfg,"CSS",NULL);
- if(value && toupper(*value)=='N')
-  user_interface.css=0;
- else
-  user_interface.css=1;
+ user_interface.css = config_get_bool("CSS", 1);
 
  // HTTP parameters --------------------------------------------------
 
- value=configvariable(&ARACHNEcfg,"HTTPreferer",NULL);
- if(value && toupper(*value)=='N')   //JdS 2004/9/3 (parenthesis)
-  http_parameters.referer=0;
- else
-  http_parameters.referer=1;
-
- value=configvariable(&ARACHNEcfg,"HTTPKeepAlive",NULL);
- if(value && toupper(*value)=='N')   //JdS 2004/9/3 (parenthesis)
-  http_parameters.keepalive=0;
- else
-  http_parameters.keepalive=1;
-
- value=configvariable(&ARACHNEcfg,"UseProxy",NULL);
- if(value && toupper(*value)!='N')
-  http_parameters.useproxy=1;
- else
-  http_parameters.useproxy=0;
-
- value=configvariable(&ARACHNEcfg,"Cookies",NULL);
- if(value && toupper(*value)=='N')
-  http_parameters.acceptcookies=0;
- else
-  http_parameters.acceptcookies=1;
-
-//!!glennmcc: begin Dec 11, 2001
-// added to fix "HTTPS verifying images" loop by trying HTTP instead
-// (defaults to Yes if "Https2Http No" line is not in Arachne.cfg)
-//!!glennmcc: Jan 24, 2005 -- changed defult to "Yes"
- value=configvariable(&ARACHNEcfg,"HTTPS2HTTP",NULL);
- if(value && toupper(*value)=='N')   //JdS 2005/4/30 (parenthesis)
-  http_parameters.https2http=0;
- else
-  http_parameters.https2http=1;
-//!!glennmcc: end
-
-//!!glennmcc: begin May 03, 2002
-// added to optionally "ignore" <script> tag
-// (defaults to No if "IgnoreJS Yes" line is not in Arachne.cfg)
- value=configvariable(&ARACHNEcfg,"IGNOREJS",NULL);
- if(value && toupper(*value)=='Y')   //JdS 2004/9/3 (parenthesis)
-  user_interface.ignorejs=1;
- else
-  user_interface.ignorejs=0;
-//!!glennmcc: end
-
-//!!glennmcc: begin July 14, 2003
-// added to optionally "ignore" <base href=> tag
-// (defaults to No if "IgnoreBaseHref Yes" line is not in Arachne.cfg)
- value=configvariable(&ARACHNEcfg,"IGNOREBASEHREF",NULL);
- if(value && toupper(*value)=='Y')   //JdS 2004/9/3 (parenthesis)
-  http_parameters.ignorebasehref=1;
- else
-  http_parameters.ignorebasehref=0;
-//!!glennmcc: end
-
-//!!glennmcc: begin July 14, 2005
-//added to optionally always use arachne.cfg html colors in the <body> tag
-//(defaults to No if "AlwaysUseCFGcolors Yes" line is not in Arachne.cfg)
- value = configvariable(&ARACHNEcfg,"AlwaysUseCFGcolors",NULL);
- if(value && toupper(*value)=='Y')   //JdS 2005/8/4 (parenthesis)
-  user_interface.alwaysusecfgcolors=1;
- else
-  user_interface.alwaysusecfgcolors=0;
-//!!glennmcc: end
-
+ http_parameters.referer = config_get_bool("HTTPreferer", 1);
+ http_parameters.keepalive = config_get_bool("HTTPKeepAlive", 1);
+ http_parameters.useproxy = config_get_bool("UseProxy", 0);
+ http_parameters.acceptcookies = config_get_bool("Cookies", 1);
+ http_parameters.https2http = config_get_bool("HTTPS2HTTP", 1);
+ user_interface.ignorejs = config_get_bool("IGNOREJS", 0);
+ http_parameters.ignorebasehref = config_get_bool("IGNOREBASEHREF", 0);
+ user_interface.alwaysusecfgcolors = config_get_bool("AlwaysUseCFGcolors", 0);
 }
 
 #endif
