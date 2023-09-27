@@ -210,7 +210,6 @@ struct TMPframedata
 
 //config
 char *configvariable(struct ib_editor *fajl,char *keystring,char *newvalue);
-extern char watfname[80];
 
 //initialization of TCP/IP according to ARACHNE.CFG
 void ArachneTCPIP(void);
