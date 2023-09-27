@@ -10,6 +10,6 @@ char *beta=";286-";
 char *beta=";387+";
 #endif
 
-char *copyright="";
+char *copyright="Arachne built " __DATE__ " at " __TIME__;
 
 char *homepage="http://arachne.cz/";
