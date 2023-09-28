@@ -54,7 +54,7 @@ int xpopdump(struct Url *url,char dele,char logfile)
 //!!glennmcc: Nov 25, 2005 -- for checking the drivespace (see below)
 int toobig=0, mult=1;
 //!!glennmcc: end
-char *mailtop=configvariable(&ARACHNEcfg,"MailTop",NULL);
+int mailtop = config_get_bool("MailTop", 0);
 
  if(!tcpip)return 0;
  free_socket();
@@ -251,9 +251,8 @@ if(toobig)
 //!!glennmcc: end this section.....more below
 	}
 
-     if(!strncmpi(mailtop,"Y",1))
-	sprintf( str, "TOP %lu 1000000", process ); else
-	sprintf( str, "RETR %lu", process );
+     if(mailtop) sprintf( str, "TOP %lu 1000000", process );
+     else sprintf( str, "RETR %lu", process );
 	if(log!=-1)
 	{
 	 write(log,str,strlen(str));
@@ -397,7 +396,7 @@ if(toobig)
 
 //!!glennmcc: Jun 27, 2005 -- This one finally works correctly :))
 #ifdef EXP//experimental
-if(!strncmpi(mailtop,"Y",1))
+if(mailtop)
 {
 if(strlen(ptr)<1 || !buffer || (locallength<1 && strstr(ptr,"\n\0\n.\n")
 //!!glennmcc: Sep 29, 2005 -- next line was still causing a few aborts

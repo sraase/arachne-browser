@@ -419,7 +419,7 @@ if(arachne.GUIstyle==2) arachne.GUIstyle=3;
  RedrawALL();
  GUIInit();
 #ifdef POSIX
- configvariable(&ARACHNEcfg,"GraphicsMode",arachne.graphics);
+ config_set_str("GraphicsMode", arachne.graphics);
  ie_savef(&ARACHNEcfg);
 #else
  savepick();
@@ -1070,19 +1070,10 @@ void zoom(void)
 
 void gohome(void)
 {
-  char *value=configvariable(&ARACHNEcfg,"HomePage",NULL);
-  if(value)
-  {
-   strcpy(GLOBAL.location,value);
-   return;
-  }
-#ifdef POSIX
- strcpy(GLOBAL.location,homepage);
-#else
- if(tcpip)
-  strcpy(GLOBAL.location,homepage);
- else
-  sprintf(GLOBAL.location,"file:%shome.htm",exepath);
+  strcpy(GLOBAL.location, config_get_str("HomePage", homepage));
+#ifndef POSIX
+  if (!tcpip)
+    sprintf(GLOBAL.location,"file:%shome.htm",exepath);
 #endif
 }
 

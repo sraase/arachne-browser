@@ -839,9 +839,9 @@ void redrawHTML(char nomsg, char virt)
 //!!glennmcc: July 08, 2007 -- '<=' instead of simply '<'
 //!!glennmcc: July 09, 2007 -- use BMPwidth CFG variable.
 //defaults to min of 640 and max of 2048
- int value=atoi(configvariable(&ARACHNEcfg,"BMPwidth",NULL));
-     if(!value || value<640) value=640;
-     if(value>2048) value=2048;
+ int value = config_get_int("BMPwidth", 640);
+ if (value <  640) value = 640;
+ if (value > 2048) value = 2048;
 //!!glennmcc: July 13, 2008 -- prevent 'split screen'
 // when BMPwidth is less than screen width
      if(value<x_maxx()) value=x_maxx();

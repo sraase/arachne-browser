@@ -114,14 +114,8 @@ if(ie_initswap()!=1)            //initialization of swapping system ie_swap
  memerr0();
 init_bin();                     //initialization of memory, conf. files, etc.
 
-{
- char *ptr=configvariable(&ARACHNEcfg,"GraphicsMode",NULL);
-printf("c2.ptr=%p\n",ptr);
- if(ptr)
-  strcpy(arachne.graphics,ptr);
- else
-  strcpy(arachne.graphics,"Hi16.J"); //temporary - forces 800x600 HiColor
-}
+// temporary, force 800x600 HiColor by default
+strcpy(arachne.graphics, config_get_str("GraphicsMode", "Hi16.J"));
 
 graphicsinit(arachne.graphics); //XLOPIF SVGA GRAPHICS
 
@@ -440,10 +434,7 @@ void init_bin(void)
 
 #ifdef POSIX
  //set font path first of all...
- ptr=configvariable(&ARACHNEcfg,"FontPathSuffix",NULL);
- if(!ptr)
-  ptr="iso-8859-1/";
- sprintf(fntpath,"%s%s",sharepath,ptr);
+ sprintf(fntpath,"%s%s",sharepath,config_get_str("FontPathSuffix", "iso-8859-1/"));
  strcpy(fntinf,fntpath);
  strcat(fntinf,"fontinfo.bin");
 #endif
@@ -470,7 +461,7 @@ void init_bin(void)
   cfgerr(&MIMEcfg);
 
  //---toolbar.cfg loading
- ptr=configvariable(&ARACHNEcfg,"Toolbar",NULL);
+ ptr = config_get_str("Toolbar", NULL);
  if(!ptr)
 #ifdef POSIX
   sprintf(TOOLBARcfg.filename,"%stemplates/toolbar.cfg",sharepath);
@@ -511,10 +502,7 @@ void init_bin(void)
 //!!glennmcc: end
 
  //---History of visited URLs
- ptr=configvariable(&ARACHNEcfg,"History",NULL);
- if(!ptr)
-  ptr="history.lst";
- strcpy(history.filename,ptr);
+ strcpy(history.filename,config_get_str("History", "history.lst"));
  history.killcomment=0;
 //!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
  rc=ie_openf_lim(&history,CONTEXT_SYSTEM,LINES); //history - max. 256 lines
@@ -526,10 +514,7 @@ void init_bin(void)
   arachne.history=history.lines-1;
 
  //---Index of cache
- ptr=configvariable(&ARACHNEcfg,"CacheIndex",NULL);
- if(!ptr)
-  ptr="cache.idx";
- strcpy(HTTPcache.filename,ptr);
+ strcpy(HTTPcache.filename,config_get_str("CacheIndex", "cache.idx"));
 //!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
  HTTPcache.maxlines=LINES;
 // HTTPcache.maxlines=256; //max 256 files in cache
@@ -544,10 +529,7 @@ void init_bin(void)
 */
 
  //---COOKIES.LST
- ptr=configvariable(&ARACHNEcfg,"CookieFile",NULL);
- if(!ptr)
-  ptr="cookies.lst";
- strcpy(cookies.filename,ptr);
+ strcpy(cookies.filename,config_get_str("CookieFile", "cookies.lst"));
  rc=ie_openf_lim(&cookies,CONTEXT_SYSTEM,MAX_HTTP_COOKIES);
 //!!JdS 2004/3/6 {
  if ((cookies.lines/CookieCrumbs)*CookieCrumbs != cookies.lines)
@@ -711,12 +693,9 @@ void exitmsg(void)
 char cacheisfull(void)
 {
  //struct ffblk ff;
- char *ptr,str[80];
+ char str[80];
 
- ptr=configvariable(&ARACHNEcfg,"CachePath",NULL);
- if(!ptr)
-  ptr=cachepath;
- makestr(str,ptr,65);
+ makestr(str,config_get_str("CachePath", cachepath),65);
 
  if(updtdiskspace(str)<user_interface.mindiskspace)
   return 1;

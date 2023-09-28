@@ -92,7 +92,7 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
 
  if(!GLOBAL.isimage)
  {
-  ptr=configvariable(&ARACHNEcfg,"AcceptCharset",NULL);
+  ptr = config_get_str("AcceptCharset", NULL);
   if(ptr)
   {
    sprintf(str,"Accept-Charset: %s\r\n",ptr);
@@ -118,17 +118,17 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
    ptr=NULL;
   else
   {
-   ptr=configvariable(&ARACHNEcfg,"NoProxy",NULL);
-   no4all=configvariable(&ARACHNEcfg,"NoProxy4all",NULL);
+   ptr = config_get_str("NoProxy", NULL);
+   no4all = config_get_str("NoProxy4all", NULL);
   }
 
   if( (!ptr || !strstr(strlwr(ptr),strlwr(pocitac)) ) &&
       (!no4all || !strstr(strlwr(pocitac), strlwr(no4all))) )
   {
    if(ftp)
-    ptr=configvariable(&ARACHNEcfg,"FTPproxy",NULL);
+    ptr = config_get_str("FTPproxy" ,NULL);
    else
-    ptr=configvariable(&ARACHNEcfg,"HTTPproxy",NULL);
+    ptr = config_get_str("HTTPproxy", NULL);
    if(ptr)
    {
     makestr(pocitac,ptr,79);
@@ -273,8 +273,8 @@ host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
  {
   char tmp[128];
   sprintf(str,"%s:%s",
-	  configvariable(&ARACHNEcfg,"ProxyUsername",NULL),
-	  configvariable(&ARACHNEcfg,"ProxyPassword",NULL));
+   config_get_str("ProxyUsername", ""),
+   config_get_str("ProxyPassword", ""));
   base64code((unsigned char *)str,tmp);
   sprintf(str,"Proxy-authorization: Basic %s\r\n",tmp);
   strcat(authorization,str);
@@ -432,7 +432,7 @@ if(status==1)
  {
 //!!glennmcc: Sep 10, 2008 -- configurable useragent string
   char useragent[120];
-  ptr=configvariable(&ARACHNEcfg,"UserAgent",NULL);
+  ptr = config_get_str("UserAgent", NULL);
   if(ptr) sprintf(useragent,"%s",ptr);
   if(!ptr || strlen(useragent)<10)
   sprintf(useragent,"xChaos_Arachne (DOS /5.%s%s)",VER,beta);
@@ -1226,7 +1226,7 @@ Local: <A HREF=\"file:..\\%s\">%s</A><HR>\n\
   if(cache->handle<0) // original line
 #else
   if(cache->handle<0
-     || lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))
+     || lastdiskspace(config_get_str("CachePath", cachepath))
 	<cache->size)//user_interface.mindiskspace)
 #endif
   {
@@ -1236,7 +1236,7 @@ Local: <A HREF=\"file:..\\%s\">%s</A><HR>\n\
   if(cache->handle<0) // original line
 #else
   if(cache->handle>=0
-     && lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))
+     && lastdiskspace(config_get_str("CachePath", cachepath))
      <cache->size)//user_interface.mindiskspace)
 #endif
      {a_close(cache->handle); unlink(cache->locname);}//origianl line
@@ -1383,7 +1383,7 @@ long starttime=(int)(time(NULL)), elapsedtime=0, lastsec=0, bytesec=0;
 
 if(!cache->knowsize
 #ifndef LINUX
-   && lastdiskspace(configvariable(&ARACHNEcfg,"CachePath",NULL))
+   && lastdiskspace(config_get_str("CachePath", cachepath))
 #endif
       <(fpos+rd))// rd=-1;
       //!!glennmcc: Nov 26, 2006 -- disk filled during download
@@ -1415,8 +1415,7 @@ if(!cache->knowsize
 //during parallel image download & use MSG_X_of_Y_byte for the 1st image only
 elapsedtime=(int)(time(NULL))-(int)(starttime);
 if(elapsedtime>lastsec && prc<=99 &&
- configvariable(&ARACHNEcfg,"UseByteSec",NULL) &&
- strstr(configvariable(&ARACHNEcfg,"UseByteSec",NULL),"Y"))
+ config_get_bool("UseByteSec", 0))
 {
  lastsec++;
  bytesec=fpos/lastsec;
@@ -1424,8 +1423,7 @@ if(elapsedtime>lastsec && prc<=99 &&
  sprintf(str,MSG_X_OF_Y_byte,dl,fpos,cache->size,bytesec);
 
 if(lastsec==0 || prc>99 ||
- (configvariable(&ARACHNEcfg,"UseByteSec",NULL) &&
- !strstr(configvariable(&ARACHNEcfg,"UseByteSec",NULL),"Y")))
+ config_get_bool("UseByteSec", 0))
 sprintf(str,MSG_X_OF_Y,dl,fpos,cache->size);//original line
 //!!glennmcc: end
 

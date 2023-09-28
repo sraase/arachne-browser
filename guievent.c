@@ -25,13 +25,8 @@ int gotoloc(void)
 
 int gotohotlist(void)
 {
-  char *ptr;
   strcpy(GLOBAL.location,"file:");
-  ptr=configvariable(&ARACHNEcfg,"Hotlist",NULL);
-  if(ptr)
-   strcat(GLOBAL.location,ptr);
-  else
-   strcat(GLOBAL.location,hotlist);
+  strcat(GLOBAL.location, config_get_str("Hotlist", hotlist));
   arachne.target=0;
   return gotoloc();
 }
@@ -46,16 +41,7 @@ int gotohistory(void)
 
 int gotodialpage(void)
 {
-//!!glennmcc: Feb 06, 2005 -- grab 'DialPage' from arachne.cfg
-//and go directly to it instead of calling 'arachne:dialpage' in protocol.c
-//also default to ppp_init.htm if 'DialPage' is missing from arachne.cfg
- char *value;
- value=configvariable(&ARACHNEcfg,"DialPage",NULL);
- if(!value) value="file:ppp_init.htm";
- sprintf(GLOBAL.location,value);
-// sprintf(GLOBAL.location,"arachne:dialpage"); //original line
-//!!glennmcc: end
-
+ sprintf(GLOBAL.location, config_get_str("DialPage", "file:ppp_init.htm"));
  arachne.target=0;
  return gotoloc();
 }
@@ -225,13 +211,12 @@ int togglefullscreen(void)
 int erasecache(void)
 {
  MemInfo(NORMAL);
-//!!glennmcc: Sep 10, 2005 -- optionally warn before clearing
- if(!strcmpi(configvariable(&ARACHNEcfg,"WarnClear",NULL),"Yes"))
- sprintf(GLOBAL.location,"file:%s%swarn_clr.ah",sharepath,GUIPATH);
-else
- strcpy(GLOBAL.location,"file:clearcache.dgi");
-// strcpy(GLOBAL.location,"file:clearcache.dgi"); // original single line
-//!!glennmcc: end
+ if (config_get_bool("WarnClear", 0)) {
+  // warn before clearing
+  sprintf(GLOBAL.location,"file:%s%swarn_clr.ah",sharepath,GUIPATH);
+ } else {
+  strcpy(GLOBAL.location,"file:clearcache.dgi");
+ }
  arachne.target=0;
  return gotoloc();
 }
@@ -389,13 +374,12 @@ int smothdown(int rate)
 
 int printtxt(void)
 {
+ char *ptr = config_get_str("PrintURL", NULL);
  saveastext();
- {
-  char *ptr=configvariable(&ARACHNEcfg,"PrintURL",NULL);
-  if(!ptr)
-   sprintf(GLOBAL.location,ptr="file:%s%sprint.ah",sharepath,GUIPATH);
-  else
-   strcpy(GLOBAL.location,ptr);
+ if (!ptr) {
+  sprintf(GLOBAL.location,"file:%s%sprint.ah",sharepath,GUIPATH);
+ } else {
+  strcpy(GLOBAL.location,ptr);
  }
  arachne.target=0;
  return gotoloc();
@@ -430,9 +414,8 @@ int searchevent(void)
 
 int gotosearchpage(void)
 {
- char *ptr=configvariable(&ARACHNEcfg,"SearchPage",NULL);
- if(ptr)
- {
+ char *ptr = config_get_str("SearchPage", NULL);
+ if(ptr) {
   strcpy(GLOBAL.location,ptr);
 
   if(!strcmpi(GLOBAL.location,"find:"))
@@ -754,8 +737,7 @@ unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
   {
    char newurl[URLSIZE]="file:*.htm";
 
-   ptr=configvariable(&ARACHNEcfg,"AutoF3key",NULL);
-   if(ptr && (*ptr=='Y' || *ptr=='y'))
+   if (config_get_bool("AutoF3key", 0))
    {
     if(tcpip)
     {
@@ -765,7 +747,7 @@ unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
    }
    else
    {
-    ptr=configvariable(&ARACHNEcfg,"F3key",NULL);
+    ptr = config_get_str("F3key", NULL);
     if(ptr)
      makestr(newurl,ptr,79);
    }
@@ -848,9 +830,8 @@ unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
 //return 1; //original line
 //!!glennmcc: Feb 14, 2005 -- made it configurable
 //RIAD == Reload Index After Delete
-ptr=strupr(configvariable(&ARACHNEcfg,"RIAD",NULL));
-if(*ptr=='Y' && strstr(GLOBAL.location,"file:"))
-return reloadpage(); //reload if local
+if (config_get_bool("RIAD", 0) && strstr(GLOBAL.location, "file:"))
+ return reloadpage(); // reload if local
 else
 {
 //!!glennmcc: Feb 14, 2008 -- removed last year's fix
@@ -1255,7 +1236,7 @@ unlink("textarea.tmp");
 
    if(key==0x3e00)//F4
    {
-    ptr=configvariable(&ARACHNEcfg,"Editor",NULL);
+    ptr = config_get_str("Editor", NULL);
 //!!Ray & !!glennmcc: Mar 07, 2007 -- use internal editor for frameset
     if(ptr && strcmpi(ptr,"NUL") && !arachne.framescount)
 //  if(ptr && strcmpi(ptr,"NUL"))
@@ -1364,7 +1345,7 @@ else if(key==12032 && !strncmpi(GLOBAL.location,"http://",7))
 //'HTTPreferer Yes' must be enabled in Arachne.cfg
 //in order for the 'referer method' to work
 //the 'check?url=' method will work even with 'HTTPreferer No'
-if(!strcmpi(configvariable(&ARACHNEcfg,"HttpReferer",NULL),"Yes"))
+if (config_get_bool("HttpReferer", 0))
 //method #1
     strcpy(GLOBAL.location,"http://validator.w3.org/check?uri=referer");
 else
@@ -1456,7 +1437,7 @@ else if(key==11776)//Alt+C
     char arachnomania[10];
 
     sprintf(arachnomania,"ShiftF%d",(key-0x5400)/256+1);
-    ptr=configvariable(&ARACHNEcfg,arachnomania,NULL);
+    ptr = config_get_str(arachnomania, NULL);
     if(ptr)
     {
      strcpy(GLOBAL.location,ptr);
@@ -1599,8 +1580,8 @@ submit:
 
      if(!strcmpi(GLOBAL.location,"arachne:pppsetup"))
      {
-      ptr=configvariable(&ARACHNEcfg,"Connection",NULL);
-      if(ptr && (strstr(ptr,"pppd") || strstr(ptr,"PPPD")))
+      ptr = config_get_str("Connection", "");
+      if(strstr(ptr,"pppd") || strstr(ptr,"PPPD"))
        sprintf(GLOBAL.location,"file:%s%sconf_ppp.ah",sharepath,GUIPATH);
       else
        sprintf(GLOBAL.location,"file:%s%sconf_ext.ah",sharepath,GUIPATH);

@@ -53,7 +53,6 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
 // struct ffblk ff;
  XSWAP rv;
  char fname[16];
- char *ptr;
  char firstkotva=absURL->kotva[0];
  time_t t;
  char cachefull=0;
@@ -84,10 +83,7 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
 
    if(cacheitem->locname[0]=='\0')
    {
-    ptr=configvariable(&ARACHNEcfg,"CachePath",NULL);
-    if(!ptr)
-     ptr=cachepath;
-    strcpy(cacheitem->locname,ptr);
+    strcpy(cacheitem->locname, config_get_str("CachePath", cachepath));
    }
 
    if(strlen(fname)>MAX_FNLEN)
@@ -323,14 +319,7 @@ char NeedImage(char reload, XSWAP *from)
   outs(MSG_DELAY0);
  else
  {
-  char *value = configvariable(&ARACHNEcfg,"LoadImages",NULL);
-//!!glennmcc: Nov 02, 2005 -- if CSS is enable, grab CSS file if it exists
-//!!glennmcc: Nov 22, 2005 -- the experiment did not work correctly :(
-//I'll leave this here but commented-out for others to play with ;-)
-//  if(!GLOBAL.nowimages && value && (*value=='n' || *value=='N') &&
-//       configvariable(&ARACHNEcfg,"CSS",NULL)[0]=='N')
-  if(!GLOBAL.nowimages && value && (*value=='n' || *value=='N'))//original line
-//!!glennmcc: end (more below)
+  if (!GLOBAL.nowimages && config_get_bool("LoadImages", 1))
    return 0;
   outs(MSG_VERIFY);
  }

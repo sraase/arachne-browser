@@ -35,7 +35,7 @@ int tablecount=0;
 
 //!!glennmcc: July 08, 2006 -- kill any image wider than 'MaxImgWidth'
 //defaults to 2048 if variable missing from CFG
-char *maxwidth="";
+int maxwidth;
 //!!glennmcc: end
 
  long fpos;
@@ -96,7 +96,6 @@ char *maxwidth="";
  struct picinfo *img;
  long percflag;
  char *text="";
- char *value;
 
 // werner scholz Nov 08,2006  --- utf8 ---
 int utf8=0;           // utf8-sequenceflag
@@ -350,9 +349,7 @@ RENDER.utf8=0;
  font=htmldata->basefontsize;
  style=htmldata->basefontstyle;
 
- value=configvariable(&ARACHNEcfg,"WrapPre",NULL);
- if(value && toupper(*value)=='Y') pre=0; else
- pre=plaintext;
+ pre = config_get_bool("WrapPre", 0) ? 0 : plaintext;
  if(plaintext)font=SYSFONT;
 
  p->sizeTextRow=p->sizeRow=fonty(font,style); //?p->sizeRow?
@@ -1126,9 +1123,8 @@ if((in=='<' &&
 
      case TAG_IMG: //<IMG>
 //!!glennmcc: Dec 03, 2005 - optionally do not display any remote images
-   if(((!strncmpi(cache->URL,"http:",5) || !strncmpi(cache->URL,"ftp:",4)) &&
-       configvariable(&ARACHNEcfg,"IgnoreImages",NULL) &&
-       configvariable(&ARACHNEcfg,"IgnoreImages",NULL)[0]=='Y'))
+   if((!strncmpi(cache->URL,"http:",5) || !strncmpi(cache->URL,"ftp:",4)) &&
+       config_get_bool("IgnoreImages", 0))
       break;
 //!!glennmcc: end
      input_image=0;
@@ -1285,9 +1281,10 @@ if((in=='<' &&
 //!!glennmcc: July 08, 2006 -- kill any image wider than 'MaxImgWidth'
 //defaults to max 2048 if variable missing from CFG
 //min setting 100
-maxwidth=configvariable(&ARACHNEcfg,"MaxImgWidth",NULL);
-if(!maxwidth || atoi(maxwidth)<100) maxwidth="2048";
-if(img->size_x>atoi(maxwidth))
+maxwidth = config_get_int("MaxImgWidth", 2048);
+if (maxwidth <  100) maxwidth = 100;
+if (maxwidth > 2048) maxwidth = 2048;
+if(img->size_x > maxwidth)
    break;
 //!!glennmcc: end
 
@@ -1666,8 +1663,10 @@ if(pre) alignrow(x,y,NULL);
      break;
 
      case TAG_PRE: //<PRE>
- value=configvariable(&ARACHNEcfg,"WrapPre",NULL);
- if(value && toupper(*value)=='Y'){pre=0; break;} else
+     if (config_get_bool("WrapPre", 0)) {
+      pre = 0;
+      break;
+     }
      font=htmldata->basefontsize;
      style=FIXED;
      pre=1;
@@ -2139,11 +2138,7 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
       }
 
       img->URL[0]='\0';
-      if(
-//!!glennmcc: May 19, 2008 - optionally do not display bgimages
-   (!configvariable(&ARACHNEcfg,"BGimages",NULL) ||
-    configvariable(&ARACHNEcfg,"BGimages",NULL)[0]=='Y') &&
-//!!glennmcc: end
+      if(config_get_bool("BGimages", 1) &&
       getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode && strcmp(tagarg,"0")) //???
       {
        AnalyseURL(tagarg,&url,p->currentframe);
@@ -2742,11 +2737,7 @@ if(tablecount>(MAXTABLEDEPTH*10)) goto p;
    bgcolor=1;
        }
 
-       if(
-//!!glennmcc: May 19, 2008 - optionally do not display bgimages
-   (!configvariable(&ARACHNEcfg,"BGimages",NULL) ||
-    configvariable(&ARACHNEcfg,"BGimages",NULL)[0]=='Y') &&
-//!!glennmcc: end
+       if(config_get_bool("BGimages", 1) &&
        getvar("BACKGROUND",&tagarg) && tagarg[0] && !cgamode)
        {
    AnalyseURL(tagarg,&url,p->currentframe);
@@ -3251,8 +3242,7 @@ if (perc>99) perc=0;
 
 //!!glennmcc: Feb 14, 2006 -- optionally ignore 'active'
       if(getvar("CHECKED",&tagarg) || (getvar("ACTIVE",&tagarg) &&
-     configvariable(&ARACHNEcfg,"IgnoreActive",NULL)[0]!='Y'))
-//    if(getvar("CHECKED",&tagarg) || getvar("ACTIVE",&tagarg))
+         config_get_bool("IgnoreActive", 0)))
       checked=1;
 //!!glennmcc: end
 
@@ -3769,9 +3759,7 @@ ReAnalyse:
 //!!glennmcc: end
 
 //!!glennmcc: Feb 14, 2006 -- optionally ignore 'active'
-     if(getvar("ACTIVE",&tagarg) &&
-  configvariable(&ARACHNEcfg,"IgnoreActive",NULL)[0]!='Y')
-//   if(getvar("ACTIVE",&tagarg))
+     if(getvar("ACTIVE",&tagarg) && config_get_bool("IgnoreActive", 0))
       active=1;
 //!!glennmcc: end
 
@@ -3816,9 +3804,7 @@ ReAnalyse:
      case TAG_BODY: //<BODY>
 
 //!!glennmcc: Oct 29, 2005 - optionally do not display bgimages
-     if((!strncmpi(cache->URL,"file:",5) ||
-   !configvariable(&ARACHNEcfg,"BGimages",NULL) ||
-    configvariable(&ARACHNEcfg,"BGimages",NULL)[0]=='Y') &&
+     if((!strncmpi(cache->URL,"file:",5) || config_get_bool("BGimages", 1)) &&
      getvar("BACKGROUND",&tagarg) && tagarg[0])
 //     if(getvar("BACKGROUND",&tagarg) && tagarg[0])//original single line
 //!!glennmcc: end
@@ -4142,7 +4128,7 @@ DrawTitle(0);
      }
 
      if(getvar("TARGET",&tagarg))
-      configvariable(&ARACHNEcfg,"FTPpath",tagarg);
+      config_set_str("FTPpath", tagarg);
 
      if(getvar("PRINT",&tagarg) && p->rendering_target)
      {

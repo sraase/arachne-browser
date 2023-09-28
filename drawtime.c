@@ -77,23 +77,16 @@ void clock_and_timer(char *wait) //kresleni casu a screensaver
    randomize();
 #endif
 
-   value=configvariable(&ARACHNEcfg,"ScreenSaverColors",NULL);
-   if(value && *value=='1')
+   if (config_get_int("ScreenSaverColors", 0) == 1)
     barva=barva1;
    else
     barva=barva0;
 
-   value=configvariable(&ARACHNEcfg,"ScreenSaverMess",NULL);
-   if(value)
-   {
-    cerfs=atoi(value);
-    if(cerfs<1)
-     cerfs=1;
-    if(cerfs>MAX_CERFS)
-     cerfs=MAX_CERFS;
-   }
+   cerfs = config_get_int("ScreenSaverMess", MAX_CERFS/2);
+   if (cerfs < 1)         cerfs = 1;
+   if (cerfs > MAX_CERFS) cerfs = MAX_CERFS;
 
-   value=configvariable(&ARACHNEcfg,"ScreenSaverStyle",NULL);
+   value = config_get_str("ScreenSaverStyle", "R");
 
    j=0;
    while(j<cerfs) //deklarace car
