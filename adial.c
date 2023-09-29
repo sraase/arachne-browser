@@ -41,9 +41,7 @@ int PPPlog(void)
 
    //puts(buf);
    j=0;
-   p=configvariable(&ARACHNEcfg,"IP_Grab",NULL);
-   if (!p)
-    p="IP address set to";
+   p=config_get_str("IP_Grab", "IP address set to");
    plen=strlen(p);
    while(j<i)
    {
@@ -120,7 +118,7 @@ char *ArachneDIAL(void)
 
  if(tcpip)
  {
-  value=configvariable(&ARACHNEcfg,"Hangup",NULL);
+  value = config_get_str("Hangup", NULL);
   if(value)
   {
    makestr(hangup,value,128);
@@ -128,14 +126,13 @@ char *ArachneDIAL(void)
   }
  }
 
- value=configvariable(&ARACHNEcfg,"UseTerminal",NULL);
- if(value && toupper(*value)=='Y')
+ if(config_get_bool("UseTerminal", 0))
  {
-  value=configvariable(&ARACHNEcfg,"TerminalWindow",NULL);
+  value = config_get_str("TerminalWindow", "NUL");
   useterm=1;
  }
  else
-  value=configvariable(&ARACHNEcfg,"Dialer",NULL);
+  value = config_get_str("Dialer", "NUL");
 
  if(value && strcmpi(value,"NUL"))
  {
@@ -146,7 +143,7 @@ char *ArachneDIAL(void)
   useterm=0;
 
 #ifndef NOETHERPPP
- value=configvariable(&ARACHNEcfg,"Connection",NULL);
+ value = config_get_str("Connection", NULL);
  if(!value)
   return ("");
 
@@ -192,11 +189,7 @@ char *ArachneDIAL(void)
   {
    char *base,*default_base[4]={"0x3f8","0x2f8","0x3e8","0x2e8"};
    char *irq,*default_irq[4]={"4","3","4","3"};
-   int port=0;
-
-   value=configvariable(&ARACHNEcfg,"Port",NULL);
-   if(value)
-    port=atoi(value)-1;
+   int port = config_get_int("Port", 0);
 
    if(port>=0 && port<4)
    {
@@ -205,11 +198,11 @@ char *ArachneDIAL(void)
    }
    else
    {
-    irq=configvariable(&ARACHNEcfg,"Irq",NULL);
-    base=configvariable(&ARACHNEcfg,"Base",NULL);
+    irq = config_get_str("Irq", default_irq[0]);
+    base = config_get_str("Base", default_base[0]);
    }
 
-   dns=configvariable(&ARACHNEcfg,"NameServer",NULL);
+   dns = config_get_str("NameServer", "");
    if(*dns=='%')
      {
       char *ptr=strchr(&dns[1],'%');
@@ -221,7 +214,7 @@ char *ArachneDIAL(void)
       else
       strcpy(nameserver,"\0");
 
-   altdns=configvariable(&ARACHNEcfg,"AltNameServer",NULL);
+   altdns = config_get_str("AltNameServer", "");
    if(*altdns=='%')
      {
       char *ptr=strchr(&altdns[1],'%');
@@ -245,12 +238,12 @@ asyncmap 0\n\
 %s\
 user \"%s\"\n\
 passwd \"%s\"\n",
-   configvariable(&ARACHNEcfg,"Speed",NULL),
+   config_get_str("Speed", "19200"),
    irq,base,
    nameserver,
    altnameserver,
-   configvariable(&ARACHNEcfg,"PPPusername",NULL),
-   configvariable(&ARACHNEcfg,"PPPpassword",NULL));
+   config_get_str("PPPusername", ""),
+   config_get_str("PPPpassword", ""));
    write(f,buf,strlen(buf));
    a_close(f);
 
@@ -264,12 +257,12 @@ passwd \"%s\"\n",
 /U:%s\n\
 /P:%s\n\
 /V:60\n",
-   configvariable(&ARACHNEcfg,"InitString",NULL),
-   configvariable(&ARACHNEcfg,"PhoneNumber",NULL),
-   configvariable(&ARACHNEcfg,"Speed",NULL),
+   config_get_str("InitString", "ATZ"),
+   config_get_str("PhoneNumber", ""),
+   config_get_str("Speed", "19200"),
    irq,base,
-   configvariable(&ARACHNEcfg,"PPPusername",NULL),
-   configvariable(&ARACHNEcfg,"PPPpassword",NULL));
+   config_get_str("PPPusername", ""),
+   config_get_str("PPPpassword", ""));
 //!!glennmcc: Feb 14, 2008 -- also write DNSs into lsppp.cfg
 if(strlen(dns)>6)
  {
@@ -292,14 +285,14 @@ if(strlen(dns)>6)
  }
 #endif
 
- value=configvariable(&ARACHNEcfg,"Connection",NULL);
+ value = config_get_str("Connection", "");
  sprintf(buf,"%s%s@if errorlevel 1 goto skip\n%s\n:skip\n",hangup,terminal,value);
 
 #ifndef NOETHERPPP
  if(dospppd)
  {
   strcat(buf,"@if exist IP-UP.BAT call IP-UP.BAT\n@echo PPPD status: ");
-  value=configvariable(&ARACHNEcfg,"IP_Grab",NULL);
+  value = config_get_str("IP_Grab", "IP address set to");
   strcat(buf,value);
   strcat(buf," %MYIP%>>PPP.LOG\n");
   unlink("IP-UP.BAT");
@@ -307,8 +300,7 @@ if(strlen(dns)>6)
  }
 #endif
 
- value=configvariable(&ARACHNEcfg,"DialPage",NULL);
-if(!strstr(strlwr(value),".htm")) value="file:ppp_init.htm";
+ value = config_get_str("DialPage", "file:ppp_init.htm");
  if((!strcmpi(value,p->htmlframe[p->activeframe].cacheitem.URL) ||
      strstr(p->htmlframe[p->activeframe].cacheitem.URL,"err_")) &&
      arachne.scriptline==0)

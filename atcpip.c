@@ -28,7 +28,7 @@ void _arp_add_gateway( char *data , longword ip );
 void ArachneTCPIP(void)
 {
  char dialer=0;
- char *value=configvariable(&ARACHNEcfg,"Connection",NULL);
+ char *value=config_get_str("Connection", NULL);
 
 //!!glennmcc: Mar 06 2006
 char *dns="\0", *dns1="\0", *dns2="\0";
@@ -51,24 +51,19 @@ char *dns="\0", *dns1="\0", *dns2="\0";
  else
  if(!tcpip && dialer && !GLOBAL.location[0])
  {
-  value=configvariable(&ARACHNEcfg,"DialPage",NULL);
-//!!glennmcc: Begin Feb 06, 2005 -- default to ppp_init.htm
-//if 'DialPage' is missing from arachne.cfg
- if(!value) value="file:ppp_init.htm";
-//!!glennmcc: end
-  if(value)
-   strcpy(GLOBAL.location,value);
+  value = config_get_str("DialPage", "file:ppp_init.htm");
+  strcpy(GLOBAL.location,value);
  }
 
  if(tcpip) //inicializace TCP/IP pokud je -o, -r ...
  {
   outs(MSG_TCPIP);
 
-  value=configvariable(&ARACHNEcfg,"TCPconfig",NULL);
+  value = config_get_str("TCPconfig", NULL);
   if(value)
    tcp_config_file( value);
 
-  value=configvariable(&ARACHNEcfg,"IP_Address",NULL);
+  value = config_get_str("IP_Address", NULL);
   if(!value)
   {
    tcpip=0;
@@ -159,17 +154,17 @@ char *dns="\0", *dns1="\0", *dns2="\0";
 
   if(ipmode!=MODE_WATTCP && ipmode!=MODE_BOOTP)
   {
-   value=configvariable(&ARACHNEcfg,"Gateway",NULL);
+   value = config_get_str("Gateway", NULL);
    if(value) _arp_add_gateway( value , 0L );
-   value=configvariable(&ARACHNEcfg,"AltGateway",NULL);
+   value = config_get_str("AltGateway", NULL);
    if(value) _arp_add_gateway( value , 0L );
-   value=configvariable(&ARACHNEcfg,"Netmask",NULL);
+   value = config_get_str("Netmask", NULL);
    if(value) sin_mask = resolve( value );
   }
 
 //!!glennmcc: Mar 06 2006 -- modified entire section to use 'dns1' and 'dns2'
 //instead of the original 'value' in all places
-  dns1=configvariable(&ARACHNEcfg,"NameServer",NULL);
+  dns1 = config_get_str("NameServer", NULL);
 //!!glennmcc: Dec 12, 2005 -- add NameServer %DNS1% capability
   if(dns1 && *dns1=='%')
     {
@@ -180,7 +175,7 @@ char *dns="\0", *dns1="\0", *dns2="\0";
   else strcpy(dns,dns1);
 //!!glennmcc: end
   if(dns) _add_server( &_last_nameserver, MAX_NAMESERVERS, def_nameservers, resolve(dns));
-  dns2=configvariable(&ARACHNEcfg,"AltNameServer",NULL);
+  dns2 = config_get_str("AltNameServer", NULL);
 //!!glennmcc: Dec 12, 2005 -- add AltNameServer %DNS2% capability
   if(dns2 && *dns2=='%')
     {
