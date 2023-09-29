@@ -3,7 +3,7 @@
 // In DOS version, this is linked staticaly to accelerate page drawing...
 // ========================================================================
 
-#include <string.h>
+#include "posix.h"
 #include "picinfo.h"
 
 int drawGIF(struct picinfo *gif);

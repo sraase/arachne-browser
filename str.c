@@ -88,49 +88,6 @@ char *strupr(char *str)
  return pushstr;
 }
 
-int strncmpi(char *str1,char *str2, size_t n)
-{
- char c1,c2;
- size_t l=0;
- 
- if(n==0) 
-  return 0;
- 
- if(str1 && str2)
- { 
-//  printf("[%.*s|%.*s]",(int)n,str1,(int)n,str2);
-  while(*str1 && *str2)
-  {
-   c1=toupper(*str1);
-   c2=toupper(*str2);
-   if(c1<c2)
-   return -1;
-   else
-   if (c1>c2)
-   return 1;
- 
-   str1++;
-   str2++;
-   l++;
-   if(l==n)
-   return 0;
-  }
- }
- 
- if(str1 && *str1)
-  return 1;
- else
- if(str2 && *str2)
-  return -1;
- else
-  return 0; 
-}
-
-int strcmpi(char *str1,char *str2)
-{
- return strncmpi(str1,str2,-1);
-}
-
 #endif
 
 #ifdef LINUX

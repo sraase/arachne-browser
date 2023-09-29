@@ -40,6 +40,8 @@ char *itoa(int val, char *s, int base); /* in str.c */
 char *ltoa(long val, char *s, long base); /* in str.c */
 int filelength (int handle);  /* in linglue.c */
 
+#define strncmpi strncasecmp
+#define strcmpi strcasecmp
 #define farmalloc malloc
 #define farfree free
 #define sopen open

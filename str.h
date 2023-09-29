@@ -35,8 +35,6 @@ char *joinstr(char *dest, int lim, const char *src);
 #ifdef POSIX
 char *strlwr(char *str);
 char *strupr(char *str);
-int strncmpi(char *str1,char *str2, size_t n);
-int strcmpi(char *str1,char *str2);
 #endif
 
 #endif
