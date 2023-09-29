@@ -622,10 +622,10 @@ knowsize:
  if(in>127 && !utf8)
 // if(in>127)
  {
-  char recode[11];
+  char recode[11], *ptr;
   itoa(in,recode,10);
-  if(configvariable(&ENTITYcfg,recode,NULL))
-  in=*configvariable(&ENTITYcfg,recode,NULL);
+  ptr = config_get_entity(recode);
+  if (ptr) in = *ptr;
  }
 }
 //!!glennmcc: end

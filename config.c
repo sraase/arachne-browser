@@ -370,6 +370,15 @@ void config_set_str(char *key, char *newval)
 	configvariable(&ARACHNEcfg, key, newval);
 }
 
+/**
+ * get entity value or NULL
+ */
+char *config_get_entity(char *entity)
+{
+	char *ptr = configvariable(&ENTITYcfg, entity, NULL);
+	return ptr;
+}
+
 #ifndef WWWMAN
 #ifndef MINITERM
 #ifndef POSIX

@@ -43,9 +43,10 @@ mdash -
 ndash -
 */
 
- else
- if(configvariable(&ENTITYcfg,name,NULL))
- return *configvariable(&ENTITYcfg,name,NULL);
+ else {
+  char *ptr = config_get_entity(name);
+  if (ptr) return *ptr;
+ }
 //!!glennmcc: end
 
 /*
@@ -79,7 +80,7 @@ ndash -
  if(*name=='#')
     {
      int value;
-     char number[11];
+     char number[11], *ptr;
      if(name[1]=='x' || name[1]=='X')
      value=(int)strtoul(&name[2],NULL,16);//HEX format
 //!!glennmcc: Feb 07, 2007 -- OCTAL is not needed after-all,
@@ -96,9 +97,9 @@ ndash -
 //!!glennmcc: May 27, 2007 -- added 8212 == -
 //!!glennmcc: May 29, 2007 -- next section no-longer needed
 //also read numeric entity conversions from entity.cfg
-if(value>127
-   && configvariable(&ENTITYcfg,itoa(value,number,10),NULL))
-   return *configvariable(&ENTITYcfg,itoa(value,number,10),NULL);
+ptr = config_get_entity(itoa(value,number,10));
+if(value>127 && ptr)
+   return *ptr;
 /*
      if (value==146 || value==8217)
       return 39; // 39 == '

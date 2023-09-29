@@ -215,6 +215,9 @@ long  config_get_long(char *key, long  defval);
 char *config_get_str (char *key, char *defstr);
 void  config_set_str (char *key, char *newstr);
 
+// ENTITY.CFG config access
+char *config_get_entity(char *entity);
+
 //config
 char *configvariable(struct ib_editor *fajl,char *keystring,char *newvalue);
 
