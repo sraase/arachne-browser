@@ -87,9 +87,7 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
 
   if(!cacheitem->locname[startfname]) //file name ends with '\'!
   {
-   char *ptr=configvariable(&ARACHNEcfg,"Index",NULL);
-   if(!ptr)ptr="*.htm";
-   strncat(cacheitem->locname,ptr,12);
+   strncat(cacheitem->locname,config_get_str("Index", "*.htm"),12);
    cacheitem->locname[startfname+12]='\0';
   }
 
@@ -136,23 +134,22 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
  {
 // Werner Scholz: begin 19 Jan 2007   process form to email
   sprintf(str,"%ld",time(NULL));
-  if (!strcmpi(configvariable(&ARACHNEcfg,"KillSent",NULL),"Y"))str[1]='!';//glennmcc method
+  if (config_get_bool("KillSent", 0))
+   str[1]='!';
 //if (ConfigYesNo("KillSent",0))str[1]='!';// JDS method
-  p=configvariable(&ARACHNEcfg,"MailPath",NULL);
-  if(!p)p="MAIL\\";
+  p = config_get_str("MailPath", "MAIL\\");
   sprintf(dummy,"%s%s.TBS",p,&str[1]);
 
   if((GLOBAL.postdata==2)&&(absURL->file[0])&&((out=fopen(dummy,"w+t"))!=NULL))
      {fprintf(out,"To: %s\n",absURL->file);
       inettime(dummy);
       fprintf(out,"From: \"%s\" <%s>\nDate: %s %s\n",
-		      configvariable(&ARACHNEcfg,"PersonalName",NULL),
-		      configvariable(&ARACHNEcfg,"eMail",NULL),
+		      config_get_str("PersonalName", ""),
+		      config_get_str("eMail", ""),
 		      dummy,
-		      configvariable(&ARACHNEcfg,"TimeZone",NULL));
+		      config_get_str("TimeZone", "+0000"));
       fprintf(out,"Subject: Form made available by WWW Browser Arachne\n");
-      p=configvariable(&ARACHNEcfg,"MyCharset",NULL);
-	 if(!p)p="US-ASCII";
+      p = config_get_str("MyCharset", "US-ASCII");
       fprintf(out,"MIME-Version: 1.0\nContent-type: text/plain; charset=%s\n",p);
       fprintf(out,"Content-transfer-encoding: 8bit\n\n");
 
@@ -518,22 +515,14 @@ while (url->protocol[0] == ' ' || url->protocol[0] == '.' ||
   if(!strcmpi(url->protocol,"smtp"))
 //!!glennmcc: Feb 28, 2006 -- optionally use 'alternate' port #
   {
-   char *ptr=configvariable(&ARACHNEcfg,"SMTPport",NULL);
-   if(ptr && strlen(ptr)>1)
-   url->port=atoi(ptr);
-   else
-   url->port=25;//original single line
+   url->port = config_get_int("SMTPport", 25);
   }
 //!!glennmcc: end
   else
   if(!strcmpi(url->protocol,"pop3"))
 //!!glennmcc: Feb 28, 2006 -- optionally use 'alternate' port #
   {
-   char *ptr=configvariable(&ARACHNEcfg,"POP3port",NULL);
-   if(ptr && strlen(ptr)>1)
-   url->port=atoi(ptr);
-   else
-   url->port=110;//original single line
+   url->port = config_get_int("POP3port", 110);
   }
 //!!glennmcc: end
 /*
@@ -746,8 +735,7 @@ void add2history(char *URL)
 //Mail2Hist caused more problems than it's worth, it's time to trash it :(
 #ifdef EXP//experimental
 //!!glennmcc: Jan 29, 2005 -- made it configurable
-if(!strcmpi(configvariable(&ARACHNEcfg,"Mail2Hist",NULL),"No") &&
-   !strstr(URL,"*"))
+if(config_get_bool("Mail2Hist", 1) && !strstr(URL,"*"))
 //char *ptr=configvariable(&ARACHNEcfg,"Mail2Hist",NULL);
 //   if(!ptr) ptr="Yes";
 //   if(!strcmpi(ptr,"No"))

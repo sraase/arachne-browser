@@ -175,12 +175,10 @@ IveGotNewUrl:
       )
   {
    int i=0;
-   char *ptr=configvariable(&ARACHNEcfg,"SearchEngine",NULL);
+   char *ptr = config_get_str("SearchEngine", "http://www.google.com/search?q=");
    char buf[4*URLSIZE];
    if(!strncmpi(GLOBAL.location,"find:",5))
     i=5;
-   if(!ptr)
-    ptr="http://www.google.com/search?q=";
    cgiquery((unsigned char *)&GLOBAL.location[i],(unsigned char *)buf,1);
    strcpy(GLOBAL.location,ptr);
    makestr(&GLOBAL.location[strlen(ptr)],buf,URLSIZE-strlen(ptr)-2);

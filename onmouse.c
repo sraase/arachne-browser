@@ -786,9 +786,7 @@ The top / bottom of the atom relative to its absolute position ('dy' below).
 // 'RightMouseGoesBack Yes' is in arachne.cfg
 //!!glennmcc: Dec 19, 2004 -- changed to goback by default
 //now it _will_ goback unless we say "No"
- if(*configvariable(&ARACHNEcfg,"RMGB",NULL)=='N') return 0;
- else
- return "arachne:back"; //original line had no such option
+ return config_get_bool("RMGB", 1) ? "arachne:back" : NULL;
 //!!glennmcc: end
    }
  }

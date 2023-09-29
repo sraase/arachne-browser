@@ -14,10 +14,10 @@ int protocol_arachne(struct HTTPrecord *cacheitem,struct Url *url,int *returnval
    if(!strncmpi(&(url->file[4]),"send",4))
     back=0;
 
-   strcpy(url->user,configvariable(&ARACHNEcfg,"FTPusername",NULL));
-   strcpy(url->password,configvariable(&ARACHNEcfg,"FTPpassword",NULL));
-   strcpy(url->host,configvariable(&ARACHNEcfg,"FTPserver",NULL));
-   strcpy(url->file,configvariable(&ARACHNEcfg,"FTPpath",NULL));
+   strcpy(url->user, config_get_str("FTPusername", ""));
+   strcpy(url->password, config_get_str("FTPpassword", ""));
+   strcpy(url->host, config_get_str("FTPserver", ""));
+   strcpy(url->file, config_get_str("FTPpath", ""));
    url->port=21;
 
    if(tcpip)
@@ -64,11 +64,9 @@ int protocol_arachne(struct HTTPrecord *cacheitem,struct Url *url,int *returnval
 #ifndef NOTCPIP
   if(!strcmpi(url->file,"dialpage"))
   {
-   value=configvariable(&ARACHNEcfg,"DialPage",NULL);
+   value = config_get_str("DialPage", "file:ppp_init.htm");
 
-//!!glennmcc: Begin Feb 06, 2005 -- default to ppp_init.htm
-//if 'DialPage' is missing from arachne.cfg
-if(!value) value="file:ppp_init.htm";
+//!!glennmcc: Begin Feb 06, 2005
 //also use ppp_init.htm if DialPage does not begin with file:ppp
 //indicating that it has been changed from one of the 4 included dialpages
 //which are... ppp_init.htm, pppenhan.htm, pppframe.htm or ppp_fast.htm
@@ -98,9 +96,9 @@ if(!strstr(value,"file:ppp")) value="file:ppp_init.htm";
    if(tcpip)
     PPPtimelog();
    process_form(0,IE_NULL); //updateovat Arachne.Cfg
-   sprintf(buf,"%s\nif exist PPP.LOG del PPP.LOG\n",configvariable(&ARACHNEcfg,"Hangup",NULL));
-   value=configvariable(&ARACHNEcfg,"ExitOnHangup",NULL);
-   if(!(value && toupper(*value)=='Y'))
+   sprintf(buf,"%s\nif exist PPP.LOG del PPP.LOG\n",
+    config_get_str("Hangup", ""));
+   if(!config_get_bool("ExitOnHangup", 0))
     strcat(buf,"@arachne -c\n");
    else
     exitmsg();
@@ -156,7 +154,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 
   if(!url->host[0])
   {
-   value=configvariable(&ARACHNEcfg,"NNTPserver",NULL);
+   value = config_get_str("NNTPserver", NULL);
    if(value)
    {
     makestr(url->host,value,STRINGSIZE-1);
@@ -243,11 +241,10 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
    return GOTO_LOCAL_HTML;
   }
 
-  ptr=configvariable(&ARACHNEcfg,"UseFTPproxy",NULL);
-  if(ptr && toupper(*ptr)!='N')
+  if (config_get_bool("UseFTPproxy", 0))
   {
-   char *no4all=configvariable(&ARACHNEcfg,"NoFTPproxy4all",NULL);
-   ptr=configvariable(&ARACHNEcfg,"NoFTPproxy",NULL);
+   char *no4all = config_get_str("NoFTPproxy4all", NULL);
+   ptr = config_get_str("NoFTPproxy", NULL);
    if((!ptr || !strstr(strlwr(ptr),strlwr(url->host) )) &&
       (!no4all || !strstr(strlwr(url->host), strlwr(no4all)) ) )
     return GOTO_PROXY;
@@ -277,13 +274,13 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 
   if(!url->host[0])
   {
-   value=configvariable(&ARACHNEcfg,"POP3server",NULL);
+   value = config_get_str("POP3server", NULL);
    if(value)
     makestr(url->host,value,STRINGSIZE-1);
   }
   if(!url->user[0])
   {
-   value=configvariable(&ARACHNEcfg,"POP3username",NULL);
+   value = config_get_str("POP3username", NULL);
    if(value)
     makestr(url->user,value,STRINGSIZE-1);
   }
@@ -300,16 +297,16 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 
   if(!url->password[0])
   {
-   value=configvariable(&ARACHNEcfg,"POP3password",NULL);
+   value = config_get_str("POP3password", NULL);
    if(value)
     makestr(url->password,value,PASSWORDSIZE-1);
   }
 
-  value=configvariable(&ARACHNEcfg,"KeepOnServer",NULL);
-  if(value && toupper(*value)=='Y') dele=0;
+  if (config_get_bool("KeepOnServer", 0))
+   dele = 0;
 
-  value=configvariable(&ARACHNEcfg,"POP3log",NULL);
-  if(value && toupper(*value)=='Y') log=1;
+  if (config_get_bool("POP3log", 0))
+   log = 1;
 
   //POP3 download is performed here:
 
@@ -320,11 +317,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
   }
   else if(arachne.scriptline==0)
   {
-   value=configvariable(&ARACHNEcfg,"AfterPOP3",NULL);
-   if(!value)
-    strcpy(GLOBAL.location,"file://inbox.dgi");
-   else
-    strcpy(GLOBAL.location,value);
+   strcpy(GLOBAL.location, config_get_str("AfterPOP3", "file://inbox.dgi"));
    GLOBAL.reload=RELOAD_CURRENT_LOCATION;
    return GOTO_IVEGOTNEWURL;
   }
@@ -339,20 +332,19 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 
   if(!url->host[0])
   {
-   value=configvariable(&ARACHNEcfg,"SMTPserver",NULL);
+   value = config_get_str("SMTPserver", NULL);
    if(value)
     makestr(url->host,value,STRINGSIZE-1);
   }
 
 //!!glennmcc: Feb 13, 2006 -- 'SendHelo' is more logical ;-)
-  value=configvariable(&ARACHNEcfg,"SendHELO",NULL);
-  if(!value || toupper(*value)!='N') helo=1; else helo=0;
+  helo = config_get_bool("SendHELO", 1);
 //  value=configvariable(&ARACHNEcfg,"NoHELO",NULL);
 //  if(value && toupper(*value)=='Y') helo=0;
 //!!glennmcc: end
 
-  value=configvariable(&ARACHNEcfg,"SMTPlog",NULL);
-  if(value && toupper(*value)=='Y') log=1;
+  if (config_get_bool("SMTPlog", 0))
+   log = 1;
 
 //!!glennmcc: begin Nov 09, 2003 --- for Authenticated SMTP
 //!!glennmcc: Feb 17, 2006 -- moved down below
@@ -362,34 +354,25 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 */
 //!!glennmcc: end
 
-//!!glennmcc: begin Apr 30, 2004 --- for Authenticated SMTP
-  value=configvariable(&ARACHNEcfg,"AuthSMTPusername",NULL);
-//!!glennmcc: Sept 17, 2004
-// changed so that "email" will always get used for "mail from"
-//  if(value) makestr(url->user,value,STRINGSIZE-1);
-  if(value) makestr(url->authuser,value,STRINGSIZE-1);
-//!!glennmcc: end
-  value=configvariable(&ARACHNEcfg,"AuthSMTPpassword",NULL);
-//!!glennmcc: Feb 17, 2006 -- switch to new variable 'authpassword'
-  if(value) makestr(url->authpassword,value,PASSWORDSIZE-1);
-//if(value) makestr(url->password,value,STRINGSIZE-1);
-//!!glennmcc: end
-//!!glennmcc: Feb 17, 2006 -- switch to new variable 'authpassword'
-if(strlen(url->authuser)>0 && strlen(url->authpassword)>0 &&
-   strstr(configvariable(&ARACHNEcfg,"UseAuthSMTP",NULL),"Yes")
-  )
-   helo=2; else helo=1;
-//!!glennmcc: end
+  // for authenticated SMTP
+  value = config_get_str("AuthSMTPusername", "");
+  makestr(url->authuser,value,STRINGSIZE-1);
+  value = config_get_str("AuthSMTPpassword", "");
+  makestr(url->authpassword,value,PASSWORDSIZE-1);
+  if(config_get_bool("UseAuthSMTP", 0) && strlen(url->authuser) > 0 && strlen(url->authpassword) > 0)
+     helo=2;
+  else
+     helo=1;
 
   if(!url->user[0])
   {
-   value=configvariable(&ARACHNEcfg,"eMail",NULL);
+   value = config_get_str("eMail", "");
    makestr(url->user,value,STRINGSIZE-1);
   }
 
   if(!url->file[0] || !url->file[1] ) //stmp: or smtp:/
   {
-   value=configvariable(&ARACHNEcfg,"MailPath",NULL);
+   value = config_get_str("MailPath", "MAIL\\");
    if(value)
    {
     sprintf(url->file,"/%s*.TBS",value);
@@ -416,11 +399,7 @@ if(strlen(url->authuser)>0 && strlen(url->authpassword)>0 &&
   {
    if(strchr(url->file,'*') || GLOBAL.mailaction & MAIL_OUTBOXNOW)
    {
-    value=configvariable(&ARACHNEcfg,"AfterSMTP",NULL);
-    if(!value)
-     strcpy(GLOBAL.location,"file://outbox.dgi");
-    else
-     strcpy(GLOBAL.location,value);
+    strcpy(GLOBAL.location, config_get_str("AfterSMTP", "file://outbox.dgi"));
     GLOBAL.reload=RELOAD_CURRENT_LOCATION;
    }
    else

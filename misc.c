@@ -102,9 +102,7 @@ int addhot(char *titleptr, char *urlptr)
  int f=-1;
  char line[256], *ptr;
 
- ptr=configvariable(&ARACHNEcfg,"Hotlist",NULL);
- if(!ptr)
-  ptr=hotlist;
+ ptr = config_get_str("Hotlist", hotlist);
 
 #ifdef POSIX
  f=a_open(ptr,O_WRONLY|O_APPEND,0);
@@ -459,9 +457,7 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
      strcpy(out,"-colors 256 ");
      out+=12;
     }
-    pom=configvariable(&ARACHNEcfg,"JPEGargs",NULL);
-    if(!pom)
-     pom="-bmp ";
+    pom = config_get_str("JPEGargs", "-bmp ");
     goto cont;
 
 //!!glennmcc: begin Apr 23, 2002
@@ -476,7 +472,7 @@ while (*in && *in!=' ')
 in++;
 strncat(cfgkw, in, 1);
 }
-    pom=configvariable(&ARACHNEcfg,strupr(cfgkw),NULL);
+    pom = config_get_str(strupr(cfgkw), NULL);
     if(!pom)
     {
     pom=" ";
@@ -525,22 +521,22 @@ strncat(pom,configvariable(&ARACHNEcfg,"CacheDirList",NULL),1);
 
     goto cont;
     case 'M':
-    pom=configvariable(&ARACHNEcfg,"MailPath",NULL);
+    pom = config_get_str("MailPath", "MAIL\\");
     goto cont;
     case 'W':
-    pom=configvariable(&ARACHNEcfg,"DownloadPath",NULL);
+    pom = config_get_str("DownloadPath", "DOWNLOAD\\");
     goto cont;
     case 'N':
-    pom=configvariable(&ARACHNEcfg,"NameServer",NULL);
+    pom = config_get_str("NameServer", NULL);
     goto cont;
     case 'G':
-    pom=configvariable(&ARACHNEcfg,"Gateway",NULL);
+    pom = config_get_str("Gateway", NULL);
     goto cont;
     case '!':
-    pom=configvariable(&ARACHNEcfg,"Editor",NULL);
+    pom = config_get_str("Editor", NULL);
     goto cont;
     case 'X':
-    pom=configvariable(&ARACHNEcfg,"Netmask",NULL);
+    pom = config_get_str("Netmask", NULL);
     goto cont;
 //!!glennmcc & Ray: Sep 05 & 06, 2008 -- $Y == everything after the 1st space
 //in any DGI ... ex: file:ping.dgi www.glennmcc.org 5 <-- ping the domain 5 times
@@ -557,10 +553,10 @@ strncat(pom,configvariable(&ARACHNEcfg,"CacheDirList",NULL),1);
 //!!glennmcc & Ray: end
     case 'A':
     a:
-    pom=configvariable(&ARACHNEcfg,"CachePath",NULL);
+    pom = config_get_str("CachePath", cachepath);
     goto cont;
     case 'B':
-    pom=configvariable(&ARACHNEcfg,"Hotlist",NULL);
+    pom = config_get_str("Hotlist", hotlist);
     cont:
     if(pom)
     {

@@ -144,13 +144,9 @@ int log;
    ptr=AUTHENTICATION->password;
   else
   {
-   ptr=configvariable(&ARACHNEcfg,"FakeFTPeMail",NULL);
+   ptr = config_get_str("FakeFTPeMail", NULL);
    if(!ptr || !strchr(ptr,'@'))
-   {
-    ptr=configvariable(&ARACHNEcfg,"eMail",NULL);
-    if(!ptr)
-     ptr="@";
-   }
+    ptr = config_get_str("eMail", "");
   }
  }
 
@@ -366,8 +362,7 @@ else
    {
 //!!glennmcc: begin June 09, 2002
 //optionally upload TXT and HTM in binary mode
-    ptr=configvariable(&ARACHNEcfg,"UseBinaryFTP",NULL);
-    if(!ptr || toupper(*ptr)=='N')
+    if (config_get_bool("UseBinaryFTP", 0))
 //!!glennmcc: end
     sprintf( str, "TYPE A");
 //    ascii=1;

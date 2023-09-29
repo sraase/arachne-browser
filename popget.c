@@ -55,6 +55,7 @@ int xpopdump(struct Url *url,char dele,char logfile)
 int toobig=0, mult=1;
 //!!glennmcc: end
 int mailtop = config_get_bool("MailTop", 0);
+char *mailpath = config_get_str("MailPath", "MAIL\\");
 
  if(!tcpip)return 0;
  free_socket();
@@ -234,10 +235,10 @@ toobig=0;
 //!!glennmcc: Nov 25, 2005 -- we only need 'double space'
 // when pop3log is 'on' and mailpath==current disk
 if(log!=-1 &&
-lastdiskspace(configvariable(&ARACHNEcfg,"MailPath",NULL))==localdiskspace())
+lastdiskspace(mailpath)==localdiskspace())
    mult=2;else mult=1;
 
-if(lastdiskspace(configvariable(&ARACHNEcfg,"MailPath",NULL))
+if(lastdiskspace(mailpath)
    <(locallength*mult)+user_interface.mindiskspace) toobig=1;
 
 if(toobig)
@@ -298,7 +299,7 @@ if(_SP>(1024*20))
 	sprintf(fname,"%lx.CNM",starttime+process+0x60000000l);
 
 	 makename:
-	 strcpy(str,configvariable(&ARACHNEcfg,"MailPath",NULL));
+	 strcpy(str,mailpath);
 	 if(strlen(fname)>12)
 	  strcat(str,&fname[strlen(fname)-12]);
 	 else
@@ -331,7 +332,7 @@ if(toobig)
 	 sprintf(str,"Subject: "MSG_SKIP,process);
 	 write(f,str,strlen(str));
 	 sprintf(str,"\n Available disk space on mail drive: %ld",
-	 lastdiskspace(configvariable(&ARACHNEcfg,"MailPath",NULL)));
+	 lastdiskspace(mailpath));
 	 write(f,str,strlen(str));
 	 sprintf(str,"\n Required disk space for this message: %ld",(locallength*mult)+user_interface.mindiskspace);
 	 write(f,str,strlen(str));

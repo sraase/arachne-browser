@@ -927,10 +927,7 @@ int ImouseIni( int xmin, int ymin, int xmax, int ymax,
  mouse_init("/dev/mouse",vga_getmousetype(),10);
 
  {
-  int mscale=60;
-  char *ptr=configvariable(&ARACHNEcfg,"SVGAlib_MouseScale",NULL);
-  if(ptr)
-   mscale=atoi(ptr);
+  int mscale = config_get_int("SVGAlib_MouseScale", 60);
   mouse_setscale(mscale);
  }
 

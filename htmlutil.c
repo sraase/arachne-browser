@@ -233,7 +233,7 @@ char findfreeframe(void)
 
 void HTTPcharset(char *charset)
 {
- char *my=configvariable(&ARACHNEcfg,"AcceptCharset",NULL);
+ char *my = config_get_str("AcceptCharset", "");
  while(*charset==' ')
   charset++;
  if(my && !strncmpi(charset,"charset=",8))
@@ -301,7 +301,7 @@ void HTTPcharset(char *charset)
 
 void METAtag(void)
 {
- char *tagarg, *value;
+ char *tagarg;
  int MinRedirect;
 
  if(getvar("HTTP-EQUIV",&tagarg))
@@ -310,8 +310,7 @@ void METAtag(void)
   char text[URLSIZE+1];
   //JdS 2005/8/10 {
   //An implementation of glennmcc's "IgnoreRefresh" scheme ...
-  value = configvariable(&ARACHNEcfg,"IgnoreRefresh",NULL);
-  if (!strcmpi(tagarg,"REFRESH") && !(value && toupper(*value)=='Y'))
+  if (!strcmpi(tagarg,"REFRESH") && !config_get_bool("IgnoreRefresh", 1))
   //JdS 2005/8/10 }
   {
    if(getvar("CONTENT",&tagarg))
@@ -323,11 +322,7 @@ void METAtag(void)
      GLOBAL.secondsleft=atoi(tagarg);
 //JdS 2005/8/10 {
 //Give the user enough time to stop "undesirable redirects" ...
-     value = configvariable(&ARACHNEcfg,"ShortestRefresh",NULL);
-     if (value)
-      MinRedirect = atoi(value);
-     else
-      MinRedirect = 2;
+     MinRedirect = config_get_int("ShortestRefresh", 2);
      if (GLOBAL.secondsleft < MinRedirect)
       GLOBAL.secondsleft = MinRedirect;
 //JdS 2005/8/10 }
@@ -625,8 +620,8 @@ void BodyArachne(struct TMPframedata *html)
  if(ptr)
   try2readHTMLcolor(ptr,&html->linkR,&html->linkG,&html->linkB);
 
- ptr=configvariable(&ARACHNEcfg,"Background",NULL);
- if(ptr && strcmpi(ptr,"NUL")) // ... ptr!="NUL"
+ ptr = config_get_str("Background", "NUL");
+ if(strcmpi(ptr,"NUL")) // ... ptr!="NUL"
  {
   struct picinfo *img=farmalloc(sizeof(struct picinfo));
   if(!img)
@@ -961,14 +956,14 @@ void CheckArachneFormExtensions(struct HTTPrecord *cache,char *value, int *check
 
  if(getvar("ARACHNECFGVALUE",&tagarg))
  {
-  ptr=configvariable(&ARACHNEcfg,tagarg,NULL);
+  ptr = config_get_str(tagarg, NULL);
   if(ptr)
    makestr(value,ptr,IE_MAXLEN);
  }
 
  if(getvar("ARACHNESAVE",&tagarg))
  {
-  ptr=configvariable(&ARACHNEcfg,"DownloadPath",NULL);
+  ptr = config_get_str("DownloadPath", "DOWNLOAD\\");
   makestr(value,ptr,79);
   ptr=strrchr(cache->URL,'\\');
   if(!ptr)
@@ -1025,7 +1020,7 @@ void CheckArachneFormExtensions(struct HTTPrecord *cache,char *value, int *check
 
  if(getvar("ARACHNECHECKED",&tagarg)) //for VALUE=...
  {
-  ptr=configvariable(&ARACHNEcfg,tagarg,NULL);
+  ptr = config_get_str(tagarg, NULL);
   if(ptr && !strcmpi(value,ptr))
    *checked=1;
  }

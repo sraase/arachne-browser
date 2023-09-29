@@ -171,7 +171,7 @@ if(!strstr(GLOBAL.location,"file:"))
 	}
 	else if (!strcmpi(cmd,"PROFILE"))
 	{
-	 configvariable(&ARACHNEcfg,"Profile",value);
+         config_set_str("Profile", value);
 	 ie_savef(&ARACHNEcfg);
 	 copy(ARACHNEcfg.filename,value);
 	}
@@ -211,13 +211,10 @@ if(!strstr(GLOBAL.location,"file:"))
 	 char str[12];
 
 	 sprintf(str,"%ld",time(NULL));
-	 ptr=configvariable(&ARACHNEcfg,"KillSent",NULL);
-	 if(ptr && toupper(*ptr)=='Y')
+	 if (config_get_bool("KillSent", 0))
 	  str[1]='!';
 
-	 ptr=configvariable(&ARACHNEcfg,"MailPath",NULL);
-	 if(!ptr)
-	  ptr="MAIL\\";
+	 ptr = config_get_str("MailPath", "MAIL\\");
 
 //!!glennmcc: Aug 27, 2006 -- add 'save as draft' function
 //file extension will now be taken from the value of $MSG on mail screens
@@ -234,14 +231,16 @@ else
 	  char *o,org[IE_MAXLEN+30]="\0";
 
 	  inettime(tm);
-	  o=configvariable(&ARACHNEcfg,"Organization",NULL);
+	  o = config_get_str("Organization", NULL);
 	  if(o)
 	   sprintf(org,"Organization: %s\n",o);
 	  sprintf(str,"From: \"%s\" <%s>\n%sDate: %s %s\nX-Mailer: Arachne v%s%s\n",
-		      configvariable(&ARACHNEcfg,"PersonalName",NULL),
-		      configvariable(&ARACHNEcfg,"eMail",NULL),
+		      config_get_str("PersonalName", ""),
+		      config_get_str("eMail", ""),
 		      org,
-		      tm,configvariable(&ARACHNEcfg,"TimeZone",NULL),VER,beta);
+		      tm,
+		      config_get_str("TimeZone", "+0000"),
+		      VER,beta);
 	  write(mailmsg,str,strlen(str));
 	 }
 	}
@@ -274,7 +273,7 @@ else
 	}
 	else if (!strcmpi(cmd,"CC") && mailmsg>=0 && value[0])
 	{
-	 configvariable(&ARACHNEcfg,cmd,value);
+	 config_set_str(cmd, value);
 	 adrfield(value);
 	 sprintf(str,"CC: %s\n",value);
 //!!glennmcc: Dec 16, 2006 -- truncate to 127 (including 'CC: ')
@@ -289,7 +288,7 @@ else
 	}
 	else if (!strcmpi(cmd,"BCC") && mailmsg>=0 && value[0])
 	{
-	 configvariable(&ARACHNEcfg,cmd,value);
+	 config_set_str(cmd, value);
 	 adrfield(value);
 	 sprintf(str,"Bcc: %s\n",value);
 //!!glennmcc: Dec 16, 2006 -- truncate to 90 (including 'Bcc: ')
@@ -308,10 +307,9 @@ else
 //changed so that replyto only gets added when "UseReplyto == Yes"
        else if (!strcmpi(cmd,"RT") && mailmsg>=0 && value[0])
        {
-	ptr=configvariable(&ARACHNEcfg,"UseReplyto",NULL);
-	if(ptr && toupper(*ptr)=='Y' && value[0])
+	if(config_get_bool("UseReplyto", 0) && value[0])
        {
-	if(!value[0])configvariable(&ARACHNEcfg,cmd,value);
+	if(!value[0]) config_set_str(cmd, value);
 	adrfield(value);
 	sprintf(str,"Reply-To: %s\n",value);
 //!!glennmcc: Dec 16, 2006 -- truncate to 127 (including 'Reply-To: ')
@@ -382,7 +380,7 @@ write(mailmsg,str,strlen(str));
        else
        {
 	// update arachne.cfg ----------------------------------------------
-	configvariable(&ARACHNEcfg,name,value);
+	config_set_str(name, value);
        }
 
        modified=1;
@@ -400,25 +398,17 @@ write(mailmsg,str,strlen(str));
 
        if(attach)
        {
-	sprintf(str,"X-Encoding: %s\n",configvariable(&ARACHNEcfg,"MailEncoding",NULL));
-	ptr=configvariable(&ARACHNEcfg,"UseCID",NULL);
-	if(ptr && toupper(*ptr)=='Y')
+	sprintf(str,"X-Encoding: %s\n", config_get_str("MailEncoding", "MIME"));
+	if(config_get_bool("UseCID", 0))
 	 strcat(str,"X-cid: 1\n");
-	ptr=configvariable(&ARACHNEcfg,"UseCDescr",NULL);
-	if(ptr && toupper(*ptr)=='Y')
+	if(config_get_bool("UseCDescr", 0))
 	 strcat(str,"X-cdescr: 1\n");
 	write(mailmsg,str,strlen(str));
        }
 
-       charset=configvariable(&ARACHNEcfg,"MyCharset",NULL);
-       if(!charset)
-	charset="US-ASCII";
+       charset = config_get_str("MyCharset", "US-ASCII");
 
-       ptr=configvariable(&ARACHNEcfg,"MailBodyEncoding",NULL);
-       if(ptr)
-	makestr(encoding,ptr,STRINGSIZE-1);
-       else
-	strcpy(encoding,"7bit");
+       strcpy(encoding, config_get_str("MailBodyEncoding", "7bit"));
 
        sprintf(str,"MIME-Version: 1.0\nContent-type: text/plain; charset=%s\nContent-transfer-encoding: %s\n",charset,encoding);
        write(mailmsg,str,strlen(str));
@@ -455,10 +445,9 @@ write(mailmsg,str,strlen(str));
        }
        if(!nosign)
        {
-	ptr=configvariable(&ARACHNEcfg,"UseSignature",NULL);
-	if(ptr && toupper(*ptr)=='Y')
+	if(config_get_bool("UseSignature", 0))
 	{
-	 ptr=configvariable(&ARACHNEcfg,"SignatureFile",NULL);
+	 ptr = config_get_str("SignatureFile", NULL);
 	 if(ptr)
 	 {
 	  f=a_open(ptr,O_RDONLY|O_TEXT,0);
@@ -654,8 +643,7 @@ unlink("textarea.tmp");
   }
   if(cgi==0 && modified)
   {
-   ptr=configvariable(&ARACHNEcfg,"SavePasswords",NULL);
-   if(*ptr && toupper(*ptr)=='N')
+   if (!config_get_bool("SavePasswords", 1))
     strcpy(ARACHNEcfg.killstr,"sword ");
    else
     ARACHNEcfg.killstr[0]='\0';

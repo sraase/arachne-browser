@@ -342,7 +342,7 @@ void ChangeZoom(char style, char plus, char minus)
 {
  char *ptr=strchr(arachne.graphics,'.');
 //!!glennmcc: Feb 17, 2005 -- to prevent going over MaxRes
-char *maxres=configvariable(&ARACHNEcfg,"MaxRes",NULL);
+int maxres = config_get_int("MaxRes", 0);
 //!!glennmcc: end
 
  mouseoff();
@@ -372,19 +372,19 @@ if(arachne.GUIstyle==2) arachne.GUIstyle=3;
   {
    if(!strncmpi(arachne.graphics,"VESA.X",6)) //X==640x400x256c
     ptr[1]='B';         //B==640x480x256c
-   else if(ptr[1]=='B' && *maxres>'1')
+   else if(ptr[1]=='B' && maxres > 1)
     ptr[1]='C';         //C==800x600x256c
-   else if(ptr[1]=='C' && *maxres>'2')
+   else if(ptr[1]=='C' && maxres > 2)
     ptr[1]='E';         //E==1024x768x256c
 #ifdef HICOLOR
 	          	//I==640x480xHiColor
-   else if(ptr[1]=='I' && *maxres>'1')
+   else if(ptr[1]=='I' && maxres > 1)
     ptr[1]='J';         //J==800x600xHiColor
-   else if(ptr[1]=='J' && *maxres>'2')
+   else if(ptr[1]=='J' && maxres > 2)
     ptr[1]='K';         //K==1024x768xHiColor
-   else if(ptr[1]=='K' && *maxres>'3')
+   else if(ptr[1]=='K' && maxres > 3)
     ptr[1]='L';         //L==1280x1024xHiColor
-   else if(ptr[1]=='L' && *maxres>'4')
+   else if(ptr[1]=='L' && maxres > 4)
     ptr[1]='M';         //M==1600x1200xHiColor
 #endif
   }

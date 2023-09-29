@@ -357,17 +357,17 @@ MemInfoLine("Disk space (MB)",str,color,&y); //original line
 
   moreinfo:
 
-  MemInfoLine("Profile",configvariable(&ARACHNEcfg,"Profile",NULL),0,&y);
-  MemInfoLine("",configvariable(&ARACHNEcfg,"PersonalName",NULL),0,&y);
-  MemInfoLine("",configvariable(&ARACHNEcfg,"eMail",NULL),0,&y);
+  MemInfoLine("Profile", config_get_str("Profile", ""),0,&y);
+  MemInfoLine("", config_get_str("PersonalName", ""),0,&y);
+  MemInfoLine("", config_get_str("eMail", ""),0,&y);
   y++;
   x_setcolor(8);
   x_line(x_maxx()-147,y,x_maxx()-4,y);
-  MemInfoLine("Charset",configvariable(&ARACHNEcfg,"AcceptCharset",NULL),0,&y);
-  MemInfoLine("HTTP cookies",configvariable(&ARACHNEcfg,"Cookies",NULL),0,&y);
+  MemInfoLine("Charset", config_get_str("AcceptCharset", ""),0,&y);
+  MemInfoLine("HTTP cookies", config_get_bool("Cookies", 1) ? "Yes" : "No",0,&y);
 //!!Ray: Feb 09, 2007 -- remove keep pop3 to show DNS instead
 #ifdef LINUX
-  MemInfoLine("Keep POP3 mail",configvariable(&ARACHNEcfg,"KeepOnServer",NULL),0,&y);
+  MemInfoLine("Keep POP3 mail", config_get_bool("KeepOnServer", 0) ? "Yes" : "No",0,&y);
 #endif
 //!!Ray: end
   y++;
