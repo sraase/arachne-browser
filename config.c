@@ -227,7 +227,7 @@ void savepick() //save configuration
 
 #endif //MINITERM
 
-char *configvariable(struct ib_editor *fajl,char *keystring,char *newvalue)
+static char *configvariable(struct ib_editor *fajl,char *keystring,char *newvalue)
 {
  int l;
  char *line,*ptr;

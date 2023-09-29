@@ -221,9 +221,6 @@ char *config_get_entity(char *entity);
 // TOOLBAR.CFG config access
 char *config_get_toolbar(char *name);
 
-//config
-char *configvariable(struct ib_editor *fajl,char *keystring,char *newvalue);
-
 //initialization of TCP/IP according to ARACHNE.CFG
 void ArachneTCPIP(void);
 

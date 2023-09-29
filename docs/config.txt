@@ -8,19 +8,22 @@ Each option consists of a keyword and the associated
 value. Comments start with a semicolon and extend to
 the end of the line. Section headers are ignored.
 
-Boolean options generally use 'Yes' and 'No', and are
-mostly case-sensitive. Numeric options vary in their
-interpretation. String options are generally not quoted.
-Unknown options are ignored.
+Boolean options traditionally use 'Yes' and 'No',
+but other common terms such as 'True', 'Enable' and
+'On' (and 'False', 'Disable' and 'Off', respectively)
+are recognized as well. Case does not matter.
+
+Numeric options generally can use decimal, octal
+(leading zero) or hexadecimal ('0x' or '0X' prefix)
+formats. Note that not all numeric-looking options
+are actually numeric.
+
+String options are not quoted.
 
 Settings List
 -------------
 The following table lists all currently existing options.
 Note: Content may be inaccurate.
-
-Entries listed with (crash) will use a NULL pointer if
-missing, causing a crash for POSIX builds. DOS builds
-will show unpredictable behaviour instead.
 
 | file       | option              | type     | default       | comment
 +------------+---------------------+----------+---------------+--------------------
@@ -44,7 +47,7 @@ will show unpredictable behaviour instead.
 | config.c   | Autodial            | bool     | No            |
 | config.c   | VFAT                | bool     | No            | DOS only
 | config.c   | KeepHTT             | bool     | Yes           |
-| config.c   | VirtualScreen       | int      | (none)        | VIRT_SCR, virtual Y size
+| config.c   | VirtualScreen       | int      | 0             | VIRT_SCR, virtual Y size
 | config.c   | SmoothScroll        | bool     | No            | VIRT_SCR
 | config.c   | ScrollStep          | int      | 1000          | VIRT_SCR and SmoothScroll
 | config.c   | ScreenMode          | char     | 'A'           | VIRT_SCR, [A]uto, [S]mart, [N]ice
@@ -86,31 +89,31 @@ will show unpredictable behaviour instead.
 +------------+---------------------+----------+---------------+--------------------------
 | guievent.c | Hotlist             | string   | "hotlist.htm"       |
 | guievent.c | DialPage            | string   | "file:ppp_init.htm" |
-| guievent.c | WarnClear           | bool     | No (crash)          |
+| guievent.c | WarnClear           | bool     | No                  |
 | guievent.c | PrintURL            | string   | "file:%s%sprint.ah" | (sharepath,GUIPATH)
 | guievent.c | SearchPage          | string   | (none)              | call Piip() if unset
 | guievent.c | AutoF3key           | bool     | No                  |
 | guievent.c | F3key               | string   | "file:*.htm"        |
-| guievent.c | RIAD                | bool     | No (crash)          | Reload Index After Delete
+| guievent.c | RIAD                | bool     | No                  | Reload Index After Delete
 | guievent.c | Editor              | ???      | (none)              | checks if "NUL" or not?!?
-| guievent.c | HttpReferer         | bool     | No (crash)          |
+| guievent.c | HttpReferer         | bool     | No                  |
 | guievent.c | ShiftF1 .. ShiftF12 | string   | (none)              |
 | guievent.c | Connection          | string   | (none)              | checks if "pppd" or not
 +------------+---------------------+----------+---------------+--------------------------
-| popget.c   | MailTop             | bool     | (crash)       |
-| popget.c   | MailPath            | string   | (crash)       |
+| popget.c   | MailTop             | bool     | No            |
+| popget.c   | MailPath            | string   | "MAIL\\"      |
 +------------+---------------------+----------+---------------+--------------------
-| htmldraw.c | BMPwidth            | int      | 640 (crash)   | 640 .. 2048
+| htmldraw.c | BMPwidth            | int      | 640           | 640 .. 2048
 +------------+---------------------+----------+---------------+--------------------
 | urlovrl.c  | CachePath           | string   | cachepath     |
 | urlovrl.c  | LoadImages          | bool     | Yes           |
 +------------+---------------------+----------+---------------+--------------------
-| protocol.c | FTPusername         | string   | (crash)       |
-| protocol.c | FTPpassword         | string   | (crash)       |
-| protocol.c | FTPserver           | string   | (crash)       |
-| protocol.c | FTPpath             | string   | (crash)       |
+| protocol.c | FTPusername         | string   | (empty)       |
+| protocol.c | FTPpassword         | string   | (empty)       |
+| protocol.c | FTPserver           | string   | (empty)       |
+| protocol.c | FTPpath             | string   | (empty)       |
 | protocol.c | DialPage            | string   | "file:ppp_init.htm"
-| protocol.c | Hangup              | string   | (crash)       |
+| protocol.c | Hangup              | string   | (empty)       |
 | protocol.c | ExitOnHangup        | bool     | No            |
 | protocol.c | NNTPserver          | string   | (none)        |
 | protocol.c | UseFTPproxy         | bool     | No            |
@@ -127,8 +130,8 @@ will show unpredictable behaviour instead.
 | protocol.c | SMTPlog             | bool     | No            |
 | protocol.c | AuthSMTPusername    | string   | (none)        |
 | protocol.c | AuthSMTPpassword    | string   | (none)        |
-| protocol.c | UseAuthSMTP         | bool     | No (crash)    |
-| protocol.c | eMail               | string   | (crash)       |
+| protocol.c | UseAuthSMTP         | bool     | No            |
+| protocol.c | eMail               | string   | (empty)       |
 | protocol.c | MailPath            | string   | (none)        |
 | protocol.c | AfterSMTP           | string   | "file://outbox.dgi"
 +------------+---------------------+----------+---------------+--------------------
@@ -136,7 +139,7 @@ will show unpredictable behaviour instead.
 | html.c     | IgnoreImages        | bool     | No            |
 | html.c     | MaxImgWidth         | int      | 2048          | >= 100
 | html.c     | BGimages            | bool     | Yes           |
-| html.c     | IgnoreActive        | bool     | Yes           |
+| html.c     | IgnoreActive        | bool     | No            |
 | html.c     | FTPpath <<tagarg>>  | set to (TAG_ARACHNE_BONUS, NOCACHE, TARGET) arg
 +------------+---------------------+----------+---------------+--------------------
 | http.c     | AcceptCharset       | string   | (none)        |
@@ -144,17 +147,17 @@ will show unpredictable behaviour instead.
 | http.c     | NoProxy4all         | string   | (empty)       | if !strstr(value, host)
 | http.c     | FTPproxy            | string   | (empty)       |
 | http.c     | HTTPproxy           | string   | (empty)       |
-| http.c     | ProxyUsername       | string   | (crash)       |
-| http.c     | ProxyPassword       | string   | (crash)       |
+| http.c     | ProxyUsername       | string   | (empty)       |
+| http.c     | ProxyPassword       | string   | (empty)       |
 | http.c     | UserAgent           | string   | "xChaos_Arachne (DOS/5.%s%s)",VER,beta
-| http.c     | CachePath           | string   | (crash)       |
-| http.c     | UseByteSec          | bool     | No            |
+| http.c     | CachePath           | string   | cachepath     |
+| http.c     | UseByteSec          | bool     | Yes           |
 +------------+---------------------+----------+---------------+--------------------
 | drawtime.c | ScreenSaverColors   | int      | 0             | 0 or 1
 | drawtime.c | ScreenSaverMess     | int      | MAX_CERFS/2   | 1 .. MAX_CERFS (20)
-| drawtime.c | ScreenSaverStyle    | char     | (crash)       | 'C', 'R'
+| drawtime.c | ScreenSaverStyle    | char     | 'R'           | 'C', 'R'
 +------------+---------------------+----------+---------------+--------------------
-| guidraw.c  | MaxRes              | int      | (crash)       |
+| guidraw.c  | MaxRes              | int      | 0             |
 | guidraw.c  | HomePage            | string   | "http://arachne.cz/" or "file:%shome.htm"
 | guidraw.c  | GraphicsMode        | updated with <arachne.graphics> | POSIX only
 +------------+---------------------+----------+---------------+--------------------
@@ -162,63 +165,63 @@ will show unpredictable behaviour instead.
 | cgiquery.c | KillSent            | bool     | No            |
 | cgiquery.c | MailPath            | string   | "MAIL\\"      |
 | cgiquery.c | Organization        | string   | (none)        |
-| cgiquery.c | PersonalName        | string   | (crash)       |
-| cgiquery.c | eMail               | string   | (crash)       |
-| cgiquery.c | TimeZone            | string   | (crash)       |
+| cgiquery.c | PersonalName        | string   | (empty)       |
+| cgiquery.c | eMail               | string   | (empty)       |
+| cgiquery.c | TimeZone            | string   | "+0000"       |
 | cgiquery.c | CC: <<value>>       | string   | (set)         |
 | cgiquery.c | BCC: <<value>>      | string   | (set)         |
 | cgiquery.c | UseReplyto          | bool     | No            |
 | cgiquery.c | RT <<value>>        | string   | (set)         |
 | cgiquery.c | <<name>> <<value>>  | ???      | (set)         | form action=arachne:internal... processing
-| cgiquery.c | MailEncoding        | string   | (crash)       |
+| cgiquery.c | MailEncoding        | string   | "MIME"        |
 | cgiquery.c | UseCID              | bool     | No            |
 | cgiquery.c | UseCDescr           | bool     | No            |
 | cgiquery.c | MyCharset           | string   | "US-ASCII"    |
 | cgiquery.c | MailBodyEncoding    | string   | "7bit"        |
 | cgiquery.c | UseSignature        | bool     | No            |
 | cgiquery.c | SignatureFile       | string   | (none)        |
-| cgiquery.c | SavePasswords       | bool     | Yes (crash)   |
+| cgiquery.c | SavePasswords       | bool     | Yes           |
 +------------+---------------------+----------+---------------+--------------------
-| adial.c    | IP_Grab             | string   | "IP address set to" / crash if(dospppd)
+| adial.c    | IP_Grab             | string   | "IP address set to"
 | adial.c    | Hangup              | string   | (empty)       |
 | adial.c    | UseTerminal         | bool     | No            |
 | adial.c    | TerminalWindow      | string   | (empty)       | if UseTerminal == 'Y' "NUL" means empty
 | adial.c    | Dialer              | string   | (empty)       | if UseTerminal == 'N'
-| adial.c    | Connection          | string   | ???           |
+| adial.c    | Connection          | string   | (none)        |
 | adial.c    | Port                | int      | 0             |
-| adial.c    | Irq                 | int      | 0x3f8         |
-| adial.c    | Base                | int      | 4             |
-| adial.c    | NameServer          | string   | (crash)       |
-| adial.c    | AltNameServer       | string   | (crash)       |
-| adial.c    | Speed               | string   | (crash)       |
-| adial.c    | PPPusername         | string   | (crash)       |
-| adial.c    | PPPpassword         | string   | (crash)       |
-| adial.c    | InitString          | string   | (crash)       |
-| adial.c    | PhoneNumber         | string   | (crash)       |
+| adial.c    | Irq                 | string   | "0x3f8"       |
+| adial.c    | Base                | string   | "4"           |
+| adial.c    | NameServer          | string   | (empty)       |
+| adial.c    | AltNameServer       | string   | (empty)       |
+| adial.c    | Speed               | string   | "19200"       |
+| adial.c    | PPPusername         | string   | (empty)       |
+| adial.c    | PPPpassword         | string   | (empty)       |
+| adial.c    | InitString          | string   | "ATZ"         |
+| adial.c    | PhoneNumber         | string   | (empty)       |
 | adial.c    | DialPage            | string   | "file:ppp_init.htm"
 +------------+---------------------+----------+---------------+--------------------
 | urlstat.c  | Index               | string   | "*.htm"       |
-| urlstat.c  | KillSent            | bool     | No (crash)    |
+| urlstat.c  | KillSent            | bool     | No            |
 | urlstat.c  | MailPath            | string   | "MAIL\\"      |
-| urlstat.c  | PersonalName        | string   | (crash)       |
-| urlstat.c  | eMail               | string   | (crash)       |
-| urlstat.c  | TimeZone            | string   | (crash)       |
+| urlstat.c  | PersonalName        | string   | (empty)       |
+| urlstat.c  | eMail               | string   | (empty)       |
+| urlstat.c  | TimeZone            | string   | "+0000"       |
 | urlstat.c  | MyCharset           | string   | "US-ASCII"    |
 | urlstat.c  | SMTPport            | int      | 25            |
 | urlstat.c  | POP3port            | int      | 110           |
-| urlstat.c  | Mail2Hist           | string   | Yes (crash)   | gated behind EXP
+| urlstat.c  | Mail2Hist           | string   | Yes           | gated behind EXP
 +------------+---------------------+----------+---------------+--------------------
 | htmlutil.c | AcceptCharset       | string   | (none)        |
-| htmlutil.c | IgnoreRefresh       | bool     | No            |
+| htmlutil.c | IgnoreRefresh       | bool     | Yes           |
 | htmlutil.c | ShortestRefresh     | int      | 2             |
-| htmlutil.c | HTMLbgColor         | color    | (196,196,196) |
-| htmlutil.c | HTMLtext            | color    | (0,  0,  0  ) |
-| htmlutil.c | HTMLlink            | color    | (0,  0,  196) |
-| htmlutil.c | BgColor             | color    | (none)        |
-| htmlutil.c | Text                | color    | (none)        |
-| htmlutil.c | Link                | color    | (none)        |
+| htmlutil.c | HTMLbgColor         | string   | "#C4C4C4"     |
+| htmlutil.c | HTMLtext            | string   | "#000000"     |
+| htmlutil.c | HTMLlink            | string   | "#0000C4"     |
+| htmlutil.c | BgColor             | string   | "#000000"     |
+| htmlutil.c | Text                | string   | "#F0F0F0"     |
+| htmlutil.c | Link                | string   | "#00FF00"     |
 | htmlutil.c | Background          | string   | (none)        | if not "NUL" then filename
-| htmlutil.c | DownloadPath        | string   | (crash)       |
+| htmlutil.c | DownloadPath        | string   | "DOWNLOAD\\"  |
 | htmlutil.c | << tagarg >>        | ARACHNECFGVARIABLE       |
 | htmlutil.c | << tagarg >>        | ARACHNECHECKED           |
 +------------+---------------------+----------+---------------+--------------------
@@ -236,7 +239,7 @@ will show unpredictable behaviour instead.
 +------------+---------------------+----------+---------------+--------------------
 | main.c     | SearchEngine        | string   | "http://www.google.com/search?q="
 +------------+---------------------+----------+---------------+--------------------
-| onmouse.c  | RMGB                | bool     | Yes (crash)   |
+| onmouse.c  | RMGB                | bool     | Yes           |
 +------------+---------------------+----------+---------------+--------------------
 | misc.c     | Hotlist             | string   | "hotlist.htm" |
 | misc.c     | JPEGargs            | string   | "-bmp "       |
