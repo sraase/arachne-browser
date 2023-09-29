@@ -226,7 +226,7 @@ int TcpIdleFunc(void);
 //HTML, graphics, MIME, DGI
 
 void HTTPcharset(char *charset);
-void try2readHTMLcolor(char *string,unsigned char *r,unsigned char *g,unsigned char *b);
+void try2readHTMLcolor(const char *string, unsigned char *r, unsigned char *g, unsigned char *b);
 int try2getnum(char *str,unsigned proczaklad);
 
 //HTML redraww dunctions...

@@ -155,94 +155,211 @@ char hexdigit(char c)
  return 0;
 }
 
-//try2readHTMLcolor reads RGB color in HTML format "#RRGGBB" - supports also
-//16 basic color names acording to HTML/4.0 specification.
+/* list of named colors */
+static const struct color {
+	char *name;
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+} far colors[] = {
+	/* standard 16 colors + orange */
+	{ "aqua",    0x00, 0xFF, 0xFF, },
+	{ "black",   0x00, 0x00, 0x00, },
+	{ "blue",    0x00, 0x00, 0xFF, },
+	{ "fuchsia", 0xFF, 0x00, 0xFF, },
+	{ "gray",    0x80, 0x80, 0x80, },
+	{ "green",   0x00, 0x80, 0x00, },
+	{ "grey",    0x80, 0x80, 0x80, },
+	{ "lime",    0x00, 0xFF, 0x00, },
+	{ "maroon",  0x80, 0x00, 0x00, },
+	{ "navy",    0x00, 0x00, 0x80, },
+	{ "olive",   0x80, 0x80, 0x00, },
+	{ "orange",  0xFF, 0xA5, 0x00, },
+	{ "purple",  0x80, 0x00, 0x80, },
+	{ "red",     0xFF, 0x00, 0x00, },
+	{ "silver",  0xC0, 0xC0, 0xC0, },
+	{ "teal",    0x00, 0x80, 0x80, },
+	{ "white",   0xFF, 0xFF, 0xFF, },
+	{ "yellow",  0xFF, 0xFF, 0x00, },
 
-void try2readHTMLcolor(char *str,unsigned char *r,unsigned char *g,unsigned char *b)
-{
- char string[7]="0000000";
- strupr(str);
+	/* remaining extended colors */
+	{ "aliceblue",            0xF0, 0xF8, 0xFF, },
+	{ "antiquewhite",         0xFA, 0xEB, 0xD7, },
+	{ "aquamarine",           0x7F, 0xFF, 0xD4, },
+	{ "azure",                0xF0, 0xFF, 0xFF, },
+	{ "beige",                0xF5, 0xF5, 0xDC, },
+	{ "bisque",               0xFF, 0xE4, 0xC4, },
+	{ "blanchedalmond",       0xFF, 0xEB, 0xCD, },
+	{ "blueviolet",           0x8A, 0x2B, 0xE2, },
+	{ "brown",                0xA5, 0x2A, 0x2A, },
+	{ "burlywood",            0xDE, 0xB8, 0x87, },
+	{ "cadetblue",            0x5F, 0x9E, 0xA0, },
+	{ "chartreuse",           0x7F, 0xFF, 0x00, },
+	{ "chocolate",            0xD2, 0x69, 0x1E, },
+	{ "coral",                0xFF, 0x7F, 0x50, },
+	{ "cornflowerblue",       0x64, 0x95, 0xED, },
+	{ "cornsilk",             0xFF, 0xF8, 0xDC, },
+	{ "crimson",              0xDC, 0x14, 0x3C, },
+	{ "cyan",                 0x00, 0xFF, 0xFF, },
+	{ "darkblue",             0x00, 0x00, 0x8B, },
+	{ "darkcyan",             0x00, 0x8B, 0x8B, },
+	{ "darkgoldenrod",        0xB8, 0x86, 0x0B, },
+	{ "darkgray",             0xA9, 0xA9, 0xA9, },
+	{ "darkgreen",            0x00, 0x64, 0x00, },
+	{ "darkkhaki",            0xBD, 0xB7, 0x6B, },
+	{ "darkmagenta",          0x8B, 0x00, 0x8B, },
+	{ "darkolivegreen",       0x55, 0x6B, 0x2F, },
+	{ "darkorange",           0xFF, 0x8C, 0x00, },
+	{ "darkorchid",           0x99, 0x32, 0xCC, },
+	{ "darkred",              0x8B, 0x00, 0x00, },
+	{ "darksalmon",           0xE9, 0x96, 0x7A, },
+	{ "darkseagreen",         0x8F, 0xBC, 0x8F, },
+	{ "darkslateblue",        0x48, 0x3D, 0x8B, },
+	{ "darkslategray",        0x2F, 0x4F, 0x4F, },
+	{ "darkturquoise",        0x00, 0xCE, 0xD1, },
+	{ "darkviolet",           0x94, 0x00, 0xD3, },
+	{ "deeppink",             0xFF, 0x14, 0x93, },
+	{ "deepskyblue",          0x00, 0xBF, 0xFF, },
+	{ "dimgray",              0x69, 0x69, 0x69, },
+	{ "dodgerblue",           0x1E, 0x90, 0xFF, },
+	{ "firebrick",            0xB2, 0x22, 0x22, },
+	{ "floralwhite",          0xFF, 0xFA, 0xF0, },
+	{ "forestgreen",          0x22, 0x8B, 0x22, },
+	{ "gainsboro",            0xDC, 0xDC, 0xDC, },
+	{ "ghostwhite",           0xF8, 0xF8, 0xFF, },
+	{ "gold",                 0xFF, 0xD7, 0x00, },
+	{ "goldenrod",            0xDA, 0xA5, 0x20, },
+	{ "greenyellow",          0xAD, 0xFF, 0x2F, },
+	{ "honeydew",             0xF0, 0xFF, 0xF0, },
+	{ "hotpink",              0xFF, 0x69, 0xB4, },
+	{ "indianred",            0xCD, 0x5C, 0x5C, },
+	{ "indigo",               0x4B, 0x00, 0x82, },
+	{ "ivory",                0xFF, 0xFF, 0xF0, },
+	{ "khaki",                0xF0, 0xE6, 0x8C, },
+	{ "lavender",             0xE6, 0xE6, 0xFA, },
+	{ "lavenderblush",        0xFF, 0xF0, 0xF5, },
+	{ "lawngreen",            0x7C, 0xFC, 0x00, },
+	{ "lemonchiffon",         0xFF, 0xFA, 0xCD, },
+	{ "lightblue",            0xAD, 0xD8, 0xE6, },
+	{ "lightcoral",           0xF0, 0x80, 0x80, },
+	{ "lightcyan",            0xE0, 0xFF, 0xFF, },
+	{ "lightgoldenrodyellow", 0xFA, 0xFA, 0xD2, },
+	{ "lightgray",            0xD3, 0xD3, 0xD3, },
+	{ "lightgreen",           0x90, 0xEE, 0x90, },
+	{ "lightpink",            0xFF, 0xB6, 0xC1, },
+	{ "lightsalmon",          0xFF, 0xA0, 0x7A, },
+	{ "lightseagreen",        0x20, 0xB2, 0xAA, },
+	{ "lightskyblue",         0x87, 0xCE, 0xFA, },
+	{ "lightslategray",       0x77, 0x88, 0x99, },
+	{ "lightsteelblue",       0xB0, 0xC4, 0xDE, },
+	{ "lightyellow",          0xFF, 0xFF, 0xE0, },
+	{ "limegreen",            0x32, 0xCD, 0x32, },
+	{ "linen",                0xFA, 0xF0, 0xE6, },
+	{ "magenta",              0xFF, 0x00, 0xFF, },
+	{ "mediumaquamarine",     0x66, 0xCD, 0xAA, },
+	{ "mediumblue",           0x00, 0x00, 0xCD, },
+	{ "mediumorchid",         0xBA, 0x55, 0xD3, },
+	{ "mediumpurple",         0x93, 0x70, 0xDB, },
+	{ "mediumseagreen",       0x3C, 0xB3, 0x71, },
+	{ "mediumslateblue",      0x7B, 0x68, 0xEE, },
+	{ "mediumspringgreen",    0x00, 0xFA, 0x9A, },
+	{ "mediumturquoise",      0x48, 0xD1, 0xCC, },
+	{ "mediumvioletred",      0xC7, 0x15, 0x85, },
+	{ "midnightblue",         0x19, 0x19, 0x70, },
+	{ "mintcream",            0xF5, 0xFF, 0xFA, },
+	{ "mistyrose",            0xFF, 0xE4, 0xE1, },
+	{ "moccasin",             0xFF, 0xE4, 0xB5, },
+	{ "navajowhite",          0xFF, 0xDE, 0xAD, },
+	{ "oldlace",              0xFD, 0xF5, 0xE6, },
+	{ "olivedrab",            0x6B, 0x8E, 0x23, },
+	{ "orangered",            0xFF, 0x45, 0x00, },
+	{ "orchid",               0xDA, 0x70, 0xD6, },
+	{ "palegoldenrod",        0xEE, 0xE8, 0xAA, },
+	{ "palegreen",            0x98, 0xFB, 0x98, },
+	{ "paleturquoise",        0xAF, 0xEE, 0xEE, },
+	{ "palevioletred",        0xDB, 0x70, 0x93, },
+	{ "papayawhip",           0xFF, 0xEF, 0xD5, },
+	{ "peachpuff",            0xFF, 0xDA, 0xB9, },
+	{ "peru",                 0xCD, 0x85, 0x3F, },
+	{ "pink",                 0xFF, 0xC0, 0xCB, },
+	{ "plum",                 0xDD, 0xA0, 0xDD, },
+	{ "powderblue",           0xB0, 0xE0, 0xE6, },
+	{ "rosybrown",            0xBC, 0x8F, 0x8F, },
+	{ "royalblue",            0x41, 0x69, 0xE1, },
+	{ "saddlebrown",          0x8B, 0x45, 0x13, },
+	{ "salmon",               0xFA, 0x80, 0x72, },
+	{ "sandybrown",           0xF4, 0xA4, 0x60, },
+	{ "seagreen",             0x2E, 0x8B, 0x57, },
+	{ "seashell",             0xFF, 0xF5, 0xEE, },
+	{ "sienna",               0xA0, 0x52, 0x2D, },
+	{ "skyblue",              0x87, 0xCE, 0xEB, },
+	{ "slateblue",            0x6A, 0x5A, 0xCD, },
+	{ "slategray",            0x70, 0x80, 0x90, },
+	{ "snow",                 0xFF, 0xFA, 0xFA, },
+	{ "springgreen",          0x00, 0xFF, 0x7F, },
+	{ "steelblue",            0x46, 0x82, 0xB4, },
+	{ "tan",                  0xD2, 0xB4, 0x8C, },
+	{ "thistle",              0xD8, 0xBF, 0xD8, },
+	{ "tomato",               0xFF, 0x63, 0x47, },
+	{ "turquoise",            0x40, 0xE0, 0xD0, },
+	{ "violet",               0xEE, 0x82, 0xEE, },
+	{ "wheat",                0xF5, 0xDE, 0xB3, },
+	{ "whitesmoke",           0xF5, 0xF5, 0xF5, },
+	{ "yellowgreen",          0x9A, 0xCD, 0x32, },
 
- if(*str=='#')
- {
-  strncpy(string,&str[1],6);
-  goto resolve;
- }
- else
- if(strstr(str,"BLACK"))
-  {*r=0;*g=0;*b=0;}
- else
- if(strstr(str,"GREEN"))
-  {*r=0;*g=0x80;*b=0;}
- else
- if(strstr(str,"SILVER"))
-  {*r=0xC0;*g=0xC0;*b=0xC0;}
- else
- if(strstr(str,"LIME"))
-  {*r=0;*g=0xFF;*b=0;}
- else
- if(strstr(str,"GRAY") || strstr(str,"GREY"))
-  {*r=0x80;*g=0x80;*b=0x80;}
- else
- if(strstr(str,"OLIVE"))
-  {*r=0x80;*g=0x80;*b=0;}
- else
- if(strstr(str,"WHITE"))
-  {*r=0xFF;*g=0xFF;*b=0xFF;}
- else
- if(strstr(str,"YELLOW"))
-  {*r=0xFF;*g=0xFF;*b=0;}
- else
- if(strstr(str,"MAROON"))
-  {*r=0x80;*g=0;*b=0;}
- else
- if(strstr(str,"NAVY"))
-  {*r=0;*g=0;*b=0x80;}
- else
- if(strstr(str,"RED"))
-  {*r=0xFF;*g=0;*b=0;}
- else
- if(strstr(str,"BLUE"))
-  {*r=0;*g=0;*b=0xFF;}
- else
- if(strstr(str,"PURPLE"))
-  {*r=0x80;*g=0;*b=0x80;}
- else
- if(strstr(str,"TEAL"))
-  {*r=0;*g=0x80;*b=0x80;}
- else
- if(strstr(str,"FUCHSIA"))
-  {*r=0xFF;*g=0;*b=0xFF;}
- else
- if(strstr(str,"AQUA"))
-  {*r=0;*g=0xFF;*b=0xFF;}
- else
- {
-//!!glennmcc: Dec 01, 2005 -- fix 'bad html' <TD BGCOLR= ALIGN=RIGHT>
-if(str[0]>'F' || str[1]>'F' || str[2]>'F' ||
-   str[3]>'F' || str[4]>'F' || str[5]>'F')
-   strncpy(string,"777777",6);
-   else
-//!!glennmcc: end
-  strncpy(string,str,6);
-  resolve:
+	/* end-of-list */
+	{ NULL, 0x00, 0x00, 0x00 },
+};
 
-//!!glennmcc: begin Mar 29, 2002
-//added to include RGB format in addition to RRGGBB
-if((string[3])<'0')
+/* read HTML color in #RGB or #RRGGBB format,
+   or from the list of named colors */
+void try2readHTMLcolor(const char *str,
+	unsigned char *r,unsigned char *g,unsigned char *b)
 {
-  *r=16*hexdigit(string[0]);
-  *g=16*hexdigit(string[1]);
-  *b=16*hexdigit(string[2]);
-}
-else
-//!!glennmcc: end
-{
-  *r=16*hexdigit(string[0])+hexdigit(string[1]);
-  *g=16*hexdigit(string[2])+hexdigit(string[3]);
-  *b=16*hexdigit(string[4])+hexdigit(string[5]);
-}
- }
+	static char buf[8];
+	const struct color far *c = colors;
+	char *ptr = buf;
+
+	/* initialize parse buffer */
+	memset(buf, 0, sizeof(buf));
+	strncpy(buf, str, 7);
+	strupr(buf);
+
+	/* designated hex string */
+	if (*ptr == '#') {
+		ptr++;
+		goto number;
+	}
+
+	/* named color */
+	while (c->name) {
+		if (!strcmpi(str, c->name)) {
+			*r = c->r;
+			*g = c->g;
+			*b = c->b;
+			return;
+		}
+		c++;
+	}
+
+	/* fix for bad html */
+	if (ptr[0] > 'F' || ptr[1] > 'F' || ptr[2] > 'F' ||
+	    ptr[3] > 'F' || ptr[4] > 'F' || ptr[5] > 'F') {
+		strcpy(ptr, "777777");
+	}
+
+number:
+	/* hex string, either #RGB or #RRGGBB */
+	if (ptr[3] < '0') {
+		*r = 16 * hexdigit(ptr[0]);
+		*g = 16 * hexdigit(ptr[1]);
+		*b = 16 * hexdigit(ptr[2]);
+	} else {
+		*r = 16 * hexdigit(ptr[0]) + hexdigit(ptr[1]);
+		*g = 16 * hexdigit(ptr[2]) + hexdigit(ptr[3]);
+		*b = 16 * hexdigit(ptr[4]) + hexdigit(ptr[5]);
+	}
+	return;
 }
 
 //try2getnum converts HTML object metrics to number: pixels or percents
