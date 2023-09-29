@@ -506,18 +506,12 @@ else
 //!!glennmc: end
 
     case 'F':  //file browser WWWMANE.EXE mode
-    pom=configvariable(&ARACHNEcfg,"Expiredynamic",NULL);
-    pom=configvariable(&ARACHNEcfg,"FILEargs",NULL);
-    if(!pom)
-     pom="-d";
+    pom = config_get_str("FILEargs", "-d");
 
-//!!glennmcc: Oct 19, 2006 -- use new keyword 'CacheDirList'
-//to determine wheather or not to cache the dir listings
-//Y==always cache.... N==nocache
-//defaults to cached if line is missing from arachne.cfg
-//see companion code in SRC of wwwman.exe
-strncat(pom,configvariable(&ARACHNEcfg,"CacheDirList",NULL),1);
-//!!glennmcc: end
+    // note: this may be incorrect, but original code
+    //       copied a random byte from a NULL pointer...
+    // need to verify against wwwman.exe sources
+    strcat(pom, config_get_bool("CacheDirList", 1) ? "Y" : "N");
 
     goto cont;
     case 'M':
