@@ -979,7 +979,7 @@ static char *grabstr (char *src, char *dest, int maxlen) {
 
 int geticoninfo(char *name,char *icon,char *method,char *methodarg,char *desc1,char *desc2)
 {
- char *ptr=configvariable(&TOOLBARcfg,name,NULL);
+ char *ptr = config_get_toolbar(name);
  if(ptr)
  {
   char methodstr[5];

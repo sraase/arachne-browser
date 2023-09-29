@@ -379,6 +379,15 @@ char *config_get_entity(char *entity)
 	return ptr;
 }
 
+/**
+ * get toolbar string or NULL
+ */
+char *config_get_toolbar(char *name)
+{
+	char *ptr = configvariable(&TOOLBARcfg, name, NULL);
+	return ptr;
+}
+
 #ifndef WWWMAN
 #ifndef MINITERM
 #ifndef POSIX
