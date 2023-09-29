@@ -524,35 +524,19 @@ void ResetHtmlPage(struct TMPframedata *html,char ishtml,char allowuser)
  char *ptr=NULL;
  if(ishtml)
  {
-  if(allowuser)
-   ptr=configvariable(&ARACHNEcfg,"HTMLbgColor",NULL);
-  if(ptr)
+  if(allowuser) {
+   ptr = config_get_str("HTMLbgColor", "#C4C4C4");
    try2readHTMLcolor(ptr,&html->backR,&html->backG,&html->backB);
-  else
-  {
-   html->backR=196;
-   html->backG=196;
-   html->backB=196;
   }
-  if(allowuser)
-   ptr=configvariable(&ARACHNEcfg,"HTMLtext",NULL);
-  if(ptr)
+
+  if(allowuser) {
+   ptr = config_get_str("HTMLtext", "#000000");
    try2readHTMLcolor(ptr,&html->textR,&html->textG,&html->textB);
-  else
-  {
-   html->textR=0;
-   html->textG=0;
-   html->textB=0;
   }
-  if(allowuser)
-   ptr=configvariable(&ARACHNEcfg,"HTMLlink",NULL);
-  if(ptr)
+
+  if(allowuser) {
+   ptr = config_get_str("HTMLlink", "#0000C4");
    try2readHTMLcolor(ptr,&html->linkR,&html->linkG,&html->linkB);
-  else
-  {
-   html->linkR=0;
-   html->linkG=0;
-   html->linkB=196;
   }
  }
  else
@@ -610,14 +594,15 @@ void ResetHtmlPage(struct TMPframedata *html,char ishtml,char allowuser)
 //.  <BODY ARACHNE>
 void BodyArachne(struct TMPframedata *html)
 {
- char *ptr=configvariable(&ARACHNEcfg,"BgColor",NULL);
- if(ptr)
+  char *ptr;
+
+  ptr = config_get_str("BgColor", "#000000");
   try2readHTMLcolor(ptr,&html->backR,&html->backG,&html->backB);
- ptr=configvariable(&ARACHNEcfg,"Text",NULL);
- if(ptr)
+
+  ptr = config_get_str("Text", "#F0F0F0");
   try2readHTMLcolor(ptr,&html->textR,&html->textG,&html->textB);
- ptr=configvariable(&ARACHNEcfg,"Link",NULL);
- if(ptr)
+
+  ptr = config_get_str("Link", "#00FF00");
   try2readHTMLcolor(ptr,&html->linkR,&html->linkG,&html->linkB);
 
  ptr = config_get_str("Background", "NUL");
