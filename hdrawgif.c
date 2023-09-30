@@ -737,12 +737,6 @@ int PrepareScaleAndX(struct picinfo *gif, int NumImg, int *Prepni)
     }
     else
     {
-#ifdef RAY
-    if ((g_FreeAnim + SizeXms) > user_interface.xms4onegif)
-    {
-     Piip();
-    }
-#endif
      goto Obrazovka;
     }
     gif->x1gif = 0;

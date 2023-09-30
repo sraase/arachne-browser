@@ -404,10 +404,8 @@ if(arachne.GUIstyle==2) arachne.GUIstyle=3;
    else if(ptr[1]=='J') //J==800x600xHiColor
     ptr[1]='I'; 	//I==640x480xHiColor
 #endif
-#ifndef ERIC
    else if(!strncmpi(arachne.graphics,"VESA.B",6))
     ptr[1]='X';//X==640x400x256c
-#endif
   }
   graphicsinit(arachne.graphics); // XLOPIF SVGA GRAPHICS
  }

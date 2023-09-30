@@ -925,7 +925,6 @@ unlink("textarea.tmp");
     return gotoloc();
    }
 #ifndef POSIX
-#ifndef ERIC
 //!!glennmcc: Feb 12, 2005 -- at the request of Michal H. Tyc
    else if(key==0x2004)//Ctrl+D
 // else if(asc=='Q')
@@ -938,7 +937,6 @@ unlink("textarea.tmp");
     arachne.target=0;
     return gotoloc();
    }
-#endif //ERIC
    else if(asc=='V')
    {
     int i=ProcessLinks(0);
@@ -1310,10 +1308,8 @@ Piip();
    if(key==0x6e00)//Alt+F7 - search engine
     return gotosearchpage();
 
-#ifndef ERIC
    else if(key==F8)//F8 - clean cache
     return erasecache();
-#endif
 
    else if(key==REDRAW_KEY)//F5 or F9
     return repaint();
