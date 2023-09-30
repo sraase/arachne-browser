@@ -319,7 +319,7 @@ char NeedImage(char reload, XSWAP *from)
   outs(MSG_DELAY0);
  else
  {
-  if (!GLOBAL.nowimages && config_get_bool("LoadImages", 1))
+  if (!GLOBAL.nowimages && !config_get_bool("LoadImages", 1))
    return 0;
   outs(MSG_VERIFY);
  }
