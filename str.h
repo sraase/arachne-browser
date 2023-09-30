@@ -32,6 +32,10 @@ char *makestr(char *dest, char *src, int lim);
 // ==================================================================
 char *joinstr(char *dest, int lim, const char *src);
 
+/* allocate / free string with format string */
+char HAS_FORMAT(1, 2) *newstr(const char *fmt, ...);
+void freestr(char *str);
+
 #ifdef POSIX
 char *strlwr(char *str);
 char *strupr(char *str);

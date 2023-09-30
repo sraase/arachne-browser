@@ -59,6 +59,45 @@ char *joinstr(char *dest, int lim, const char *src)
  return dest;
 }
 
+/* allocate a string with format string */
+char *newstr(const char *fmt, ...)
+
+{
+	static char far buf[1024];
+	char *str = NULL;
+	int len = 0;
+	va_list ap;
+
+	/* write to intermediate buffer */
+	va_start(ap, fmt);
+	len = vsprintf(buf, fmt, ap);
+	va_end(ap);
+	if (len < 0)
+		goto out;
+
+	/* catch buffer overruns */
+	if (len > sizeof(buf))
+		abort();
+
+	/* copy to new string */
+	len += 1;
+	str = farmalloc(len);
+	if (!str)
+		goto out;
+	memcpy(str, buf, len);
+
+out:
+	return str;
+}
+
+/* free a previously allocated string */
+void freestr(char *str)
+{
+	if (str)
+		farfree(str);
+	return;
+}
+
 #ifdef POSIX
 
 // ==================================================================

@@ -2,10 +2,18 @@
 #ifndef _POSIXH_
 #define _POSIXH_
 
+/* enable format-string checking if available */
+#ifdef __GNUC__
+#define HAS_FORMAT(FMT, AP) __attribute__((format(printf, FMT, AP)))
+#else
+#define HAS_FORMAT(FMT, AP)
+#endif
+
 #ifdef MSDOS
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <dos.h>
 #include <alloc.h>
 #include <conio.h>
@@ -27,6 +35,7 @@
 //....  will include standard header files later ....
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/time.h>
