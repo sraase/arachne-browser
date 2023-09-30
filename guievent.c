@@ -1024,11 +1024,6 @@ unlink("textarea.tmp");
    {
     int i=0,w;
     char *ptr=" ";
-#ifdef TESTQM
-    Piip();
-    outs("Question mark key pressed, pausing 2 seconds");//MSG_TESTQM);
-    sleep(2);
-#endif
 
 #ifndef POSIX
     gotoxy(1,8);
