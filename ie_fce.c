@@ -16,9 +16,7 @@
 #include "a_io.h"
 #include "str.h"
 
-#ifndef MINITERM
 #include "pckbrd.h"
-#endif
 
 #ifdef POSIX
 extern char *swapbuf[IE_MAXSWAP+1];
@@ -717,8 +715,6 @@ int ie_insblock(struct ib_editor *fajl,char *filename)
  }//end if
 }//end sub
 
-#ifndef MINITERM
-
 int ie_savef(struct ib_editor *fajl)
 {
  int f,i=1,l;
@@ -814,7 +810,6 @@ void ie_bak(char* filename)
 }//end sub
 
 */
-#endif
 
 #ifndef POSIX
 int ie_which(int i)

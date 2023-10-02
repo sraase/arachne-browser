@@ -7,9 +7,6 @@ char ARACHNEPICK[80];
 char *ARACHNEPICK="arachne.pck";
 #endif
 
-#ifndef MINITERM
-
-
 #ifndef POSIX
 int askgraphics(void)
 {
@@ -225,8 +222,6 @@ void savepick() //save configuration
 //in case newvalue!=NULL
 //keystring must be allocated at the length keystring+newvalue together!
 
-#endif //MINITERM
-
 static char *configvariable(struct ib_editor *fajl,char *keystring,char *newvalue)
 {
  int l;
@@ -389,7 +384,6 @@ char *config_get_toolbar(char *name)
 }
 
 #ifndef WWWMAN
-#ifndef MINITERM
 #ifndef POSIX
 
 //. Roura : name of a batch file.  Allow us to use external executable.  Like Pipe in UNIX
@@ -422,10 +416,6 @@ int willexecute(char *cmd) //vykonat nejakou hloupost:
   return 0;
  }
 }
-#endif
-
-#ifdef MINITERM
-struct uiface user_interface;
 #endif
 
 extern struct ib_editor ARACHNEcfg;// main configuration
@@ -673,5 +663,4 @@ void configure_user_interface(void)
  user_interface.alwaysusecfgcolors = config_get_bool("AlwaysUseCFGcolors", 0);
 }
 
-#endif
 #endif

@@ -36,10 +36,8 @@ void tempinit(char *path)
   char str[64];
 
   tempdir=farmalloc(64);
-#ifndef MINITERM
   if(!tempdir)
    memerr();
-#endif
   tempdir[0]='\0';
 
   if(!ptr)
