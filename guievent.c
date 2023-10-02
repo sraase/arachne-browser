@@ -895,22 +895,14 @@ unlink("textarea.tmp");
 #ifdef POSIX
     strcpy(GLOBAL.location,"gui:setup.ah");
 #else
-#ifdef CAV
-    sprintf(GLOBAL.location,"file://sentmail.dgi");
-#else
     sprintf(GLOBAL.location,"file:%ssetup.htm",exepath);
-#endif
 #endif
     arachne.target=0;
     return gotoloc();
    }
    else if(asc=='O')
    {
-#ifdef CAV
-    sprintf(GLOBAL.location,"file://outbox.dgi");
-#else
     sprintf(GLOBAL.location,setupdoc,exepath);
-#endif
     arachne.target=0;
     return gotoloc();
    }
@@ -958,14 +950,12 @@ unlink("textarea.tmp");
     arachne.target=0;
     return gotoloc();
    }
-#ifndef CAV
    else if(asc=='X')
    {
     strcpy(GLOBAL.location,homepage);
     arachne.target=0;
     return gotoloc();
    }
-#endif
 //!!glennmcc: no more "negative tests" ;-)
    else if(asc=='H' || key==0x2b1c || key==0x8100) //Alt+0,Ctrl+backslash
 // else if(asc=='H' || key==0x2b1c || key==-32512) //Alt+0,Ctrl+backslash
@@ -1407,21 +1397,6 @@ else if(key==11776)//Alt+C
     return gotoloc();
    }
 //!!glennmcc: end
-
-#ifdef CAV
-   else if(key==0x1800)//Alt+O
-   {
-    sprintf(GLOBAL.location,setupdoc,exepath);
-    arachne.target=0;
-    return gotoloc();
-   }
-   else if(key==0x1f00)//Alt+S
-   {
-    sprintf(GLOBAL.location,"file:%ssetup.htm",exepath);
-    arachne.target=0;
-    return gotoloc();
-   }
-#endif
 
    else if(key>=0x5400 && key<=0x5d00)
    {

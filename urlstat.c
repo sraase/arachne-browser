@@ -33,16 +33,6 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
 
  if(!strcmpi(absURL->protocol,"file"))
  {
-//!!glennmcc: Nov 13, 2005 -- append '\' if we forget to enter it in typed URL
-#ifdef CAV
-  if(strlen(absURL->file)>1 &&
-     !strstr(absURL->file,".") &&
-     absURL->file[strlen(absURL->file)-1]!='\\'
-    )
-  {strcat(absURL->file,"\\");}
-#endif
-//!!glennmcc: end
-
   makestr(cacheitem->locname,absURL->file,79);
   i=strlen(cacheitem->locname);
 

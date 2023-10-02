@@ -467,13 +467,8 @@ int FastTagDetect(char *tagname)
    return TAG_LI;
   if(!strcmp(ptr,"D"))
    return TAG_DD;
-#ifdef CAV
-  if(!strcmp(ptr,"L"))// || !strcmp(ptr,"IR"))
-   return TAG_OL;
-#else
   if(!strcmp(ptr,"L") || !strcmp(ptr,"IR"))
    return TAG_OL;
-#endif
   if(!strcmp(ptr,"IV"))
    return TAG_DIV;
 //!!glennmcc: Feb 27, 2007 -- <S> has been depreciated to <DEL>

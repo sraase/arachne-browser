@@ -210,11 +210,7 @@ void MemInfoLine(char *text1,char *text2,int color,int *y)
  x_settextjusty(2,2);
  x_text_ib(x_maxx()-4,*y,(unsigned char *)text2);
 //!!glennmcc: Aug 22, 2005 -- prevent fontshift >1 from messing-up meminfo
-#ifdef CAV
- *y+=fonty(0-user_interface.fontshift,NORMAL)-1;
-#else
  *y+=fonty(0-user_interface.fontshift,NORMAL);
-#endif//cav
 // *y+=fonty(0,NORMAL);
  x_settextjusty(0,2);        //always write text for upper left corner
 }

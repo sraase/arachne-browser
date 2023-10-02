@@ -352,9 +352,6 @@ int maxres = config_get_int("MaxRes", 0);
  if(style)
  {
   arachne.GUIstyle++;
-#ifdef CAV
-if(arachne.GUIstyle==2) arachne.GUIstyle=3;
-#endif
   if(arachne.GUIstyle>STYLE_SMALL2)
   {
    arachne.GUIstyle=STYLE_ARACHNE;

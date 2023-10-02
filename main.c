@@ -234,21 +234,13 @@ IveGotNewUrl:
    if (!strncmpi(GLOBAL.location,"ping:",5))
    {
     i=5;
-#ifdef CAV
-    ptr="file:ping.dgi ";
-#else
     ptr="http://www.fifi.org/services/ping?packetcount=1&packetwait=1&formatted=yes&hostname=";
-#endif
    }
 //!!glennmcc: Jan 24, 2008 -- added traceroute
    if (!strncmpi(GLOBAL.location,"traceroute:",11))
    {
     i=11;
-#ifdef CAV
-    ptr="file:traceroute.dgi ";
-#else
     ptr="http://www.fifi.org/services/traceroute?nprobes=1&resolved=yes&submit=Traceroute&hostname=";
-#endif
    }
 //!!glennmcc: Jan 24, 2008 -- added whois of domain_name
    if (!strncmpi(GLOBAL.location,"whois:",6))
@@ -264,14 +256,6 @@ IveGotNewUrl:
 //    ptr="http://www.networksolutions.com/whois/results.jsp?ip=";
     ptr="http://www.whois.com/whois/";
    }
-#ifdef CAV
-   if(strstr(ptr,"traceroute.dgi") || strstr(ptr,"ping.dgi"))
-   {
-    strcat(ptr,&GLOBAL.location[i]);
-    strcpy(GLOBAL.location,ptr);
-   }
-   else
-#endif
 //the next 3 lines are common to all added protocols.
   {
    cgiquery((unsigned char *)&GLOBAL.location[i],(unsigned char *)buf,1);
@@ -577,10 +561,8 @@ IveGotNewUrl:
 
 //!!glennmcc: May 31, 2007 -- add2history upon aborting transfer
 //but only when no data has yet been received and cached
-#ifndef CAV
 if(GLOBAL.abort==ABORT_TRANSFER && GLOBAL.location != cacheitem->URL)
 add2history(GLOBAL.location);
-#endif
 //!!glennmcc: end
 
     if(GLOBAL.redirection)

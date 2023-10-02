@@ -15,12 +15,6 @@ extern char lasttime[32];
 
 void outs( char far *s)        /* print a ASCIIZ string to stdio */
 {
-#ifdef CAV
- if (GLOBAL.clipdel == CLIPBOARD_DEFER_ADD
-     || GLOBAL.clipdel == CLIPBOARD_ADDHOT)
-return;
-#endif
-
  if(fullscreen)
   return;
 

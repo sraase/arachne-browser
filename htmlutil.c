@@ -579,13 +579,6 @@ void ResetHtmlPage(struct TMPframedata *html,char ishtml,char allowuser)
  //!!JdS 2006/03/02 }
 ///*
 //!!glennmcc -- thank you Joe... now my 'dirty little hack' is not needed ;-)
- //!!JdS 2006/02/15: frames/smiley bug fix {
-#ifdef CAV
- html->myadr=html->writeadr;//!!glennmcc: save data for use by GLOBAL.del
- html->writeadr = IE_NULL;//!!JDS: reset data
- html->writeadr=html->myadr;//!!glennmcc: retrieve data for use by GLOBAL.del
-#endif
- //!!JdS 2006/02/15: frames/smiley bug fix }
 //*/
  html->nextsheet=IE_NULL;
  html->myadr=IE_NULL;

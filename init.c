@@ -494,11 +494,7 @@ void init_bin(void)
  if(rc==2)
   memerr0();
  else if(rc!=1 || ENTITYcfg.lines==0)
-#ifndef CAV
   cfgerr(&ENTITYcfg);
-#else
-  ie_insline(&ENTITYcfg,0,"");
-#endif
 //!!glennmcc: end
 
  //---History of visited URLs
