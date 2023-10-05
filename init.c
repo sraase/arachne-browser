@@ -15,9 +15,68 @@
 
 int mem_xmem(unsigned *total, unsigned *free);
 
-void Initialize_Arachne(int argc,char **argv,struct Url *url)
+/**
+ * set system locations
+ *   syspath  : read-only
+ *   userpath : read-write
+ *   helppath : read-only
+ */
+static int setsyspaths(char *argv0)
+{
+	char *path;
+	int pathlen;
+	(void)argv0;
+
+	/* use ARACHNE environment variable */
+	path = getenv("ARACHNE");
+	if (path) {
+		pathlen = strlen(path);
+		while (path[pathlen - 1] == PATHSEP)
+			pathlen--;
+
+		userpath = newstr("%.*s%c", pathlen, path, PATHSEP);
+		helppath = userpath;
+		syspath  = newstr("%.*s%c%s%c", pathlen, path, PATHSEP,
+			"system", PATHSEP);
+		if (!syspath || !userpath || !helppath)
+			return 1;
+		return 0;
+	}
+
+#ifdef POSIX
+	/* use POSIX defaults */
+	path = getenv("HOME");
+	if (!path) path = "/";
+	pathlen = strlen(path);
+	while (path[pathlen - 1] == PATHSEP)
+		pathlen--;
+
+	syspath  = newstr("%s", "/usr/share/arachne/");
+	userpath = newstr("%.*s%c%s", pathlen, path, PATHSEP, ".arachne/");
+	helppath = newstr("%s", "/usr/share/doc/html/");
+#else
+	/* use DOS defaults (exe location) */
+	path = strrchr(argv0, PATHSEP);
+	if (path) {
+		pathlen = (int)(path - argv0);
+		syspath  = newstr("%.*s%c", pathlen, argv0, PATHSEP);
+		userpath = syspath;
+		helppath = syspath;
+	}
+#endif
+
+	if (!syspath || !userpath || !helppath)
+		return 1;
+	return 0;
+}
+
+int Initialize_Arachne(int argc, char **argv, struct Url *url)
 {
  int grsetup=0;
+
+ /* set system locations first */
+ if (setsyspaths(argv[0]))
+  return 1;
 
 #ifdef ENABLE_A_IO
  if(!a_alloccache())
@@ -311,6 +370,8 @@ RedrawALL();                //redraw screen
 if(tcpip || arachne.target!=0)
  DrawTitle(1);
 GUIInit();                  //initialization of graphical user interface
+
+ return 0;
 }
 
 // *************************************************************************

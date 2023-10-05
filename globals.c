@@ -42,9 +42,12 @@ struct Page P,*p=&P;
 
 // ========================================================================
 
+char *syspath;
+char *userpath;
+char *helppath;
+
 char exepath[65]="\0";
 #ifdef POSIX
-char helppath[80]="\0";
 char sharepath[80]="\0";
 char cachepath[80]="\0";
 char dotarachne[65]="\0";

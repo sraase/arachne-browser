@@ -491,16 +491,18 @@ extern int swapmod;
 
 extern char DisableXMS;     // DOS only 
 
+extern char *syspath;
+extern char *userpath;
+extern char *helppath;
+
 extern char exepath[65];    // read-only
 #ifdef POSIX
-extern char helppath[80];   // read-only
 extern char sharepath[80];  // read-only
 extern char cachepath[80];  // read-only
 extern char dotarachne[65]; // read-only
 extern char fntpath[80];    // read-only
 extern char fntinf[80];     // read-only
 #else
-#define helppath exepath
 #define sharepath exepath
 extern char *fntinf;
 extern char *cachepath;

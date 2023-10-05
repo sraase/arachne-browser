@@ -28,6 +28,7 @@
 #include <string.h>
 #include <math.h>
 
+#define PATHSEP '\\'
 
 #elif LINUX
 //==========================================================================
@@ -57,6 +58,8 @@ int filelength (int handle);  /* in linglue.c */
 #define far
 #define O_BINARY 0
 #define O_TEXT   0
- 
+
+#define PATHSEP '/'
+
 #endif
 #endif //POSIXH

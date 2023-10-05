@@ -6,7 +6,7 @@
 
 #include "url.h"
 
-void Initialize_Arachne(int argc,char **argv,struct Url *url);
+int Initialize_Arachne(int argc, char **argv, struct Url *url);
 int Terminate_Arachne(int returnvalue);
 int askgraphics(void);
 int protocol_arachne(struct HTTPrecord *cacheitem,struct Url *url,int *returnvalue);
