@@ -56,8 +56,7 @@ int add2hotlist(void)
  {
   struct ib_editor clipboard;
 
-  strcpy(clipboard.filename,CLIPBOARDNAME);
-
+  sprintf(clipboard.filename, "%s%s", userpath, "clip.tmp");
   if(ie_openf_lim(&clipboard,CONTEXT_TMP,1000)==1) //ok
   {
    ptr=ie_getline(&clipboard,0);
@@ -774,7 +773,7 @@ unsigned int GUIEVENT(unsigned int key, unsigned int mouse)
      struct Url url;
      char str[128], line[IE_MAXLEN+2],*ptr;
 
-     strcpy(clipboard.filename,CLIPBOARDNAME);
+     sprintf(clipboard.filename, "%s%s", userpath, "clip.tmp");
      if(ie_openf_lim(&clipboard,CONTEXT_TMP,1000)==1) //ok
      {
       clipboard.y=0;

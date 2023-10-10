@@ -104,7 +104,7 @@ void ie_copyblock(struct ib_editor *fajl)
   char *ptr,str[IE_MAXLEN+1];
   clipboard.filename[0]='\0'; //do not load clipboard !!!
   ie_openf_lim(&clipboard,CONTEXT_TMP,fajl->maxlines);
-  strcpy(clipboard.filename,CLIPBOARDNAME);
+  sprintf(clipboard.filename, "%s%s", userpath, "clip.tmp");
 
   if(fajl->bbx>0 && fajl->bey!=i)
   {
@@ -226,19 +226,14 @@ char ie_clipstatus=0;
 
 void ie_appendclip(char *ptr)
 {
+ char *cliptmp = newstr("%s%s", userpath, "clip.tmp");
  int f;
- if(!ie_clipstatus)
-#ifdef POSIX
-  f=a_open(CLIPBOARDNAME,O_CREAT|O_TRUNC|O_WRONLY,S_IREAD|S_IWRITE);
-#else
-  f=a_open(CLIPBOARDNAME,O_CREAT|O_TRUNC|O_TEXT|O_WRONLY,S_IREAD|S_IWRITE);
-#endif
- else
-#ifdef POSIX
-  f=a_open(CLIPBOARDNAME,O_WRONLY|O_APPEND,0);
-#else
-  f=a_open(CLIPBOARDNAME,O_WRONLY|O_TEXT|O_APPEND,0);
-#endif
+ if(!ie_clipstatus) {
+  f = a_open(cliptmp, O_CREAT | O_TRUNC | O_TEXT | O_WRONLY, S_IREAD | S_IWRITE);
+ } else {
+  f = a_open(cliptmp, O_WRONLY | O_TEXT | O_APPEND, 0);
+ }
+ freestr(cliptmp);
  if(f>=0)
  {
   write(f,ptr,strlen(ptr));
@@ -341,14 +336,22 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
    case 'V':
    ie_copyblock(fajl);
    ie_cutblock(fajl);
-   ie_insblock(fajl,CLIPBOARDNAME);
+   {
+    char *cliptmp = newstr("%s%s", userpath, "clip.tmp");
+    ie_insblock(fajl, cliptmp);
+    freestr(cliptmp);
+   }
    rv=3;
    goto zoom_synchro;
 
    // ***** copy block *****
    case 'C':
    ie_copyblock(fajl);
-   ie_insblock(fajl,CLIPBOARDNAME);
+   {
+    char *cliptmp = newstr("%s%s", userpath, "clip.tmp");
+    ie_insblock(fajl, cliptmp);
+    freestr(cliptmp);
+   }
    return 3;
 
    case 'R':
@@ -658,7 +661,11 @@ int ie_key(struct ib_editor *fajl,int klavesa,int modifiers,int ietxt_max_x,int 
  {
   if(fajl->aktrad>=0 && fajl->modrad) ie_putline(fajl,fajl->aktrad,fajl->rad);
   fajl->aktrad=-1;
-  ie_insblock(fajl,CLIPBOARDNAME);
+  {
+   char *cliptmp = newstr("%s%s", userpath, "clip.tmp");
+   ie_insblock(fajl, cliptmp);
+   freestr(cliptmp);
+  }
   return 3;
  }
  else

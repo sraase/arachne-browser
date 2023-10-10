@@ -42,13 +42,6 @@
 #define XSWAP unsigned
 #endif //POSIX
 
-#ifdef POSIX
-extern char CLIPBOARDNAME[80];
-#else
-#define CLIPBOARDNAME "clip.tmp"
-#endif
-
-
 struct ib_editor
 {
  char filename[80];
@@ -170,3 +163,4 @@ extern int swapcontext[IE_MAXSWAP]; //swap context
 
 extern char ie_clipstatus;
 
+extern char *userpath;

@@ -184,7 +184,6 @@ static int loadpick(void)
 	strcpy(exepath, syspath);
 	strcpy(sharepath, syspath);
 	snprintf(cachepath, sizeof(cachepath), "%scache/", userpath);
-	snprintf(CLIPBOARDNAME, sizeof(CLIPBOARDNAME), "%sclipboard.bin", userpath);
 
 	/* create user and cache directories */
 	mkdir(userpath, 0700);

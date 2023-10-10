@@ -10,7 +10,6 @@
 
 #ifdef POSIX
 char *swapbuf[IE_MAXSWAP+1];
-char CLIPBOARDNAME[80];
 #else
 struct T_buf_buf swapbuf[IE_MAXSWAP+1]; //pole odkladacich buferu
 #endif
