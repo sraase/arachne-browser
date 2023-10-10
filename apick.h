@@ -39,7 +39,6 @@ struct ArachnePick              //. This struct is stored in arachne.pck !!!!  R
 
 extern struct ArachnePick arachne; //autosave configuration file
 
-int loadpick( char *exename); //load autosave configuration
 void savepick(void);           //save autosave configuration
 
 #define mousex arachne.mousex

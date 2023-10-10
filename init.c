@@ -70,6 +70,146 @@ static int setsyspaths(char *argv0)
 	return 0;
 }
 
+/**
+ * set swap device (arachne.xSwap)
+ */
+static int setswap(void)
+{
+#ifdef XT086
+	/* ask user for XT builds only */
+	puts(MSG_MEMSEL);
+	puts(MSG_MEMXMS);
+	puts(MSG_MEMEMS);
+	puts(MSG_MEMDSK);
+	printf("%s", MSG_MEMORY);
+
+	while (1) {
+		int ch = getch();
+
+		switch (ch) {
+		case '0': case 13: arachne.xSwap = 0; return 0;
+		case '1':          arachne.xSwap = 1; return 1;
+		case '2':          arachne.xSwap = 2; return 2;
+		case 27:
+			printf("\n\n");
+			exit(EXIT_ABORT_SETUP);
+			return 0;
+		}
+	}
+#else
+	/* set XMS for 386+ builds */
+	arachne.xSwap = 0;
+	return 0;
+#endif
+}
+
+/**
+ * set graphics device (arachne.graphics)
+ */
+static int setgraphics(void)
+{
+#ifdef XT086
+	/* ask user for XT builds only */
+	puts(MSG_VGASEL);
+	puts(MSG_VGAVGA);
+	puts(MSG_VGAEGA);
+	puts(MSG_VGACGA);
+	printf("%s", MSG_VIDEO);
+
+	while (1) {
+		int ch = getch();
+
+		switch (ch) {
+		case '0': case 13: strcpy(arachne.graphics, "VGA");  return 1;
+		case '1':          strcpy(arachne.graphics, "EGA");  return 2;
+		case '2':          strcpy(arachne.graphics, "BCGA"); return 3;
+		case 27:
+			printf("\n\n");
+			exit(EXIT_ABORT_SETUP);
+			return 1;
+		}
+	}
+#else
+	/* set VGA for 386+ builds */
+	strcpy(arachne.graphics, "VGA");
+	return 1;
+#endif
+}
+
+/**
+ * load pick file (runtime data)
+ */
+static int loadpick(void)
+{
+	char *fname;
+	int fd, len;
+
+	/* allocate runtime storage */
+	p->htmlframe = (struct HTMLframe*)farmalloc(MAXFRAMES * (2 + sizeof(struct HTMLframe)));
+	AUTHENTICATION = farmalloc(sizeof(struct AUTH_STRUCT) + 2);
+	if (!p->htmlframe || !AUTHENTICATION)
+		return -1;
+
+	/* open file */
+	fname = newstr("%s%s", userpath, "arachne.pck");
+	fd = a_open(fname, O_RDONLY, 0);
+	freestr(fname);
+
+	/* read pick data */
+	len = sizeof(struct ArachnePick);
+	if (fd < 0 || a_read(fd, &arachne, len) != len) {
+		memset(&arachne, 0, sizeof(struct ArachnePick));
+		setswap();
+		setgraphics();
+	}
+
+	/* read frame data */
+	len = MAXFRAMES * (1 + sizeof(struct HTMLframe));
+	if (fd < 0 || a_read(fd, p->htmlframe, len) != len) {
+		memset(p->htmlframe, 0, len);
+	}
+
+	/* read auth data */
+	len = sizeof(struct AUTH_STRUCT);
+	if (fd < 0 || a_read(fd, AUTHENTICATION, len)) {
+		memset(AUTHENTICATION, 0, len);
+	}
+
+	/* close file */
+	if (fd >= 0)
+		a_close(fd);
+
+#ifdef POSIX
+	/* set system directories */
+	strcpy(exepath, syspath);
+	strcpy(sharepath, syspath);
+	strcpy(dotarachne, userpath);
+	snprintf(cachepath, sizeof(cachepath), "%scache/", userpath);
+	snprintf(CLIPBOARDNAME, sizeof(CLIPBOARDNAME), "%sclipboard.bin", userpath);
+
+	/* create user and cache directories */
+	mkdir(userpath, 0700);
+	mkdir(cachepath, 0700);
+#else
+	/* set system directories */
+	strcpy(exepath, syspath);
+#endif
+
+	return 0;
+}
+
+#ifndef POSIX
+/**
+ * delete pick file
+ */
+static void del_pick(void)
+{
+	char *fname = newstr("%s%s", userpath, "arachne.pck");
+	unlink(fname);
+	freestr(fname);
+}
+#endif
+
 int Initialize_Arachne(int argc, char **argv, struct Url *url)
 {
  int grsetup=0;
@@ -89,7 +229,7 @@ int Initialize_Arachne(int argc, char **argv, struct Url *url)
   if(argv[1][1]=='s')
   {
    detectgraphics();
-   unlink("arachne.pck");
+   del_pick();
    tcpip=-1; //setup mode
    arachne.GUIstyle|=4;
   }
@@ -118,7 +258,9 @@ int Initialize_Arachne(int argc, char **argv, struct Url *url)
  }
 #endif
 
- grsetup=loadpick(argv[0]);     //try to load ARACHE.PCK (defines exepath too)
+ /* load runtime data */
+ if (loadpick())
+  return 1;
 
 if(argc>1)
 {
@@ -128,7 +270,7 @@ if(argc>1)
   if(argv[1][1]=='d')
   {
    detectgraphics();
-   grsetup=askgraphics();
+   grsetup=setgraphics();
   }
   else
 #endif

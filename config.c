@@ -1,175 +1,6 @@
 #include "arachne.h"
 #include "internet.h"
 
-#ifdef POSIX
-char ARACHNEPICK[80];
-#else
-char *ARACHNEPICK="arachne.pck";
-#endif
-
-#ifndef POSIX
-int askgraphics(void)
-{
-//!!glennmcc: Oct 23, 2005 -- always use VGA on 387+
-//by using this entire block only for 286 and below
-#ifdef XT086
-int i;
-  puts(MSG_VGASEL);
-  puts(MSG_VGAVGA);
-  puts(MSG_VGAEGA);
-  puts(MSG_VGACGA);
-  printf(MSG_VIDEO);
-
-  vga:
-  i=getch();
-  if (i==27)
-   return -1;
-
-  if (i=='1')
-  {
-   strcpy(arachne.graphics,"EGA");
-   return 2;
-  }
-  else if (i=='2')
-  {
-   strcpy(arachne.graphics,"BCGA");
-   arachne.xSwap=2;
-   return 3;
-  }
-  else if (i!='0' && i!=13)
-   goto vga;
-  else
-#endif
-//!!glennmcc: end -- Oct 23, 2005
-  {
-   strcpy(arachne.graphics,"VGA");
-   return 1;
-  }
-
-}
-#endif
-
-int loadpick( char *exename) //nahrat konfiguraci
-		// tr.: load configuration
-{
- int f,i,rv=0;
- char *str1;
-
- strncpy( exepath, exename, 63);   // urceni exepath !!!
-                // tr.: definition of exepath!
-#ifdef POSIX
- str1= strrchr( exepath, '/');
-#else
- str1= strrchr( exepath, '\\');
-#endif
- if(str1 == NULL) exepath[0]='\0';
- else                str1[1]='\0';
- strlwr(exepath);
-
-#ifdef POSIX
-    // set system directories
-    strcpy(sharepath, "/usr/share/arachne/");
-    strcpy(helppath, "/usr/share/doc/arachne/");
-
-    // set user directory
-    str1 = getenv("HOME");
-    if (!str1) str1 = "/";
-    snprintf(dotarachne, sizeof(dotarachne), "%s/.arachne/", str1);
-    snprintf(cachepath, sizeof(cachepath), "%scache/", dotarachne);
-    snprintf(ARACHNEPICK, sizeof(ARACHNEPICK), "%sarachne.pck", dotarachne);
-    snprintf(CLIPBOARDNAME, sizeof(CLIPBOARDNAME), "%sclipboard.bin", dotarachne);
-
-    // create user and cache directories
-    mkdir(dotarachne, 0700);
-    mkdir(cachepath, 0700);
-
-    // open runtime file
-    f = a_open(ARACHNEPICK, O_RDONLY, 0);
-#else
-    // open runtime file
-    f = a_open(ARACHNEPICK, O_BINARY | O_RDONLY, 0);
-    if (f < 0)
-    {
-        // try again in exepath
-        char str[80];
-        sprintf(str,"%s%s", exepath, ARACHNEPICK);
-        f = a_open(str, O_BINARY | O_RDONLY, 0);
-    }
-#endif
-
- if(f>=0)
-  i=a_read(f,&arachne,sizeof(struct ArachnePick));
-
- if(f<0 || i!=sizeof(struct ArachnePick))
- {
-  memset(&arachne,0,sizeof(struct ArachnePick));
-
-#ifndef POSIX
-//!!glennmcc: Oct 23, 2005 -- always use XMS on 387+
-//by using this entire block only for 286 and below
-#ifdef XT086
-  puts(MSG_MEMSEL);
-  puts(MSG_MEMXMS);
-  puts(MSG_MEMEMS);
-  puts(MSG_MEMDSK);
-
-  printf(MSG_MEMORY);
-  mem:
-  i=getch();
-
-  if(i==27)
-  {
-   printf("\n\n");
-   exit(EXIT_ABORT_SETUP);
-  }
-
-  if (i=='1')
-   arachne.xSwap=1;
-  else if (i=='2')
-   arachne.xSwap=2;
-  else if (i!='0' && i!=13)
-   goto mem;
-
-  printf("\n");
-#endif
-//!!glennmcc: end -- Oct 23, 2005
-  rv=askgraphics();
-
-  if(rv==-1)
-  {
-   printf("\n\n");
-   exit(EXIT_ABORT_SETUP);
-  }
-#endif
- }//endif first start
-
- p->htmlframe=(struct HTMLframe*)farmalloc(MAXFRAMES*(2+sizeof(struct HTMLframe)));
- AUTHENTICATION=farmalloc(sizeof(struct AUTH_STRUCT)+2);
- if(p->htmlframe && AUTHENTICATION)
- {
-  if(f>=0)
-   i=a_read(f,p->htmlframe,MAXFRAMES*(1+sizeof(struct HTMLframe)));
-  else
-   i=0;
-  if(i<MAXFRAMES*(1+sizeof(struct HTMLframe)))
-   memset(p->htmlframe,0,MAXFRAMES*(1+sizeof(struct HTMLframe)));
-
-  if(f>=0)
-   i=a_read(f,AUTHENTICATION,sizeof(struct AUTH_STRUCT));
-  else
-   i=0;
-  if(i<sizeof(struct AUTH_STRUCT))
-   memset(AUTHENTICATION,0,sizeof(struct AUTH_STRUCT));
- }
- else
-  memerr0();
-
- a_close(f);
-
- return rv;
-
-}
-
 /*
 
 void defaultGUIstyle(void)
@@ -201,22 +32,24 @@ void meminit(char arg)
 }
 #endif
 
-void savepick() //save configuration
+/**
+ * save pick file (runtime data)
+ */
+void savepick()
 {
- int f;
+	char *fname;
+	int fd;
 
-#ifdef POSIX
- f=a_open(ARACHNEPICK,O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-#else
- f=a_open(ARACHNEPICK,O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
-#endif
- if(f>=0)
- {
-  write(f,&arachne,sizeof(struct ArachnePick));
-  write(f,p->htmlframe,MAXFRAMES*(1+sizeof(struct HTMLframe)));
-  write(f,AUTHENTICATION,sizeof(struct AUTH_STRUCT));
-  a_close(f);
- }
+	fname = newstr("%s%s", userpath, "arachne.pck");
+	fd = a_open(fname, O_WRONLY | O_CREAT | O_TRUNC, S_IREAD | S_IWRITE);
+	freestr(fname);
+
+	if (fd >= 0) {
+		(void)write(fd, &arachne, sizeof(struct ArachnePick));
+		(void)write(fd, p->htmlframe, MAXFRAMES * (1 + sizeof(struct HTMLframe)));
+		(void)write(fd, AUTHENTICATION, sizeof(struct AUTH_STRUCT));
+		a_close(fd);
+	}
 }
 
 //in case newvalue!=NULL
