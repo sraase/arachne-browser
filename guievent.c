@@ -867,18 +867,8 @@ else
     sprintf(GLOBAL.location,"mailto:",exepath);
     arachne.target=0;
 
-
-//!!glennmcc: begin Aug 22, 2002
-//remove contents of textarea.tmp when "C" hotkey is pessed
-//	tmpeditor.maxlines=-1;
-//	strcpy(tmpeditor.filename,"textarea.tmp");
-//	ie_savef(&tmpeditor);
-//!!glennmcc: Aug 25, 2002...
-// Michael says that just one line will do the same as my 3 lines.
-//let's see if he knows his program better than I do ;-)
-unlink("textarea.tmp");
-//!!glennmcc: end
-
+    sprintf(tmpeditor.filename, "%s%s", userpath, "textarea.tmp");
+    unlink(tmpeditor.filename);
 
     return gotoloc();
    }

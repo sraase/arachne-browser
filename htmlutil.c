@@ -808,12 +808,7 @@ void Deallocmem(void)
      if(editorptr->modified && atomptr->data1==TEXTAREA)
      {
       memcpy(&tmpeditor,editorptr,sizeof(struct ib_editor));
-#ifdef POSIX
-      strcpy(tmpeditor.filename,dotarachne);
-      strcat(tmpeditor.filename,"textarea.tmp");
-#else
-      strcpy(tmpeditor.filename,"textarea.tmp");
-#endif
+      sprintf(tmpeditor.filename, "%s%s", userpath, "textarea.tmp");
       ie_savef(&tmpeditor); //modifying xswap, editorptr is no longer valid
       editorptr=&tmpeditor;
      }

@@ -50,7 +50,6 @@ char exepath[65]="\0";
 #ifdef POSIX
 char sharepath[80]="\0";
 char cachepath[80]="\0";
-char dotarachne[65]="\0";
 char fntinf[80]="\0";
 char fntpath[80]="\0";
 #else

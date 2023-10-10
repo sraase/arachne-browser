@@ -183,7 +183,6 @@ static int loadpick(void)
 	/* set system directories */
 	strcpy(exepath, syspath);
 	strcpy(sharepath, syspath);
-	strcpy(dotarachne, userpath);
 	snprintf(cachepath, sizeof(cachepath), "%scache/", userpath);
 	snprintf(CLIPBOARDNAME, sizeof(CLIPBOARDNAME), "%sclipboard.bin", userpath);
 
@@ -575,7 +574,7 @@ void init_bin(void)
 #ifdef POSIX
  char acfg[80],mcfg[80];
 
- sprintf(acfg,"%sarachne.conf",dotarachne);
+ sprintf(acfg,"%sarachne.conf",userpath);
  sprintf(mcfg,"%smime.conf",sharepath);
 
  BUF=16535;

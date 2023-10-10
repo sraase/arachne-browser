@@ -499,7 +499,6 @@ extern char exepath[65];    // read-only
 #ifdef POSIX
 extern char sharepath[80];  // read-only
 extern char cachepath[80];  // read-only
-extern char dotarachne[65]; // read-only
 extern char fntpath[80];    // read-only
 extern char fntinf[80];     // read-only
 #else

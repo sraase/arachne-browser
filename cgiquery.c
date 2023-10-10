@@ -460,43 +460,19 @@ write(mailmsg,str,strlen(str));
 	    write(mailmsg,p->buf,i+1);
 	   }
 	   a_close(f);
-//!!glennmcc: begin July 8, 7 2002
-//remove contents of textarea.tmp
-//	tmpeditor.maxlines=-1;
-//	strcpy(tmpeditor.filename,"textarea.tmp");
-//	ie_savef(&tmpeditor);
-//!!glennmcc: end
-
 	  }//endif
 	 }//endif
 	}//endif
        }//end if modify/resend
 
-//!!glennmcc: begin July 8, 7 2002
-//remove contents of textarea.tmp
-//!!glennmcc: July 18, 2002... moved to here
-//the first try up-above did not work if modify/resend
-//      tmpeditor.maxlines=-1;
-//	strcpy(tmpeditor.filename,"textarea.tmp");
-//	ie_savef(&tmpeditor);
-//!!glennmcc: Aug 25, 2002...
-// Michael says that just one line will do the same as my 3 lines.
-//let's see if he knows his program better than I do ;-)
-unlink("textarea.tmp");
-//!!glennmcc: end
-       }
+       sprintf(tmpeditor.filename, "%s%s", userpath, "textarea.tmp");
+       unlink(tmpeditor.filename);
+      }
      else
       {
        //save textarea to temporary file
        if(cgi)
-#ifdef POSIX
-       {
-	strcpy(tmpeditor.filename,dotarachne);
-	strcat(tmpeditor.filename,"textarea.tmp");
-       }
-#else
-	strcpy(tmpeditor.filename,"textarea.tmp");
-#endif
+        sprintf(tmpeditor.filename, "%s%s", userpath, "textarea.tmp");
        ie_savef(&tmpeditor);
       }
 
