@@ -71,6 +71,72 @@ static int setsyspaths(char *argv0)
 }
 
 /**
+ * set user locations (available in configuration)
+ *   cachepath    : read-write
+ *   mailpath     : read-write
+ *   downloadpath : read-write
+ *   guipath      : read-only
+ *   iconpath     : read-only
+ *   fontpath     : read-only
+ */
+static int setuserpaths(void)
+{
+	char *ptr, *suffix = "";
+
+#ifndef POSIX
+	/* work around the fact that DOS builds store system
+	   data both in C:\ARACHNE and C:\ARACHNE\SYSTEM */
+	suffix = "SYSTEM\\";
+#endif
+
+	ptr = config_get_str("CachePath", NULL);
+	if (ptr) cachepath = newstr("%s%c", ptr, PATHSEP);
+	else     cachepath = newstr("%s%s%c", userpath, "cache", PATHSEP);
+
+	ptr = config_get_str("MailPath", NULL);
+	if (ptr) mailpath = newstr("%s%c", ptr, PATHSEP);
+	else     mailpath = newstr("%s%s%c", userpath, "mail", PATHSEP);
+
+	ptr = config_get_str("DownloadPath", NULL);
+	if (ptr) downloadpath = newstr("%s%c", ptr, PATHSEP);
+	else     downloadpath = newstr("%s%s%c", userpath, "download", PATHSEP);
+
+	ptr = config_get_str("GuiPath", NULL);
+	if (ptr) guipath = newstr("%s%c", ptr, PATHSEP);
+	else     guipath = newstr("%s%s%s%c", syspath, suffix, "gui", PATHSEP);
+
+	ptr = config_get_str("IconPath", NULL);
+	if (ptr) iconpath = newstr("%s%c", ptr, PATHSEP);
+	else     iconpath = newstr("%s%s%s%c", syspath, suffix, "ikons", PATHSEP);
+
+#ifdef POSIX
+	/* fonts are stored in syspath/encoding */
+	ptr = config_get_str("FontPath", NULL);
+	if (ptr) fontpath = newstr("%s%c", ptr, PATHSEP);
+	else     fontpath = newstr("%s%s", syspath, "iso-8859-1/");
+#else
+	/* fonts are stored in syspath/suffix */
+	ptr = config_get_str("FontPath", NULL);
+	if (ptr) fontpath = newstr("%s%c", ptr, PATHSEP);
+	else     fontpath = newstr("%s%s", syspath, suffix);
+#endif
+
+	if (!cachepath || !mailpath || !downloadpath ||
+	    !guipath || !iconpath || !fontpath)
+		return 1;
+
+#ifdef POSIX
+	/* create user folders automatically */
+	mkdir(userpath, 0700);
+	mkdir(cachepath, 0700);
+	mkdir(mailpath, 0700);
+	mkdir(downloadpath, 0700);
+#endif
+
+	return 0;
+}
+
+/**
  * set swap device (arachne.xSwap)
  */
 static int setswap(void)
@@ -183,11 +249,6 @@ static int loadpick(void)
 	/* set system directories */
 	strcpy(exepath, syspath);
 	strcpy(sharepath, syspath);
-	snprintf(cachepath, sizeof(cachepath), "%scache/", userpath);
-
-	/* create user and cache directories */
-	mkdir(userpath, 0700);
-	mkdir(cachepath, 0700);
 #else
 	/* set system directories */
 	strcpy(exepath, syspath);
@@ -304,6 +365,7 @@ finfoload();                    //load font information
 if(ie_initswap()!=1)            //initialization of swapping system ie_swap
  memerr0();
 init_bin();                     //initialization of memory, conf. files, etc.
+setuserpaths();                 //font, cache, gui, ... pathes
 configure_user_interface();     //icons, hotkeys, scrollbuttons, font...
 init_xms();                     //font caching+animated GIFs
 
@@ -312,6 +374,7 @@ init_xms();                     //font caching+animated GIFs
 if(ie_initswap()!=1)            //initialization of swapping system ie_swap
  memerr0();
 init_bin();                     //initialization of memory, conf. files, etc.
+setuserpaths();                 //font, cache, gui, ... pathes
 
 // temporary, force 800x600 HiColor by default
 strcpy(arachne.graphics, config_get_str("GraphicsMode", "Hi16.J"));

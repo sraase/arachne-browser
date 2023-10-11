@@ -46,10 +46,16 @@ char *syspath;
 char *userpath;
 char *helppath;
 
+char *fontpath;
+char *guipath;
+char *iconpath;
+char *cachepath;
+char *mailpath;
+char *downloadpath;
+
 char exepath[65]="\0";
 #ifdef POSIX
 char sharepath[80]="\0";
-char cachepath[80]="\0";
 char fntinf[80]="\0";
 char fntpath[80]="\0";
 #else

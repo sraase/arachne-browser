@@ -495,16 +495,21 @@ extern char *syspath;
 extern char *userpath;
 extern char *helppath;
 
+extern char *fontpath;
+extern char *guipath;
+extern char *iconpath;
+extern char *cachepath;
+extern char *mailpath;
+extern char *downloadpath;
+
 extern char exepath[65];    // read-only
 #ifdef POSIX
 extern char sharepath[80];  // read-only
-extern char cachepath[80];  // read-only
 extern char fntpath[80];    // read-only
 extern char fntinf[80];     // read-only
 #else
 #define sharepath exepath
 extern char *fntinf;
-extern char *cachepath;
 #endif
 
 //extern char *buf;
