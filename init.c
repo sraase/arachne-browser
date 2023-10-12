@@ -13,6 +13,15 @@
 #include "internet.h"
 #endif
 
+/* maximum number of lines in cfg file */
+#define LINES 1024
+
+/* maximum number of lines in cookies file */
+#define MAX_HTTP_COOKIES (64 * CookieCrumbs)
+
+/* in errors.c */
+void cfgerr (struct ib_editor *f);
+
 int mem_xmem(unsigned *total, unsigned *free);
 
 /**
@@ -268,6 +277,53 @@ static void del_pick(void)
 	freestr(fname);
 }
 #endif
+
+/**
+ * load configuration file
+ *   if cfgpath is not NULL, load from cfgpath
+ *   otherwise, try userpath/name then syspath/name
+ */
+static int loadcfg(struct ib_editor *fajl, const char *name, const char *cfgpath)
+{
+	int rc;
+
+	if (cfgpath) {
+		/* load from cfgpath */
+		strcpy(fajl->filename, cfgpath);
+		rc = ie_openf_lim(fajl, CONTEXT_SYSTEM, LINES);
+		if (rc == 2) {
+			memerr0();
+		} else if (rc == 1 && fajl->lines) {
+			return 0;
+		}
+		ie_clearf(fajl, 0);
+
+	} else {
+		/* load from userpath */
+		sprintf(fajl->filename, "%s%s", userpath, name);
+		rc = ie_openf_lim(fajl, CONTEXT_SYSTEM, LINES);
+		if (rc == 2) {
+			memerr0();
+		} else if (rc == 1 && fajl->lines) {
+			return 0;
+		}
+		ie_clearf(fajl, 0);
+
+		/* load from syspath */
+		sprintf(fajl->filename, "%s%s", syspath, name);
+		rc = ie_openf_lim(fajl, CONTEXT_SYSTEM, LINES);
+		if (rc == 2) {
+			memerr0();
+		} else if (rc == 1 && fajl->lines) {
+			return 0;
+		}
+		ie_clearf(fajl, 0);
+	}
+
+	/* failed to load */
+	cfgerr(fajl);
+	return 1;
+}
 
 int Initialize_Arachne(int argc, char **argv, struct Url *url)
 {
@@ -619,30 +675,12 @@ bioskey_close();
  return(returnvalue);
 }
 
-//erroneous configuration - moved to errors.c...
-void cfgerr (struct ib_editor *f);
-
-//maximum number of lines in CFG files :
-#define LINES 1024
-
-//maximum number of lines in cookies file :
-#define MAX_HTTP_COOKIES 64*CookieCrumbs
-//!!JdS 2004/3/6: Was: #define MAX_HTTP_COOKIES 64
-
 void init_bin(void)
 {
  int rc;
- char *ptr;
 #ifdef POSIX
- char acfg[80],mcfg[80];
-
- sprintf(acfg,"%sarachne.conf",userpath);
- sprintf(mcfg,"%smime.conf",sharepath);
-
  BUF=16535;
 #else
- char *acfg="arachne.cfg",*mcfg="mime.cfg";
-
  if(farcoreleft()<MIN_MEMORY)
   memerr0();
  else
@@ -674,85 +712,21 @@ void init_bin(void)
  }
 #endif
 
+ /* load arachne.cfg with comments */
+ ARACHNEcfg.killcomment = 0;
+ loadcfg(&ARACHNEcfg, "arachne.cfg", NULL);
 
- //---ARACHNE.CFG
- strcpy(ARACHNEcfg.filename,acfg);
- ARACHNEcfg.killcomment=0;
-//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
- rc=ie_openf_lim(&ARACHNEcfg,CONTEXT_SYSTEM,LINES); //main configuration
- if(!ARACHNEcfg.lines)
- {
-  ie_clearf(&ARACHNEcfg,0);
-#ifdef POSIX
-  sprintf(ARACHNEcfg.filename,"arachne.cfg");
-#else
-  sprintf(ARACHNEcfg.filename,"%s%s",exepath,acfg);
-#endif
-//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
-  rc=ie_openf_lim(&ARACHNEcfg,CONTEXT_SYSTEM,LINES); //always 256 lines
- }
- if(rc==2)
-  memerr0();
- else if(rc!=1)
-  cfgerr(&ARACHNEcfg);
+ /* load mime.cfg without comments */
+ MIMEcfg.killcomment = 1;
+ loadcfg(&MIMEcfg, "mime.cfg", NULL);
 
-  //---MIME.CFG
- strcpy(MIMEcfg.filename,mcfg);
- MIMEcfg.killcomment=1;
-//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
- rc=ie_openf_lim(&MIMEcfg,CONTEXT_SYSTEM,LINES); //MIME
- if(!MIMEcfg.lines)
- {
-  ie_clearf(&MIMEcfg,0);
-#ifdef POSIX
-  sprintf(MIMEcfg.filename,"mime.cfg");
-#else
-  sprintf(MIMEcfg.filename,"%s%s",exepath,mcfg);
-#endif
-//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
-  rc=ie_openf_lim(&MIMEcfg,CONTEXT_SYSTEM,LINES); //MIME
- }
- if(rc==2)
-  memerr0();
- else if(rc!=1)
-  cfgerr(&MIMEcfg);
+ /* load toolbar.cfg without comments */
+ TOOLBARcfg.killcomment = 1;
+ loadcfg(&TOOLBARcfg, "toolbar.cfg", config_get_str("Toolbar", NULL));
 
- //---toolbar.cfg loading
- ptr = config_get_str("Toolbar", NULL);
- if(!ptr)
-#ifdef POSIX
-  sprintf(TOOLBARcfg.filename,"%stemplates/toolbar.cfg",sharepath);
-#else
-  sprintf(TOOLBARcfg.filename,"%stoolbar.cfg",exepath);
-#endif
-  else
-  strcpy(TOOLBARcfg.filename,ptr);
- TOOLBARcfg.killcomment=1;
-//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
- rc=ie_openf_lim(&TOOLBARcfg,CONTEXT_SYSTEM,LINES); //Toolbar
- if(rc==2)
-  memerr0();
- else if(rc!=1 || TOOLBARcfg.lines==0)
-  cfgerr(&TOOLBARcfg);
-
-//!!glennmcc: May 27, 2007 -- read entity conversions from entity.cfg
- //---entity.cfg
-#ifdef POSIX
-  sprintf(ENTITYcfg.filename,"%stemplates/entity.cfg",sharepath);
-#else
-  sprintf(ENTITYcfg.filename,"%sentity.cfg",exepath);
-#endif
- ENTITYcfg.killcomment=1;
-#ifdef MINIMAL
- rc=ie_openf_lim(&ENTITYcfg,CONTEXT_SYSTEM,256);
-#else
- rc=ie_openf_lim(&ENTITYcfg,CONTEXT_SYSTEM,512);
-#endif
- if(rc==2)
-  memerr0();
- else if(rc!=1 || ENTITYcfg.lines==0)
-  cfgerr(&ENTITYcfg);
-//!!glennmcc: end
+ /* load entity.cfg without comments */
+ ENTITYcfg.killcomment = 1;
+ loadcfg(&ENTITYcfg, "entity.cfg", NULL);
 
  //---History of visited URLs
  strcpy(history.filename,config_get_str("History", "history.lst"));
