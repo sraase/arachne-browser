@@ -505,11 +505,8 @@ extern char *downloadpath;
 extern char exepath[65];    // read-only
 #ifdef POSIX
 extern char sharepath[80];  // read-only
-extern char fntpath[80];    // read-only
-extern char fntinf[80];     // read-only
 #else
 #define sharepath exepath
-extern char *fntinf;
 #endif
 
 //extern char *buf;

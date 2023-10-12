@@ -111,12 +111,12 @@ static int setuserpaths(void)
 
 #ifdef POSIX
 	/* fonts are stored in syspath/encoding */
-	ptr = config_get_str("FontPath", NULL);
+	ptr = config_get_str("FontPath ", NULL);
 	if (ptr) fontpath = newstr("%s%c", ptr, PATHSEP);
 	else     fontpath = newstr("%s%s", syspath, "iso-8859-1/");
 #else
 	/* fonts are stored in syspath/suffix */
-	ptr = config_get_str("FontPath", NULL);
+	ptr = config_get_str("FontPath ", NULL);
 	if (ptr) fontpath = newstr("%s%c", ptr, PATHSEP);
 	else     fontpath = newstr("%s%s", syspath, suffix);
 #endif
@@ -361,11 +361,11 @@ graphicsinit(arachne.graphics); //XLOPIF SVGA GRAPHICS
 if(!noGUIredraw && !strcmpi(arachne.graphics,"VGA"))
  x_cleardev();
 
-finfoload();                    //load font information
 if(ie_initswap()!=1)            //initialization of swapping system ie_swap
  memerr0();
 init_bin();                     //initialization of memory, conf. files, etc.
 setuserpaths();                 //font, cache, gui, ... pathes
+finfoload();                    //load font information
 configure_user_interface();     //icons, hotkeys, scrollbuttons, font...
 init_xms();                     //font caching+animated GIFs
 
@@ -695,13 +695,6 @@ void init_bin(void)
   memerr0();
  else if(rc!=1)
   cfgerr(&ARACHNEcfg);
-
-#ifdef POSIX
- //set font path first of all...
- sprintf(fntpath,"%s%s",sharepath,config_get_str("FontPathSuffix", "iso-8859-1/"));
- strcpy(fntinf,fntpath);
- strcat(fntinf,"fontinfo.bin");
-#endif
 
   //---MIME.CFG
  strcpy(MIMEcfg.filename,mcfg);

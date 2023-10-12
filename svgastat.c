@@ -333,12 +333,7 @@ void htmlfont(int fnum, char style)
     (currentstyle&(BOLD|ITALIC|FIXED))==(style&(BOLD|ITALIC|FIXED)))
   return;
 
-#ifdef POSIX
- strcpy(string,fntpath);
-#else
- strcpy(string,exepath);
- strcat(string,"system\\");
-#endif
+ strcpy(string, fontpath);
  if(fnum==SYSFONT)
   strcat(string,"8x14");
  else

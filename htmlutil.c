@@ -272,15 +272,14 @@ void HTTPcharset(char *charset)
     RENDER.translatecharset=1;
    else
    {
-    char fn[80];
+    char *fn = newstr("%scodepage%c%s.cp", fontpath, PATHSEP, ptr);
     int f;
 #ifdef POSIX
-    sprintf(fn,"%scodepages/%s.cp",fntpath,ptr);
-    f=a_open(fn,O_RDONLY, S_IREAD);
+    f = a_open(fn, O_RDONLY, S_IREAD);
 #else
-    sprintf(fn,"%s\\system\\codepage\\%s.cp",exepath,ptr);
-    f=a_sopen(fn,O_RDONLY|O_BINARY,SH_COMPAT, S_IREAD);
+    f = a_sopen(fn, O_RDONLY | O_BINARY, SH_COMPAT, S_IREAD);
 #endif
+    freestr(fn);
     if(f!=-1)
     {
      if( a_read(f,GLOBAL.codepage,256) ==256)

@@ -282,6 +282,7 @@ void finfo(void)
  int f=1,i;
  char str[3]="\0\0";
  char nibble,style;
+ char *fname;
 
  if(!finf)
   finf=farmalloc(sizeof(struct Finf));
@@ -350,52 +351,45 @@ void finfo(void)
  }
 // htmlfont(SYSFONT,0);
 
-//!!glennmcc: Mar 06, 2008 -- preserve entity data at end of original fontinfo.bin
- f=a_open(fntinf,O_WRONLY|O_BINARY,S_IREAD|S_IWRITE);
-//f=a_open(fntinf,O_WRONLY|O_CREAT|O_BINARY,S_IREAD|S_IWRITE);//original line
- if(f!=-1)
- {
-  write(f,finf,sizeof(struct Finf)-768);
-//write(f,finf,sizeof(struct Finf));//original ine
-//!!glennmcc: end
+ fname = newstr("%s%s", fontpath, "fontinfo.bin");
+ f = a_open(fname, O_WRONLY | O_BINARY, S_IREAD | S_IWRITE);
+ if (f >= 0) {
+  /* preserve entity data at end of original fontinfo.bin */
+  write(f, finf, sizeof(struct Finf) - 768);
   a_close(f);
-  puts(fntinf);
-  exit(EXIT_TO_DOS); //!!glennmcc: Jun 13, 2005
- }
- else
- {
-  perror(fntinf);
+  puts(fname);
   exit(EXIT_TO_DOS);
  }
+
+ perror(fname);
+ exit(EXIT_TO_DOS);
 }
 #endif
 #endif
 
 void finfoload(void)
 {
- int f;
+	char *fname;
+	int fd;
 
- if(!finf)
-  finf=farmalloc(sizeof(struct Finf));
- if(!finf)
-  memerr0();
+	if (!finf)
+		finf = farmalloc(sizeof(struct Finf));
 
- f=a_open(fntinf,O_RDONLY|O_BINARY,0);
- if(f!=-1)
- {
-  if(a_read(f,finf,sizeof(struct Finf))!=sizeof(struct Finf))
-   goto fontinferr;
-  a_close(f);
- }
- else
- {
-  fontinferr:
-  err(FONTERR,fntinf);
- }
-/* always!!
- if(!strcmp(finf->entity[32],"nbsp"))
-  ascii160hack=1;
-*/
+	fname = newstr("%s%s", fontpath, "fontinfo.bin");
+	if (!finf || !fname)
+		memerr0();
+
+	fd = a_open(fname, O_RDONLY | O_BINARY, 0);
+	if (fd >= 0) {
+		int len = a_read(fd, finf, sizeof(struct Finf));
+		a_close(fd);
+
+		if (len == sizeof(struct Finf)) {
+			freestr(fname);
+			return;
+		}
+	}
+
+	/* will call exit() */
+	err(FONTERR, fname);
 }
-
-

@@ -56,10 +56,6 @@ char *downloadpath;
 char exepath[65]="\0";
 #ifdef POSIX
 char sharepath[80]="\0";
-char fntinf[80]="\0";
-char fntpath[80]="\0";
-#else
-char *fntinf="system\\fontinfo.bin";
 #endif
 
 
