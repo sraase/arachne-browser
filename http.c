@@ -34,9 +34,6 @@ void find_keepalive_socket(char *hostname)
 }
 #endif
 
-char exestr[40]="\0";
-void makeexestr(char *exestr);
-
 int authenticated_http(struct Url *url,struct HTTPrecord *cache)
 {
  longword host=0;
@@ -80,10 +77,6 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  if(tcpip)
   free_socket();
 #endif
-
- /*create string with executable description - DOS, Linux, etc. Created only once*/
- if(!*exestr)
-  makeexestr(exestr);
 
 //!!glennmcc: Dec 05, 2013 -- do not send blank Referer: in header
  if(http_parameters.referer && strlen(Referer)>0)

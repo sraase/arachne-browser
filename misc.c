@@ -570,22 +570,3 @@ else
  *out=*in;
  return rv;
 }
-
-
-void makeexestr(char *exestr)
-{
-#ifdef MSDOS
- if(tcpip)
-  sprintf(exestr,"DOS x86;WATTCP/%d.%02d%s",WTCP_VER>>8,WTCP_VER&0xff,exetype);
- else
-  sprintf(exestr,"DOS x86;httpstub%s",exetype);
-#elif LINUX
-  char *ostype=getenv("OSTYPE");
-  char *hosttype=getenv("HOSTTYPE");
-  if(!ostype)
-   ostype="Linux";
-  if(!hosttype)
-   hosttype="i386";
-  sprintf(exestr,"%s %s%s",ostype,hosttype,exetype);
-#endif
-}
