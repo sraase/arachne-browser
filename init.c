@@ -677,6 +677,7 @@ bioskey_close();
 
 void init_bin(void)
 {
+ char *ptr;
  int rc;
 #ifdef POSIX
  BUF=16535;
@@ -728,43 +729,48 @@ void init_bin(void)
  ENTITYcfg.killcomment = 1;
  loadcfg(&ENTITYcfg, "entity.cfg", NULL);
 
- //---History of visited URLs
- strcpy(history.filename,config_get_str("History", "history.lst"));
- history.killcomment=0;
-//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
- rc=ie_openf_lim(&history,CONTEXT_SYSTEM,LINES); //history - max. 256 lines
- if(rc==2)
+ /* load history.lst with comments
+    make sure it has at least one entry */
+ ptr = config_get_str("History", NULL);
+ if (ptr) {
+  strcpy(history.filename, ptr);
+ } else {
+  sprintf(history.filename, "%s%s", userpath, "history.lst");
+ }
+ history.killcomment = 0;
+ rc = ie_openf_lim(&history, CONTEXT_SYSTEM, LINES);
+ if (rc == 2)
   memerr0();
- if(history.lines==0)
-  ie_insline(&history,0,"");
- if(arachne.history>=history.lines)
-  arachne.history=history.lines-1;
+ if (history.lines == 0) {
+  ie_insline(&history, 0, "");
+ }
+ if (arachne.history >= history.lines) {
+  arachne.history = history.lines - 1;
+ }
 
- //---Index of cache
- strcpy(HTTPcache.filename,config_get_str("CacheIndex", "cache.idx"));
-//!!glennmcc: Dec 03, 2005 -- increased to 388 via LINES define above (experimental compile only)
- HTTPcache.maxlines=LINES;
-// HTTPcache.maxlines=256; //max 256 files in cache
- rc=ie_openbin(&HTTPcache);
- if(rc==2)
+ /* load cache index */
+ ptr = config_get_str("CacheIndex", NULL);
+ if (ptr) {
+  strcpy(HTTPcache.filename, ptr);
+ } else {
+  sprintf(HTTPcache.filename, "%s%s", userpath, "cache.idx");
+ }
+ rc = ie_openbin(&HTTPcache);
+ if (rc == 2)
   memerr0();
 
-/*
- this won't be performed automaticaly any more...
- if(rc!=1 || HTTPcache.len==0)
-  gumujcache(0);
-*/
-
- //---COOKIES.LST
- strcpy(cookies.filename,config_get_str("CookieFile", "cookies.lst"));
- rc=ie_openf_lim(&cookies,CONTEXT_SYSTEM,MAX_HTTP_COOKIES);
-//!!JdS 2004/3/6 {
- if ((cookies.lines/CookieCrumbs)*CookieCrumbs != cookies.lines)
+ /* load cookies.lst and check its size */
+ ptr = config_get_str("CookieFile", NULL);
+ if (ptr) {
+  sprintf(cookies.filename, ptr);
+ } else {
+  sprintf(cookies.filename, "%s%s", userpath, "cookies.lst");
+ }
+ rc = ie_openf_lim(&cookies, CONTEXT_SYSTEM, MAX_HTTP_COOKIES);
+ if (rc == 2)
+  memerr0();
+ if ((cookies.lines / CookieCrumbs) * CookieCrumbs != cookies.lines)
   badcookiesfile();
-//!!JdS 2004/3/6 }
- if(rc==2)
-  memerr0();
- //---
 
 #ifndef NOTCPIP
 #ifdef WATTCP
