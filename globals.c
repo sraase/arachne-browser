@@ -54,9 +54,6 @@ char *mailpath;
 char *downloadpath;
 
 char exepath[65]="\0";
-#ifdef POSIX
-char sharepath[80]="\0";
-#endif
 
 
 //char *buf=NULL;            //univerzalni buffer vstup vystup

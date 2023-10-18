@@ -501,11 +501,6 @@ extern char *mailpath;
 extern char *downloadpath;
 
 extern char exepath[65];    // read-only
-#ifdef POSIX
-extern char sharepath[80];  // read-only
-#else
-#define sharepath exepath
-#endif
 
 //extern char *buf;
 

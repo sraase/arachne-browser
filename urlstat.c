@@ -191,11 +191,7 @@ else
  else if(!strcmpi(absURL->protocol,"gui"))
  {
   sprintf(cacheitem->mime,"file/%s",absURL->file);
-#ifdef POSIX
-  sprintf(cacheitem->locname,"%sgui/%s",sharepath,absURL->file);
-#else
-  sprintf(cacheitem->locname,"%ssystem/gui/%s",sharepath,absURL->file);
-#endif
+  sprintf(cacheitem->locname,"%s%s",guipath,absURL->file);
   cacheitem->rawname[0]='\0';
   return 1;
  }

@@ -805,10 +805,8 @@ void Putikonx(int x0, int y0, char *iconame, char noswap)
   int      Transp;      // Transparentni ikony
 
   // -------------------------------------------------
+  strcpy(filnam, iconpath);
 #ifdef POSIX
-  // will be ../lib/arachne/ikons/
-  strcpy(filnam, sharepath);
-  strcat(filnam, "ikons/");
   {
    char *ptr=strrchr(iconame,'/');
    if(ptr)
@@ -822,8 +820,6 @@ void Putikonx(int x0, int y0, char *iconame, char noswap)
    strcat(filnam,".ikn");
 //  printf("Ikon to draw: %s at x=%d,y=%d\n",filnam,x0,y0);
 #else
-  strcpy(filnam, exepath);
-  strcat(filnam, "system\\ikons\\");
   fnsplit(iconame, drive,dir, iconame2, dummy);
   fnsplit(filnam, drive, dir, dummy, dummy);
   fnmerge(filnam, drive, dir, iconame2,".ikn");

@@ -257,7 +257,6 @@ static int loadpick(void)
 #ifdef POSIX
 	/* set system directories */
 	strcpy(exepath, syspath);
-	strcpy(sharepath, syspath);
 #else
 	/* set system directories */
 	strcpy(exepath, syspath);
