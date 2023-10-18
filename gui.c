@@ -127,7 +127,7 @@ mammys:
 //goto prtbmp.ah instead of viewing the screencap (same as Ctrl+P)
     if(PrintScreen2BMP(0))
     {
-     sprintf(GLOBAL.location,"file:%s%sprtbmp.ah",sharepath,GUIPATH);
+     strcpy(GLOBAL.location,"gui:prtbmp.ah");
      arachne.target=0;
      return gotoloc();
     }

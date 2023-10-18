@@ -506,7 +506,7 @@ IveGotNewUrl:
 #endif
     }
     else
-     sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_net.ah",sharepath,GUIPATH);
+     sprintf(p->htmlframe[0].cacheitem.locname,"%serr_net.ah",guipath);
 
     *cacheitem_writeadr=IE_NULL;
     p->forced_html=1;
@@ -588,7 +588,7 @@ add2history(GLOBAL.location);
     {
      if(AUTHENTICATION->flag==AUTH_REQUIRED)
      {
-      sprintf(cacheitem->locname,"%s%slogin.ah",sharepath,GUIPATH);
+      sprintf(cacheitem->locname,"%slogin.ah",guipath);
       p->forced_html=1;
       p->html_source=LOCAL_HTML;
       goto Render;
@@ -604,7 +604,7 @@ add2history(GLOBAL.location);
       goto IveGotNewUrl;
      }
 
-     sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_open.ah",sharepath,GUIPATH);
+     sprintf(p->htmlframe[0].cacheitem.locname,"%serr_open.ah",guipath);
      p->forced_html=1;
      p->html_source=LOCAL_HTML;
      arachne.target=0;
@@ -664,9 +664,9 @@ add2history(GLOBAL.location);
 //!!glennmcc: begin Jan 16, 2005 -- no error page when 'arachne:'
 if(!strstr(url.protocol,"arachne:"))
    {
-    sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_url.ah",sharepath,GUIPATH);
+    sprintf(p->htmlframe[0].cacheitem.locname,"%serr_url.ah",guipath);
    }
-//    sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_url.ah",sharepath,GUIPATH);
+//    sprintf(p->htmlframe[0].cacheitem.locname,"%serr_url.ah",guipath);
 //!!glennmcc: end
     arachne.target=0;
     error=1;
@@ -859,8 +859,7 @@ if(//!strstr(configvariable(&ARACHNEcfg,"EnterBGDL",NULL),"Y")
   if(!plugin && weird && !strstr(imageextensions,ext) && cacheitem->mime[0] && found)
   {
    strcpy(LASTlocname,cacheitem->locname);
-   strcpy(cacheitem->locname,sharepath);
-   strcat(cacheitem->locname,GUIPATH);
+   strcpy(cacheitem->locname,guipath);
    if(*cacheitem_status==REMOTE)
     strcat(cacheitem->locname,"download.ah");
    else
@@ -1042,7 +1041,7 @@ Render:
   }
 
   //failed to load local document:
-  sprintf(loc,"%s%serr_load.ah",sharepath,GUIPATH);
+  sprintf(loc,"%serr_load.ah",guipath);
   if(!strcmp(loc,p->htmlframe[p->currentframe].cacheitem.locname) || error)
   {
    error=1;

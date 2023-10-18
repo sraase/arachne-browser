@@ -236,7 +236,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
       strcmp(url->user,AUTHENTICATION->user) ||
       strcmp(AUTHENTICATION->realm,"$ftp")))
   {
-   sprintf(cacheitem->locname,"%s%sftplogin.ah",sharepath,GUIPATH);
+   sprintf(cacheitem->locname,"%sftplogin.ah",guipath);
    strcpy(AUTHENTICATION->host,url->host);
    return GOTO_LOCAL_HTML;
   }
@@ -312,7 +312,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 
   if(!xpopdump(url,dele,log))
   {
-   sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_pop3.ah",sharepath,GUIPATH);
+   sprintf(p->htmlframe[0].cacheitem.locname,"%serr_pop3.ah",guipath);
    return GOTO_ERROR;
   }
   else if(arachne.scriptline==0)
@@ -392,7 +392,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
   if(!xsendmail(url,helo,log))
 
   {
-   sprintf(p->htmlframe[0].cacheitem.locname,"%s%serr_smtp.ah",sharepath,GUIPATH);
+   sprintf(p->htmlframe[0].cacheitem.locname,"%serr_smtp.ah",guipath);
    return GOTO_ERROR;
   }
   else if(arachne.scriptline==0)

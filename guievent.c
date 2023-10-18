@@ -212,7 +212,7 @@ int erasecache(void)
  MemInfo(NORMAL);
  if (config_get_bool("WarnClear", 0)) {
   // warn before clearing
-  sprintf(GLOBAL.location,"file:%s%swarn_clr.ah",sharepath,GUIPATH);
+  strcpy(GLOBAL.location,"gui:warn_clr.ah");
  } else {
   strcpy(GLOBAL.location,"file:clearcache.dgi");
  }
@@ -376,7 +376,7 @@ int printtxt(void)
  char *ptr = config_get_str("PrintURL", NULL);
  saveastext();
  if (!ptr) {
-  sprintf(GLOBAL.location,"file:%s%sprint.ah",sharepath,GUIPATH);
+  strcpy(GLOBAL.location,"gui:print.ah");
  } else {
   strcpy(GLOBAL.location,ptr);
  }
@@ -955,7 +955,7 @@ else
    {
     if(PrintScreen2BMP(1))
     {
-     sprintf(GLOBAL.location,"file:%s%sprtbmp.ah",sharepath,GUIPATH);
+     strcpy(GLOBAL.location,"gui:prtbmp.ah");
      arachne.target=0;
      return gotoloc();
     }
@@ -1154,7 +1154,7 @@ else
 #endif
    {
     saveasps();
-    sprintf(GLOBAL.location,"file:%s%sps.ah",sharepath,GUIPATH);
+    strcpy(GLOBAL.location,"gui:ps.ah");
     arachne.target=0;
     return gotoloc();
    }
@@ -1162,7 +1162,7 @@ else
 
    if(key==0x1000) //Alt+Q
    {
-    sprintf(GLOBAL.location,"file:%s%squickpad.ah",sharepath,GUIPATH);
+    strcpy(GLOBAL.location,"gui:quickpad.ah");
     arachne.target=0;
     return gotoloc();
    }
@@ -1172,7 +1172,7 @@ else
 //was left without saving the contents of that textarea
    if(key==0x1400) //Alt+T
    {
-    sprintf(GLOBAL.location,"file:%s%stextarea.ah",sharepath,GUIPATH);
+    strcpy(GLOBAL.location,"gui:textarea.ah");
     arachne.target=0;
     return gotoloc();
    }
@@ -1199,7 +1199,7 @@ else
     GLOBAL.source=0;
     GLOBAL.validtables=0;
     strcpy(LASTlocname,p->htmlframe[p->activeframe].cacheitem.locname);
-    sprintf(p->htmlframe[0].cacheitem.locname,"%s%ssaveas.ah",sharepath,GUIPATH);
+    sprintf(p->htmlframe[0].cacheitem.locname,"%ssaveas.ah",guipath);
     arachne.framescount=0;
     arachne.target=0;
     GLOBAL.needrender=2; //forced HTML
@@ -1236,7 +1236,7 @@ Piip();
     GLOBAL.source=0;
     GLOBAL.validtables=0;
     strcpy(LASTlocname,p->htmlframe[p->activeframe].cacheitem.locname);
-    sprintf(p->htmlframe[0].cacheitem.locname,"%s%stextedit.ah",sharepath,GUIPATH);
+    sprintf(p->htmlframe[0].cacheitem.locname,"%stextedit.ah",guipath);
     arachne.framescount=0;
     arachne.target=0;
     GLOBAL.needrender=2; //forced HTML
@@ -1537,9 +1537,9 @@ submit:
      {
       ptr = config_get_str("Connection", "");
       if(strstr(ptr,"pppd") || strstr(ptr,"PPPD"))
-       sprintf(GLOBAL.location,"file:%s%sconf_ppp.ah",sharepath,GUIPATH);
+       strcpy(GLOBAL.location,"gui:conf_ppp.ah");
       else
-       sprintf(GLOBAL.location,"file:%s%sconf_ext.ah",sharepath,GUIPATH);
+       strcpy(GLOBAL.location,"gui:conf_ext.ah");
      }//endif pre-process URL
 
      //no else - allow arachne:internal-config?arachne:back

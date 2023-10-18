@@ -584,14 +584,14 @@ if(argc>1)
  }
  else if(argv[1][2]=='e')
  {
-  sprintf(GLOBAL.location,"file:%s%snonfatal.ah",sharepath,GUIPATH);
+  strcpy(GLOBAL.location,"gui:nonfatal.ah");
  }
 
 //!!glennmcc: begin Jan 09, 2005
 // on email attachment errors, goto err_mail.ah instead of nonfatal.ah
  else if(argv[1][2]=='m')
  {
-  sprintf(GLOBAL.location,"file:%s%serr_mail.ah",sharepath,GUIPATH);
+  strcpy(GLOBAL.location,"gui:err_mail.ah");
  }
 //!!glennmcc: end
 
@@ -609,7 +609,7 @@ else //no arguments !
  toolbarpage=0;
 #ifndef POSIX
  if(cacheisfull())
-  sprintf(GLOBAL.location,"file:%s%smaintain.ah",sharepath,GUIPATH);
+  strcpy(GLOBAL.location,"gui:maintain.ah");
 #endif
 }
 

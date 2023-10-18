@@ -155,15 +155,15 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
        }fclose(out);
 	// We should inform user now, that email is saved to outbox by
 	// the following line
-	// sprintf(cacheitem->locname,"%s%sendform.ah",sharepath,GUIPATH);
+	// sprintf(cacheitem->locname,"%sendform.ah",guipath);
 
 	// following line is provisionally solution only
-	sprintf(cacheitem->locname,"mail.htm",sharepath,GUIPATH);
+	strcpy(cacheitem->locname,"mail.htm");
 	//
     }
 else
 // Werner Scholz: end
-  sprintf(cacheitem->locname,"%s%ssendmail.ah",sharepath,GUIPATH);
+  sprintf(cacheitem->locname,"%ssendmail.ah",guipath);
   cacheitem->rawname[0]='\0';
   strcpy(cacheitem->mime,"text/html");
   return 1;

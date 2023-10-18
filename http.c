@@ -1101,7 +1101,7 @@ if(GLOBAL.backgr==2) GLOBAL.backgr=0;
 //!!glennmcc: Feb 29, 2008 -- display error page
  GLOBAL.gotolocation=1;
  puts(cache->locname);
- sprintf(GLOBAL.location,"file:%s%serr_red.ah",sharepath,GUIPATH);
+ strcpy(GLOBAL.location,"gui:err_red.ah");
  return 0;
 }
 //!!glennmcc: end
@@ -1236,7 +1236,7 @@ Local: <A HREF=\"file:..\\%s\">%s</A><HR>\n\
 //!!glennmcc: end
    GLOBAL.gotolocation=1;
    puts(cache->locname);
-   sprintf(GLOBAL.location,"file:%s%serr_disk.ah",sharepath,GUIPATH);
+   strcpy(GLOBAL.location,"gui:err_disk.ah");
    return 0;
   }
  }
@@ -1385,7 +1385,7 @@ if(!cache->knowsize
     a_close(cache->handle);
     unlink(cache->locname);
     GLOBAL.gotolocation=1;
-    sprintf(GLOBAL.location,"file:%s%serr_disk.ah",sharepath,GUIPATH);
+    strcpy(GLOBAL.location,"gui:err_disk.ah");
    }
 //!!glennmcc: end
 //!!glennmcc: end

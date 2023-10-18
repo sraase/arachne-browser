@@ -67,7 +67,6 @@ void outs(char *str); //change browser status message
 #define MAXARGNAMES 1024
 #define MAXARGS 100       //!!JdS 2004/1/27
 #define MAXNOBR 512       //maximum nobreak sections (visible frames -= 1)
-#define GUIPATH "gui/"
 #define MAXFRAMES 24
 
 //----------------------------------------------------------------------------
@@ -96,7 +95,6 @@ void outs(char *str); //change browser status message
 #define MAXARGNAMES 256
 #define MAXARGS 25        //!!JdS 2004/1/27
 #define MAXNOBR 100       //maximum nobreak sections (visible frames -= 1)
-#define GUIPATH "system\\gui\\"
 
 #endif //non-POSIX (DOS)
 

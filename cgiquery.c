@@ -179,7 +179,7 @@ if(!strstr(GLOBAL.location,"file:"))
 	{
 	 strcpy(lasttime,"**"); //screensaver activated + redraw level 4
 	 SecondsSleeping=32000l;
-	 sprintf(GLOBAL.location,"arachne:internal-config?file:%s%sopt_misc.ah#scr",sharepath,GUIPATH);
+	 sprintf(GLOBAL.location,"arachne:internal-config?file:%sopt_misc.ah#scr",guipath);
 	}
 	else if (!strcmpi(cmd,"VGA"))
 	{

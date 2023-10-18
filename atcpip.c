@@ -12,12 +12,12 @@ void errppp(void)
  tcpip=0;
  if(arachne.scriptline)
  {
-  sprintf(GLOBAL.location,"file:%s%serr_asf.ah",sharepath,GUIPATH);
+  strcpy(GLOBAL.location,"gui:err_asf.ah");
   arachne.scriptline=0; //disable scripting!
  }
  else
  {
-  sprintf(GLOBAL.location,"file:%s%serr_ppp.ah",sharepath,GUIPATH);
+  strcpy(GLOBAL.location,"gui:err_ppp.ah");
   pagetime=time(NULL);
  }
 }
@@ -67,7 +67,7 @@ char *dns="\0", *dns1="\0", *dns2="\0";
   if(!value)
   {
    tcpip=0;
-   sprintf(GLOBAL.location,"file:%s%serr_noip.ah",sharepath,GUIPATH);
+   strcpy(GLOBAL.location,"gui:err_noip.ah");
    return;
   }
 
@@ -133,7 +133,7 @@ char *dns="\0", *dns1="\0", *dns2="\0";
    else
    {
     tcpip=0;
-    sprintf(GLOBAL.location,"file:%s%serr_pkt.ah",sharepath,GUIPATH);
+    strcpy(GLOBAL.location,"gui:err_pkt.ah");
    }
    return;
   }
