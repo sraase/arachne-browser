@@ -62,7 +62,7 @@ static int setsyspaths(char *argv0)
 
 	syspath  = newstr("%s", "/usr/share/arachne/");
 	userpath = newstr("%.*s%c%s", pathlen, path, PATHSEP, ".arachne/");
-	helppath = newstr("%s", "/usr/share/doc/html/");
+	helppath = newstr("%s", "/usr/share/doc/arachne/html/");
 #else
 	/* use DOS defaults (exe location) */
 	path = strrchr(argv0, PATHSEP);
