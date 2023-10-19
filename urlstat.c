@@ -400,7 +400,7 @@ void AnalyseURL(char *str,struct Url *url,int frame)
   strcpy(url->protocol,"file");
   strcat(url->file,":");
   strncat(url->file,strptr,URLSIZE-3);
-  url->file[URLSIZE]='\0';
+  url->file[URLSIZE-1]='\0';
   goto out;
  }
  else
