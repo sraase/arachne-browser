@@ -123,11 +123,17 @@ static int setuserpaths(void)
 	ptr = config_get_str("FontPath ", NULL);
 	if (ptr) fontpath = newstr("%s%c", ptr, PATHSEP);
 	else     fontpath = newstr("%s%s", syspath, "iso-8859-1/");
+
+	/* all gui files are stored in guipath */
+	guipath2 = guipath;
 #else
 	/* fonts are stored in syspath/suffix */
 	ptr = config_get_str("FontPath ", NULL);
 	if (ptr) fontpath = newstr("%s%c", ptr, PATHSEP);
 	else     fontpath = newstr("%s%s", syspath, suffix);
+
+	/* some gui files are stored in syspath */
+	guipath2 = syspath;
 #endif
 
 	if (!cachepath || !mailpath || !downloadpath ||

@@ -47,7 +47,7 @@ char *userpath;
 char *helppath;
 
 char *fontpath;
-char *guipath;
+char *guipath, *guipath2;
 char *iconpath;
 char *cachepath;
 char *mailpath;

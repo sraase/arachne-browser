@@ -494,7 +494,7 @@ extern char *userpath;
 extern char *helppath;
 
 extern char *fontpath;
-extern char *guipath;
+extern char *guipath, *guipath2;
 extern char *iconpath;
 extern char *cachepath;
 extern char *mailpath;
