@@ -372,11 +372,7 @@ int protocol_nohttp(struct HTTPrecord *cacheitem,struct Url *url, unsigned *cach
 
   if(!url->file[0] || !url->file[1] ) //stmp: or smtp:/
   {
-   value = config_get_str("MailPath", "MAIL\\");
-   if(value)
-   {
-    sprintf(url->file,"/%s*.TBS",value);
-   }
+   sprintf(url->file,"/%s*.TBS",mailpath);
   }
 
   //Draw title and URL:

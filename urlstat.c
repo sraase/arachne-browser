@@ -127,8 +127,7 @@ int meta_SearchInCache(struct Url *absURL,struct HTTPrecord *cacheitem, XSWAP *c
   if (config_get_bool("KillSent", 0))
    str[1]='!';
 //if (ConfigYesNo("KillSent",0))str[1]='!';// JDS method
-  p = config_get_str("MailPath", "MAIL\\");
-  sprintf(dummy,"%s%s.TBS",p,&str[1]);
+  sprintf(dummy,"%s%s.TBS",mailpath,&str[1]);
 
   if((GLOBAL.postdata==2)&&(absURL->file[0])&&((out=fopen(dummy,"w+t"))!=NULL))
      {fprintf(out,"To: %s\n",absURL->file);

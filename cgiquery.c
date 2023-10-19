@@ -214,14 +214,12 @@ if(!strstr(GLOBAL.location,"file:"))
 	 if (config_get_bool("KillSent", 0))
 	  str[1]='!';
 
-	 ptr = config_get_str("MailPath", "MAIL\\");
-
 //!!glennmcc: Aug 27, 2006 -- add 'save as draft' function
 //file extension will now be taken from the value of $MSG on mail screens
 //(TBS for completed messages... DFT for drafts)
-if(!strcmpi(value,"DFT")) sprintf(mailname,"%s%s.%s",ptr,&str[1],value);
+if(!strcmpi(value,"DFT")) sprintf(mailname,"%s%s.%s",mailpath,&str[1],value);
 else
-	 sprintf(mailname,"%s%s.TBS",ptr,&str[1]);
+	 sprintf(mailname,"%s%s.TBS",mailpath,&str[1]);
 //original single line above this comment
 //!!glennmcc: end
 	 mailmsg=a_open(mailname,O_CREAT|O_TEXT|O_WRONLY|O_TRUNC,S_IREAD|S_IWRITE);

@@ -55,7 +55,6 @@ int xpopdump(struct Url *url,char dele,char logfile)
 int toobig=0, mult=1;
 //!!glennmcc: end
 int mailtop = config_get_bool("MailTop", 0);
-char *mailpath = config_get_str("MailPath", "MAIL\\");
 
  if(!tcpip)return 0;
  free_socket();
