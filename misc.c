@@ -518,7 +518,7 @@ else
     pom = mailpath;
     goto cont;
     case 'W':
-    pom = config_get_str("DownloadPath", "DOWNLOAD\\");
+    pom = downloadpath;
     goto cont;
     case 'N':
     pom = config_get_str("NameServer", NULL);

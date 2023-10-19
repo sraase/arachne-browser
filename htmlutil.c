@@ -935,7 +935,7 @@ void CheckArachneFormExtensions(struct HTTPrecord *cache,char *value, int *check
 
  if(getvar("ARACHNESAVE",&tagarg))
  {
-  ptr = config_get_str("DownloadPath", "DOWNLOAD\\");
+  ptr = downloadpath;
   makestr(value,ptr,79);
   ptr=strrchr(cache->URL,'\\');
   if(!ptr)
