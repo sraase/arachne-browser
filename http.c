@@ -1374,10 +1374,9 @@ long starttime=(int)(time(NULL)), elapsedtime=0, lastsec=0, bytesec=0;
 //!!glennmcc: Nov 26, 2006 -- abort download when file size is not known,
 //and disk gets full during download
 
-if(!cache->knowsize
 #ifndef LINUX
+if(!cache->knowsize
    && lastdiskspace(cachepath)
-#endif
       <(fpos+rd))// rd=-1;
       //!!glennmcc: Nov 26, 2006 -- disk filled during download
 //   if(rd<0)
@@ -1389,6 +1388,7 @@ if(!cache->knowsize
    }
 //!!glennmcc: end
 //!!glennmcc: end
+#endif
 
   strcpy(dl,MSG_DOWNLD);
 
