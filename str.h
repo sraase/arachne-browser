@@ -8,9 +8,6 @@
 #ifndef _alabs_str_h
 #define _alabs_str_h
 
-#define DIRSLASHCHAR '\\'   //MS-DOS
-//#define DIRSLASHCHAR '/'    //Unix
-
 #include "posix.h"
 
 // ==================================================================

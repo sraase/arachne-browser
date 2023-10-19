@@ -7,7 +7,7 @@
 #include "str.h"
 
 // ==================================================================
-// pathstr() creates pathname which is terminated by DIRSLASHCHAR
+// pathstr() creates pathname which is terminated by PATHSEP
 // *dest must be allocated at least one byte bigger than *src!!!
 // ==================================================================
 char *pathstr(char *dest, char *src)
@@ -15,9 +15,9 @@ char *pathstr(char *dest, char *src)
  int l=strlen(src);
  strcpy(dest,src);
 
- if(l>0 && dest[l-1]!=DIRSLASHCHAR)
+ if(l>0 && dest[l-1]!=PATHSEP)
  {
-  dest[l]=DIRSLASHCHAR;
+  dest[l]=PATHSEP;
   dest[l+1]='\0';
  }
 
