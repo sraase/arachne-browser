@@ -547,7 +547,7 @@ else
 //!!glennmcc & Ray: end
     case 'A':
     a:
-    pom = config_get_str("CachePath", cachepath);
+    pom = cachepath;
     goto cont;
     case 'B':
     pom = config_get_str("Hotlist", hotlist);

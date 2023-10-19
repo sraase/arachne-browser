@@ -921,7 +921,7 @@ char cacheisfull(void)
  //struct ffblk ff;
  char str[80];
 
- makestr(str,config_get_str("CachePath", cachepath),65);
+ makestr(str,cachepath,65);
 
  if(updtdiskspace(str)<user_interface.mindiskspace)
   return 1;

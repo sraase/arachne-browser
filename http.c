@@ -1219,7 +1219,7 @@ Local: <A HREF=\"file:..\\%s\">%s</A><HR>\n\
   if(cache->handle<0) // original line
 #else
   if(cache->handle<0
-     || lastdiskspace(config_get_str("CachePath", cachepath))
+     || lastdiskspace(cachepath)
 	<cache->size)//user_interface.mindiskspace)
 #endif
   {
@@ -1229,7 +1229,7 @@ Local: <A HREF=\"file:..\\%s\">%s</A><HR>\n\
   if(cache->handle<0) // original line
 #else
   if(cache->handle>=0
-     && lastdiskspace(config_get_str("CachePath", cachepath))
+     && lastdiskspace(cachepath)
      <cache->size)//user_interface.mindiskspace)
 #endif
      {a_close(cache->handle); unlink(cache->locname);}//origianl line
@@ -1376,7 +1376,7 @@ long starttime=(int)(time(NULL)), elapsedtime=0, lastsec=0, bytesec=0;
 
 if(!cache->knowsize
 #ifndef LINUX
-   && lastdiskspace(config_get_str("CachePath", cachepath))
+   && lastdiskspace(cachepath)
 #endif
       <(fpos+rd))// rd=-1;
       //!!glennmcc: Nov 26, 2006 -- disk filled during download

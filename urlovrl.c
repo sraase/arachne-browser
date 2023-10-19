@@ -83,7 +83,7 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
 
    if(cacheitem->locname[0]=='\0')
    {
-    strcpy(cacheitem->locname, config_get_str("CachePath", cachepath));
+    strcpy(cacheitem->locname, cachepath);
    }
 
    if(strlen(fname)>MAX_FNLEN)

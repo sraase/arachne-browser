@@ -137,9 +137,6 @@ XSWAP lastfound=IE_NULL;
 long lastfoundY=0l;
 int lastfoundX=0;
 
-#ifndef POSIX
-char *cachepath="CACHE\\";
-#endif
 char *hotlist="hotlist.htm";
 
 //global variables for GUI
