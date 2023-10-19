@@ -1068,7 +1068,7 @@ void gohome(void)
   strcpy(GLOBAL.location, config_get_str("HomePage", homepage));
 #ifndef POSIX
   if (!tcpip)
-    sprintf(GLOBAL.location,"file:%shome.htm",exepath);
+    sprintf(GLOBAL.location,"file:%shome.htm",guipath2);
 #endif
 }
 

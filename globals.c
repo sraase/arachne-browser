@@ -53,9 +53,6 @@ char *cachepath;
 char *mailpath;
 char *downloadpath;
 
-char exepath[65]="\0";
-
-
 //char *buf=NULL;            //univerzalni buffer vstup vystup
                          // tr.: universal buffer input output
 char *msg_con=MSG_CON;
@@ -125,12 +122,6 @@ char htmlpulldown=0;
 int htmlsavex=-1,htmlsavey;
 char activeistextwindow=0;
 char meminfovisible=0;
-
-#ifdef POSIX
-char *setupdoc="gui:options.ah";
-#else
-char *setupdoc="file:%soptions.htm";
-#endif
 
 //global palette
 int    IiNpal=0;   //delka souhrnne palety --> vynulovat pri Clrscr apod.!

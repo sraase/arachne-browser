@@ -433,11 +433,7 @@ int gotosearchpage(void)
 
 int gotohelppage(void)
 {
-#ifdef POSIX
-  sprintf(GLOBAL.location,"file:%sindex.html",helppath);
-#else
-  sprintf(GLOBAL.location,"file:%shelp.htm",exepath);
-#endif
+ sprintf(GLOBAL.location,"file:%shelp.htm",guipath2);
  arachne.target=0;
  return gotoloc();
 }
@@ -445,9 +441,9 @@ int gotohelppage(void)
 int gotolochome(void)
 {
 #ifdef POSIX
- sprintf(GLOBAL.location,"gui:home.ah",exepath);
+ strcpy(GLOBAL.location,"gui:home.ah");
 #else
- sprintf(GLOBAL.location,"file:%shome.htm",exepath);
+ sprintf(GLOBAL.location,"file:%shome.htm",guipath2);
 #endif
  arachne.target=0;
  return gotoloc();
@@ -458,7 +454,7 @@ int gotomailpage(void)
 #ifdef POSIX
  strcpy(GLOBAL.location,"gui:mail.ah");
 #else
- sprintf(GLOBAL.location,"file:%smail.htm",exepath);
+ sprintf(GLOBAL.location,"file:%smail.htm",guipath2);
 #endif
  arachne.target=0;
  return gotoloc();
@@ -468,7 +464,7 @@ int gotomailpage(void)
 /*
 int gotonewspage(void)
 {
- sprintf(GLOBAL.location,"file:%snews.htm",exepath);
+ sprintf(GLOBAL.location,"file:%snews.htm",guipath2);
  arachne.target=0;
  return gotoloc();
 }
@@ -478,7 +474,7 @@ int gotonewspage(void)
 //!!glennmcc: begin Jun 12, 2005 -- alternate font page
 int gotoaltfontpage(void)
 {
- sprintf(GLOBAL.location,"file:%salt-font.htm",exepath);
+ sprintf(GLOBAL.location,"file:%salt-font.htm",guipath2);
  arachne.target=0;
   return gotoloc();
 }
@@ -863,7 +859,7 @@ else
 
    else if(asc=='C')
    {
-    sprintf(GLOBAL.location,"mailto:",exepath);
+    strcpy(GLOBAL.location,"mailto:");
     arachne.target=0;
 
     sprintf(tmpeditor.filename, "%s%s", userpath, "textarea.tmp");
@@ -875,7 +871,7 @@ else
    {
 // RAY: 05-01-16: Label for line above.
 //index://!!glennmcc: Jan 17, 2005 -- reload instead (see above)
-    sprintf(GLOBAL.location,"file://inbox.dgi",exepath);
+    strcpy(GLOBAL.location,"file://inbox.dgi");
     arachne.target=0;
     return gotoloc();
    }
@@ -884,14 +880,18 @@ else
 #ifdef POSIX
     strcpy(GLOBAL.location,"gui:setup.ah");
 #else
-    sprintf(GLOBAL.location,"file:%ssetup.htm",exepath);
+    sprintf(GLOBAL.location,"file:%ssetup.htm",guipath2);
 #endif
     arachne.target=0;
     return gotoloc();
    }
    else if(asc=='O')
    {
-    sprintf(GLOBAL.location,setupdoc,exepath);
+#ifdef POSIX
+    strcpy(GLOBAL.location,"gui:options.ah");
+#else
+    sprintf(GLOBAL.location,"file:%soptions.htm",guipath2);
+#endif
     arachne.target=0;
     return gotoloc();
    }
@@ -900,7 +900,7 @@ else
 #ifdef POSIX
     strcpy(GLOBAL.location,"gui:utils.ah");
 #else
-    sprintf(GLOBAL.location,"file:%sutils.htm",exepath);
+    sprintf(GLOBAL.location,"file:%sutils.htm",guipath2);
 #endif
     arachne.target=0;
     return gotoloc();
@@ -929,13 +929,13 @@ else
 #endif //POSIX
    else if(asc=='K')
    {
-    sprintf(GLOBAL.location,"file:%shotkeys.htm",exepath);
+    sprintf(GLOBAL.location,"file:%shotkeys.htm",guipath2);
     arachne.target=0;
     return gotoloc();
    }
    else if(asc=='T')
    {
-    sprintf(GLOBAL.location,"telnet:",exepath);
+    strcpy(GLOBAL.location,"telnet:");
     arachne.target=0;
     return gotoloc();
    }
@@ -1381,7 +1381,7 @@ else if(key==11776)//Alt+C
 //in mime.cfg --- file/privacy.dgi |del $kcookiefile \n del $h
    else if(key==26368)//Ctrl+F10
    {
-    sprintf(GLOBAL.location,"file:privacy.dgi",exepath);
+    strcpy(GLOBAL.location,"file:privacy.dgi");
     arachne.target=0;
     return gotoloc();
    }
@@ -1471,7 +1471,11 @@ submit:
        GLOBAL.reload=RELOAD_NEW_LOCATION;
       }
       else
-       sprintf(GLOBAL.location,setupdoc,exepath);
+#ifdef POSIX
+       strcpy(GLOBAL.location,"gui:options.ah");
+#else
+       sprintf(GLOBAL.location,"file:%soptions.htm",guipath2);
+#endif
      }
      else
      if(!strncmpi(&GLOBAL.location[8],"internal-",9))

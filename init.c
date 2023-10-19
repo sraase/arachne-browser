@@ -260,14 +260,6 @@ static int loadpick(void)
 	if (fd >= 0)
 		a_close(fd);
 
-#ifdef POSIX
-	/* set system directories */
-	strcpy(exepath, syspath);
-#else
-	/* set system directories */
-	strcpy(exepath, syspath);
-#endif
-
 	return 0;
 }
 
@@ -555,9 +547,9 @@ if(tcpip==-1 || grsetup) //setup only
  else
  {
   if(grsetup==1 || !strcmpi(arachne.graphics,"VGA"))
-   sprintf(GLOBAL.location,"file:%svga.htm",exepath);
+   sprintf(GLOBAL.location,"file:%svga.htm",guipath2);
   else
-   sprintf(GLOBAL.location,"file:%sega_cga.htm",exepath);
+   sprintf(GLOBAL.location,"file:%sega_cga.htm",guipath2);
   arachne.GUIstyle|=4;
  }
  tcpip=0;
@@ -602,11 +594,7 @@ if(argc>1)
 
  else if(argv[1][1]=='?')
  {
-#ifdef POSIX
-  sprintf(GLOBAL.location,"file:%sindex.html",helppath);
-#else
-  sprintf(GLOBAL.location,"file:%shelp.htm",exepath);
-#endif
+  sprintf(GLOBAL.location,"file:%shelp.htm",guipath2);
  }
 }
 else //no arguments !

@@ -119,7 +119,7 @@ int addhot(char *titleptr, char *urlptr)
 #endif
   if(f<0)
   {
-   sprintf(line,"%s%s",exepath,hotlist);
+   sprintf(line,"%s%s",userpath,hotlist);
    copy(line,ptr);
 #ifdef POSIX
    f=a_open(ptr,O_WRONLY|O_APPEND,0);
@@ -387,8 +387,8 @@ int make_cmd(char *in, char *out, char *url, char *computer, char *document, cha
     out+=strlen(myIPstr)-1;
     break;
     case 'E':
-    strcpy(out,exepath);
-    out+=strlen(exepath)-1;
+    strcpy(out,syspath);
+    out+=strlen(syspath)-1;
     break;
     case 'Q':
     case 'S':
@@ -498,7 +498,7 @@ else
 //and dosshell.bat so that FreeDos can be returned to the correct drive.
 #ifndef LINUX
     case 'Z':
-    fnsplit(exepath,drive,dir,file,ext);
+    fnsplit(syspath,drive,dir,file,ext);
     strcpy(out,drive);
     out+=strlen(drive)-1;
     break;

@@ -500,8 +500,6 @@ extern char *cachepath;
 extern char *mailpath;
 extern char *downloadpath;
 
-extern char exepath[65];    // read-only
-
 //extern char *buf;
 
 extern char *msg_con;
@@ -566,8 +564,6 @@ extern char htmlpulldown;
 extern int htmlsavex,htmlsavey;
 extern char meminfovisible;
 extern char activeistextwindow;
-
-extern char *setupdoc;
 
 extern char *VER;
 extern char *exetype;

@@ -182,7 +182,7 @@ else
    strcpy(cacheitem->mime,"text/html");
   }
 #else
-  sprintf(cacheitem->locname,"%sabout.htm",exepath);
+  sprintf(cacheitem->locname,"%sabout.htm",guipath2);
   strcpy(cacheitem->mime,"text/html");
 #endif
   cacheitem->rawname[0]='\0';
