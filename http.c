@@ -1193,14 +1193,14 @@ if(http_parameters.keepalive &&
     write(htt,outgoing,strlen(outgoing));
 //!!glennmcc: end
     write(htt,p->buf,count);
-    ptr=strrchr(cache->locname,'\\');
+    ptr=strrchr(cache->locname,PATHSEP);
     if(ptr)
      ptr++;
     else
      ptr=cache->locname;
     sprintf(pom,"</PRE>\n<HR>URL: <A HREF=\"%s\">%s</A><BR>\n\
-Local: <A HREF=\"file:..\\%s\">%s</A><HR>\n\
-",cache->URL,cache->URL,ptr,cache->locname);
+Local: <A HREF=\"file://%s%s\">%s</A><HR>\n\
+",cache->URL,cache->URL,cachepath,ptr,cache->locname);
     write(htt,pom,strlen(pom));
     farfree(pom);
     a_close(htt);
