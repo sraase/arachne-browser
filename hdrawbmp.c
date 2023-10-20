@@ -87,8 +87,8 @@ int XCHdrawBMP(struct picinfo *bmp)
  int palindex;
  unsigned char *realpal=NULL;
  unsigned char *bufscl =NULL;
- unsigned int  *bufscl2;
- int   file, nlin, x1bmp, dxbmp, x1b, kk, nibble=0;
+ unsigned int  *bufscl2=NULL;
+ int   file, nlin, x1bmp=0, dxbmp=0, x1b, kk, nibble=0;
 
  // HARO : open z drawGif()
  file = a_fast_open(bmp->filename,O_BINARY|O_RDONLY,0);
@@ -102,16 +102,16 @@ int XCHdrawBMP(struct picinfo *bmp)
 
  i=a_read(file,buf,41); //1 bajt z hlavicky a bitmapinfoheader
 
- if(*(long *)&buf[1]!=40l || i!=41) //takovou bitmapu bohuzel neumim || eof
+ if(*(uint32_t *)&buf[1]!=40l || i!=41) //takovou bitmapu bohuzel neumim || eof
  {
 #ifdef POSIX
-  printf("Unsupported BMP marker %d or header size %d!=41...\n",*(long *)&buf[1],i);
+  printf("Unsupported BMP marker %ld or header size %d!=41 in %s...\n",*(long *)&buf[1],i,bmp->filename);
 #endif
   goto err;
  }
  //==============================
- bmp->size_x=(int)(*(long *)&buf[5]);
- bmp->size_y=(int)(*(long *)&buf[9]);
+ bmp->size_x=(int)(*(int32_t *)&buf[5]);
+ bmp->size_y=(int)(*(int32_t *)&buf[9]);
  if(bmp->sizeonly)
   goto ok;
  //==============================
@@ -529,7 +529,7 @@ int XCHdrawBMP(struct picinfo *bmp)
 #else
          _AX = dxbmp;
          bufscl[x1bmp  ] = _AL; bufscl[x1bmp+1] = _AH;
-#endif;
+#endif
          bufscl[x1bmp+2] =   1; bufscl[x1bmp+3] =   0;
          x1b = x1bmp;
        }
