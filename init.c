@@ -748,6 +748,7 @@ void init_bin(void)
  } else {
   sprintf(HTTPcache.filename, "%s%s", userpath, "cache.idx");
  }
+ HTTPcache.maxlines = LINES;
  rc = ie_openbin(&HTTPcache);
  if (rc == 2)
   memerr0();
