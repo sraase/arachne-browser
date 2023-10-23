@@ -497,7 +497,7 @@ int xg_fbyt;		      /* Number of bytes in one char of the font */
 int xg_flag;		      /* Types: bit 0 - spec EGA pal */
 			      /*	bit 1 - aktive patt  */
 unsigned char xg_fonlen[256];  // Widths of chars for proportional fonts
-long  int     xg_fonadr[256];  // Beginning of chars for proportional fonts
+int32_t       xg_fonadr[256];  // Beginning of chars for proportional fonts
 unsigned char xg_foncon;       // Flag - const/prop font [0/average]
 unsigned char xg_fonmem;       // Where is the font: 0-MEM(xg_fbuf),1-XMS,2-DISK
 int	      xg_fonhan;       // Handle for XMS/DISK

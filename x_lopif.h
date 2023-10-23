@@ -2,6 +2,8 @@
 /*   Graficke funkce pro EGA,VGA, a ruzne SVGA                  */
 /*==============================================================*/
 
+#include "posix.h"
+
 /* Return codes from function : 1 = O.K.  else = Error          */
 
 // Podmineny preklad pro Hi color mody (1-ano, 0-ne)
@@ -749,7 +751,7 @@ extern int xg_notview;      // 0-do vieportu, 1-absolutne (jen text)
 
 //---- Novinky 930319 pro WINDOWS fonty ------------------------
 extern unsigned char xg_fonlen[256];  // Sirky znaku pro proporcni fonty
-extern long  int     xg_fonadr[256];  // Zacatky znaku pro prop. fonty
+extern int32_t       xg_fonadr[256];  // Zacatky znaku pro prop. fonty
 extern unsigned char xg_foncon;       // Flag - konst/prop font [0/prumer]
 extern unsigned char xg_fonmem;       // Kde je font: 0-MEM(xg_fbuf),1-XMS,2-DISK
 extern int           xg_fonhan;       // Handle pro XMS/DISK
