@@ -44,9 +44,10 @@ static int setsyspaths(char *argv0)
 			pathlen--;
 
 		userpath = newstr("%.*s%c", pathlen, path, PATHSEP);
-		helppath = userpath;
 		syspath  = newstr("%.*s%c%s%c", pathlen, path, PATHSEP,
 			"system", PATHSEP);
+		helppath = newstr("%.*s%c%s%c%s%c", pathlen, path, PATHSEP,
+			"system", PATHSEP, "html", PATHSEP);
 		if (!syspath || !userpath || !helppath)
 			return 1;
 		return 0;
