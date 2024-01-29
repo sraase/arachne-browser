@@ -7,9 +7,11 @@
 #include "arachne.h"
 
 #ifdef LINUX
-#include <sys/types.h>
-#include <signal.h>
+#include <netdb.h>
 #include <pthread.h>
+#include <signal.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #endif
 
 int TcpIdleFunc(void);

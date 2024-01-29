@@ -21,12 +21,7 @@ XTVERSION  ... maximal optimizaton for speed and memory savings
 #include "posix.h"
 
 #ifndef NOTCPIP
-#ifdef POSIX
-#include "asockets.h"
-void outs(char *str); //change browser status message
-#else
-#include "tcp.h"  //Wattcp library header file
-#endif
+#include "atcpip.h"
 #endif
 
 #include "str.h"  //Arachne Labs extended string library

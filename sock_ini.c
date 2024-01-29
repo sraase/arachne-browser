@@ -13,10 +13,10 @@
 //#include "capalloc.h"
 //#include "capstdio.h"
 #include <copyright.h>
-#include <wattcp.h>
 #include <stdlib.h>
 #include <dos.h>
 #include <alloc.h>
+#include "atcpip.h"
 
 word _survivebootp = 0;
 

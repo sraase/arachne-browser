@@ -22,9 +22,6 @@ void errppp(void)
  }
 }
 
-//this is missing in tcp.h header file:
-void _arp_add_gateway( char *data , longword ip );
-
 void ArachneTCPIP(void)
 {
  char dialer=0;

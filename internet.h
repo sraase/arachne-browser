@@ -5,6 +5,7 @@
 // ========================================================================
 
 #include "url.h"
+#include "atcpip.h"
 
 int openhttp(struct Url *url,struct HTTPrecord *cache);
 void closehttp(struct HTTPrecord *cache);
