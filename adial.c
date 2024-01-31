@@ -7,7 +7,6 @@
 #include "arachne.h"
 
 #ifndef NOTCPIP
-#ifndef NOETHERPPP
 
 #define LOGLEN 1000
 
@@ -97,7 +96,6 @@ int PPPlog(void)
  return(0);
 }
 #endif
-#endif
 
 
 char *ArachneDIAL(void)
@@ -142,7 +140,6 @@ char *ArachneDIAL(void)
  else
   useterm=0;
 
-#ifndef NOETHERPPP
  value = config_get_str("Connection", NULL);
  if(!value)
   return ("");
@@ -283,12 +280,10 @@ if(strlen(dns)>6)
   dospppd=1;
   pausemsg=MSG_ESC;
  }
-#endif
 
  value = config_get_str("Connection", "");
  sprintf(buf,"%s%s@if errorlevel 1 goto skip\n%s\n:skip\n",hangup,terminal,value);
 
-#ifndef NOETHERPPP
  if(dospppd)
  {
   strcat(buf,"@if exist IP-UP.BAT call IP-UP.BAT\n@echo PPPD status: ");
@@ -298,7 +293,6 @@ if(strlen(dns)>6)
   unlink("IP-UP.BAT");
   unlink("PPP.LOG");
  }
-#endif
 
  value = config_get_str("DialPage", "file:ppp_init.htm");
  if((!strcmpi(value,p->htmlframe[p->activeframe].cacheitem.URL) ||

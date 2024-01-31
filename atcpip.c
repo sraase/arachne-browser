@@ -68,15 +68,11 @@ char *dns="\0", *dns1="\0", *dns2="\0";
    return;
   }
 
-#ifndef NOETHERPPP
   if(!strncmpi(value,"PPP",3))
    ipmode=MODE_PPP;
-  else
-#endif
-  if(!strncmpi(value,"BOOTP",5))
+  else if(!strncmpi(value,"BOOTP",5))
    ipmode=MODE_BOOTP;
-  else
-  if(!strncmpi(value,"WATTCP",5))
+  else if(!strncmpi(value,"WATTCP",5))
    ipmode=MODE_WATTCP;
 
 //  _bootpon = 0;
@@ -113,14 +109,12 @@ char *dns="\0", *dns1="\0", *dns2="\0";
      PPPlog();  //failure is tolerable here
     break;
 
-#ifndef NOETHERPPP
    case MODE_PPP:
     if(!PPPlog())
     {
      errppp();
      return;
     }
-#endif
   }
 
   if(sock_init_noexit())
