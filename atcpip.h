@@ -4,6 +4,9 @@
 #ifndef ATCPIP_H
 #define ATCPIP_H
 
+char *atcp_get_ip_str(void);
+char *atcp_get_dns_str(void);
+
 /* DOS version: WATTCP */
 #ifndef POSIX
 

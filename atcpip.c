@@ -7,6 +7,42 @@
 #include "arachne.h"
 #include "internet.h"
 
+/* return local ip string */
+char *atcp_get_ip_str(void)
+{
+#ifdef POSIX
+	// modern systems often have multiple addresses
+	// which can change dynamically per connection
+	return "(auto)";
+#else
+	static char ipstr[16];
+	sprintf(ipstr, "%u.%u.%u.%u",
+		(uint8_t)(my_ip_addr >> 24), (uint8_t)(my_ip_addr >> 16),
+		(uint8_t)(my_ip_addr >>  8), (uint8_t)(my_ip_addr >>  0));
+	return ipstr;
+#endif
+}
+
+/* return nameserver string */
+char *atcp_get_dns_str(void)
+{
+#ifdef POSIX
+	// name resolution on modern systems is complex,
+	// just let the system resolver deal with it all
+	return "(auto)";
+#else
+	static char ipstr[16];
+	sprintf(ipstr, "%u.%u.%u.%u",
+		(uint8_t)(def_nameservers[0] >> 24),
+		(uint8_t)(def_nameservers[0] >> 16),
+		(uint8_t)(def_nameservers[0] >>  8),
+		(uint8_t)(def_nameservers[0] >>  0));
+	return ipstr;
+#endif
+}
+
+
+#ifndef POSIX
 void errppp(void)
 {
  tcpip=0;
@@ -179,4 +215,4 @@ char *dns="\0", *dns1="\0", *dns2="\0";
   if(dns) _add_server( &_last_nameserver, MAX_NAMESERVERS, def_nameservers, resolve(dns));
  }//endif tcp/ip
 }
-
+#endif

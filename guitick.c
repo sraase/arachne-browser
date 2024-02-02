@@ -369,23 +369,12 @@ MemInfoLine("Disk space (MB)",str,color,&y); //original line
   y++;
   x_setcolor(8);
   x_line(x_maxx()-147,y,x_maxx()-4,y);
-//!!Ray: Feb 09, 2007
-#ifndef LINUX
-  sprintf(str,"%ld.%ld.%ld.%ld", *def_nameservers>>24, (*def_nameservers>>16)&0xFF,
-	      (*def_nameservers>>8)&0xFF, *def_nameservers&0xFF);
-  MemInfoLine("DNS",str,0,&y);
-#endif  
-//!!Ray: end
-//!!JdS 2005/08/16 {
-//Fix the useless "0.0.0.0" IP address info. display ...
-#ifdef LINUX
-  MemInfoLine("Local IP",myIPstr,0,&y); //original line
-#else  
-  sprintf(str,"%ld.%ld.%ld.%ld", my_ip_addr>>24, (my_ip_addr>>16)&0xFF,
-	      (my_ip_addr>>8)&0xFF, my_ip_addr&0xFF);
-  MemInfoLine("Local IP",str,0,&y);
+
+#ifndef POSIX
+  MemInfoLine("Local IP", atcp_get_ip_str(), 0, &y);
+  MemInfoLine("DNS", atcp_get_dns_str(), 0, &y);
 #endif
-//!!JdS 2005/08/16 }
+
   lastinfo=0;
  }
 

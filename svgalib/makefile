@@ -15,7 +15,7 @@ OFILES += guieven2.o highligh.o init.o globals.o guievent.o cgiquery.o print.o
 OFILES += drawtime.o prtscr.o onmouse.o prespalp.o ipalpal.o tagsort.o main.o
 OFILES += bitpix8.o x_char.o x_text.o x_font.o x_txtwh.o x_charma.o x_cursor.o
 OFILES += asockets.o http.o htkernel.o base64.o inetstr.o ps.o anyimage.o
-OFILES += wheelmou.o parsecss.o
+OFILES += wheelmou.o parsecss.o atcpip.o
 
 LIBS    = -lvga -lvgagl -lpthread
 
