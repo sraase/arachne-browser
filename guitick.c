@@ -17,8 +17,9 @@
 #include <time.h>
 #endif
 
-int TcpIdleFunc(void)
+int TcpIdleFunc(void *arg)
 {
+   (void)arg;
    if(GLOBAL.abort || GUITICK())
     return -1;
    xChLogoTICK(GlobalLogoStyle); // animation of logo

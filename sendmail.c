@@ -118,8 +118,7 @@ int xsendmail(struct Url *url, char helo, char logfile)
   return 0;
  }
 
- sock_wait_established( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-			&status);		//SDL
+ sock_wait_established( socket, sock_delay, TcpIdleFunc, &status);		//SDL
  GlobalLogoStyle=1;		//SDL set data animation
 
  sock_mode( socket, TCP_MODE_ASCII );
@@ -128,8 +127,7 @@ int xsendmail(struct Url *url, char helo, char logfile)
  //wait for daemon to appear:
  do
  {
-  sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		   &status );		//SDL
+  sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
   if(log!=-1)
@@ -193,8 +191,7 @@ if(helo==2)
 
   do
   {
-   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		    &status );		//SDL
+   sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
    sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
    outs(buffer);
    if(log!=-1)
@@ -217,8 +214,7 @@ if(helo==2)
 
   do
   {
-   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		    &status );		//SDL
+   sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
    sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
    outs(buffer);
    if(log!=-1)
@@ -245,8 +241,7 @@ if(helo==2)
 
   do
   {
-   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		    &status );		//SDL
+   sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
    sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
    outs(buffer);
    if(log!=-1)
@@ -272,8 +267,7 @@ if(helo==2)
 
   do
   {
-   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		    &status );		//SDL
+   sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
    sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
    outs(buffer);
    if(log!=-1)
@@ -300,8 +294,7 @@ else //begin else HELO
 
   do
   {
-   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		    &status );		//SDL
+   sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
    sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
    outs(buffer);
    if(log!=-1)
@@ -333,8 +326,7 @@ else //begin else HELO
 
    do
    {
-    sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		    &status );		//SDL
+    sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
     if(log!=-1)
@@ -374,8 +366,7 @@ else //begin else HELO
   sock_puts(socket,(unsigned char *)str);
   do
   {
-   sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		    &status );		//SDL
+   sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
    sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
    outs(buffer);
    if(log!=-1)
@@ -491,8 +482,7 @@ else //begin else HELO
 	write(log,"\r\n",2);
        }
        sock_puts(socket,(unsigned char *)pom);
-       sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-			&status );		//SDL
+       sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
        sock_gets( socket, (unsigned char *)pom, sizeof( pom ));
        outs(pom);
        if(log!=-1)
@@ -536,8 +526,7 @@ else //begin else HELO
    write(log,"DATA\r\n",6);
   }
   sock_puts(socket,(unsigned char *)"DATA");
-  sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		   &status );		//SDL
+  sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
   if(log!=-1)
@@ -660,8 +649,7 @@ if(bcc)
   {
    write(log,".\r\n",3);
   }
-  sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		   &status );		//SDL
+  sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
   if(log!=-1)

@@ -293,7 +293,7 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
   /* connect to server */
   while(connect(socknum, (struct sockaddr *)&sin, sizeof(sin)) < 0)
   {
-   if(TcpIdleFunc())
+   if(TcpIdleFunc(NULL))
     return 0;
   }
 
@@ -337,7 +337,7 @@ if(status==1)
 
   sprintf(str,msg_con,pocitac,port);
   outs(str);
-  if (_ip_delay0(socket, delay, (sockfunct_t) TcpIdleFunc, &status ))          //SDL
+  if (_ip_delay0(socket, delay, TcpIdleFunc, &status ))          //SDL
   {
    if(attempt==3)
     goto sock_err;

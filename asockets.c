@@ -14,8 +14,6 @@
 #include <sys/types.h>
 #endif
 
-int TcpIdleFunc(void);
-
 // ============================================================================================
 // same as sock_puts() in WATTCP 
 // ============================================================================================
@@ -32,7 +30,7 @@ int sock_puts(int sock, char *str)
    return i;
   sent += i;
   ptr += i;
-  if(TcpIdleFunc()!=0)
+  if(TcpIdleFunc(NULL)!=0)
    return -1; 
  } 
  while(sent < l);

@@ -59,8 +59,7 @@ int log;
  outs(str);
  write(log,str,strlen(str));
  write(log,"\r\n",2);
- sock_wait_established(socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		       &status);		//SDL
+ sock_wait_established(socket, sock_delay, TcpIdleFunc, &status);		//SDL
 
  GlobalLogoStyle=1;		//SDL set data animation
  sock_mode( socket, TCP_MODE_ASCII );
@@ -68,8 +67,7 @@ int log;
 
  do
  {
-  sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		   &status );		//SDL
+  sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
   write(log,buffer,strlen(buffer));
@@ -91,8 +89,7 @@ int log;
  write(log,str,strlen(str));
  write(log,"\r\n",2);
  sock_puts(socket,(unsigned char *)str);
- sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		  &status );		//SDL
+ sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
  sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
  outs(buffer);
  write(log,buffer,strlen(buffer));
@@ -167,8 +164,7 @@ if (strstr(buffer,"sword") || strstr(buffer,"Enter PASS command"))
 
  do
  {
-  sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		   &status );		//SDL
+  sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
   write(log,buffer,strlen(buffer));
@@ -196,8 +192,7 @@ if (strstr(buffer,"Enter PASS command")) eznos2=1;
  //ask server where we have to connect:
 
  sock_puts(socket,(unsigned char *)"PASV");
- sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		  &status );		//SDL
+ sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
  sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
  outs(buffer);
  write(log,buffer,strlen(buffer));
@@ -296,8 +291,7 @@ else
    sock_puts(socket,(unsigned char *)str);
    do
    {
-    sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		     &status );		//SDL
+    sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
 
@@ -371,8 +365,7 @@ else
   sock_puts(socket,(unsigned char *)str);
   write(log,str,strlen(str));
   write(log,"\r\n",2);
-  sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		  &status );		//SDL
+  sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
   write(log,buffer,strlen(buffer));
@@ -435,8 +428,7 @@ if(isdir || strstr(str,"RETR"))
   write(log,"\r\n",2);
 
   //wait for datasocket to open:
-  sock_wait_established(&datasocket, sock_delay, (sockfunct_t) TcpIdleFunc,
-			&status);	//SDL
+  sock_wait_established(&datasocket, sock_delay, TcpIdleFunc, &status);	//SDL
 
 //!!glennmcc: Sep 27, 2008 -- increase D/L speed on cable & DSL
 //many thanks to 'mik' for pointing me in the right direction. :)
@@ -458,8 +450,7 @@ if(isdir || strstr(str,"RETR"))
   GlobalLogoStyle=1;		//SDL set data animation
  }
  //wait for "110 openning connection" (or "550 ....error....")
- sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		  &status );		//SDL
+ sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
 
  sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
  outs(buffer);
@@ -587,13 +578,11 @@ dataclose:
  outs(MSG_CLOSE);
 
  sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Dec 04, 2006
- sock_wait_closed( &datasocket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		   &status );		//SDL
+ sock_wait_closed( &datasocket, sock_delay, TcpIdleFunc, &status );		//SDL
 
  if(uploadfile)
  {
-  sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		   &status );		//SDL
+  sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
  }

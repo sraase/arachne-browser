@@ -222,7 +222,7 @@ char *ArachneDIAL(void);
 int PPPlog(void);
 
 // global idle function for WATTCP
-int TcpIdleFunc(void);
+int TcpIdleFunc(void *arg);
 
 
 //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

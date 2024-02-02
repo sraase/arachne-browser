@@ -82,8 +82,7 @@ int mailtop = config_get_bool("MailTop", 0);
   return 0;
  }
 
- sock_wait_established( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-			&status);  	//SDL
+ sock_wait_established( socket, sock_delay, TcpIdleFunc, &status);  	//SDL
  GlobalLogoStyle=1;			//SDL set data animation
 
 //!!glennmcc: Sep 27, 2008 -- increase D/L speed on cable & DSL
@@ -116,8 +115,7 @@ int mailtop = config_get_bool("MailTop", 0);
 	}
 //!!glennmcc: end
 
-    sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		     &status );		//SDL
+    sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
 
@@ -132,8 +130,7 @@ int mailtop = config_get_bool("MailTop", 0);
     if ( *buffer != '+' ) goto quit;
     sprintf( str, "USER %s", url->user);
     sock_puts(socket,(unsigned char *)str);
-    sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		     &status );		//SDL
+    sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
     if ( *buffer != '+' ) goto quit;
@@ -148,8 +145,7 @@ int mailtop = config_get_bool("MailTop", 0);
 
     sprintf( str, "PASS %s", url->password );
     sock_puts(socket,(unsigned char *)str);
-    sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		     &status );		//SDL
+    sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
 
@@ -174,8 +170,7 @@ int mailtop = config_get_bool("MailTop", 0);
 
     sprintf(str, "STAT");
     sock_puts(socket,(unsigned char *)str);
-    sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		     &status );		//SDL
+    sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
     if ( *buffer != '+' ) goto quit;
@@ -205,8 +200,7 @@ int mailtop = config_get_bool("MailTop", 0);
 	 write(log,"\r\n",2);
 	}
 	sock_puts(socket,(unsigned char *)str);
-	sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-			 &status );		//SDL
+	sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
 	sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
 	if(log!=-1)
 	{
@@ -277,8 +271,7 @@ if(_SP>(1024*20))
 //!!glennmcc: end
 */
 	sock_puts(socket,(unsigned char *)str);
-	sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-			 &status );		//SDL
+	sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
 	sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
 	if(log!=-1)
 	{
@@ -355,8 +348,7 @@ if(toobig)
        lastchar[1]='\0';
        do
        {
-	sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-			 &status );		//SDL
+	sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
 	len=sock_fastread( socket, (unsigned char*)buffer, POP3BUFSIZE );
 	buffer[len]='\0';
 	if(log!=-1)
@@ -523,8 +515,7 @@ else
 	}
 	sock_puts(socket,(unsigned char *)str);
 
-	sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-			 &status );		//SDL
+	sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
 	sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
 	if(log!=-1)
 	{
@@ -550,8 +541,7 @@ quit:
     }
 //!!glennmcc: end
 
-    sock_wait_input( socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		     &status );		//SDL
+    sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
     if(log!=-1)

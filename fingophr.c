@@ -67,8 +67,7 @@ int xfinger(struct Url *url, struct HTTPrecord *cache,char *selector)
 
  sprintf(str,msg_con,url->host,url->port);
  outs(str);
- sock_wait_established(socket, sock_delay, (sockfunct_t) TcpIdleFunc,
-		       &status);		//SDL
+ sock_wait_established(socket, sock_delay, TcpIdleFunc, &status);		//SDL
  GlobalLogoStyle=1;		//SDL set data animation
 
  if(selector[0])

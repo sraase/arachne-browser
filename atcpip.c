@@ -71,7 +71,7 @@ int atcp_resolve(const char *hostname, uint32_t *ip)
 		return -1;
 
 	while (!atcp_resolve_valid) {
-		if (TcpIdleFunc()) {
+		if (TcpIdleFunc(NULL)) {
 			pthread_cancel(thread);
 			return -1;
 		}
@@ -86,7 +86,7 @@ int atcp_resolve(const char *hostname, uint32_t *ip)
 	atcp_resolve_valid = 0;
 	return -1;
 #else
-	longword result = resolve_fn((char *)hostname, (sockfunct_t)TcpIdleFunc);
+	longword result = resolve_fn((char *)hostname, TcpIdleFunc);
 	if (result) {
 		*ip = (uint32_t)result;
 		return 0;

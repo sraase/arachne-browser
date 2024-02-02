@@ -91,8 +91,6 @@ void outs(char far *str);
 #include <netdb.h>
 #include <sys/types.h>
 
-typedef int (*sockfunct_t)(void);
-
 typedef uint32_t longword;   /* 32-bit */
 typedef int      tcp_Socket; /* file descriptor */
 

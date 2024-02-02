@@ -75,9 +75,6 @@ char ignorebasehref;
 extern struct Http_parameters http_parameters;
 
 
-// TcpIdleFunc should be called from all waiting loops
-
 extern char GlobalLogoStyle;		//SDL
-int TcpIdleFunc(void);		//SDL
 
 #endif
