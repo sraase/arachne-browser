@@ -41,6 +41,59 @@ char *atcp_get_dns_str(void)
 #endif
 }
 
+#ifdef POSIX
+static volatile int      atcp_resolve_valid;
+static volatile uint32_t atcp_resolve_result;
+
+static void *atcp_resolve_thread(void *arg)
+{
+	const char *hostname = (const char *)arg;
+	struct hostent *he = gethostbyname(hostname);
+	if (!he || !he->h_addr_list[0]) {
+		atcp_resolve_result = 0;
+		atcp_resolve_valid  = 1;
+	} else {
+		atcp_resolve_result = *(uint32_t*)he->h_addr_list[0];
+		atcp_resolve_valid  = 1;
+	}
+	return NULL;
+}
+#endif
+
+/* resolve hostname, returns 0 if successful */
+int atcp_resolve(const char *hostname, uint32_t *ip)
+{
+#ifdef POSIX
+	pthread_t thread;
+
+	atcp_resolve_valid = 0;
+	if (pthread_create(&thread, NULL, atcp_resolve_thread, (void *)hostname))
+		return -1;
+
+	while (!atcp_resolve_valid) {
+		if (TcpIdleFunc()) {
+			pthread_cancel(thread);
+			return -1;
+		}
+	}
+
+	if (atcp_resolve_result) {
+		*ip = atcp_resolve_result;
+		atcp_resolve_valid = 0;
+		return 0;
+	}
+
+	atcp_resolve_valid = 0;
+	return -1;
+#else
+	longword result = resolve_fn((char *)hostname, (sockfunct_t)TcpIdleFunc);
+	if (result) {
+		*ip = (uint32_t)result;
+		return 0;
+	}
+	return -1;
+#endif
+}
 
 #ifndef POSIX
 void errppp(void)

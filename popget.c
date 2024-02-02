@@ -68,9 +68,7 @@ int mailtop = config_get_bool("MailTop", 0);
  outs(str);
 
  GlobalLogoStyle=0;			//SDL set resolve animation
- host = resolve_fn(url->host,(sockfunct_t) TcpIdleFunc); //SDL
-// host = resolve(url->host);
- if(!host)
+ if (atcp_resolve(url->host, &host))
  {
   DNSerr(url->host);
   return 0;

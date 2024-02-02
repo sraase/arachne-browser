@@ -152,28 +152,10 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  {
   GlobalLogoStyle=0;            //SDL set resolve animation
 
-/*
-#ifdef POSIX
-{ //blocking version - not necessary, if non-blocking reslove_fn() implemented in asockets.h works
- struct hostent *phe;            // host information entry
-
- if((phe = gethostbyname(pocitac)) == NULL)
- {
-  if((host = inet_addr(pocitac)) < 0)
-   host=0;
- }
- else
-  host = *((longword *) phe->h_addr_list[0]);
-} //end temporary DNS code
-#else
-*/
-host=resolve_fn( pocitac, (sockfunct_t) TcpIdleFunc );    //SDL
-//#endif
-
-  if(!host)
+  if (atcp_resolve(pocitac, &host))
   {
-   DNSerr(pocitac);
-   return 0;
+    DNSerr(pocitac);
+    return 0;
   }
  }
 

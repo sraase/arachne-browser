@@ -39,9 +39,7 @@ int log;
  outs(str);
 
  GlobalLogoStyle=0;			//SDL set resolve animation
- host=resolve_fn( url->host, (sockfunct_t) TcpIdleFunc ); //SDL
-// host=resolve( url->host );
- if(!host)
+ if (atcp_resolve(url->host, &host))
  {
   DNSerr(url->host);
   return 0;
@@ -421,9 +419,7 @@ if(isdir || strstr(str,"RETR"))
  {
   //get file using datahost & dataport
   GlobalLogoStyle=0;		//SDL set resolve animation
-  host=resolve_fn( datahost, (sockfunct_t) TcpIdleFunc );	//SDL
-//  host=resolve( datahost );
-  if(!host)
+  if (atcp_resolve(datahost, &host))
    goto quit;
 
   GlobalLogoStyle=2;		//SDL set connect animation

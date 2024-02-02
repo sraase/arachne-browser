@@ -7,6 +7,8 @@
 char *atcp_get_ip_str(void);
 char *atcp_get_dns_str(void);
 
+int atcp_resolve(const char *hostname, uint32_t *ip);
+
 /* DOS version: WATTCP */
 #ifndef POSIX
 
@@ -84,6 +86,10 @@ void outs(char far *str);
 
 /* POSIX version */
 #ifdef POSIX
+
+#include <pthread.h>
+#include <netdb.h>
+#include <sys/types.h>
 
 typedef int (*sockfunct_t)(void);
 
