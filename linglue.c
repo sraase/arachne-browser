@@ -463,10 +463,8 @@ int max (int a,int b)
 
 void tempinit(char *path)
 {
- //fill path string with full path to temporary directory, eg. getenv("TEMP")
- //in DOS, or /tmp in Unix systems. We will use current dirctory for now...
- //maybe user's home directory in near future ?
- path[0]='\0';
+	// put temporary files in userpath (defaults to ~/.arachne/)
+	strcpy(path, userpath);
 }
 
 //---------------------------------------------------------------------------
