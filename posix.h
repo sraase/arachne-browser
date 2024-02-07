@@ -65,6 +65,7 @@ typedef unsigned short uintptr_t;
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include <errno.h>
 
 char *itoa(int val, char *s, int base); /* in str.c */
 char *ltoa(long val, char *s, long base); /* in str.c */

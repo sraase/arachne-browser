@@ -75,14 +75,11 @@ int mailtop = config_get_bool("MailTop", 0);
  }
 
  GlobalLogoStyle=2;			//SDL set connect animation
- if (!tcp_open( socket, locport(), host, url->port, NULL ))
- {
+ if (atcp_open(socket, &host, url->port)) {
   sprintf(str,msg_errcon,url->host);
   outs(str);
   return 0;
  }
-
- sock_wait_established( socket, sock_delay, TcpIdleFunc, &status);  	//SDL
  GlobalLogoStyle=1;			//SDL set data animation
 
 //!!glennmcc: Sep 27, 2008 -- increase D/L speed on cable & DSL
@@ -551,7 +548,7 @@ quit:
     }
     if ( *buffer != '+' )
      rv=0;
-    sock_close( socket );
+    atcp_close(socket);
     closing[socknum]=1;
     sock_keepalive[socknum][0]='\0';
 

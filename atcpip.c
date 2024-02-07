@@ -41,6 +41,102 @@ char *atcp_get_dns_str(void)
 #endif
 }
 
+/* open new connection, returns 0 if successful */
+int atcp_open(void *handle, const uint32_t *ip, uint16_t port)
+{
+#ifdef POSIX
+	int sockfd, err;
+	socklen_t errlen;
+	struct sockaddr_in sin;
+
+	// create non-blocking socket
+	sockfd = socket(PF_INET, SOCK_STREAM, 0);
+	if (sockfd < 0)
+		return -1;
+	if (fcntl(sockfd, F_SETFL, O_NONBLOCK) < 0)
+		goto sock_err;
+
+	// non-blocking connect
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = AF_INET;
+	sin.sin_addr.s_addr = *ip;
+	sin.sin_port = htons(port);
+	if (connect(sockfd, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
+		if (errno != EINPROGRESS)
+			goto sock_err;
+	}
+
+	// idle while in progress
+	while (1) {
+		struct timeval tv;
+		fd_set writefds;
+
+		FD_ZERO(&writefds);
+		FD_SET(sockfd, &writefds);
+		tv.tv_sec  = 0;
+		tv.tv_usec = 10000;
+		if (select(sockfd + 1, NULL, &writefds, NULL, &tv) < 0) {
+			if (errno != EINTR)
+				goto sock_err;
+		}
+
+		if (FD_ISSET(sockfd, &writefds))
+			break;
+
+		if (TcpIdleFunc(NULL))
+			goto sock_err;
+	}
+
+	// check if connect was successful
+	errlen = sizeof(err);
+	if (getsockopt(sockfd, SOL_SOCKET, SO_ERROR, &err, &errlen) < 0)
+		goto sock_err;
+	if (err) {
+		errno = err;
+		goto sock_err;
+	}
+
+	// connection successful
+	*(int *)handle = sockfd;
+	return 0;
+
+sock_err:
+	// connection failed
+	close(sockfd);
+	return -1;
+#else
+	tcp_Socket *socket = (tcp_Socket *)handle;
+	int status;
+
+	// non-blocking connect
+	status = tcp_open(socket, locport(), *ip, port, NULL);
+	if (!status)
+		goto sock_err;
+
+	// idle while in progress
+	sock_wait_established(socket, sock_delay, TcpIdleFunc, &status);
+
+	// connection successful
+	return 0;
+
+sock_err:
+	// connection failed
+	return -1;
+#endif
+}
+
+/* close connection */
+void atcp_close(void *handle)
+{
+#ifdef POSIX
+	int sockfd = *(int *)handle;
+	close(sockfd);
+#else
+	tcp_Socket *socket = (tcp_Socket *)handle;
+	sock_close(socket);
+#endif
+}
+
 #ifdef POSIX
 static volatile int      atcp_resolve_valid;
 static volatile uint32_t atcp_resolve_result;

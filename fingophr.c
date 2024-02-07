@@ -58,16 +58,13 @@ int xfinger(struct Url *url, struct HTTPrecord *cache,char *selector)
  }
 
  GlobalLogoStyle=2;		//SDL set connect animation
- if (!tcp_open( socket, locport(), host, url->port, NULL ))
- {
+ if (atcp_open(socket, &host, url->port)) {
   sprintf(str,msg_errcon,url->host);
   outs(str);
   return 0;
  }
-
  sprintf(str,msg_con,url->host,url->port);
  outs(str);
- sock_wait_established(socket, sock_delay, TcpIdleFunc, &status);		//SDL
  GlobalLogoStyle=1;		//SDL set data animation
 
  if(selector[0])
@@ -111,7 +108,7 @@ int xfinger(struct Url *url, struct HTTPrecord *cache,char *selector)
  }
 
 abort:
- sock_close( socket );
+ atcp_close(socket);
  closing[socknum]=1;
  sock_keepalive[socknum][0]='\0';
 goto closed;

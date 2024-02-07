@@ -7,7 +7,9 @@
 char *atcp_get_ip_str(void);
 char *atcp_get_dns_str(void);
 
-int atcp_resolve(const char *hostname, uint32_t *ip);
+int  atcp_open(void *handle, const uint32_t *ip, uint16_t port);
+void atcp_close(void *handle);
+int  atcp_resolve(const char *hostname, uint32_t *ip);
 
 /* DOS version: WATTCP */
 #ifndef POSIX

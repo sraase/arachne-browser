@@ -49,8 +49,7 @@ int log;
    log=a_open("FTP.LOG",O_BINARY|O_WRONLY|O_CREAT|O_TRUNC,S_IREAD|S_IWRITE);
 
  GlobalLogoStyle=2;			//SDL set connect animation
- if (!tcp_open( socket, locport(), host, url->port, NULL ))
- {
+ if (atcp_open(socket, &host, url->port)) {
   sprintf(str,msg_errcon,url->host);
   outs(str);
   return 0;
@@ -59,7 +58,6 @@ int log;
  outs(str);
  write(log,str,strlen(str));
  write(log,"\r\n",2);
- sock_wait_established(socket, sock_delay, TcpIdleFunc, &status);		//SDL
 
  GlobalLogoStyle=1;		//SDL set data animation
  sock_mode( socket, TCP_MODE_ASCII );
@@ -416,8 +414,7 @@ if(isdir || strstr(str,"RETR"))
    goto quit;
 
   GlobalLogoStyle=2;		//SDL set connect animation
-  if (!tcp_open( &datasocket, locport(), host, dataport, NULL ))
-  {
+  if (atcp_open(&datasocket, &host, dataport)) {
    sprintf(str,msg_errcon,datahost);
    outs(str);
    goto quit;
@@ -426,9 +423,6 @@ if(isdir || strstr(str,"RETR"))
   outs(str);
   write(log,str,strlen(str));
   write(log,"\r\n",2);
-
-  //wait for datasocket to open:
-  sock_wait_established(&datasocket, sock_delay, TcpIdleFunc, &status);	//SDL
 
 //!!glennmcc: Sep 27, 2008 -- increase D/L speed on cable & DSL
 //many thanks to 'mik' for pointing me in the right direction. :)
@@ -554,7 +548,7 @@ if(isdir || strstr(str,"RETR"))
 
     if(done)
     {
-     sock_close( &datasocket );
+     atcp_close(&datasocket);
      a_close(f);
      goto dataclose;
     }
@@ -589,7 +583,7 @@ dataclose:
 
 quit:
   sock_puts(socket,(unsigned char *)"QUIT");
-  sock_close( socket );
+  atcp_close(socket);
   closing[socknum]=1;
   sock_keepalive[socknum][0]='\0';
 //    sock_wait_closed( socket, sock_delay, NULL, &status );

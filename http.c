@@ -16,7 +16,6 @@
 #include "arachne.h"
 #include "internet.h"
 
-#define HTTP_QUICK_CONNECT 6   //first quick connect attempt (seconds)
 #define HTTP_ASLEEP        60  //timeout for "empty documents" (esp. via proxy)
 			       //...for images, timeouts are divided by 2
 
@@ -62,7 +61,6 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  char portstr[10]="";
  int port,i;
  char ftp=0,alive=0;
- int delay=HTTP_QUICK_CONNECT, attempt=1;
 #ifdef POSIX
  struct sockaddr_in sin;
  fd_set rfds,  efds;
@@ -269,92 +267,31 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
 
   GlobalLogoStyle=2;    //SDL set connect animation
 
-#ifdef POSIX
-  sin.sin_addr.s_addr = host;
-  sin.sin_family = AF_INET;
-  sin.sin_port = htons(port);
-  bzero(&(sin.sin_zero), 8);     /* zero the rest of the struct */
-
-  sprintf(str,msg_con,pocitac,port);
+  // connect to server
+  sprintf(str, MSG_CON, pocitac, port);
   outs(str);
-
-  /* create socket */
-  socknum=socket(PF_INET, SOCK_STREAM, 0);
-  if(socknum < 0)
-  {
-   sprintf(str,msg_errcon,pocitac);
-   outs(str);
-   return 0;
+#ifdef POSIX
+  if (atcp_open((void *)&socknum, &host, port) < 0) {
+    sprintf(str, MSG_ERRCON, pocitac);
+    outs(str);
+    return 0;
   }
-
-  /* make socket non-blocking */
-  fcntl (socknum, F_SETFL, O_NONBLOCK);
-
-  /* connect to server */
-  while(connect(socknum, (struct sockaddr *)&sin, sizeof(sin)) < 0)
-  {
-   if(TcpIdleFunc(NULL))
+#else
+  if (atcp_open((void *)socket, &host, port) < 0) {
+    sprintf(str, MSG_ERRCON, pocitac);
+    outs(str);
     return 0;
   }
 
-  /*
-  //old style, synchrounous (blocking) connect. Not good for Arachne.
-  if(connect(socknum, (struct sockaddr *)&sin, sizeof(sin)) < 0)
-  {
-   sprintf(str,msg_errcon,pocitac);
-   outs(str);
-   return 0;
+  // increase socket buffer for WATTCP
+  // taken from previous implementation
+  if (_SP > (1024 * SETBUFSIZE)) {
+    unsigned char setbuf[1024 * SETBUFSIZE];
+    sock_setbuf(socket, setbuf, sizeof(setbuf));
+    user_interface.multitasking = MULTI_SAFE;
   }
-  */
-
-#else
-  status=tcp_open(socket, locport(), host, port, NULL );
-  if (status!=1)
-  {
-   sprintf(str,msg_errcon,pocitac);
-   outs(str);
-   return 0;
-  }
-
-//!!glennmcc: Sep 27, 2008 -- increase D/L speed on cable & DSL
-//many thanks to 'mik' for pointing me in the right direction. :)
-if(status==1)
-{
-#ifdef DEBUG
- char sp[80];
- sprintf(sp,"Available stack = %u bytes",_SP);
- outs(sp);
- Piip(); Piip();
 #endif
- if(_SP>(1024*SETBUFSIZE))
- {
-  char setbuf[1024*SETBUFSIZE];
-  sock_setbuf(socket, (unsigned char *)setbuf, 1024*SETBUFSIZE);
-  user_interface.multitasking=MULTI_SAFE;
- }
-}
-//!!glennmcc: end
 
-  sprintf(str,msg_con,pocitac,port);
-  outs(str);
-  if (_ip_delay0(socket, delay, TcpIdleFunc, &status ))          //SDL
-  {
-   if(attempt==3)
-    goto sock_err;
-   else
-   {
-    if(attempt==2)
-    {
-     delay=sock_delay;
-     if(GLOBAL.isimage)
-      delay/=2;
-    }
-    attempt++;
-    sock_abort(socket);
-    goto retry;
-   }
-  }//wait for connection
-#endif
  }//end if not TCP/IP open (or connection is alive)
  else
   alive=1;
@@ -1243,9 +1180,9 @@ Local: <A HREF=\"file://%s%s\">%s</A><HR>\n\
  p->buf[0]='\0';
  p->httplen=0;
 #ifdef POSIX
- close(socknum);
+ atcp_close((void *)&socknum);
 #else
- sock_close(socket );
+ atcp_close((void *)socket);
  closing[socknum]=1;
 #endif
  sock_keepalive[socknum][0]='\0';
@@ -1285,9 +1222,9 @@ void closehttp(struct HTTPrecord *cache)
  if(!sock_keepalive[socknum][0])
  {
 #ifdef POSIX
-  close(socknum);
+  atcp_close(&socknum);
 #else
-  sock_close(socket );
+  atcp_close(socket);
   closing[socknum]=1;
 #endif
  }
