@@ -83,10 +83,9 @@ int log;
  else
   ptr=url->user;
 
- sprintf( str, "USER %s", ptr);
+ sprintf( str, "USER %s\r\n", ptr);
  write(log,str,strlen(str));
- write(log,"\r\n",2);
- sock_puts(socket,(unsigned char *)str);
+ atcp_send(socket, str, strlen(str));
  sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
  sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
  outs(buffer);
@@ -151,10 +150,9 @@ int log;
 if (strstr(buffer,"sword") || strstr(buffer,"Enter PASS command"))
 //if (strstr(buffer,"sword"))//original line
 {
- sprintf( str, "PASS %s", ptr);
- sock_puts(socket,(unsigned char *)str);
+ sprintf( str, "PASS %s\r\n", ptr);
+ atcp_send(socket, str, strlen(str));
  write(log,str,strlen(str));
- write(log,"\r\n",2);
 }//!!glennmcc: inserted Mar 02, 2008
 //Some servers need the following 'do/while' section,
 //therefore, only the section above for sending the password needs to be
@@ -188,8 +186,7 @@ if (strstr(buffer,"Enter PASS command")) eznos2=1;
 //}//!!glennmcc: end May 11, 2005 -- removed on Mar 02, 2008
 
  //ask server where we have to connect:
-
- sock_puts(socket,(unsigned char *)"PASV");
+ atcp_send(socket, "PASV\r\n", 6);
  sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
  sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
  outs(buffer);
@@ -282,11 +279,11 @@ else
 //!!glennmcc: Oct 15, 2007 -- fix problems with CWD on FTP servers
 //which interpret the leading '/' as an attempted CD to 'root'
    if(url->file[0]=='/')
-   sprintf( str, "CWD %s", url->file+1);
+   sprintf( str, "CWD %s\r\n", url->file+1);
    else
 //!!glennmcc: end Oct 15, 2007
-   sprintf( str, "CWD %s", url->file);
-   sock_puts(socket,(unsigned char *)str);
+   sprintf( str, "CWD %s\r\n", url->file);
+   atcp_send(socket, str, strlen(str));
    do
    {
     sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
@@ -321,7 +318,7 @@ else
 
   }
   strcpy(cache->mime,"ftp/list");
-  sprintf( str, "LIST");
+  sprintf( str, "LIST\r\n");
  }
  else
  {
@@ -340,7 +337,7 @@ else
    else
     fnameptr++;
 
-  sprintf( str, "TYPE I");
+  sprintf( str, "TYPE I\r\n");
   if(fnameptr)
   {
    char ext[5];
@@ -354,15 +351,14 @@ else
 //optionally upload TXT and HTM in binary mode
     if (config_get_bool("UseBinaryFTP", 0))
 //!!glennmcc: end
-    sprintf( str, "TYPE A");
+    sprintf( str, "TYPE A\r\n");
 //    ascii=1;
    }
   }
   strcpy(cache->mime,mimestr);
 
-  sock_puts(socket,(unsigned char *)str);
+  atcp_send(socket, str, strlen(str));
   write(log,str,strlen(str));
-  write(log,"\r\n",2);
   sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
@@ -385,17 +381,16 @@ else
 //!!glennmcc: Oct 17, 2007 -- fix problems with FTP servers
 //which interpret the leading '/' as an attempted CD to 'root'
    if(url->file[0]=='/')
-   sprintf( str, "RETR %s", url->file+1);
+   sprintf( str, "RETR %s\r\n", url->file+1);
    else
-   sprintf( str, "RETR %s", url->file);
+   sprintf( str, "RETR %s\r\n", url->file);
 //original single line above this comment
 //!!glennmcc: end
   else
-   sprintf( str, "STOR %s", url->file);
+   sprintf( str, "STOR %s\r\n", url->file);
  }
- sock_puts(socket,(unsigned char *)str);
+ atcp_send(socket, str, strlen(str));
  write(log,str,strlen(str));
- write(log,"\r\n",2);
 
 //!!glennmcc: Oct 19, 2008 -- back to original fix
 //!!glennmcc: Nov 15, 2007 -- always 'close' the connection when done
@@ -403,7 +398,7 @@ else
 //Apr 10, 2007 fix did it only for dir listings
 if(isdir || strstr(str,"RETR"))
 //if(isdir)
- sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Apr 10, 2007
+ atcp_send(socket, "QUIT\r\n", 6);
 //!!glennmcc: end
 
  if(!retry)
@@ -571,7 +566,7 @@ dataquit:
 dataclose:
  outs(MSG_CLOSE);
 
- sock_puts(socket,(unsigned char *)"QUIT");//!!glennmcc: Dec 04, 2006
+ atcp_send(socket, "QUIT\r\n", 6);
  sock_wait_closed( &datasocket, sock_delay, TcpIdleFunc, &status );		//SDL
 
  if(uploadfile)
@@ -582,7 +577,7 @@ dataclose:
  }
 
 quit:
-  sock_puts(socket,(unsigned char *)"QUIT");
+  atcp_send(socket, "QUIT\r\n", 6);
   atcp_close(socket);
   closing[socknum]=1;
   sock_keepalive[socknum][0]='\0';

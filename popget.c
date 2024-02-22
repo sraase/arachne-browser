@@ -125,8 +125,8 @@ int mailtop = config_get_bool("MailTop", 0);
 //!!glennmcc: end
 
     if ( *buffer != '+' ) goto quit;
-    sprintf( str, "USER %s", url->user);
-    sock_puts(socket,(unsigned char *)str);
+    sprintf( str, "USER %s\r\n", url->user);
+    atcp_send(socket, str, strlen(str));
     sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
@@ -140,8 +140,8 @@ int mailtop = config_get_bool("MailTop", 0);
 	}
 //!!glennmcc: end
 
-    sprintf( str, "PASS %s", url->password );
-    sock_puts(socket,(unsigned char *)str);
+    sprintf( str, "PASS %s\r\n", url->password );
+    atcp_send(socket, str, strlen(str));
     sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
@@ -165,8 +165,8 @@ int mailtop = config_get_bool("MailTop", 0);
 //!!glennmcc: end
 
 
-    sprintf(str, "STAT");
-    sock_puts(socket,(unsigned char *)str);
+    sprintf(str, "STAT\r\n");
+    atcp_send(socket, str, strlen(str));
     sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
     sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
     outs(buffer);
@@ -190,13 +190,12 @@ int mailtop = config_get_bool("MailTop", 0);
 	sprintf(str,MSG_GET1, process,count,totallength,MSG_GET3 );
 	outs(str);
 
-	sprintf( str, "LIST %lu", process );
+	sprintf( str, "LIST %lu\r\n", process );
 	if(log!=-1)
 	{
 	 write(log,str,strlen(str));
-	 write(log,"\r\n",2);
 	}
-	sock_puts(socket,(unsigned char *)str);
+        atcp_send(socket, str, strlen(str));
 	sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
 	sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
 	if(log!=-1)
@@ -240,12 +239,11 @@ if(toobig)
 //!!glennmcc: end this section.....more below
 	}
 
-     if(mailtop) sprintf( str, "TOP %lu 1000000", process );
-     else sprintf( str, "RETR %lu", process );
+     if(mailtop) sprintf( str, "TOP %lu 1000000\r\n", process );
+     else sprintf( str, "RETR %lu\r\n", process );
 	if(log!=-1)
 	{
 	 write(log,str,strlen(str));
-	 write(log,"\r\n",2);
 	}
 /*
 //!!glennmcc: Sep 27, 2008 -- increase D/L speed on cable & DSL
@@ -267,7 +265,7 @@ if(_SP>(1024*20))
 }
 //!!glennmcc: end
 */
-	sock_puts(socket,(unsigned char *)str);
+        atcp_send(socket, str, strlen(str));
 	sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
 	sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
 	if(log!=-1)
@@ -504,13 +502,12 @@ else
        {
 	sprintf(str,MSG_DELE, process,count);
 	outs(str);
-	sprintf(str,"DELE %lu", process );
+	sprintf(str,"DELE %lu\r\n", process );
 	if(log!=-1)
 	{
 	 write(log,str,strlen(str));
-	 write(log,"\r\n",2);
 	}
-	sock_puts(socket,(unsigned char *)str);
+        atcp_send(socket, str, strlen(str));
 
 	sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
 	sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
@@ -527,7 +524,7 @@ else
     rv=1;
 quit:
     outs(MSG_CLOSE);
-    sock_puts(socket,(unsigned char *)"QUIT");
+    atcp_send(socket, "QUIT\r\n", 6);
 
 //!!glennmcc: begin Sep 10, 2001
 // (changed from 'str' to 'MSG_CLOSE' to reflect "QUIT" message sent)

@@ -75,8 +75,8 @@ int xfinger(struct Url *url, struct HTTPrecord *cache,char *selector)
  else
   outs(MSG_WTRPL);
 
- sprintf(str,"%s\r\n",selector);
- sock_puts( socket, (unsigned char *)str);
+ sprintf(str, "%s\r\n", selector);
+ atcp_send(socket, str, strlen(str));
 
  ptr=strrchr(cache->locname,'.');
  if(ptr)

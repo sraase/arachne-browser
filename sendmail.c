@@ -178,12 +178,12 @@ if(helo==2)
 
   sprintf( str, "EHLO %s", mydomain);
   outs(str);
+  strcat(str, "\r\n");
   if(log!=-1)
   {
    write(log,str,strlen(str));
-   write(log,"\r\n",2);
   }
-  sock_puts(socket,(unsigned char *)str);
+  atcp_send(socket, str, strlen(str));
 
 
   do
@@ -202,12 +202,12 @@ if(helo==2)
 
   sprintf( str, "AUTH LOGIN");
   outs(str);
+  strcat(str, "\r\n");
   if(log!=-1)
   {
    write(log,str,strlen(str));
-   write(log,"\r\n",2);
   }
-  sock_puts(socket,(unsigned char *)str);
+  atcp_send(socket, str, strlen(str));
 
   do
   {
@@ -229,12 +229,12 @@ if(helo==2)
 //!!glennmcc: end
   sprintf( str, AuthSMTPusername);
   outs(str);
+  strcat(str, "\r\n");
   if(log!=-1)
   {
    write(log,str,strlen(str));
-   write(log,"\r\n",2);
   }
-  sock_puts(socket,(unsigned char *)str);
+  atcp_send(socket, str, strlen(str));
 
   do
   {
@@ -255,12 +255,12 @@ if(helo==2)
 //  base64code((unsigned char *)url->password,AuthSMTPpassword);
   sprintf( str, AuthSMTPpassword);
   outs(str);
+  strcat(str, "\r\n");
   if(log!=-1)
   {
    write(log,str,strlen(str));
-   write(log,"\r\n",2);
   }
-  sock_puts(socket,(unsigned char *)str);
+  atcp_send(socket, str, strlen(str));
 
   do
   {
@@ -282,12 +282,12 @@ else //begin else HELO
 
   sprintf( str, "HELO %s", mydomain);
   outs(str);
+  strcat(str, "\r\n");
   if(log!=-1)
   {
    write(log,str,strlen(str));
-   write(log,"\r\n",2);
   }
-  sock_puts(socket,(unsigned char *)str);
+  atcp_send(socket, str, strlen(str));
 
   do
   {
@@ -319,7 +319,7 @@ else //begin else HELO
    {
     write(log,"RSET\r\n",6);
    }
-   sock_puts(socket,(unsigned char *)"RSET");
+   atcp_send(socket, "RSET\r\n", 6);
 
    do
    {
@@ -353,14 +353,13 @@ else //begin else HELO
 
   //start SMTP
   sprintf( str, "MAIL FROM: <%s>", url->user);
-
   outs(str);
+  strcat(str, "\r\n");
   if(log!=-1)
   {
    write(log,str,strlen(str));
-   write(log,"\r\n",2);
   }
-  sock_puts(socket,(unsigned char *)str);
+  atcp_send(socket, str, strlen(str));
   do
   {
    sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
@@ -473,12 +472,12 @@ else //begin else HELO
        //add SMTP recipient
        sprintf( pom, "RCPT TO: <%s>", ptr);
        outs(pom);
+       strcat(pom, "\r\n");
        if(log!=-1)
        {
 	write(log,pom,strlen(pom));
-	write(log,"\r\n",2);
        }
-       sock_puts(socket,(unsigned char *)pom);
+       atcp_send(socket, pom, strlen(pom));
        sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
        sock_gets( socket, (unsigned char *)pom, sizeof( pom ));
        outs(pom);
@@ -522,7 +521,7 @@ else //begin else HELO
   {
    write(log,"DATA\r\n",6);
   }
-  sock_puts(socket,(unsigned char *)"DATA");
+  atcp_send(socket, "DATA\r\n", 6);
   sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
   sock_gets( socket, (unsigned char *)buffer, sizeof( buffer ));
   outs(buffer);
@@ -625,11 +624,11 @@ if(bcc)
 
      if (str[0]=='.')			//SDL always double up
       sock_putc(socket,'.');  		//SDL leading periods
-     sock_puts(socket,(unsigned char *)str);
+     strcat(str, "\r\n");
+     atcp_send(socket, str, strlen(str));
      if(log!=-1)
      {
       write(log,str,strlen(str));
-      write(log,"\r\n",2);
      }
      sock_tick(socket,&status);
      j=0;
@@ -641,7 +640,7 @@ if(bcc)
   }
   a_close(f);
 
-  sock_puts(socket,(unsigned char *)".");
+  atcp_send(socket, ".\r\n", 3);
   if(log!=-1)
   {
    write(log,".\r\n",3);
@@ -692,7 +691,7 @@ quit:
      write(log,"QUIT\r\n",6);
      close(log);
     }
-    sock_puts(socket,(unsigned char *)"QUIT");
+    atcp_send(socket, "QUIT\r\n", 6);
     atcp_close(socket);
     closing[socknum]=1;
     sock_keepalive[socknum][0]='\0';

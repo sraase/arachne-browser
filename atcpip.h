@@ -9,6 +9,7 @@ char *atcp_get_dns_str(void);
 
 int  atcp_open(void *handle, const uint32_t *ip, uint16_t port);
 void atcp_close(void *handle);
+int  atcp_send(void *handle, const char *buf, size_t len);
 int  atcp_resolve(const char *hostname, uint32_t *ip);
 
 /* DOS version: WATTCP */
@@ -69,13 +70,14 @@ void sock_close(sock_type *s);
 int  sock_dataready(sock_type *s);
 int  sock_fastread(sock_type *s, byte *dp, int len);
 int  sock_fastwrite(sock_type *s, byte *dp, int len);
+void sock_flush(sock_type *s);
 int  sock_gets(sock_type *s, byte *dp, int len);
 int  sock_init_noexit(void);
 word sock_mode(sock_type *s, word mode);
 byte sock_putc(sock_type *s, byte c);
-int  sock_puts(sock_type *s, byte *dp);
 int  sock_setbuf(sock_type *s, byte *dp, int len);
 int  sock_tbleft(sock_type *s);
+int  sock_write(sock_type *s, byte *dp, int len);
 
 void tcp_config_file(const char *fname);
 int  tcp_listen(tcp_Socket *s, word lport, longword ina, word port, dataHandler_t datahandler, word timeout);
@@ -95,8 +97,6 @@ void outs(char far *str);
 
 typedef uint32_t longword;   /* 32-bit */
 typedef int      tcp_Socket; /* file descriptor */
-
-int sock_puts(int sock, char *str);
 
 void outs(char *str);
 

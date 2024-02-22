@@ -416,14 +416,14 @@ if(!outgoing[0])
  if(tcpip && !httpstub)    //if TCP/IP is enabled
  {
 #ifdef POSIX
-  if(sock_puts(socknum, p->buf)<0) //send HTTP reques....
+  if (atcp_send((void *)&socknum, p->buf, strlen(p->buf)) < 0) //send HTTP reques....
   {
    outs(MSG_CLOSED);
    return 0;
   }
 #else
 
-  sock_puts(socket, (unsigned char *)p->buf); //send HTTP reques....
+  atcp_send(socket, p->buf, strlen(p->buf));
 #endif
 
   if(querystring)           //if query string has to be posted
@@ -431,7 +431,7 @@ if(!outgoing[0])
    outs(MSG_POST);
 
 #ifdef POSIX
-   if(sock_puts(socknum, querystring)<0) //send HTTP reques....
+   if (atcp_send((void *)&socknum, querystring, strlen(querystring)) < 0) //send HTTP reques....
    {
     outs(MSG_CLOSED);
     return 0;
@@ -483,7 +483,7 @@ if(!outgoing[0])
     sock_fastwrite(socket, (unsigned char *)&querystring[postindex] ,strlen(&querystring[postindex]));
    }
    sock_tick(socket, &status ); //I shift TCP/IP
-   sock_puts(socket, (unsigned char *)"\r\n");
+   atcp_send(socket, "\r\n", 2);
    sprintf(str,MSG_SENT,ql);
    outs(str);
 

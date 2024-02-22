@@ -137,6 +137,42 @@ void atcp_close(void *handle)
 #endif
 }
 
+/* send (and flush) data, returns 0 if successful */
+int atcp_send(void *handle, const char *buf, size_t len)
+{
+#ifdef POSIX
+	int sockfd = *(int *)handle;
+	while (len) {
+		ssize_t l = send(sockfd, buf, len, 0);
+		if (l < 0)
+			return -1;
+
+		buf += l;
+		len -= l;
+
+		if (TcpIdleFunc(NULL))
+			return -1;
+	}
+	return 0;
+#else
+	tcp_Socket *socket = (tcp_Socket *)handle;
+	while (len) {
+		int l = sock_write(socket, (byte *)buf, (int)len);
+		if (!l)
+			return -1;
+
+		buf += l;
+		len -= l;
+
+		if (TcpIdleFunc(NULL))
+			return -1;
+	}
+
+	sock_flush(socket);
+	return 0;
+#endif
+}
+
 #ifdef POSIX
 static volatile int      atcp_resolve_valid;
 static volatile uint32_t atcp_resolve_result;
