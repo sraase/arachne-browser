@@ -10,6 +10,7 @@ char *atcp_get_dns_str(void);
 int  atcp_open(void *handle, const uint32_t *ip, uint16_t port);
 void atcp_close(void *handle);
 int  atcp_send(void *handle, const char *buf, size_t len);
+int  atcp_recv(void *handle, char *buf, size_t len);
 int  atcp_resolve(const char *hostname, uint32_t *ip);
 
 /* DOS version: WATTCP */

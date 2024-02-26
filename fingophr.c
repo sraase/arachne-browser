@@ -96,7 +96,7 @@ int xfinger(struct Url *url, struct HTTPrecord *cache,char *selector)
     goto abort;
   if (sock_dataready( socket ))
   {
-   len = sock_fastread( socket, (unsigned char*)smallbuf, 512 );
+   len = atcp_recv(socket, smallbuf, 512);
    if(cache->handle>=0)
     write(cache->handle,smallbuf,len);
    total+=len;

@@ -641,7 +641,7 @@ if(!outgoing[0])
    {
     if(p->httplen+256<BUF)
     {
-     count=sock_fastread(socket, (unsigned char *)&(p->buf[p->httplen]), 256);
+     count=atcp_recv(socket, &(p->buf[p->httplen]), 256);
      p->httplen+=count;
      p->buf[p->httplen]='\0';
      if(strstr(p->buf,"\r\n\r\n") || strstr(p->buf,"\r\r") || strstr(p->buf,"\n\n"))
@@ -649,7 +649,7 @@ if(!outgoing[0])
     }
     else
     {
-     count=sock_fastread(socket, (unsigned char *)str, 256);
+     count=atcp_recv(socket, str, 256);
      str[count]='\0';
      if(strstr(str,"\r\n\r\n") || strstr(str,"\r\r") || strstr(str,"\n\n"))
       header_done=1;

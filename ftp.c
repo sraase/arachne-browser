@@ -488,7 +488,7 @@ if(isdir || strstr(str,"RETR"))
 
    if (sock_dataready( &datasocket ))
    {
-    len = sock_fastread( &datasocket, (unsigned char*)buffer, BUFLEN );
+    len = atcp_recv(&datasocket, buffer, BUFLEN);
     write(cache->handle,buffer,len);
     total+=len;
     sprintf(str,MSG_BYTESR,MSG_DOWNLD,total);

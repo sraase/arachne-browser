@@ -344,7 +344,7 @@ if(toobig)
        do
        {
 	sock_wait_input( socket, sock_delay, TcpIdleFunc, &status );		//SDL
-	len=sock_fastread( socket, (unsigned char*)buffer, POP3BUFSIZE );
+	len=atcp_recv(socket, buffer, POP3BUFSIZE);
 	buffer[len]='\0';
 	if(log!=-1)
 	{
@@ -488,7 +488,7 @@ else
        //skip empty lines ?
        while(sock_dataready(socket))
        {
-	len=sock_fastread( socket, (unsigned char*)buffer, sizeof( buffer ) );
+	len=atcp_recv(socket, buffer, sizeof(buffer));
 	buffer[len]='\0';
 	if(log!=-1)
 	{

@@ -173,6 +173,32 @@ int atcp_send(void *handle, const char *buf, size_t len)
 #endif
 }
 
+/* receive data
+     return number of bytes read
+     return 0 if no data available OR connection closed
+     return -1 on error */
+int atcp_recv(void *handle, char *buf, size_t len)
+{
+#ifdef POSIX
+	int sockfd = *(int *)handle;
+	while (1) {
+		ssize_t ret = recv(sockfd, buf, len, 0);
+		if (ret < 0) {
+			if (errno == EINTR)
+				continue;
+
+			if (errno == EAGAIN || errno == EWOULDBLOCK)
+				return 0; // no data
+		}
+		return (int)ret;
+	}
+#else
+	tcp_Socket *socket = (tcp_Socket *)handle;
+	int ret = sock_fastread(socket, (byte *)buf, (int)len);
+	return ret;
+#endif
+}
+
 #ifdef POSIX
 static volatile int      atcp_resolve_valid;
 static volatile uint32_t atcp_resolve_result;
