@@ -234,7 +234,7 @@ static int loadpick(void)
 
 	/* open file */
 	fname = newstr("%s%s", userpath, "arachne.pck");
-	fd = a_open(fname, O_RDONLY, 0);
+	fd = a_open(fname, O_RDONLY | O_BINARY, 0);
 	freestr(fname);
 
 	/* read pick data */
