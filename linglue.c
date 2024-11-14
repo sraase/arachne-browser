@@ -25,6 +25,7 @@ static unsigned short sdlcolor = 0xFFFF;
 static int need_update = 0;
 static int key_queue[16];
 static int key_queue_len;
+static int key_state = 0;
 static int mouse_range[4];
 static int mouse_state[3];
 #endif
@@ -131,6 +132,32 @@ static int get_button_mask(Uint32 state)
 
 static int get_key(SDL_Keycode code)
 {
+    if (key_state & (0x04 | 0x08)) { /* LCTRL | RCTRL */
+        switch (code) {
+        case SDLK_HOME:  return CTRLHOME;
+        case SDLK_END:   return CTRLEND;
+        case SDLK_LEFT:  return CTRLLEFT;
+        case SDLK_RIGHT: return CTRLRIGHT;
+        case SDLK_c:     return ASCIICTRLC;
+        case SDLK_d:     return ASCIICTRLD;
+        case SDLK_k:     return ASCIICTRLK;
+        case SDLK_l:     return ASCIICTRLL;
+        case SDLK_m:     return ASCIICTRLM;
+        case SDLK_n:     return ASCIICTRLN;
+        case SDLK_o:     return ASCIICTRLO;
+        case SDLK_p:     return ASCIICTRLP;
+        case SDLK_q:     return ASCIICTRLQ;
+        case SDLK_r:     return ASCIICTRLR;
+        case SDLK_s:     return ASCIICTRLS;
+        case SDLK_t:     return ASCIICTRLT;
+        case SDLK_u:     return ASCIICTRLU;
+        case SDLK_v:     return ASCIICTRLV;
+        case SDLK_w:     return ASCIICTRLW;
+        case SDLK_x:     return ASCIICTRLX;
+        case SDLK_y:     return ASCIICTRLY;
+        }
+    }
+
     switch (code) {
     case SDLK_BACKSPACE:    return BACKSPACE;
     case SDLK_UP:           return UPARROW;
@@ -160,6 +187,19 @@ static int get_key(SDL_Keycode code)
     }
 
    return 0;
+}
+
+static int get_modifiers(SDL_Keycode code)
+{
+    switch (code) {
+    case SDLK_LSHIFT: return 0x01;
+    case SDLK_RSHIFT: return 0x02;
+    case SDLK_LCTRL:  return 0x04;
+    case SDLK_RCTRL:  return 0x08;
+    case SDLK_LALT:   return 0x10;
+    case SDLK_RALT:   return 0x20;
+    }
+    return 0;
 }
 
 static void add_key(int key)
@@ -199,7 +239,12 @@ static void do_events(int timeout)
             break;
 
         case SDL_KEYDOWN:
+            key_state |= get_modifiers(ev.key.keysym.sym);
             add_key(get_key(ev.key.keysym.sym));
+            break;
+
+	case SDL_KEYUP:
+            key_state &= ~get_modifiers(ev.key.keysym.sym);
             break;
 
         case SDL_TEXTINPUT:
@@ -410,16 +455,16 @@ if (select(STDIN_FILENO+1, &readset, NULL, NULL, &t) <= 0)
         // return modifier keys
         {
             int ret = 0;
-            SDL_Keymod mod = SDL_GetModState();
-            if (mod & KMOD_LSHIFT) ret |= LEFTSHIFT;
-            if (mod & KMOD_RSHIFT) ret |= RIGHTSHIFT;
-            if (mod & KMOD_LCTRL)  ret |= CTRLKEY;
-            if (mod & KMOD_RCTRL)  ret |= CTRLKEY;
-            if (mod & KMOD_LALT)   ret |= ALT;
-            if (mod & KMOD_RALT)   ret |= ALT;
+            if (key_state & 0x01) ret |= LEFTSHIFT;
+            if (key_state & 0x02) ret |= RIGHTSHIFT;
+            if (key_state & 0x04) ret |= CTRLKEY;
+            if (key_state & 0x08) ret |= CTRLKEY;
+            if (key_state & 0x10) ret |= ALT;
+            if (key_state & 0x20) ret |= ALT;
             return ret;
         }
     }
+    return 0;
 #endif
 }
 
