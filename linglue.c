@@ -212,7 +212,7 @@ static void add_key(int key)
 static void add_text(const char *text)
 {
     int state = 0;
-    unsigned short codepoint;
+    unsigned short codepoint = 0;
     while (*text) {
         if (utf8_decode(*text++, &codepoint, &state))
             continue;
