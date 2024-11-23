@@ -804,6 +804,7 @@ void x_cleardev(void)
 int x_detect(char *svga, int *kby)
 {
  //detect graphics mode... will be probably unused with SVGAlibg
+ return 0;
 }
 
 void x_pal_1(int n_pal, char *pal_1)
