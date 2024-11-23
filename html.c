@@ -3026,7 +3026,7 @@ if (perc>99) perc=0;
      }
      else
      {
-      char number[10]; //ordered list - output item number instead of bullet
+      char number[12]; //ordered list - output item number instead of bullet
       sprintf(number,"%d.",orderedlist[listdepth]++);
 
       htmlfont(font,style);

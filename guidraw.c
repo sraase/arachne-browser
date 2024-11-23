@@ -29,7 +29,7 @@ void toolbar(char newtoolbarmode,char forced)
    if(!user_interface.iconsoff && toolbarmode==0)
    {
     int iconx=452,icony=3,iconcount=1;
-    char icon[9],dummy[80],iconkey[5];
+    char icon[9],dummy[80],iconkey[13];
     while(iconx<x_maxx()-184)
     {
      sprintf(iconkey,"H?%d",iconcount++);
@@ -84,7 +84,7 @@ void toolbar(char newtoolbarmode,char forced)
    if(toolbarmode==0)
    {
     int icony=253,iconcount=1;
-    char icon[9],dummy[80],desc1[40],desc2[10],iconkey[5];
+    char icon[9],dummy[80],desc1[40],desc2[10],iconkey[13];
     while(icony<endvtoolbar()-20)
     {
      sprintf(iconkey,"V?%d",iconcount++);
