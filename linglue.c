@@ -282,6 +282,7 @@ doupdate:
         if (texture)
             SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderPresent(renderer);
+        SDL_DestroyTexture(texture);
         need_update = 0;
     }
 }
