@@ -488,6 +488,7 @@ void bioskey_close(void)
 int kbhit(void)
 {
  //check for keystroke - only to allow Ctrl+C in DOS ....
+ return 0;
 }
 
 int min (int a,int b)
