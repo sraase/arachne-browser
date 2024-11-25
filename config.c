@@ -490,7 +490,7 @@ void configure_user_interface(void)
  http_parameters.keepalive = config_get_bool("HTTPKeepAlive", 1);
  http_parameters.useproxy = config_get_bool("UseProxy", 0);
  http_parameters.acceptcookies = config_get_bool("Cookies", 1);
- http_parameters.https2http = config_get_bool("HTTPS2HTTP", 1);
+ http_parameters.https2http = config_get_bool("HTTPS2HTTP", 0);
  user_interface.ignorejs = config_get_bool("IGNOREJS", 0);
  http_parameters.ignorebasehref = config_get_bool("IGNOREBASEHREF", 0);
  user_interface.alwaysusecfgcolors = config_get_bool("AlwaysUseCFGcolors", 0);
