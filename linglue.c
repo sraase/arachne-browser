@@ -567,6 +567,16 @@ int x_grf_mod(int xmod)
  //set text mode here...
  //we will emulate hicolor for now....
  xg_256=MM_Hic;
+
+#ifdef SDL2
+ if (xmod == 3) {
+  // mode 03h = 80x25 text, called before exit
+  SDL_FreeSurface(surface);      surface  = NULL;
+  SDL_DestroyRenderer(renderer); renderer = NULL;
+  SDL_DestroyWindow(window);     window   = NULL;
+  SDL_Quit();
+ }
+#endif
  return 1;
 }
 
