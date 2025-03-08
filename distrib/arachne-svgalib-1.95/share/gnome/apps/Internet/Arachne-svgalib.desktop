@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Arachne/SVGAlib (root only) 
+Comment=Arachne for SVGAlib. Only root can launch SVGAlib applications from X11!
+Exec=/usr/bin/arachne
+Icon=/usr/share/icons/large/arachne-large-2.xpm
+Terminal=false

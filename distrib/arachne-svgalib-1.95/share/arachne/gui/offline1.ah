@@ -1,0 +1,4 @@
+Get Offline mail:
+<P>
+<FORM ACTION="getofflinemail.dgi">
+<INPUT SIZE=60 NAME="" VALUE="A:\">

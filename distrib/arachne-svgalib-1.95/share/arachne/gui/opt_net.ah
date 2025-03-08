@@ -1,0 +1,175 @@
+<HTML>
+<TITLE>Arachne Internet settings</TITLE>
+<link rel="stylesheet" href="skin.css">
+<BODY BACKGROUND=NUL TEXT=BLACK BGCOLOR=BLACK NORESIZE>
+
+<!-- :-) -->
+<TABLE CELLSPACING=2 CELLPADDING=0>
+<TD WIDTH=4>
+<TD>
+<TABLE CELLSPACING=0 BORDER=1 FRAME="void">
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP WIDTH=602>
+<FONT 3D=1><B>Arachne Internet settings</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=17 WIDTH=17 BORDER=0>
+</TABLE></TABLE>
+
+<TABLE WIDTH=600 CELLSPACING=8 FRAME="void" BORDER=1><BASEFONT SIZE=-1>
+<FORM ACTION="arachne:internal-config?gui:options.ah">
+<TD WIDTH=602 BGCOLOR=#EEEEEE>
+<BASEFONT COLOR=BLACK>
+<TABLE>
+<TD VALIGN=TOP WIDTH=275><B>POP3 server</B> (port 110 - incoming mail)
+<TD>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="POP3server" Name="POP3server" SIZE=38>
+<INPUT TYPE=HIDDEN NAME="POP3log" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="POP3log" VALUE=Yes ARACHNECHECKED="POP3log">
+Create <A HREF="file://pop3.log">POP3 log file</A> for debugging
+<BR>
+<INPUT TYPE=HIDDEN NAME="KeepOnServer" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="KeepOnServer" VALUE=Yes ARACHNECHECKED="KeepOnServer">
+Keep mail on POP3 server after download
+<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="POP3port" NAME="POP3port" size=10>
+Use alternate port # for POP3
+<li>(default is port #110)
+<li>(other possible values... 995 )
+<li>[or check with provider] )
+<TR>
+<TD VALIGN=TOP><B>SMTP server</B> (port 25 - outgoing mail)
+<P>
+<I>Note: Arachne doesn't support IDENT protocol yet - all connection
+at this PC's port 113 will be refused</I>.
+
+<TD NOWRAP>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="SMTPserver" Name="SMTPserver" SIZE=38>
+<BR>
+<INPUT TYPE=HIDDEN NAME="SMTPlog" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="SMTPlog" VALUE=Yes ARACHNECHECKED="SMTPlog">
+Create <A HREF="file://smtp.log">SMTP log file</A> for debugging
+<BR>
+<INPUT TYPE=HIDDEN NAME="SendHELO" VALUE=Yes>
+<INPUT TYPE=CHECKBOX NAME="SendHELO" VALUE=No ARACHNECHECKED="SendHELO">
+Disable HELO protocol
+<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="SMTPport" NAME="SMTPport" size=10>
+Use alternate port # for SMTP
+<li>(default is port #25)
+<li>(other possible values... 587, 465 )
+<li>[or check with provider]
+<HR>
+<INPUT TYPE=RADIO NAME="MailBodyEncoding" VALUE=7bit ARACHNECHECKED="MailBodyEncoding">7-bit
+<INPUT TYPE=RADIO NAME="MailBodyEncoding" VALUE=8bit ARACHNECHECKED="MailBodyEncoding">8-bit
+<INPUT TYPE=RADIO NAME="MailBodyEncoding" VALUE=quoted-printable ARACHNECHECKED="MailBodyEncoding">quoted-printable
+<BR>
+<!--<TR>
+<TD><B>NNTP server</B> (port 119 - usenet news)
+<TD>
+<I>Not yet implemented</I>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="NNTPserver" Name="NNTPserver" SIZE=38>
+<TR>
+<TD><B>IRC server</B> (machine:port)
+<TD>
+<I>Not yet implemented</I>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="IRCserver" Name="IRCserver" SIZE=38>
+-->
+<TR>
+<TD VALIGN=TOP><B>HTTP options</B>
+<TD>
+<INPUT TYPE=HIDDEN NAME="KeepHTT" VALUE=Yes>
+<INPUT TYPE=CHECKBOX NAME="KeepHTT" VALUE=No ARACHNECHECKED="KeepHTT">
+Disable caching of HTTP headers (faster)
+<BR>
+<INPUT TYPE=HIDDEN NAME="HTTPKeepAlive" VALUE=Yes>
+<INPUT TYPE=CHECKBOX NAME="HTTPKeepAlive" VALUE=No ARACHNECHECKED="HTTPKeepAlive">
+Disable KeepAlive (for old HTTP/1.0 proxies)
+<TR><TD ALIGN=RIGHT>Optional HTTP/FTP proxy username
+<TD><INPUT TYPE=TEXT ARACHNECFGVALUE="ProxyUsername" Name="ProxyUsername" Size=20>
+<TR><TD ALIGN=RIGHT>Optional HTTP/FTP proxy password
+<TD><INPUT TYPE=PASSWORD ARACHNECFGVALUE="ProxyPassword" Name="ProxyPassword" Size=20>
+<TR>
+<TD VALIGN=TOP><B>HTTP proxy server</B> (machine:port)
+<TD>
+<INPUT TYPE=RADIO NAME="UseProxy" VALUE=Yes ARACHNECHECKED=UseProxy>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="HTTPproxy" Name="HTTPproxy" SIZE=36>
+<BR>
+<INPUT TYPE=RADIO NAME="UseProxy" VALUE=No ARACHNECHECKED=UseProxy>
+Don't use HTTP proxy server
+<TR><TD ALIGN=RIGHT>Don't use HTTP proxy for (list of hosts)
+<TD><INPUT TYPE=TEXT ARACHNECFGVALUE="NoProxy" Name="NoProxy" Size=38>
+<TR><TD ALIGN=RIGHT>(substring - eg. <TT>.myprovider.com</TT>)
+<TD><INPUT TYPE=TEXT ARACHNECFGVALUE="NoProxy4all" Name="NoProxy4all" Size=38>
+<TR>
+<TD VALIGN=TOP><B>FTP proxy server</B> (machine:port)
+<TD>
+<INPUT TYPE=RADIO NAME="UseFTPproxy" VALUE=Yes ARACHNECHECKED=UseFTPproxy>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="FTPproxy" Name="FTPproxy" SIZE=36>
+<BR>
+<INPUT TYPE=RADIO NAME="UseFTPproxy" VALUE=No ARACHNECHECKED=UseFTPproxy>
+Don't use FTP proxy server
+<TR><TD ALIGN=RIGHT>Don't use FTP proxy for (list of hosts)
+<TD><INPUT TYPE=TEXT ARACHNECFGVALUE="NoFTPproxy" Name="NoFTPproxy" Size=38>
+<TR><TD ALIGN=RIGHT>(substring - eg. <TT>.myprovider.com</TT>)
+<TD><INPUT TYPE=TEXT ARACHNECFGVALUE="NoFTPproxy4all" Name="NoFTPproxy4all" Size=38>
+</TABLE>
+
+<!-- begin of improved layout -->
+<ul>
+
+<INPUT TYPE=HIDDEN NAME="HTTPS2HTTP" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="HTTPS2HTTP" VALUE=Yes ARACHNECHECKED="HTTPS2HTTP">
+Try to use HTTP instead of HTTPS.<br>
+Turning this option on means that Arachne will try to access the site via<br>
+"normal HTTP" instead of "secured HTTPS".<br>
+This feature is highly experimental and may cause some sites to go into<br>
+a "loop" of trying to use HTTP and then being redirected back to HTTPS.
+
+<p>
+
+<INPUT TYPE=HIDDEN NAME="IgnoreJS" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="IgnoreJS" VALUE=Yes ARACHNECHECKED="IgnoreJS">
+Ignore all JS.<br>
+Turning this option on means that Arachne will "jump" from the<br>
+"SCRIPT" tag to the "/SCRIPT" tag and ignore everything in between.<br>
+This feature is highly experimental and may cause some sites to not display correctly.<br> (if html is used inside of those tags)
+<p>
+IgnoreJS should only be enabled in those situations where a page will
+not display correctly and you suspect that the problem might be either
+invalid or incorrectly commented JS.
+<b>At all other times, IgnoreJS should be left disabled.</b>
+<p>
+
+<INPUT TYPE=HIDDEN NAME="IgnoreBaseHref" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="IgnoreBaseHref" VALUE=Yes ARACHNECHECKED="IgnoreBaseHref">
+Ignore the "Base Href" tag.<br>
+Turning this option on means that Arachne will not use the "Base Href="<br>
+tag when it is encountered.<br>
+This feature is highly experimental and may cause some sites to not load correctly.
+<p>
+
+<INPUT TYPE=HIDDEN NAME="IgnoreRefresh" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="IgnoreRefresh" VALUE=Yes ARACHNECHECKED="IgnoreRefresh">
+Ignore the "Refresh" tag.<br>
+Turning this option on means that Arachne will not use the "Refresh"<br>
+tag when it is encountered.
+<p>
+
+<p>
+
+<INPUT TYPE=text size="5" NAME="ShortestRefresh" ARACHNECFGVALUE="ShortestRefresh">
+Shortest Refresh time permitted (number of seconds).<br>
+All Refresh times of less than this value will be increased to the entered value.
+<p>
+
+</ul>
+<!-- end of improved layout -->
+<TR><TD class="topbar" bgcolor="gray">
+<TABLE>
+<TD WIDTH=360>
+<BASEFONT SIZE=3 COLOR=#484848><I>"make install", not war !</I></FONT>
+<TD>
+<BUTTON TYPE=SUBMIT><IMG SRC="file://small1.ikn" HEIGHT=18 WIDTH=32>&nbsp;Ok, save</BUTTON>
+<TD>
+<FORM ACTION="arachne:back">
+<BUTTON><IMG SRC="file://pidizrus.ikn" WIDTH=16 HEIGHT=16>&nbsp;Cancel</BUTTON>
+</TABLE></TABLE>
+</BODY></HTML>

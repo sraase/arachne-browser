@@ -1,0 +1,251 @@
+#!/bin/bash
+
+#customizable variables follow...
+
+#############################################################################
+#
+#Installation script needs this information only for verifying libraries:
+#
+LIBDIR=/lib
+USRLIB=/usr/lib
+#
+#This can be modified by user anyway - it is just defaullt value...
+#
+INSTPREFIX=/usr
+#
+#This is just informational info... no need to change it.
+#
+VER="1.66;beta"
+#
+#############################################################################
+
+inst_abort()
+{
+ echo
+ echo Arachne WWW browser was NOT installed on your system.
+ echo
+ exit
+}
+
+
+msglib()
+{
+ echo This library is included in Linux distributions like RedHat 6.1 or Debian 2.x
+ echo "(If you don't store it in $LIBDIR directory, please modify installation script.)"
+}
+
+msgusrlib()
+{
+ echo Required library is included in Linux distributions like RedHat 6.1 or Debian 2.x
+ echo "(If you don't store it in $USRLIB directory, please modify installation script.)"
+}
+
+clear
+echo "Welcome to the installation of Arachne WWW browser for Linux !"
+echo "(c)2000 Michael Polak, Arachne Labs - instalation script is open souce ;-)"
+echo
+
+if [ "$UID" != "0" ] 
+then
+ echo "You must be root to run this installation script correctly, sorry."
+ inst_abort
+fi
+
+if [ ! -e doc/arachne/LICENSE ] 
+then
+ echo "Arachne installation directory is not your working directory, sorry."
+ inst_abort
+fi
+
+if [ ! -e $LIBDIR/libc-2.* ]
+then
+ echo "This version of Arachne requires libc-2.1 based system, sorry."
+ msglib
+ inst_abort
+fi
+
+if [ ! -e $LIBDIR/libpthread-* ]
+then
+ echo "This version of Arachne requires libpthread, sorry."
+ msglib
+ inst_abort
+fi
+
+if [ ! -e $USRLIB/libvga.so.1.* ]
+then
+ echo "This version of Arachne requires libvga version 1.4 or later, sorry."
+# usrusrlib
+ inst_abort
+fi
+
+if [ ! -e $USRLIB/libvgagl.so.1.* ]
+then
+ echo "This version of Arachne requires libvgagl version 1.4 or later, sorry."
+ msgusrlib
+ inst_abort
+fi
+
+if [ ! -x /usr/bin/djpeg ]
+then
+ echo "Warning: This version of Arachne requires /usr/bin/djpeg !"
+ echo "You won't be able to view JPEG images without djpeg."
+fi
+
+if [ ! -x /usr/X11R6/bin/convert ]
+then
+ echo "Warning: This version of Arachne requires /usr/X11R6/bin/convert !"
+ echo "You won't be able to view PNG images without ImageMagick package."
+fi
+
+if [ ! -x /usr/bin/mpg123 ]
+then
+ echo "Warning: It is recommended to have /usr/bin/mpg123 installed."
+ echo "You won't be able to listen to MP3 streams without mpg123."
+fi
+
+
+#if [ ! -e /usr/local/lib/libggi.so ] && [ ! -e /usr/lib/libggi.so ]
+#then
+# echo "Warning: It is recommended to have GGI version 2+ installed."
+# echo "You won't be able to launch Arachne X11 without GGI."
+#fi
+
+#if [ ! -e /usr/local/lib/libgii.so ] && [ ! -e /usr/lib/libgii.so ]
+#then
+# echo "Warning: It is recommended to have GII (GGI component) installed."
+# echo "You won't be able to launch Arachne X11 without GII."
+#fi
+
+echo "Following libraries required by Arachne version $VER were found:"
+ls $LIBDIR/libc-2.*
+ls $LIBDIR/libpthread-*
+ls $USRLIB/libvga.so.1.*
+ls $USRLIB/libvgagl.so.1.*
+#ls /usr/local/lib/libggi.so.2.*
+#ls /usr/local/lib/libgii.so.0.*
+echo "Your system seems to be able to run Arachne WWW browser."
+ 
+cat<<_EOF_
+
+Installation script is going to perform following operations:
+------------------------------------------------------------------------------
+1. prompt user for target directory, and create it if necessary.
+2. copy Arachne's bin, share, doc and man subdirectories to target directory. 
+3. set SetUID flag to Arachne main executable bin/arachne-svgalib.
+4. grant users r/w privileges to device specified by /dev/mouse symlink.
+5. prompt user for name of name of Arachne startup script and create it.
+------------------------------------------------------------------------------
+Suggested target directories: /usr, /usr/local, /opt/arachne, /home/arachne...
+Warning: previous Arachne installations located there will be overwritten !
+(Arachne launchers for KDE and GNOME require Arachne to be installed in /usr)
+Please enter target directory - press [Enter] for $INSTPREFIX or Ctrl+C to abort:
+_EOF_
+
+read TARGETDIR
+if [ -z $TARGETDIR ]
+then
+ TARGETDIR=$INSTPREFIX
+fi
+
+while [ ! -d $TARGETDIR ]
+do
+ mkdirhier $TARGETDIR
+ if [ ! -d $TARGETDIR ]
+ then
+  echo "Ooops, can't create $TARGETDIR - try again:"
+  read TARGETDIR
+  if [ -z $TARGETDIR ]
+  then
+   TARGETDIR=$INSTPREFIX
+  fi
+ fi
+done
+
+echo
+echo Copying files to $TARGETDIR ...
+
+if cp -Rf bin $TARGETDIR && cp -Rf share $TARGETDIR && cp -Rf doc $TARGETDIR && cp -Rf man $TARGETDIR
+then
+ echo ok.
+else
+ echo Failed to copy files...
+ inst_abort
+fi
+
+echo
+echo Setting SetUID bit ...
+if chmod +s $TARGETDIR/bin/arachne-svgalib
+then
+ echo ok.
+else
+ echo Failed to perform chmod...
+ inst_abort
+fi
+
+echo
+echo Updating I/O permissions for /dev/mouse ...
+if chmod a+rw /dev/mouse
+then
+ echo ok.
+else
+ echo Failed to perform chmod...
+ inst_abort
+fi
+
+echo
+echo "Startup command is required to pass location of runtime files to executable."
+echo "Please enter name for startup command - press [Enter] for /usr/bin/arachne:"
+
+read SCRIPTNAME
+if [ -z $SCRIPTNAME ]
+then
+ SCRIPTNAME=/usr/bin/arachne
+ ARAMSG="type arachne"
+else
+ ARAMSG="execute $SCRIPTNAME"
+fi
+
+echo
+echo Creating startup command...
+echo "#!/bin/sh">$SCRIPTNAME
+echo if [ \"\$TERM\" = \"linux\" ]>>$SCRIPTNAME
+echo then>>$SCRIPTNAME
+echo "$TARGETDIR/bin/arachne-svgalib \$*">>$SCRIPTNAME
+echo else>>$SCRIPTNAME
+echo "$SCRIPTNAME-ggi-launcher \$*">>$SCRIPTNAME
+echo fi>>$SCRIPTNAME
+echo "#!/bin/sh">$SCRIPTNAME-ggi-launcher
+echo "export LD_LIBRARY_PATH=/usr/local/lib">>$SCRIPTNAME-ggi-launcher
+echo "$TARGETDIR/bin/arachne-ggi \$*">>$SCRIPTNAME-ggi-launcher
+
+chmod a+x $SCRIPTNAME
+chmod a+x $SCRIPTNAME-ggi-launcher
+
+if [ -x $SCRIPTNAME ]
+then
+ echo "ok - $SCRIPTNAME was created. It launches SVGAlib version from linux"
+ echo "console and attempts to launch GGI version from other terminal types - you GGI"
+ echo "libraries must be installed in /usr/lib or /usr/local/lib (which is GGI default)."
+else
+ echo Failed to create startup command. 
+ inst_abort
+fi
+
+cat<<_EOF_
+
+First phase of Arachne installation was completed.
+Now, users willing to use Arachne can log in and $ARAMSG to continue. 
+
+-----------------------------------------------------------------------------
+Notes: - Arachne can be launched from any working directory.
+       - Configuration stored in ~/.arachne is unique for each user in system.
+       - It is created as copy of $TARGETDIR/share/arachne/templates.
+------------------------------------------------------------------------------
+
+If you $ARAMSG now, you will configure Arachne for user $USER.
+
+Later you can copy arachne.conf or hotlist.html from $HOME/.arachne/ directory
+to $TARGETDIR/share/arachne/templates directory, but make sure that you 
+have removed any possible passwords or personal data from template files !
+
+_EOF_

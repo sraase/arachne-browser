@@ -1,0 +1,39 @@
+<TITLE>Profile manager</TITLE>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY text=black BGCOLOR=BLACK>
+
+<TABLE CELLSPACING=1 BORDER=1 FRAME="void">
+
+<TH  class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP><FONT 3D=1>Save current configuration to profile
+</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=17 WIDTH=17 BORDER=0>
+
+<TR>
+<TD BGCOLOR=SILVER NOWRAP><FONT COLOR=BLACK>
+<FORM ACTION="arachne:internal-config?arachne:back">
+Copy current configuration (ARACHNE.CFG)<BR>
+to <A HREF="file://doc\acf_asf.htm">ACF profile</A>
+
+<INPUT TYPE=TEXT NAME="$PROFILE" ARACHNECFGVALUE="Profile" SIZE=16><INPUT TYPE=SUBMIT VALUE="Save profile">
+</TABLE>
+</TABLE>
+<BR>
+
+<TABLE CELLSPACING=1 BORDER=1 FRAME="void" ALIGN=RIGHT WIDTH=434>
+
+<TH class="topbar" bgcolor="gray" ALIGN=RIGHT><FONT 3D=1>Load configuration from profile
+</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=17 WIDTH=17 BORDER=0>
+
+<TR>
+<TD BGCOLOR=SILVER><FONT COLOR=BLACK>
+<FORM ACTION="file://*.acf">
+<NOBR>
+Select ACF file with requested profile
+<INPUT TYPE=SUBMIT VALUE="Browse profiles">
+</NOBR>
+<P>
+<I>Warning: After selecting new profile file, current configuration (ARACHNE.CFG) will be overwritten! </I>
+</TABLE>
+
+</HTML>

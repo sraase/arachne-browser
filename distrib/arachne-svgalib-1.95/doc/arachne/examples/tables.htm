@@ -1,0 +1,395 @@
+<TITLE>Tables test drive (and very looooong title ----------------------------------------------------</TITLE>
+<BODY>
+<TABLE BORDER=10>
+<TD ROWSPAN=2><B>This is example of ROWSPAN</B>
+<TH COLSPAN=2>
+Title, ehm ?
+<TR BGCOLOR=WHITE>
+<TD WIDTH=320><H2>See how Arachne can compete any other WWW browser!</H2>
+<TD><IMG SRC="arachne.gif">
+<TR>
+<CAPTION>
+t a b l e&nbsp;&nbsp;&nbsp;c a p t i o n
+</TABLE>
+
+Normal text, inserted before RIGHT ALIGNED table...
+
+<TABLE ALIGN=RIGHT BORDER WIDTH=30%>
+<CAPTION ALIGN=RIGHT>Right aligned table, width=30%</CAPTION>
+<TD BGCOLOR=RED>
+<TABLE BGCOLOR=WHITE>
+<TD WIDTH=100%>
+Inner table - 100% of the main table
+</TABLE>
+</TABLE>
+
+Normal text, which follows right-aligned table...
+
+<TABLE BORDER>
+<TD COLSPAN=2>
+XXXXX
+<TR>
+<TD COLSPAN=3 WIDTH=300>
+XXXXXXXXXXXX
+<TR>
+<TD>
+A
+<TD>
+B
+<TD>
+BBBBBBBBBBBBBBBBB
+<TR>
+<TD>
+AA
+<TD COLSPAN=2>
+BB
+<TR>
+<TD COLSPAN=2>
+BB
+<TD>
+AA
+<TR>
+<TD COLSPAN=3 WIDTH=300>
+XXXXXXXXXXXX
+</TABLE>
+<BR>
+<TABLE ALIGN=LEFT BORDER=4 FRAME="void" WIDTH=50% CELLSPACING=1>
+<TD ROWSPAN=2>This is TD with ROWSPAN=2, but with large amount of
+text in. This table is also aligned to the left. Width of this table
+is limited to 30%, inner cells are resized automaticaly.
+<TD>Very small cell
+<TR>
+<TD>Next row, another small cell. BTW, this table also demonstrates
+attribute FRAME="void"...
+<TR>
+<TD>Line 2, cell 1
+<TD ROWSPAN=2>Line 2, cell 2. Rowspan=2.
+</TABLE>
+
+This is normal text, which follows after table aligned to the
+left. Following table is not aligned to the RIGHT:
+
+<TABLE BORDER=2 CELLSPACING=0 CELLPADDING=1>
+<TH BGCOLOR=#FFFFFF>A
+<TH BGCOLOR=#FFFFFF>B
+<TR>
+<TD ALIGN=CENTER>1
+<TD><CENTER>2</CENTER>
+<TR>
+<TD><B>333333
+<TD>
+<TABLE border=1 BGCOLOR=WHITE>
+<CAPTION><H5>Inner table caption</H5></CAPTION>
+<TD>1
+<TD>2
+<TR>
+<TD>3
+<TD>4
+<TR>
+<TD>
+<TABLE CELLSPACING=10>
+<TD BGCOLOR=#000000><FONT COLOR=#00FF00><I>HTML level 3.2
+<TD BGCOLOR=#000000><FONT COLOR=#00FF00><I>:-)
+<TD BGCOLOR=#000000><FONT COLOR=#00FF00><I>HTML level 3.2
+</TABLE>
+<TD>
+</TABLE>
+</TABLE>
+<P>
+<TABLE CELLSPACING=0 CELLPADDING=0 ALIGN=RIGHT>
+<TD BGCOLOR=BLACK>
+<TABLE CELLSPACING=1 CELLPADDING=2>
+<TD BGCOLOR=WHITE>111
+<TD BGCOLOR=WHITE>222
+<TR>
+<TD BGCOLOR=WHITE>333
+<TD BGCOLOR=WHITE>444
+<TR>
+<TD BACKGROUND="about:paper.gif">555
+<TD BACKGROUND="about:paper.gif">666
+<TR>
+<TD BACKGROUND="about:paper.gif">777
+<TD BACKGROUND="about:paper.gif">888
+</TABLE>
+</TABLE>
+
+<TABLE BORDER=2 CELLPADDING=10>
+<TD width=100>111
+<TD width=100>222
+<TR>
+<TD><B>333
+<TD>
+<TABLE Border=3 CELLSPACING=2>
+<TD>
+XXXXX
+<TD>
+yy
+<TD>
+<TABLE>
+<TD>1
+<TD>2
+<TR>
+<TD>3
+<TD>4
+</TABLE>
+</TABLE>
+</TABLE>
+<TABLE BORDER=1 CELLSPACING=3>
+<CAPTION ALIGN=RIGHT>
+r i g h t - a l i g n e d&nbsp;&nbsp;&nbsp;c a p t i o n
+<TR>
+<TD ROWSPAN=3 BACKGROUND="about:paper.gif">
+So this is example of ROWSPAN=3, which use ultra-cool BACKGROUND attribute ;-)
+<TD COLSPAN=2 ROWSPAN=2>This is example of COLSPAN=2, ROWSPAN=2&nbsp;!
+<TD>Ble ble ble ble ble ble ble ble ble ble
+<TR>
+<TD BGCOLOR=#000000><IMG SRC="about:xch.gif" ALIGN=LEFT>
+<TR>
+<TH>
+<FORM>
+<INPUT TYPE=SUBMIT>
+</FORM>
+</TH>
+<TD BGCOLOR=#FF0000>
+Arachne renders tables<HR>as you (really) NEVER seen then before&nbsp;!
+<TD ALIGN=CENTER>Centered cell.
+<TR>
+</TABLE>
+
+<TABLE BORDER ALIGN=RIGHT>
+<CAPTION>VALIGN=...</CAPTION>
+<TD VALIGN=BOTTOM>bottom
+<TD VALIGN=MIDDLE>middle
+<TD VALIGN=TOP>top
+<TD><BR><BR><BR><BR>
+<TR>
+<TD><BR><BR>
+<TD VALIGN="BOTTOM">bottom
+<TD VALIGN>middle
+<TD VALIGN=TOP>top
+</TABLE>
+
+<TABLE BORDER=10 CELLPADDING=10>
+<TD BGCOLOR=#000000><IMG SRC="about:xch.gif" ALIGN=LEFT>
+</TABLE>
+
+<BR>
+<TABLE WIDTH=100% BORDER FRAME="void">
+<TD>
+<TABLE WIDTH=100% BORDER FRAME="void">
+<TD>Width of both inner and outer table is "100%"
+<TD>Second cell...
+</TABLE>
+</TABLE>
+
+Following nested tables miss some &lt;TD&gt; tags. Arachne will handle them -
+but please do not use this syntax. It was implemented only for compatibility
+reasons...
+
+<TABLE BORDER FRAME="box">
+
+<TR>
+<TABLE BORDER FRAME="void">
+<TD>Box 1
+</TABLE>
+
+<TD>
+<TABLE BORDER FRAME="void">
+<TD>Box 2
+</TABLE>
+
+<TD>
+<TABLE BORDER FRAME="void">
+<TD>Box 3
+</TABLE>
+
+<TR>
+<TABLE BORDER FRAME="void">
+<TD>Box 4
+</TABLE>
+
+<TD>
+<TABLE BORDER FRAME="void">
+<TD>Box 5
+</TABLE>
+
+<TD>
+<TABLE BORDER FRAME="void">
+<TD>Box 6
+</TABLE>
+</TABLE>
+
+<HR NOSHADE>
+<TABLE BORDER=2 CELPADDING=0 ALIGN=CENTER>
+<CAPTION>This is table 1</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 2</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 3</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 4</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 5</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 6</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 7</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 8</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 9</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 10</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 11</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 12</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 13</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 14</CAPTION>
+<TD>
+<TABLE BORDER=2 WIDTH=100% CELPADDING=0>
+<CAPTION>This is table 15</CAPTION>
+<TD>
+<TABLE BORDER=2>
+<CAPTION>This is table 16</CAPTION>
+<TD>
+16 tables must be enough for everyone !
+<P>-xChaos
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<TD>:)
+</TABLE>
+<BR>
+<BR>
+<TABLE WIDTH=100% BORDER>
+<TD>
+<TABLE WIDTH=100% BORDER cellpadding=2>
+<TD COLSPAN=2>Normal ---------------------------</TD>
+<TR>
+<TD>Small</TD>
+<TD>Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big
+Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big</TD>
+<TR>
+<TD COLSPAN=2>Normal ---------------------------</TD>
+<TR>
+<TD>Small</TD>
+<TD>Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big
+Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big</TD>
+</TABLE>
+
+<TABLE WIDTH=100% BORDER>
+<TD COLSPAN=2>Normal ---------------------------</TD>
+<TR>
+<TD>Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big
+Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big</TD>
+<TD>Small</TD>
+<TR>
+<TD COLSPAN=2>Normal ---------------------------</TD>
+<TR>
+<TD>Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big
+Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big</TD>
+<TD>Small</TD>
+</TABLE>
+
+
+<TABLE WIDTH=100% BORDER>
+<TD>Normal ---------------------------</TD>
+<TD>Small</TD>
+<TR>
+<TD COLSPAN=2>Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big
+Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big</TD>
+<TR>
+<TD>Normal ---------------------------</TD>
+<TD>Small</TD>
+<TR>
+<TD COLSPAN=2>Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big
+Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big</TD>
+
+</TABLE>
+
+<TABLE WIDTH=100% BORDER>
+<TD>Small</TD>
+<TD>Normal ---------------------------</TD>
+<TR>
+<TD COLSPAN=2>Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big
+Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big</TD>
+<TR>
+<TD>Small</TD>
+<TD>Normal ---------------------------</TD>
+<TR>
+<TD COLSPAN=2>Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big
+Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big Big</TD>
+
+</TABLE>
+</TABLE>
+<P>
+<TABLE border=4 WIDTH=100%>
+<TD>LLLL
+<TD>
+<TABLE border WIDTH=100%>
+<TD WIDTH=33%>X<TD WIDTH=33%>X<TD WIDTH=33%>X
+<TR>
+<TD COLSPAN=3>
+<TABLE border WIDTH=100%><TD>
+<TABLE border WIDTH=100%><TD>
+<TABLE border WIDTH=100%><TD>
+blah blah bla hblahblah blahblah blah
+blah blah bla hblahblah blahblah blah
+blah blah bla hblahblah blahblah blah
+blah blah bla hblahblah blahblah blah
+blah blah bla hblahblah blahblah blah
+blah blah bla hblahblah blahblah blah
+<TABLE border WIDTH=100%><TD>
+blah blah bla hblahblah blahblah blah
+</TABLE>
+</TABLE>
+</TABLE>
+</TABLE>
+<TR>
+<TD>X<TD>X<TD>X
+</TABLE>
+<TD>RRR
+</TABLE>

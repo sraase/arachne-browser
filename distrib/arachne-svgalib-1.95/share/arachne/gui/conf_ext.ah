@@ -1,0 +1,381 @@
+<HTML>
+<TITLE>External dialer setup</TITLE>
+<head>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND=NUL TEXT=#000000 BGCOLOR=BLACK>
+</head>
+<TABLE CELLSPACING=1 CELLPADDING=0>
+<TD WIDTH=6>
+<TD>
+<TABLE CELLSPACING=0 BORDER=1 FRAME="void">
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP WIDTH=597>
+<FONT 3D=1><B>External dial-up driver setup</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+</TABLE>
+</TABLE>
+
+<BASEFONT SIZE=2>
+
+<TABLE WIDTH=611 CELLSPACING=8 BORDER=1 FRAME="void">
+<FORM ACTION="arachne:internal-config">
+
+<TD BGCOLOR=#EEEEEE WIDTH=212 VALIGN=TOP>
+<FONT COLOR=#000000><B>IP Address:</B><BR>
+<INPUT
+ TYPE=RADIO
+ NAME="IP_Address"
+ ARACHNECFGVALUE="IP_Address"
+ ARACHNENOTCHECKED="PPP,WATTCP,BOOTP"
+>
+Fixed:
+<INPUT
+ SIZE=17
+ TYPE=TEXT
+ NAME="IP_Address"
+ ARACHNECFGVALUE="IP_Address"
+ ARACHNECFGHIDE="PPP,WATTCP,BOOTP"
+>
+You can use enviroment variable name, eg. <B>%MYIP%</B><BR>
+<INPUT TYPE=RADIO NAME="IP_Address" VALUE="PPP" ARACHNECHECKED="IP_Address">Read
+<INPUT
+ SIZE=17
+ TYPE=TEXT
+ NAME=IP_Grab
+ ARACHNECFGVALUE=IP_grab
+ VALUE="IP address set to">  message
+from file <B>PPP.LOG</B> (eg. with EtherPPP)<BR>
+<INPUT TYPE=RADIO NAME="IP_Address" VALUE="WATTCP" ARACHNECHECKED="IP_Address">
+Use only WATTCP configuration file (eg. with Klos PPP)<BR>
+<INPUT TYPE=RADIO NAME="IP_Address" VALUE="BOOTP" ARACHNECHECKED="IP_Address">
+Try to do BOOTP (works with SLIPPER, CSLIPPER, DOSPPPD)<BR>
+
+<TD BGCOLOR=#EEEEEE WIDTH=369>
+<FONT COLOR=#000000>
+<B>Name of WATTCP configuration file:</B><BR>
+<INPUT SIZE=40 TYPE=TEXT NAME="TCPconfig" ArachneCFGValue="TCPconfig">
+<HR>
+<B>TCP/IP settings</B><BR>
+<TABLE WIDTH=100%>
+<TD WIDTH=39%>
+<FONT COLOR=#000000>1st nameserver
+<TD WIDTH=61%>
+<INPUT NAME=NameServer TYPE=TEXT SIZE=16 ARACHNECFGVALUE="NameServer">
+<FONT COLOR=#000000 SIZE=2>(required)
+<TR>
+<TD>
+<FONT COLOR=#000000>2nd nameserver
+<TD>
+<INPUT NAME=AltNameServer TYPE=TEXT SIZE=16 ARACHNECFGVALUE="AltNameServer">
+<FONT COLOR=#000000 SIZE=2>(optional)
+</TABLE>
+<FONT COLOR=#000000>
+<I>Note: following values will be ignored, when IP Address is set to BOOTP or
+when Arachne uses WATTCP configuration file.</I>
+<TABLE WIDTH=100%>
+<TD WIDTH=39%>
+<FONT COLOR=#000000>1st gateway
+<TD WIDTH=61%>
+<INPUT NAME=Gateway TYPE=TEXT SIZE=16 ARACHNECFGVALUE="Gateway">
+<TR>
+<TD>
+<FONT COLOR=#000000>2nd gateway
+<TD>
+<INPUT NAME=AltGateway TYPE=TEXT SIZE=16 ARACHNECFGVALUE="AltGateway">
+<FONT COLOR=#000000 SIZE=2>(optional)
+<TR>
+<TD>
+<FONT COLOR=#000000>Netmask
+<TD>
+<INPUT NAME=Netmask TYPE=TEXT SIZE=16 VALUE="0.0.0.0" ARACHNECFGVALUE="Netmask">
+</TABLE>
+
+<TR>
+
+<TD BGCOLOR=#EEEEEE COLSPAN=2>
+<FONT COLOR=#000000>
+<B>Packet driver command:</B>
+<SMALL>(eg. "@system\pktdrvrs\cslipper com3 baud=19200 vec=60 irq=4")</SMALL><BR>
+<INPUT SIZE=70 TYPE=TEXT NAME="Connection" ArachneCFGValue="Connection"><BR>
+<B>Packet driver unload command:</B>
+<SMALL>(you can try "@termin 0x60>NUL")</SMALL><BR>
+<INPUT SIZE=70 TYPE=TEXT NAME="Hangup" ArachneCFGValue="Hangup">
+
+<B>Automatic dialer command:</B>
+<SMALL>(eg. "@mydialer>ppp.log")</SMALL><BR>
+<INPUT
+ TYPE=RADIO
+ NAME="Dialer"
+ ARACHNECFGVALUE="Dialer"
+ ARACHNENOTCHECKED="@MINITERM.EXE>PPP.LOG"
+>
+<INPUT SIZE=68 TYPE=TEXT NAME="Dialer" ArachneCFGValue="Dialer"
+ ARACHNECFGHIDE="@MINITERM.EXE>PPP.LOG"><BR>
+<INPUT
+ TYPE=RADIO NAME=Dialer
+ VALUE="@MINITERM.EXE>PPP.LOG"
+ ARACHNECHECKED=Dialer> MINITERM.EXE (setup screen follows)
+<BR>
+<B>Terminal window for manual dialing:</B>
+<SMALL>(eg. "@comtool 3")</SMALL><BR>
+<INPUT
+ TYPE=RADIO
+ NAME="TerminalWindow"
+ ARACHNECFGVALUE="TerminalWindow"
+ ARACHNENOTCHECKED="@MINITERM.EXE"
+>
+<INPUT SIZE=68 TYPE=TEXT NAME="TerminalWindow" ArachneCFGValue="TerminalWindow"
+ ARACHNECFGHIDE="@MINITERM.EXE"><BR>
+<INPUT
+ TYPE=RADIO NAME=TerminalWindow
+ VALUE="@MINITERM.EXE"
+ ARACHNECHECKED=TerminalWindow> MINITERM.EXE (setup screen follows)
+
+<P><I>Note: These commands MUST begin with <B>@</B> character.</I>
+<HR>
+<B>URL to display as "dialing page":</B><br>
+Try "file:ppp_init.htm" or "file:ppp_fast.htm" or "file:pppframe.htm" or "file:pppglenn.htm"&nbsp; ;-)<BR>
+<INPUT SIZE=70 TYPE=TEXT NAME="DialPage" VALUE=file:dialinit.htm ArachneCFGValue="DialPage">
+<BR>The <B>file:</B> protocol must be specified in URL.
+The <B>arachne:dialer</B>, <B>arachne:hangup</B> and <B>arachne:exit</B> URL's can be
+included as links in this page.
+</TABLE>
+
+<!-- begin MINITERM section-->
+<TABLE CELLSPACING=1 CELLPADDING=0>
+<TD WIDTH=6>
+<TD>
+<TABLE CELLSPACING=0 BORDER FRAME="void">
+<TD ALIGN=RIGHT NOWRAP WIDTH=597 class="topbar" bgcolor="gray">
+<FONT 3D=1><B>MINITERM + DOSPPPD communication setup</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+</TABLE>
+</TABLE>
+
+<TABLE CELLSPACING=8 BORDER FRAME=void WIDTH=606>
+
+<TD BGCOLOR=#EEEEEE WIDTH=322 VALIGN=TOP>
+<FONT COLOR=BLACK><B>Serial port setup:</B>
+<BR>
+<TABLE CELLPADDING=0 CELLSPACING=2 WIDTH=300>
+<TD COLSPAN=1><INPUT NAME=Port TYPE=RADIO VALUE="1" ARACHNECHECKED="Port">
+<TD COLSPAN=3 NOWRAP><FONT COLOR=BLACK>COM1 (IRQ 4, Base 0x3f8 = "/dev/ttyS0")
+<TR>
+<TD COLSPAN=1><INPUT NAME=Port TYPE=RADIO VALUE="2" ARACHNECHECKED="Port">
+<TD COLSPAN=3 NOWRAP><FONT COLOR=BLACK>COM2 (IRQ 3, Base 0x2f8 = "/dev/ttyS1")
+<TR>
+<TD COLSPAN=1><INPUT NAME=Port TYPE=RADIO VALUE="3" ARACHNECHECKED="Port">
+<TD COLSPAN=3 NOWRAP><FONT COLOR=BLACK>COM3 (IRQ 4, Base 0x3e8 = "/dev/ttyS2")
+<TR>
+<TD COLSPAN=1><INPUT NAME=Port TYPE=RADIO VALUE="4" ARACHNECHECKED="Port">
+<TD COLSPAN=3 NOWRAP><FONT COLOR=BLACK>COM4 (IRQ 3, Base 0x2e8 = "/dev/ttyS3")
+<TR>
+<TD COLSPAN=1><INPUT NAME=Port TYPE=RADIO VALUE="0" ARACHNECHECKED="Port">
+<TD COLSPAN=3 NOWRAP><FONT COLOR=BLACK>Non-standard serial port:
+<TR>
+<TD>
+<TD><FONT COLOR=BLACK>
+IRQ
+<TD><INPUT SIZE=6 TYPE=TEXT NAME="Irq" ARACHNECFGVALUE="Irq">
+<TD><FONT COLOR=BLACK> (3,4,5,7,9,10,11,12)
+<TR>
+<TD>
+<TD><FONT COLOR=BLACK>
+Base
+<TD><INPUT SIZE=6 TYPE=TEXT NAME="Base" ARACHNECFGVALUE="Base">
+<TD><FONT COLOR=BLACK> (0x3f8,0x2f8,0x3e8,0x2e8)
+<TR><TD>
+<TR>
+<TD COLSPAN=3><INPUT NAME=Speed TYPE=RADIO VALUE="9600" ARACHNECHECKED="Speed">
+<FONT COLOR=BLACK>&lt; 9600 bps
+<TD COLSPAN=1 NOWRAP><INPUT NAME=Speed TYPE=RADIO VALUE="19200" ARACHNECHECKED="Speed">
+<FONT COLOR=BLACK>&lt; 19200 bps
+<TR>
+<TD COLSPAN=3><INPUT NAME=Speed TYPE=RADIO VALUE="38400" ARACHNECHECKED="Speed">
+<FONT COLOR=BLACK>&lt; 38400 bps
+<TD COLSPAN=1 NOWRAP><INPUT NAME=Speed TYPE=RADIO VALUE="115200" ARACHNECHECKED="Speed">
+<FONT COLOR=BLACK>&lt; 115200 bps
+</TABLE>
+Data transfer mode:
+<INPUT SIZE=4 TYPE=TEXT NAME="Mode" ARACHNECFGVALUE="Mode">
+(usually 8N1)
+<P>
+<I>Tips:
+<LI>Use "non-standard serial port" option, if you have eg.
+COM3 internal modem using non-standard IRQs like 5 or 10.
+<LI>Setup faster serial port speed than your declared modem
+speed (eg. use speed 38400 for 33.6 kbps modem).
+<LI>Built-in COM1 and COM2 ports of very old PCs supported max. 9600 bps!
+<LI>If your internal modem uses standard COM3, avoid IRQ conflict by
+connecting your mouse to COM2.
+</I>
+
+<HR>
+<FONT COLOR=#000000><B>Modem init string:</B><BR>
+<INPUT NAME=InitString TYPE=TEXT SIZE=16 VALUE="ATZ" ARACHNECFGVALUE="InitString">
+(try ATZ,AT&amp;F,AT&amp;F0...)
+<HR>
+<B>Dialing method:</B>
+<BR>
+<INPUT NAME=DialString TYPE=RADIO VALUE="ATDT" ARACHNECHECKED="DialString">
+Tone dial (ATDT)
+<BR>
+<INPUT NAME=DialString TYPE=RADIO VALUE="ATX3DT," ARACHNECHECKED="DialString">
+Tone dial, no dialtone (ATX3DT)
+<BR>
+<INPUT NAME=DialString TYPE=RADIO VALUE="ATDP," ARACHNECHECKED="DialString">
+Pulse dial (ATDP)
+<BR>
+<INPUT NAME=DialString TYPE=RADIO VALUE="ATX3DP," ARACHNECHECKED="DialString">
+Pulse dial, no dialtone (ATX3DP)
+<BR>
+<INPUT NAME=DialString TYPE=RADIO VALUE="ATA" ARACHNECHECKED="DialString">
+Callback (ATA)
+<P>
+<I>Notes:
+<LI>Dialing with no dialtone (either pulse or tone) is quite often required in Central and Eastern Europe,
+eg. in Czech Republic.
+<LI>For callback, phone number is not used. You are expected to
+initiate callback from external program (eg. some terminal, comtool.com, etc.)
+and then launch Arachne; when hear the phone ring, press Alt+D. </I>
+
+<TD BGCOLOR=#EEEEEE VALIGN=TOP>
+
+<FONT COLOR=BLACK>
+<B>Phone number:</B><BR>
+<INPUT NAME=PhoneNumber TYPE=TEXT SIZE=16 ARACHNECFGVALUE="PhoneNumber">
+<HR>
+<B>Terminal window:</B><BR>
+<INPUT TYPE=HIDDEN NAME=UseTerminal VALUE=No>
+<INPUT TYPE=CHECKBOX NAME=UseTerminal VALUE=Yes ARACHNECHECKED=UseTerminal>
+Show terminal window
+<P>
+<I>
+Note: After connecting (and optional text-mode manual login) to your
+ISP in terminal mode, weird characters (like</I><BR>
+<TT>"{@!{#${"</TT><I>) are going to
+appear on screen. These are PPP packets - when you see them, press
+<B>F7</B> or <B>Alt+P</B> to load PPP driver and return to Arachne.</>
+<HR>
+<FONT COLOR=#000000><B>Autodial:</B><BR>
+<INPUT TYPE=HIDDEN NAME=Autodial VALUE=No>
+<INPUT TYPE=CHECKBOX NAME=Autodial VALUE=Yes ARACHNECHECKED=Autodial>
+Dial network if required
+<HR>
+<FONT COLOR=#000000><B>Login script:</B><BR>
+<INPUT TYPE=HIDDEN NAME=Autologin VALUE=No>
+<INPUT TYPE=CHECKBOX NAME=Autologin VALUE=Yes ARACHNECHECKED=Autologin>
+Try following dialogue:
+<TABLE CELLPADDING=0>
+<TD>
+<BASEFONT SIZE=-2>
+<FONT COLOR=#000000>Wait for:
+<TD>
+<INPUT NAME=WaitFor1 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="WaitFor1">
+<TR>
+<TD>
+<FONT COLOR=#000000>Response:
+<TD>
+<INPUT NAME=Response1 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="Response1">
+<TR>
+<TD>
+<FONT COLOR=#000000>Wait for:
+<TD>
+<INPUT NAME=WaitFor2 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="WaitFor2">
+<TR>
+<TD>
+<FONT COLOR=#000000>Response:
+<TD>
+<INPUT NAME=Response2 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="Response2">
+<TR>
+<TD>
+<FONT COLOR=#000000>Wait for:
+<TD>
+<INPUT NAME=WaitFor3 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="WaitFor3">
+<TR>
+<TD>
+<FONT COLOR=#000000>Response:
+<TD>
+<INPUT NAME=Response3 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="Response3">
+<TR>
+<TD>
+<FONT COLOR=#000000>Wait for:
+<TD>
+<INPUT NAME=WaitFor4 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="WaitFor4">
+<TR>
+<TD>
+<FONT COLOR=#000000>Response:
+<TD>
+<INPUT NAME=Response4 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="Response4">
+<TR>
+<TD>
+<FONT COLOR=#000000>Wait for:
+<TD>
+<INPUT NAME=WaitFor5 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="WaitFor5">
+<TR>
+<TD>
+<FONT COLOR=#000000>Response:
+<TD>
+<INPUT NAME=Response5 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="Response5">
+<TR>
+<TD>
+<FONT COLOR=#000000>Wait for:
+<TD>
+<INPUT NAME=WaitFor6 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="WaitFor6">
+<TR>
+<TD>
+<FONT COLOR=#000000>Response:
+<TD>
+<INPUT NAME=Response6 TYPE=TEXT SIZE=16 ARACHNECFGVALUE="Response6">
+</TABLE>
+<FONT COLOR=#000000>
+Following macros can be used:
+<TABLE>
+<TD>
+<FONT COLOR=#000000>
+\r
+<TD>
+<FONT COLOR=#000000>
+end of line
+<TR>
+<TD>
+<FONT COLOR=#000000>
+\u
+<TD>
+<FONT COLOR=#000000>
+send PPP username
+<TR>
+<TD>
+<FONT COLOR=#000000>
+\p<TD>
+<FONT COLOR=#000000>
+send PPP password
+<TR>
+<TD>
+<FONT COLOR=#000000>
+\w<TD>
+<FONT COLOR=#000000>
+wait 1 second
+<TR>
+<TD>
+<FONT COLOR=#000000>
+\\<TD>
+<FONT COLOR=#000000>
+send \ character
+</TABLE>
+
+<TR>
+<TD class="topbar" bgcolor="gray" COLSPAN=2>
+
+<TABLE>
+<TD WIDTH=360>
+<BASEFONT SIZE=3 COLOR=#4A4A4A><I>Success of Linux will be limited.<SUB>Bill Gates, 1999</SUB></I></FONT>
+<TD>
+<BUTTON TYPE=SUBMIT><IMG SRC="file://small1.ikn" HEIGHT=18 WIDTH=32>&nbsp;Ok, save</BUTTON>
+<TD>
+<FORM ACTION="arachne:back">
+<BUTTON><IMG SRC="file://pidizrus.ikn" WIDTH=16 HEIGHT=16>&nbsp;Cancel</BUTTON>
+</TABLE>
+</TABLE>
+
+<!-- end MINITERM section-->
+</BODY></HTML>

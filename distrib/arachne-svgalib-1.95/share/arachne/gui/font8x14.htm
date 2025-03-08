@@ -1,0 +1,52 @@
+<TITLE>Change system font</TITLE>
+<BODY><!-- BGCOLOR=GRAY TEXT=BLACK-->
+<FONT size=2 color=blue>
+<center>
+<hr width=80%>
+Current setting is:<INPUT TYPE=TEXT arachnecfgvalue="font8x14" SIZE=30><br>
+<b><big>Choose a different system font from those listed below.</big></b>
+</FONT>
+<b>
+<hr width=80%>Original Arachne font
+<FORM ACTION="arachne:internal-config?file://font8x14.dgi">
+<INPUT TYPE=hidden value="original\8x14.fnt" name="font8x14" >
+<INPUT TYPE=submit value="Original">
+</form>
+<hr width=25%> EGA terminal style
+<FORM ACTION="arachne:internal-config?file://font8x14.dgi">
+<INPUT TYPE=hidden value="egaterm\1251\8x14.fnt" name="font8x14">
+<INPUT TYPE=submit value="'1251'">
+</form>
+<FORM ACTION="arachne:internal-config?file://font8x14.dgi">
+<INPUT TYPE=hidden value="egaterm\8859-1\8x14.fnt" name="font8x14">
+<INPUT TYPE=submit value="'8859-1'">
+</form>
+<FORM ACTION="arachne:internal-config?file://font8x14.dgi">
+<INPUT TYPE=hidden value="egaterm\8859-2\8x14.fnt" name="font8x14">
+<INPUT TYPE=submit value="'8859-2'">
+</form>
+<FORM ACTION="arachne:internal-config?file://font8x14.dgi">
+<INPUT TYPE=hidden value="egaterm\koi8-r\8x14.fnt" name="font8x14">
+<INPUT TYPE=submit value="'KOI8-R'">
+</form>
+<hr width=25%>Sanserif style
+<FORM ACTION="arachne:internal-config?file://font8x14.dgi">
+<INPUT TYPE=hidden value="sanserif\1251\8x14.fnt" name="font8x14">
+<INPUT TYPE=submit value="'1251'">
+</form>
+<FORM ACTION="arachne:internal-config?file://font8x14.dgi">
+<INPUT TYPE=hidden value="sanserif\8859-1\8x14.fnt" name="font8x14">
+<INPUT TYPE=submit value="'8859-1'">
+</form>
+<FORM ACTION="arachne:internal-config?file://font8x14.dgi">
+<INPUT TYPE=hidden value="sanserif\8859-2\8x14.fnt" name="font8x14">
+<INPUT TYPE=submit value="'8859-2'">
+</form>
+<FORM ACTION="arachne:internal-config?file://font8x14.dgi">
+<INPUT TYPE=hidden value="sanserif\koi8-r\8x14.fnt" name="font8x14">
+<INPUT TYPE=submit value="'KOI8-R'">
+</form>
+<hr width=80%>
+</b></center>
+</body>
+</HTML>

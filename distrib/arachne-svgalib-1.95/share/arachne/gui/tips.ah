@@ -1,0 +1,334 @@
+<BODY BGCOLOR=#000000 TEXT=#FFFFFF MARGINHEIGHT=0 MARGINWIDTH=0 LINK=#FFFF00>
+<A NAME="1">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+You can use F5 key to easily switch between different screen layouts.
+<TABLE>
+<TD>
+<FORM ACTION="#15" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#2" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide ">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="2">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+Arachne is optimized for standalone DOS, not for Windows 9x DOS box.
+<TABLE>
+<TD>
+<FORM ACTION="#1" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#3" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide " TARGET="_top">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="3">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+You can create more <A HREF="file://system/gui/profiles.ah" TARGET="screen">Arachne profiles</A> for different users or ISPs.
+<TABLE>
+<TD>
+<FORM ACTION="#2" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#4" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide " TARGET="_top">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="4">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+All your bookmarks and addresses are stored in single HTML file - Hotlist.
+<TABLE>
+<TD>
+<FORM ACTION="#3" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#5" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide " TARGET="_top">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="5">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+It is good idea to clear cache using F8 key before connecting to the net.
+<TABLE>
+<TD>
+<FORM ACTION="#4" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#6" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide " TARGET="_top">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="6">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+You can use right mouse button to view frames and images fullscreen.
+<TABLE>
+<TD>
+<FORM ACTION="#5" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#7" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide " TARGET="_top">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="7">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+You can use K key to view list of available <A HREF="gui:hotkeys.htm" TARGET="screen">Arachne Hotkeys</A>.
+<TABLE>
+<TD>
+<FORM ACTION="#6" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#8" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide " TARGET="_top">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="8">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+Most functions can be accessed either using hotkeys or <A HREF="gui:home.htm" TARGET="screen">Desktop</A> icons.
+<TABLE>
+<TD>
+<FORM ACTION="#7" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#9" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide " TARGET="_top">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="9">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+You can use F10 key to view <A HREF="gui:home.htm" TARGET="screen">Arachne Desktop</A> immediately.
+<TABLE>
+<TD>
+<FORM ACTION="#8" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#10" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide " TARGET="_top">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="10">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+You can configure Arachne to autodial after you enter internet URL.
+<TABLE>
+<TD>
+<FORM ACTION="#9" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#11" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide ">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="11">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+You should read <A HREF="gui:faq.htm" TARGET="screen">Freqeuntly Asked Questions</A> before contacting the author.
+<TABLE>
+<TD>
+<FORM ACTION="#10" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#12" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide ">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+
+<BR><A NAME="12">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+Hit O key to configure Arachne using the <A HREF="gui:options.ah" TARGET="screen">Arachne Options</A> page.
+<TABLE>
+<TD>
+<FORM ACTION="#11" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#13" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide ">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="13">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+You can use + and - keys to change screen resolution (SVGA+VESA).
+<TABLE>
+<TD>
+<FORM ACTION="#12" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#14" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide ">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+<BR><A NAME="14">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+You can click on bottom-right status bar to get more runtime information.
+<TABLE>
+<TD>
+<FORM ACTION="#13" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#15" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide ">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+
+
+<BR><A NAME="15">
+<TABLE>
+<TD WIDTH=65><IMG SRC="com.ikn"></TD>
+<TD NOWRAP>
+Read <A HREF="gui:help.htm" TARGET="screen">the Arachne documentation</A> - simply press F1 key to get help.
+<TABLE>
+<TD>
+<FORM ACTION="#14" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="<< Previous tip">
+</TD>
+<TD>
+<FORM ACTION="#1" METHOD=HREF>
+<INPUT TYPE="SUBMIT" VALUE="Next tip >>">
+</TD>
+<TD>
+<FORM ACTION="gui:ppp_init.htm" METHOD=HREF TARGET="_top">
+<INPUT TYPE="SUBMIT" VALUE=" Hide ">
+</TD>
+</TABLE>
+</TD>
+</TABLE>
+<BR>
+<BR>

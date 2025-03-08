@@ -1,0 +1,32 @@
+<HTML>
+<Head>
+<Title>Using European character sets</Title>
+</Head>
+<Body BACKGROUND="paper.gif">
+<H1>Using mpg123 to play MP3 streams</H1>
+<HR Size=4>
+If your Linux kernel is properly configured to support sound
+if you have mpg123 in search path (eg. /usr/bin/mpg123), Arachne
+will instantly play any local .mp3, .pls or .m3u file - online
+MP3 files (audio/mpeg) are considered to be rather file downloads.
+But what's most important, Arachne will launch mpg123 also for
+playing audio/x-mpegurl and audio/x-scpls, two major MIME types
+used for linking MP3 streams from web, which are used by 
+<A HREF="http://www.mp3.com">MP3.com</A>, 
+<A HREF="http://www.shoutcast.com">Shoutcast</A>
+or <A HREF="http://yp.icecast.org">Icecast</A>.
+
+<P>
+Cofiguring sound in Linux should be pretty easy with most 
+standard SoundBlaster compatible cards, if you know your card's
+IRQ and other parameters - check BLASTER enviroment variable in DOS
+if you are not sure. For most cards and latest Linux distributions, 
+running <B>sndconfig</B> should be sufficient, for older cards,
+you may have to compile kernel; if you are using Gravis Ultrasound
+like me, don't forget to select "Persistent DMA buffers" options
+when configuring kernel.
+
+<HR>
+Return to <A HREF="arachne:back">previous page</A>.
+</Body>
+</HTML>

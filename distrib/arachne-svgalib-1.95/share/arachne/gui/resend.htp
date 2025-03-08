@@ -1,0 +1,111 @@
+<HTML>
+<!-- This File Is LD's Version of Reply.Htp -->
+<!-- with some 'tweaks' by glennmcc ;-) -->
+<TITLE>Reply mailto:$TO$</TITLE>
+<link rel="stylesheet" href="file://skin.css">
+<BASE HREF="mailto:$TO$">
+<BODY NORESIZE>
+<A NAME="top">
+<FORM ACTION="arachne:internal-mail">
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<TD ALIGN=RIGHT WIDTH=110><B><FONT 3D>Options&nbsp;
+<TD WIDTH=235><font Size=-1>
+<INPUT TYPE=radio NAME="$MSG" value="TBS" checked>Completed &nbsp;
+<INPUT TYPE=radio NAME="$MSG" value="DFT">Save as Draft &nbsp;
+<TD WIDTH=153><font Size=-1>
+<tr><td width=110><TD WIDTH=345><font size=-1>
+<INPUT TYPE=HIDDEN NAME=KillSent VALUE=No>
+<INPUT TYPE=CHECKBOX NAME=KillSent VALUE=Yes ARACHNECHECKED=KillSent>
+Delete When Sent
+<INPUT TYPE=HIDDEN NAME="$NOSIGN">
+<INPUT TYPE=CHECKBOX NAME="$DELORIG" VALUE=Yes$CHECKEDTBS$>
+<INPUT TYPE=HIDDEN NAME="$ORIGMSG" VALUE="$ORIGMSG$">
+Delete original message
+<TR>
+<TD ALIGN=RIGHT><B><FONT 3D>From:&nbsp;
+<TD COLSPAN=2><INPUT TYPE=output size=30 arachnecfgvalue="email">
+<TR>
+<TD ALIGN=RIGHT><B><FONT 3D>To:&nbsp;
+<!--<INPUT TYPE=HIDDEN NAME="$MSG">-->
+<TD COLSPAN=2><INPUT TYPE=TEXT SIZE=61 NAME="$TO" URI>
+<TR>
+<INPUT TYPE=HIDDEN NAME="$RT" ARACHNECFGVALUE="ARt">
+<TD ALIGN=RIGHT><B><FONT 3D>CC:&nbsp;
+<TD COLSPAN=2>
+<INPUT TYPE=TEXT SIZE=27 NAME="$CC" value="$cc$">
+<B><FONT 3D>&nbsp;&nbsp;BCC:&nbsp;<INPUT TYPE=TEXT SIZE=26 name="$BCC" ARACHNECFGVALUE="ABcc">
+<TR>
+<TD ALIGN=RIGHT><B><FONT 3D>Receipt-To:
+<TD COLSPAN=2><INPUT TYPE=TEXT SIZE=27 NAME="$RRT">
+<TR>
+<TD ALIGN=RIGHT><B><FONT 3D>Subject:&nbsp;
+<TD COLSPAN=2><INPUT TYPE=TEXT SIZE=61 NAME="$SUBJ" VALUE="$SUBJ$">
+
+<TR>
+<TD align=right><B><FONT 3D>Encoding&nbsp;
+<td colspan=2>&nbsp;&nbsp;<font size=-1><INPUT TYPE=RADIO NAME=MailEncoding VALUE=MIME ARACHNECHECKED=MailEncoding>&nbsp;MIME&nbsp;&nbsp;<INPUT TYPE=RADIO NAME=MailEncoding VALUE=UUENCODE ARACHNECHECKED=MailEncoding>&nbsp;UUencode&nbsp;&nbsp;
+</font><b><font 3d>Generate &nbsp;</font></b><font size=-1><INPUT TYPE=HIDDEN NAME=UseCID VALUE=No><INPUT TYPE=CHECKBOX NAME=UseCID VALUE=Yes ARACHNECHECKED=UseCID>&nbsp;&nbsp;<A HREF="file:mime.txt">Content-ID</A>&nbsp;&nbsp;<INPUT TYPE=HIDDEN NAME=UseCDescr VALUE=No>
+&nbsp;&nbsp;<INPUT TYPE=CHECKBOX NAME=UseCDescr VALUE=Yes ARACHNECHECKED=UseCDescr>&nbsp;Description
+
+<TR>
+<TD ALIGN=right><B><FONT 3D>Attachments&nbsp;
+<TD colspan=4 NOWRAP>
+            <INPUT TYPE=TEXT SIZE="15" NAME="$ATTACH">
+            <INPUT TYPE=TEXT SIZE="14" NAME="$ATTACH">
+            <INPUT TYPE=TEXT SIZE="15" NAME="$ATTACH">
+            <INPUT TYPE=TEXT SIZE="14" NAME="$ATTACH">
+
+<TR><TD COLSPAN=3><I>Warning: You are resending message. Attachments must be added manually!</I>
+<tr><TD colspan=2 NOWRAP>
+<!-- Increase to ROWS=20 if not using the on-screen address book (15 with) -->
+<TEXTAREA COLS=74 ROWS=20 NAME="$BODY" WRAP="Yes" ARACHNEROWS ARACHNEEDITOR="$MAILTMP$" ACTIVE>
+</TEXTAREA>
+</TABLE>
+
+<!--new buttons/e-dress list tables-->
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<tr>
+<TD><font size=-3>
+<button TYPE=SUBMIT NAME="$SMTP"><img src="file://pidisend.ikn" WIDTH="32" HEIGHT="16">&NBSP;Send Mail NOW&NBSP;</BUTTON>
+<TD><font size=-3>
+<BUTTON TYPE=SUBMIT NAME="$SAVE"><IMG SRC="file://pidisave.ikn" WIDTH="32" HEIGHT="16">&nbsp;Save to OUTBOX&nbsp;</BUTTON>
+<td><font size=-3>
+<FORM ACTION="arachne:back">
+<BUTTON><IMG SRC="file://pidizrus.ikn" WIDTH="16" HEIGHT="16"><b>&nbsp;&nbsp;Cancel&nbsp;</b></BUTTON>
+</FORM>
+<TD><font size=-3>
+<FORM action="file://edithelp.htm">
+<button><img src="file://tbhelp.ikn" width="16" height="16">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Edit Help</button>
+</FORM>
+<TD><font size=-3>
+<FORM ACTION="file:mxedit.dgi">
+<button><img src="file://small5.ikn" width="16" height="16">&nbsp;&nbsp;&nbsp;&nbsp;e<b>X</b>ternal editor</button>
+</FORM>
+
+<!-- Comment out the e-mail address book section to not have -->
+<!-- the on-screen address book.  You  may then increase the -->
+<!-- textarea above from 15 to 20 rows -->
+
+<!------ e-mail address book ------>
+<!--
+<form>
+<tr>
+<TD colspan=5 NOWRAP>
+<HR SIZE="1" width="90%">
+<tr>
+<td><FONT 3D size=-2><b>E-DRESS LIST</b></FONT>
+<td align=right colspan=4 NOWRAP>
+<FORM action="file://edreshlp.htm">
+<button><font size=-3><img src="file://tbhelp.ikn" width="16" height="16">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;E-dress Help&nbsp;</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<tr>
+<td colspan=5>
+<TEXTAREA COLS="74" ROWS="4" NAME="EDRESS" WRAP="No" ARACHNEEDITOR=E-DRESS.TXT></TEXTAREA>
+<TR>
+</form>
+-->
+<!--------- end e-mail address book ------>
+</table>
+
+</Body>
+</HTML>

@@ -1,0 +1,41 @@
+<HTML>
+<TITLE>Arachne Fatal Error</TITLE>
+<BODY TEXT=BLACK>
+<IMG SRC="gui:error.gif" ALT="ERROR" ALIGN=RIGHT>
+<IMG SRC="gui:error.gif" ALT="ERROR" ALIGN=RIGHT>
+<IMG SRC="gui:error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Arachne Fatal Error</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=4>
+One of the following problems occured:
+<UL>
+<LI>Runtime error: There may be bug in Arachne browser core.
+<LI>System error: Your system configuration caused Arachne to crash.
+<LI>Installation error. Some of the required files are bad or missing.
+</UL>
+<HR>
+<H2><FONT COLOR=#FF0000>
+Sorry, but you should better reboot your computer now !
+</FONT></H2>
+See <A HREF="gui:help.htm">Arachne documentation</A> for more info.
+<HR>
+<TABLE>
+<TD>
+<FORM ACTION="arachne:restart">
+<H4><BUTTON TYPE=SUBMIT>Restart Arachne now</BUTTON>
+</FORM>
+<TD>
+<FORM ACTION="arachne:hangup">
+<H4><BUTTON TYPE=SUBMIT>Hangup phone &amp; restart</BUTTON>
+</FORM>
+<TD>
+<FORM ACTION="arachne:exit">
+<H4><BUTTON TYPE=SUBMIT>Exit to DOS</BUTTON>
+</FORM>
+<TD>
+<FORM ACTION="file:reboot.dgi">
+<H4><FONT COLOR=#FF0000>
+<BUTTON TYPE=SUBMIT>Reboot!</BUTTON>
+</TABLE>
+</BODY>
+</HTML>

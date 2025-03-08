@@ -1,0 +1,118 @@
+<Body BACKGROUND = "paper.gif">
+<TITLE>List of standards supported by Arachne</TITLE>
+<FONT SIZE = +2 ><I>List of standards supported by Arachne<I></FONT>
+<P>
+<TABLE BORDER = 3 CELLSPACING = 3 CELLPADDING = 1 WIDTH = 100% >
+<TH WIDTH=16% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Standard
+<TH WIDTH=13% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Status
+<TH WIDTH=71% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Comment
+<TR>
+<TD>http:
+<TD>built-in
+<TD><LI><TT>http://[user:pass@]servername[:port][/doc]</TT>
+<LI>version 1.0 - supports GET, POST, Basic WWW authentication and Cookies 1.0
+<TR>
+<TD>mailto:
+<TD>built-in
+<TD><LI><TT>mailto:email@address</TT>
+<TR>
+<TD>pop3:
+<TD>built-in
+<TD><LI><TT>pop3:[//[user[:password]@]servername[:port]]</TT>
+<TR>
+<TD>smtp:
+<TD>built-in
+<TD><LI><TT>smtp:[//[HELO@]servername[:port]][/loc_file]</TT>
+<TR>
+<TD>finger:
+<TD>built-in
+<TD><LI><TT>finger://[user@]servername[:port][/user]</TT>
+<TR>
+<TD>gopher:
+<TD>built-in
+<TD><LI><TT>gopher://servername[:port][/selector]</TT>
+<LI>this archaic protocol is implemented only partly
+<TR>
+<TD>ftp:
+<TD>built-in
+<TD><LI><TT>ftp://[user[:pass.]@]servername[:port][/path]</TT>
+<LI>upload, download, ascii/binary, anonymous/authenticated, graphical browsing of directories
+<TR>
+<TD>file:
+<TD>built-in
+<TD><LI><TT>file:[//][/dos_disk|]local_filename</TT>
+<TR>
+<TD>find:
+<TD>built-in
+<TD><LI><TT>find:keywords</TT>
+<LI>automaticaly generates http based Altavista query
+<TR>
+<TD>text/html<BR>*.HTM
+<TD>built-in
+<TD><LI>can view up to cca 48000 tags or lines in files of maximum size cca 1 MB
+<LI>supports
+<A HREF="../ahtml40.txt">subset of HTML 4.0</A> including forms,
+<A HREF="../examples/tables.htm">tables</A>, both 
+<A HREF="../examples/csim.htm">client side</A> and server side image maps,
+<A HREF="../examples/frames.htm">frames</A>,
+<A HREF="../examples/fonts.htm">font sizes</A>,
+<A HREF="../examples/nested.htm">nested font attributes</A>,
+<A HREF="../examples/resize.htm">resized images</A>,
+<A HREF="../examples/nobreak.htm">non breaking sections</A>,
+<A HREF="../examples/entity.htm">ISO-Latin-1 entities</A>,
+<A HREF="../examples/embed.htm">&lt;EMBED&gt; tag</A>,
+<A HREF="../examples/redir.htm">delayed redirection</A>, etc.
+<A HREF="../examples/button.htm">&lt;BUTTON&gt; tag</A>, etc.
+<TR>
+<TD>text/plain<BR>*.TXT
+<TD>built-in
+<TD><LI>can view up to cca 48000 lines in files of maximum size cca 3 MB
+<TR>
+<TD>image/gif<BR>*.GIF
+<TD>built-in
+<TD>
+<LI>interlaced GIFs
+<LI>transparent GIFs (GIF89a)
+<LI><A HREF="file://yingyang.gif">animated GIFs (GIF 89a)</A>
+<TR>
+<TD>*.BMP
+<TD>partly
+<TD><LI>only truecolor BMP fast preview
+<TR>
+<TD>image/jpeg<BR>*.JPG
+<TD>external convertor
+<TD><LI>djpeg (libjpeg frontend)
+<TR>
+<TD>image/png<BR>*.PNG
+<TD>external convertor
+<TD><LI>convert (from ImageMagick package)
+<TR>
+<TD>auido/mpeg<BR>*.MP3
+<TD>external player
+<TD><LI>mpg123 ;-)
+<TR>
+<TD>auido/x-mpegurl<BR>*.MP3
+<TD>external player
+<TD><LI>mpg123 ;-)
+<TR>
+<TD>auido/x-scpls<BR>*.MP3
+<TD>external player
+<TD><LI>mpg123 ;-)
+<TR>
+<TD>multipart/*
+<BR>MIME V1.0
+<TD>built-in DGI
+<TD><LI>MAILMAN.EXE - conversion of messages to HTML
+<LI>Multipart e-mail messages, supported transfer encodings: base64,
+quoted-printable, 7bit, 8bit
+<TR>
+<TD>UUencode
+<TD>external utilities
+<TD><LI>Automatic detection of UUencoded attachments in mail messages
+<TR>
+<TD>any other mime type
+<TD>optional
+<TD><LI>add your viewer of any mime type to /PREFIX/share/arache/mime.conf
+<TR>
+</TABLE>
+Return to <A HREF="file://help.htm">main help page</A>.

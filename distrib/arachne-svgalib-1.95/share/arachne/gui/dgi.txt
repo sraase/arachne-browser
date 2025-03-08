@@ -1,0 +1,123 @@
+
+DGI - Dos Gateway Interface
+---------------------------
+
+xChaos Software announces a new chance for developers of DOS applications - DGI.
+DGI can be described as a component-oriented environment for a DOS compatible
+operating system. Most of Arachne's extensions are implemented as DGI
+components.
+
+
+Why DGI ?
+---------
+
+Nowadays there are many programers who know how to write simple 
+command-line, text-mode applications in different programming
+languages, including DOS shell (*.BAT), Basic, C, Turbo Pascal, etc.
+But the use of window-oriented operating systems made it hard 
+for these programmers to make their programs easy to use for the average
+user who expects a graphical interface.
+
+Fortunately, a new, even-easier communication standard than windows and 
+pull-down menus appeared - i.e., WWW pages. 
+They are both easier to use and easier to create than windows
+applications, and it is also possible to create much more beautiful designs.
+(Note: I'm speaking about windows based interfaces generally, not about
+Microsoft (TM) Windows (TM), also known as "Windoze", or "Win95").
+The application environment and explanations (help, manual) are
+perfectly integrated in WWW applications based on the CGI standard (Common
+Gateway Interface). CGI is a thousand times more popular than Java, partly
+because all browsers support CGI forms and partly because CGI scripts are
+in fact simple text-mode applications, which can be written 
+in many different programming languages. 90% of simple PC applications
+do not require any real-time data input from the user - the user is simply
+asked to fill in some form, for example, values of A and B and desired
+operator, whereafter the form is "submitted", and program then prints
+the output - it makes no difference if you use only plain text, or
+hypertext markup language (HTML). You can use commands as simple as
+e.g., PRINT "<H1>This is the title</H1>" to create a nice looking output.
+
+My idea is this: you don't have to run CGIs on a server - you can run them in 
+DOS! If you want to distribute a CD-ROM with default the WWW browser, and if you
+want to use CGI scripts instead of Java or Javascript, you should try Arachne.
+The new standard is called DGI (Dos Gateway Interface) instead of CGI (Common
+Gateway Interface). Just copy your scripts from the server to your PC and
+run them ! (Of course, the opposite process - developing CGIs in a DOS
+environment is also possible. DOS debugging tools are often more user friendly
+than those running on a Un*x command line...).
+
+All you need is a browser supporting DGI calls - for example Arachne.
+
+
+What is a DGI component ?
+-----------------------
+
+The DGI must be a DOS executable (even *.BAT !) able to read a standard CGI
+query string from the command line or from a file specified as the program 
+argument and must be able to output an HTML page to stdout or to a file 
+specified as the program argument.
+
+DGI should work only with files and standard input/output; not with
+video memory, either in text or graphics mode. That's all. But even
+this offers interesting possibilities: DGI can access the Arachne cache
+index file. DGI can, for example, write an outgoing mail message to the  
+Arachne MAIL directory (file with extension *.TBS) and then return to the HTML
+page with a message "Outgoing mail prepared" and button "Send now".
+This can be used for example to encrypt the content of online forms using
+PGP. 
+
+DGI is also more secure then Active X because the user must modify the Arachne
+configuration file to install a new DGI - after scanning it for viruses,
+etc.
+
+
+How to add DGI to Arachne ?
+---------------------------
+
+Arachne uses the configuration file MIME.CFG for configuring plugins and DGI
+components. Installation of new components to Arachne is very easy if
+you learn to use the Arachne Package manager - see files APM.HTM and APM.TXT
+for details. APM takes care of updating MIME.CFG, WWWMAN.CFG and even
+ARACHNE.CFG, so you application programers don't have to write your
+own setup utility.
+
+A line added in MIME.CFG can look, for example, as follows:
+
+file/myapp.cgi    >HTM|[200]c:\myapp\myapp.exe -q%s>%2
+
+The syntax of MIME.CFG up to [200] symbols is not important; it is included
+in the comments in MIME.CFG. The command line itself says: "Execute
+c:\myapp\myapp.exe with at least 200 kb of DOS memory free; post the
+CGI query string as an argument called -q; and redirect output to a file
+with extension HTM which will be displayed after finishing the program.
+
+So the command assembled by Arachne can look, for example, like:
+
+c:\myapp\myapp.exe -qSEARCHFOR=SOME+WORDS&MODE=1>TMP.HTM
+
+
+How to add DGI to HTML pages 
+----------------------------
+
+It is clear that the same HTML pages will be used on the WWW server 
+as well as for DGI components. So, for calling the DGI described in the
+previous example use the following <FORM> tag syntax:
+
+<FORM ACTION="myapp.cgi">
+
+After putting this page online, just create script "myapp.cgi" in the
+same directory as where the page is located and make it do the same job as
+the program myapp.exe. When accessing online pages, any browser will be
+able to access this script. When accessing offline pages with Arachne,
+the DGI component will be executed instead.
+
+
+Ok, but I am not interested in DOS - what next ?
+------------------------------------------------
+
+DGI components are in fact only the earliest version of a new, revolutionary
+technology based on component-oriented programming. xChaos Software
+is researching this new, powerful component-based technology - Virtual File 
+System. It will be an easy, user- and programmer-friendly way to make 
+any system or network resource available for any application. The target
+platform for this technology is the Linux operating system.

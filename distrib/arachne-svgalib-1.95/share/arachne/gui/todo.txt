@@ -1,0 +1,30 @@
+
+Arachne TO-DO list
+------------------
+
+LGPL-licensed components and documentation:
+(This part of the project is open-source and anyone can contribute to it
+without waiting for Arachne Labs to do the following)
+
+ 1) Porting Insight e-mail client to Linux
+ 2) Better CGA support in 16bit DOS graphics library "LOPIF"
+    (for HP-LX palmtops, very old PCs, future cell phones, etc.)
+ 3) Better Hotlist manager for DOS; porting new Hotlist manager to Linux.
+ 4) Usenet news support - extending Insight to support news messages.
+ 5) Hercules support in 16bit DOS graphics library "LOPIF"
+ 6) Improving documentation, examples, FAQ, etc.
+ 7) Wizard for configuring Linux PPP interface from Arachne
+
+Proprietary development:
+
+ 1) Adding more features to Linux version (animated GIFs, virtual screens, ..)
+ 2) Javascript
+ 3) https: protocol (SSL)
+ 4) Adding 32bit module for running Arachne in Win32 enviroment (winsock.dll)
+ 5) Usenet news support - protocols
+ 6) ICQ - based on DOS port of open-source mICQ with permission of author
+ 7) cid: protocol for e-mail attachments
+ 8) Full implementation of HTML/4.0 => Style sheets, etc.
+ 9) EMBED tag - embedding links to DOS and Linux media players
+10) Graphical IRC client (with icons assigned to users, clickable URLs, etc.)
+11) Full portability to all operating environments (Windows 9x, Linux/Gtk, etc.)

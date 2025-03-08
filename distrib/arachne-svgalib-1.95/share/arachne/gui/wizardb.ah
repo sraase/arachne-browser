@@ -1,0 +1,35 @@
+<HTML><HEAD><TITLE>Arachne eMail setup Wizard - incoming mail</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK BGCOLOR=BLACK>
+<BR><BR><BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" ALIGN=CENTER WIDTH=520>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP><FONT 3D=1><B>Arachne eMail setup Wizard - incoming mail
+&nbsp;<A HREF="wizard9.ah"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE WIDTH=500>
+<!--<FORM ACTION="arachne:internal-config?arachne:restart">-->
+<FORM ACTION="arachne:internal-config?file://system/gui/wizardc.ah">
+Following minimal information is required to receive e-mail using Arachne -
+there are more option which can be configured later.
+<TR><TD BGCOLOR=SILVER>
+<TABLE>
+<TD NOWRAP ALIGN=RIGHT>POP3 server name
+<TD COLSPAN=3><INPUT TYPE=TEXT Name="POP3server" ARACHNECFGVALUE=POP3server SIZE=36></TD>
+<TR>
+<TD NOWRAP ALIGN=RIGHT>POP3 username
+<TD><INPUT TYPE=TEXT NAME="POP3username" ARACHNECFGVALUE=POP3username Size=10>
+<TD NOWRAP ALIGN=RIGHT>password</TD>
+<TD><INPUT TYPE=PASSWORD NAME="POP3password" Size=10 ARACHNECFGVALUE=POP3password></TD>
+</TABLE>
+<P>
+<INPUT TYPE=HIDDEN NAME="SavePasswords" VALUE=Yes>
+<INPUT TYPE=HIDDEN NAME="KeepOnServer" VALUE=No>
+&nbsp;<INPUT TYPE=CHECKBOX NAME="KeepOnServer" VALUE=Yes ARACHNECHECKED="KeepOnServer">
+Keep your incoming mail on POP3 server after downloading it
+<P>
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD>
+<!--<INPUT TYPE=SUBMIT VALUE="Finish setup...">-->
+<INPUT TYPE=SUBMIT VALUE="Local settings, etc....">
+</TABLE>
+<TABLE CELLPADDING=0 CELLSPACING=0><TD>&nbsp;<FORM ACTION="arachne:back">
+<TD><INPUT TYPE=SUBMIT VALUE="<< Previous">
+</TABLE></TABLE></BODY></HTML>

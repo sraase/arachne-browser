@@ -1,0 +1,149 @@
+<TITLE>Select Graphics Mode</TITLE>
+<BODY BGCOLOR=SILVER TEXT=BLACK>
+
+<TABLE WIDTH=100% CELLSPACING=1 CELLPADDING=1>
+<TD WIDTH=57%>
+<FONT SIZE=6 3D>Arachne Video Setup</FONT>
+<TD WIDTH=43%>&nbsp;Arachne detected video adapter:<BR>
+<INPUT SIZE=28 TYPE="OUTPUT" ARACHNEVGA>
+</TABLE>
+<P>
+
+<FORM ACTION="arachne:internal-vga">
+<INPUT TYPE=HIDDEN NAME="$MODE" VALUE="####" checked>
+
+<TABLE WIDTH=100%>
+<TD WIDTH=57% BGCOLOR=TEAL>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="BCGA">
+<FONT COLOR="WHITE">CGA 640x200 &nbsp;16 KB &nbsp;2 shades</FONT>
+
+<TD WIDTH=43% BGCOLOR=BLACK>
+<!-- <INPUT TYPE=RADIO NAME="$VGA" VALUE="XHGC">
+<FONT COLOR="WHITE">HGC 720x348 64 KB &nbsp;5 shades</FONT>
+Someday this Hercules section might work -->
+<TR></TABLE>
+
+<TABLE WIDTH=100%>
+<TD BGCOLOR=GRAY>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="EGA">
+<FONT COLOR="WHITE">EGA 640x350 128 KB 16 colors</FONT>
+<TR></TABLE>
+
+<TABLE WIDTH=100% CELLSPACING=0 CELLPADDING=0>
+<TD WIDTH=57%>
+<TABLE WIDTH=100%>
+<TD BGCOLOR=WHITE>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="VESA" checked>
+<FONT COLOR="BLUE">VESA compatible card or driver
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="VGA">
+<FONT COLOR="RED">VGA 640x480 256 KB 16 colors</FONT>
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="VGAMONO">
+<FONT COLOR="RED">VGA 640x480 256 KB grayscale</FONT>
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="TRIDENT">
+TRIDENT (or PROVGA_VC510S)
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="TSG3">
+TSG3 (Tseng ET3000, MDB10)
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="OAK">
+OAK
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="REALTEK">
+REALTEK (RTVGA)
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="TSG4">
+TSG4 (Tseng ET4000)
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="M1">
+M1 (OCTEK, graphic chip MX86010)
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$VGA" VALUE="TAMARA">
+TAMARA (Tamarack TDVGA-3588, <BR>
+&nbsp;&nbsp;&nbsp;Cirrus, Paradise, AST-PLUS)
+</TABLE>
+
+</TD>
+<TD WIDTH=43% VALIGN=TOP>
+<TABLE WIDTH=100%>
+<TD BGCOLOR=WHITE>
+<INPUT TYPE=RADIO NAME="$MODE" VALUE="Hi16.I">
+<FONT COLOR="BLUE">640x480
+<TD BGCOLOR=WHITE>
+1 MB HiColor
+<TR>
+<TD BGCOLOR=WHITE>
+<INPUT TYPE=RADIO NAME="$MODE" VALUE="Hi16.J">
+<FONT COLOR="BLUE">800x600
+<TD BGCOLOR=WHITE>
+1 MB HiColor
+<TR>
+<TD BGCOLOR=WHITE>
+<INPUT TYPE=RADIO NAME="$MODE" VALUE="Hi16.K">
+<FONT COLOR="BLUE">1024x768
+<TD BGCOLOR=WHITE>
+2 MB HiColor
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$MODE" VALUE=".X">
+<FONT COLOR="BLUE">640x400
+<TD>
+256 KB 256 colors
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$MODE" VALUE=".B" checked>
+<FONT COLOR="BLUE">640x480
+<TD>
+512 KB 256 colors
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$MODE" VALUE=".C">
+<FONT COLOR="BLUE">800x600
+<TD>
+512 KB 256 colors
+<TR>
+<TD>
+<INPUT TYPE=RADIO NAME="$MODE" VALUE=".E">
+<FONT COLOR="BLUE">1024x768
+<TD>
+1 MB 256 colors
+<TR>
+<TD>
+<FONT COLOR="RED">
+<INPUT TYPE=RADIO NAME="$MODE" VALUE=".A">
+800x600
+<TD>
+<FONT COLOR="RED">
+256 KB 16 colors
+<TR>
+<TD>
+<FONT COLOR="RED">
+<INPUT TYPE=RADIO NAME="$MODE" VALUE=".M">
+800x600
+<TD>
+<FONT COLOR="RED">
+256 KB grayscale
+<TR>
+<TD>
+<TR>
+<TD COLSPAN=2>
+<INPUT TYPE="SUBMIT" VALUE="Try selected graphics mode ">
+</TABLE>
+</TABLE><font size=1>
+1) Pick the default setup by clicking on "Try selected graphics mode" 
+(Recommended for beginners)<br>... <b>alternately</b>....
+<br>2a) Pick a card type by tabbing to appropriate check box 
+and pressing enter..or..'leftclick' on appropriate check box.
+<br>2b) Pick a size/color resolution in the same manner (tab/enter or leftclick).
+<br>2c) Tab/Enter or leftclick on "Try selected graphics mode".</font>

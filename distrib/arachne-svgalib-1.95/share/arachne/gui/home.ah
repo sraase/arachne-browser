@@ -1,0 +1,94 @@
+<TITLE>Arachne Desktop</TITLE>
+<BODY ARACHNE NORESIZE>
+<FONT 3D SIZE=6>Arachne Desktop</FONT>
+<HR SIZE=4>
+<TABLE WIDTH=600>
+
+<!-- You can easily add new items to your Arachne Desktop -->
+
+<!-- Destktop item --><TD ALIGN=CENTER WIDTH=25%>
+<!-- what to do ?  --><A HREF="file:/*">
+<!-- item icon     --><IMG SRC="yourpc.ikn" BORDER=0></A><BR>
+<!-- item comment  -->Your Computer
+<!-- end of item.  -->
+
+<!-- Destktop item --><TD ALIGN=CENTER WIDTH=25%>
+<!-- what to do ?  --><FORM ACTION="file:*">
+<!-- item icon     --><INPUT TYPE=IMAGE SRC="suplik.ikn" BORDER=0><BR>
+<!-- item comment  -->All files
+<!-- end of item.  -->
+
+<!-- Destktop item --><TD ALIGN=CENTER WIDTH=25%>
+<!-- what to do ?  --><FORM ACTION="file:*.htm*">
+<!-- item icon     --><INPUT TYPE=IMAGE SRC="htm.ikn" BORDER=0><BR>
+<!-- item comment  -->HTML pages
+<!-- end of item.  -->
+
+<!-- Destktop item --><TD ALIGN=CENTER WIDTH=25%>
+<!-- what to do ?  --><FORM ACTION="file:*.txt">
+<!-- item icon     --><INPUT TYPE=IMAGE SRC="text.ikn" BORDER=0></A><BR>
+<!-- item comment  -->Text files
+<!-- end of item.  -->
+
+<!-- this is row separator -->
+<TR><TD><P><TR>
+<!-- end of separator -->
+
+<!-- Destktop item --><TD ALIGN=CENTER>
+<!-- what to do ?  --><A HREF="mail.ah">
+<!-- item icon     --><IMG SRC="mail02.ikn" BORDER=0></A><BR>
+<!-- item comment  -->Your e-<U>M</U>ail
+<!-- end of item.  -->
+
+<!-- Destktop item --><TD ALIGN=CENTER>
+<!-- what to do ?  --><A HREF="utils.ah">
+<!-- item icon     --><IMG SRC="tools.ikn" BORDER=0></A><BR>
+<!-- item comment  --><U>U</U>tilities
+<!-- end of item.  -->
+
+<!-- Destktop item --><TD ALIGN=CENTER>
+<!-- what to do ?  --><A HREF="options.ah">
+<!-- item icon     --><IMG SRC="config.ikn" BORDER=0></A><BR>
+<!-- item comment  --><U>O</U>ptions
+<!-- end of item.  -->
+
+<!-- Destktop item --><TD ALIGN=CENTER>
+<!-- what to do ?  --><A HREF="arachne:dialpage">
+<!-- item icon     --><IMG SRC="phone.ikn" BORDER=0></A><BR>
+<!-- item comment  --><U>D</U>ialer
+<!-- end of item.  -->
+
+<!-- this is row separator -->
+<TR><TD><P><TR>
+<!-- end of separator -->
+
+<!-- Destktop item --><TD ALIGN=CENTER>
+<!-- what to do ?  --><A HREF="file://oops/*.*">
+<!-- item icon     --><IMG SRC="exe.ikn" BORDER=0></A><BR>
+<!-- item comment  -->Your applications
+<!-- end of item.  -->
+
+<!-- Destktop item --><TD ALIGN=CENTER>
+<!-- what to do ?  --><A HREF="about:">
+<!-- item icon     --><IMG SRC="about.ikn" BORDER=0></A><BR>
+<!-- item comment  -->About Arachne
+<!-- end of item.  -->
+
+<!-- Destktop item --><TD ALIGN=CENTER>
+<!-- what to do ?  --><A HREF="about:register.html">
+<!-- item icon     --><IMG SRC="key.ikn" BORDER=0></A><BR>
+<!-- item comment  -->How to register
+<!-- end of item.  -->
+
+<!-- Destktop item --><TD ALIGN=CENTER>
+<!-- what to do ?  --><A HREF="arachne:exit">
+<!-- item icon     --><IMG SRC="exit.ikn" BORDER=0></A><BR>
+<!-- item comment  -->Exit &lt;Alt+X&gt;
+<!-- end of item.  -->
+
+</TABLE>
+<HR>
+
+<SMALL>
+(c)2000 Arachne Labs. Press &lt;F1&gt; key to view <A HREF="help.htm">Arachne documentation</A>.
+</SMALL>

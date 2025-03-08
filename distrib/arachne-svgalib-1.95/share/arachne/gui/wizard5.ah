@@ -1,0 +1,58 @@
+<HTML><HEAD><TITLE>Arachne PPP Wizard - terminal window</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK BGCOLOR=BLACK>
+
+<BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" ALIGN=CENTER WIDTH=400>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP><FONT 3D=1><B>Arachne PPP Wizard - terminal window
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE WIDTH=600>
+<FORM ACTION="arachne:internal-config?file://system/gui/wizard6.ah">
+Does your Internet provider want you to manually log into system, or
+do you get PPP protocol ("weird characters" - like <TT>"{@!{#${"</TT>)
+immediately after connecting to your provider's modem ?
+<P>
+If you have to log in first, you will need terminal window to do this.
+Later, you can think about some scripting, but let's try to get online
+manually first.
+Of course, you may wish to use terminal window
+just to see what happens when modem is dialing the phone number.
+Anyway - don't forget to leave the terminal mode using <B>F7</B> (like in Windows 95)
+or <B>Alt+P</B> (like "PPP") key after connecting !!!
+<P>
+This option is disabled by default, because some 90% of ISPs use PAP or
+CHAP authentication instead of old-style login scripts these days.
+<TR><TD BGCOLOR=SILVER>
+&nbsp;<INPUT TYPE=CHECKBOX NAME="UseTerminal" VALUE="Yes">
+Show me terminal window when dialing, manual login is required
+<br>(works with miniterm.exe as dialer... not with Lsppp.exe as dialer)
+<P>
+<INPUT TYPE=HIDDEN NAME="TCPconfig" VALUE="PPPTCP.CFG">
+<INPUT TYPE=HIDDEN NAME="Gateway" VALUE="0.0.0.0">
+<INPUT TYPE=HIDDEN NAME="Netmask" VALUE="0.0.0.0">
+<B>Choose DailPage</B> ('D' hotkey)<BR>
+<INPUT TYPE=RADIO NAME="DialPage" VALUE="file:ppp_init.htm" ARACHNECHECKED="DialPage">Standard
+<INPUT TYPE=RADIO NAME="DialPage" VALUE="file:pppenhan.htm" ARACHNECHECKED="DialPage">Enhanced
+<INPUT TYPE=RADIO NAME="DialPage" VALUE="file:pppframe.htm" ARACHNECHECKED="DialPage">Frames version.
+<br>
+<INPUT TYPE=RADIO NAME="DialPage" VALUE="file:ppp_fast.htm" ARACHNECHECKED="DialPage">Simplified version for use on slow computers.
+<INPUT TYPE=HIDDEN NAME="Hangup" VALUE="@termin.com 0x60>NUL">
+<INPUT TYPE=HIDDEN NAME="TerminalWindow" VALUE="@MINITERM.EXE">
+<br>
+<b>
+Dialer / Packet driver selection
+</b>
+<br>
+<INPUT TYPE=radio NAME="Dialer" VALUE="@MINITERM.EXE>PPP.LOG">Dial with Miniterm.exe/epppd.exe
+<input type=radio name="Dialer" value="@lsppp.exe>ppp.log">Dial & connect with Lsppp.exe
+<br>
+<input type=hidden name="Connection" value="@lsppp.exe /?>nul">
+<INPUT TYPE=checkbox NAME="Connection" VALUE="@epppd.exe>>PPP.LOG">Epppd.exe as Packet driver
+<br><small>(Epppd.exe only works with miniterm... not with Lsppp.exe due to the fact that Lsppp.exe does both dialing & packet driving)</small>
+
+
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD><INPUT TYPE=SUBMIT VALUE="Continue >>"></TABLE>
+<TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD>
+<FORM ACTION="arachne:back">&nbsp;<INPUT TYPE=SUBMIT VALUE="<< Previous"><BR CLEAR=ALL>
+</TABLE>
+</TABLE></TABLE></BODY></HTML>

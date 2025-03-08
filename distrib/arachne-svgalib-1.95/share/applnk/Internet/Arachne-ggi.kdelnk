@@ -1,0 +1,8 @@
+# KDE Config File
+[KDE Desktop Entry]
+Name=Arachne/GGI
+Comment=GGI based version of Arachne WWW browser. Runs only in 16bpp modes.
+Exec=/usr/bin/arachne-ggi-launcher
+Icon=arachne-1.xpm
+Type=Application
+Terminal=0

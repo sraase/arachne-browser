@@ -1,0 +1,266 @@
+Arachne RAMDISK (and memory use) Howto               Revised  01/01/14
+Written by Clarence Verge
+
+The most likely reason to consider running Arachne on a RAMDISK (RD)
+is to improve running speed. Another possible reason could be to run
+a portable install without accessing the Hard Disk.
+
+This Howto will focus on the need for speed.
+
+You must have a MINIMUM of 4Mb total ram to consider the use of an
+RD for Arachne to be a viable option.
+Memory must be divided between:
+1) The first meg. You need this for DOS and any drivers you load high.
+2) Your HD cache. The HD will be required for normal operations and
+   to load to, and save from, the RD.
+3) Free XMS. Arachne needs XMS memory to work properly.
+4) The Ramdisk itself.
+
+
+PART 1 - MAKING the ramdisk
+
+Regardless of other considerations, the first thing needed is a way
+to make the RD and the necessary RD install instructions.
+
+If you use MSDOS or Windows, you probably already have RAMDRIVE.SYS.
+An alternative shipped with other OSs may be VDISK.SYS (Virtual Disk)
+Both of the above must be installed via config.sys and cannot be
+re-sized or removed.
+
+A candidate for command line install and removal is:
+XMSDSK:
+ftp://ftp.simtel.net/pub/simtelnet/msdos/ramdisk/fu_rd19i.zip
+
+Other freeware RD drivers claim to be faster than the standard RDs.
+This excerpt from documentation for TDSK (Turbodsk) says it all:
+
+                                    RAMDRIVE       VDISK      TURBODSK
+                                  (WINDOWS 3.1) (DR-DOS 6.0)    v2.1
+Maximum size                          32 Mb        32 Mb        64 Mb
+Conventional memory support            Yes          Yes          Yes
+EMS support                            Yes          Yes          Yes
+Extended memory driven by INT 15h:      No          Yes           No
+XMS memory support                     Yes           No          Yes
+Files in root directory               4-1024       4-512       1-65534
+Sector size supported               128-1024     128-512      32-2048
+Dynamic memory allocation               No           No          Yes
+Programmable cluster size               No           No          Yes
+32-bit bus used with 386 and 486:       No           No          Yes
+Conventional mem. used MS-DOS 5.0:  1184-1232    2096-2608     432-608
+
+MS-DOS 5.0 Data transfer rate (Kb/sec)
+Sectors are 512 bytes type.
+386-25 MHz (no cache)  RD in XMS:     17105         6838        17095
+486-25 MHz (8Kb cache) RD in XMS:     10278         7370        10278
+
+TDISK.zip is available at:
+ftp://ftp.simtel.net/pub/simtelnet/msdos/ramdisk/tdsk21.zip
+
+Usually, older and slower computers don't have as much ram as we might
+desire. Sometimes no more can be added.  We must be selective in not
+only WHAT we put on the RD, but even how MANY files and/or directories
+we use, because a single directory entry or a file with only one byte
+in it takes up a FULL cluster. So programmable cluster size is good.
+
+*
+To create an RD with Ramdrive.sys, place a line similar to this in
+your config.sys file near the top, but after the line that specifies
+your expanded memory manager:
+device=DRV:\PATH\Ramdrive.sys 1024 512 512 /e
+
+The first number is the size in kb allocated to the ramdisk an is the
+minimum suggested if you only have 4Mb total unless you COMPRESS it.
+The remaining 2048k can be split between HD cache and free XMS.
+You should have about 15 buffers assigned.  Too many will slow down
+the RD response.
+
+The second number is the sector size. Changing this can't help unless
+cluster size is also programmable to reduce total empty space wasted
+by very small files.
+
+The third number is the number of directory entries permitted in the
+root. A value of 512 will permit placing the main Arachne dir at root
+level, thus shortening the paths for some commands.
+There has been a problem with long path names in the past.
+
+The last item specifies that the ramdisk be placed in extended memory.
+That's the only useful way to go !
+
+*
+The syntax for VDISK is almost identical but some VDISKs use a very
+different way to claim XMS memory. These must be loaded BEFORE the
+memory manager and the manager only uses what remains.
+
+The parameter /e:n is used to specify placing the Vdisk in extended
+memory and the :n specifies the number of sectors (1-8) to transfer
+as a block.
+
+
+PART 2 - LOADING the ramdisk
+
+If you have less than 4Megs TOTAL ram, maybe only 2Megs, Arachne was
+designed to make use of a small TEMP dir on a ramdisk to make your
+Arachne install run faster.  Create a ramdisk of at least 384kb, copy
+command.com to the ROOT of that RD and make a subdirectory on it
+called \TEMP. Place these lines in the batch file that calls Arachne:
+
+SET COMSPEC=RD:\COMMAND.COM
+SET ARACHNETEMP=RD:\TEMP
+where RD: is the name of your ramdrive.
+Install Arachne on your HD and in Arachne.cfg specify: Cache2TEMP Yes
+
+This technique is also useful to make a fast computer even faster when
+the complete Arachne install stays on HD.  You should set your comspec
+back to C:\ if you want to shutdown your ramdisk.
+
+*
+With a supersize RD, (6Megs) you can make the initial install directly
+to the ramdisk; but FIRST, create RD:\ARACHNE and RD:\ARACHNE\TEMP and
+put a copy of command.com in RD:\ARACHNE.   Do the install with the
+source file on hard disk or floppy, NOT on the ramdisk.
+Temporarily, SET ARACHNETEMP=RD:\ARACHNE\TEMP - this will change.
+
+Get Arachne working properly and then exit.
+In Arachne.cfg set the following:
+Cache2TEMP Yes
+Hotlist HD:\ARACHNE\HOTLIST.HTM
+CookieFile HD:\ARACHNE\COOKIES.LST
+DownloadPath HD:\ARACHNE\DOWNLOAD\
+MailPath HD:\ARACHNE\MAIL\
+
+Delete RD:\ARACHNE\cache.idx, history.lst, *.tmp and the contents
+of RD:\ARACHNE\CACHE, CACHE\HEADERS and the contents of ARACHNE\TEMP.
+On the HD make an ARACHNE directory and a DOWNLOAD subdirectory.
+Copy Hotlist.HTM and Cookies.LST from RD to HD:\ARACHNE.
+Delete the copies on the Ramdisk.
+Xcopy RD:\ARACHNE\MAIL\*.* HD:\ARACHNE\ /s /e.
+Deltree RD:\ARACHNE\BACKUP, \DOWNLOAD and \MAIL.
+
+Now, from the ARACHNE directory of the ramdisk execute the line:
+PKZIP -rp HD:\ARACHNE\ARCN1Nn.ZIP .\*.*  (Replace 1Nn with version #)
+This will place a complete and hopefully working copy of your install
+in the ARACHNE dir of the HD.
+When you re-start, you will be starting with empty cache, no history.
+If the cache is on RD there is no need to have Cache2TEMP Yes except
+it will improve mail performance when the mail directory is on the HD.
+
+Here is a batch file to load Arachne to RD and start her. If you exit
+and re-start, the Cache contents and history for the day will persist.
+
+SPIDER.bat (sometimes called simply A.bat)
+@Echo off
+If not "%ARACHNETEMP%"=="" goto RERUN
+PKunzip -d HD:\ARACHNE\ARCN1Nn.ZIP RD:\
+SET ARACHNETEMP=RD:\TEMP
+:RERUN
+SET COMSPEC=RD:\COMMAND.COM
+RD:
+Call Arachne
+HD:
+SET MYIP=
+SET REMIP=
+SET NETMASK=
+SET PEERMRU=
+SET COMSPEC=HD:\COMMAND.COM
+
+All cookies, download, and mail transactions will be made to the HD.
+The ramdisk and it's contents can just evaporate when you're finished.
+
+*
+In the above scenario, changes made to your configuration while
+running will not be saved. If this is not suitable, do the following:
+
+Prior to the initial zipup copy ARACHNE.cfg and ARACHNE.pck to HD and
+delete the RD copies. If you expect to create or change .ACFs, do the
+same to *.ACF. Add these lines to SPIDER.bat just before :RERUN.
+Copy >nul HD:\ARACHNE\ARACHNE.* RD:\
+Copy >nul HD:\ARACHNE\*.acf RD:\
+and just after Call Arachne add:
+Copy >nul RD:\ARACHNE.* HD:\ARACHNE
+Copy >nul RD:\*.acf HD:\ARACHNE
+
+*
+All the RD installs follow the same basic procedure. As you move to
+smaller RDs (less than 4.5Mb) you will have to begin deleting unused
+or seldom used files on the RD and then move functions to the HD.
+
+Since the Wizards only get used for setup, they will go first.
+In the \SYSTEM\GUI\ subdir, delete WIZ*.*.
+In \SYSTEM\DGI\ delete Wizard.exe.
+Deltree \SYSTEM\PKTDRVRS and \SYSTEM\APM.DB subdirectories.
+Then, for more space, delete all background .GIFs and *.ACF.
+Copy Arachne.cfg to the .ACF name found under it's [Profile] heading.
+
+If you still have less than 1Meg free on the RD with empty cache then
+the cache dir must be moved to HD. Make this change to ARACHNE.cfg:
+CachePath HD:\ARACHNE\CACHE\
+
+Then Xcopy RD:\CACHE\*.* HD:\ARACHNE\ /s /e and Deltree RD:\CACHE.
+Copy RD:\CACHE.idx to HD:\ARACHNE
+
+Add this to SPIDER.bat just before :RERUN
+Copy >nul HD:\ARACHNE\CACHE.idx RD:\
+and just after Call Arachne add:
+Copy >nul RD:\CACHE.idx HD:\ARACHNE
+
+*
+Ramdisk too small for even the initial install ?  Difficult !!
+
+If you still want to try a Ramdisk, these instructions should help,
+but you will need at least 4Mb total memory for a 2152kb ramdisk and
+you will have to COMPRESS it with Stacker or Doublespace and allocate
+only 340k to disk cache leaving 576k for XMS.
+
+Do an initial install to HD:\ARACHNE.   Zip it up into a different
+directory. (<--Important)   PKZIP -rp HD:\DUMMY\ARCN1Nn.ZIP .\*.*
+
+Delete EVERYTHING mentioned above, including: deltree .\MAIL,
+and .\CACHE, .\DOWNLOAD, .\DOC, and .\EXAMPLES.
+Delete .\*.txt.  Examine the remainder for anything you are SURE
+you don't need and delete it.  Xcopy what remains to an RD that
+already has COMMAND.COM on it and nothing else - including no dirs.
+
+The command is:  Xcopy HD:\ARACHNE\*.* RD:\ /s /e
+Check the space available. It will be used for TEMP. It should be
+greater than 384k - preferably greater than 500k. If you have the
+minimum, manually edit ARACHNE.cfg to this state:
+
+[system]
+Hotlist HD:\ARACHNE\HOTLIST.HTM
+History .\HISTORY.LST
+CacheIndex .\CACHE.IDX
+CookieFile HD:\ARACHNE\COOKIES.LST
+CachePath HD:\ARACHNE\CACHE\
+Cache2TEMP Yes
+MailPath HD:\ARACHNE\MAIL\
+DownloadPath HD:\ARACHNE\DOWNLOAD\
+
+[auto-added]
+POP3log No
+SMTPlog No
+KeepHTT No
+VFAT No
+CacheFonts Yes
+XMS4allGIFs 0
+XMS4oneGIF 0
+MinDiskSpace 128
+
+Then in the directory HD:\ARACHNE, do deltree .\*.*  and
+from the ROOT directory of the ramdisk execute the line:
+PKZIP -rp HD:\ARACHNE\ARCN1Nn.ZIP .\*.*
+This will place a compressed copy of your distilled install in
+the ARACHNE dir of the HD.
+
+Finally, referring to the directory containing the INITIAL install,
+PKunzip -d HD:\DUMMY\ARCN1Nn.ZIP HD:\ARACHNE . This makes the deleted
+document files available to you by surfing the HD.
+
+Create the first SPIDER.bat shown above, but just before :RERUN add:
+Copy >nul HD:\ARACHNE\ARACHNE.cfg RD:\
+Copy >nul HD:\ARACHNE\*.pck RD:\
+and just after Call Arachne add:
+Copy >nul RD:\ARACHNE.cfg HD:\ARACHNE
+Copy >nul RD:\*.pck HD:\ARACHNE
+
+Type SPIDER and if we didn't miss anything, you are off to the races!
+

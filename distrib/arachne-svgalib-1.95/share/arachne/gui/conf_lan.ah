@@ -1,0 +1,128 @@
+<HTML>
+<TITLE>Packet driver TCP/IP setup</TITLE>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND=NUL TEXT=BLACK BGCOLOR=BLACK NORESIZE>
+<BASEFONT SIZE=-1>
+
+<!-- :-) -->
+<TABLE CELLSPACING=1 CELLPADDING=0>
+<TD WIDTH=6>
+<TD>
+<TABLE CELLSPACING=0 BORDER=1 FRAME="void">
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP WIDTH=602>
+<FONT 3D=1><B>Packet driver TCP/IP setup</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+</TABLE>
+</TABLE>
+
+<TABLE WIDTH=602 CELLSPACING=8 BORDER=1 FRAME="void">
+<FORM ACTION="arachne:internal-config">
+
+<TD BGCOLOR=#EEEEEE WIDTH=602>
+<INPUT
+ TYPE=RADIO
+ NAME="IP_Address"
+ ARACHNECFGVALUE="IP_Address"
+ ARACHNENOTCHECKED="BOOTP,WATTCP"
+>
+
+<FONT COLOR=#000000><B>Manual TCP/IP setup</B>
+
+<TABLE>
+<TD WIDTH=132>
+<FONT COLOR=#000000>IP Address
+<TD WIDTH=212>
+<INPUT SIZE=16
+ TYPE=TEXT
+ NAME="IP_Address"
+ ARACHNECFGVALUE="IP_Address"
+ ARACHNECFGHIDE="BOOTP,PPP,WATTCP"
+>
+
+<TD ROWSPAN=6 WIDTH=230>
+<FONT COLOR=#000000>
+You can use enviroment variable name for IP address (something like %MYIP%),
+if this is the way how IP address is defined on your system.
+Please do not use default values,
+ask your system administrator or TCP/IP guru if you are not sure !
+<TR>
+<TD>
+<FONT COLOR=#000000>1st nameserver
+<TD>
+<INPUT NAME=NameServer TYPE=TEXT SIZE=16 ARACHNECFGVALUE="NameServer">
+<TR>
+<TD>
+<FONT COLOR=#000000>2nd nameserver
+<TD>
+<INPUT NAME=AltNameServer TYPE=TEXT SIZE=16 ARACHNECFGVALUE="AltNameServer">
+<FONT COLOR=#000000>(optional)
+<TR>
+<TD>
+<FONT COLOR=#000000>1st gateway
+<TD>
+<INPUT NAME=Gateway TYPE=TEXT SIZE=16 ARACHNECFGVALUE="Gateway">
+<TR>
+<TD>
+<FONT COLOR=#000000>2nd gateway
+<TD>
+<INPUT NAME=AltGateway TYPE=TEXT SIZE=16 ARACHNECFGVALUE="AltGateway">
+<FONT COLOR=#000000>(optional)
+<TR>
+<TD>
+<FONT COLOR=#000000>Netmask
+<TD>
+<INPUT NAME=Netmask TYPE=TEXT SIZE=16 VALUE="0.0.0.0" ARACHNECFGVALUE="Netmask">
+</TABLE>
+<TR>
+
+<TD WIDTH=50% BGCOLOR=#EEEEEE>
+<INPUT TYPE=RADIO NAME="IP_Address" VALUE="BOOTP" ARACHNECHECKED="IP_Address">
+<FONT COLOR=#000000><B>Configure via BOOTP or DHCP</B><BR>
+
+BOOTP is protocol which allows BOOTP server (typically some Unix machine)
+in your LAN to assign TCP/IP settings to networked computers. DHCP is
+common in Windows based networks.
+If BOOTP or DHCP on your LAN requires some
+special configuration, you have to edit file
+<A HREF="file:lantcp.cfg">LANTCP.CFG</A>.
+
+<TR>
+<TD WIDTH=50% BGCOLOR=#EEEEEE>
+<INPUT TYPE=RADIO NAME="IP_Address"
+ VALUE="WATTCP"
+ ARACHNECHECKED="IP_Address"
+>
+<FONT COLOR=#000000><B>Use only WATTCP configuration</B><BR>
+
+Arachne is based on Waterloo TCP/IP kernel.
+If you select this option, Arachne will use only standard WATTCP
+configuration file and ignore other settings.
+<BR>
+Name of WATTCP configuration file:
+<INPUT TYPE=TEXT  NAME="TCPconfig" VALUE="LANTCP.CFG" SIZE=38>
+<BR>
+<I>Tip: Maybe there is already some usable WATTCP.CFG configuration
+file somewhere on your hard disk (eg. C:\WATTCP\WATTCP.CFG; many
+other WATTCP-based programs use this file too, eg. Going Postal and 
+some programs - eg. Klos PPP dialer - are able to generate 
+this file automaticaly).</I> 
+<INPUT TYPE=HIDDEN NAME="Connection" VALUE=READY>
+
+<TR>
+<TD class="topbar" bgcolor="gray">
+
+<TABLE>
+<TD WIDTH=380>
+<FONT SIZE=3 COLOR=#4A4A4A><I>Internet is not revolution, just fashion <SUB>my father, 1995</SUB></I></FONT>
+<TD>
+<BUTTON TYPE=SUBMIT><IMG SRC="file://small1.ikn" HEIGHT=18 WIDTH=32>&nbsp;Ok, save</BUTTON>
+<TD>
+<FORM ACTION="arachne:back">
+<BUTTON><IMG SRC="file://pidizrus.ikn" WIDTH=16 HEIGHT=16>&nbsp;Cancel</BUTTON>
+</TABLE>
+
+</TABLE>
+
+
+</BODY>
+</HTML>

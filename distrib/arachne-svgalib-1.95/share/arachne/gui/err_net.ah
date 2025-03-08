@@ -1,0 +1,23 @@
+<HTML>
+<TITLE>Arachne Network Error</TITLE>
+<BODY>
+<IMG SRC="gui:error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>No network interface available</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=6>
+Arachne was unable to load the requested URL. Possible reasons:
+<P>
+<LI>There is no connection to Internet avaliable 
+<LI>TCP/IP protocol is disabled in Arachne configuration
+<LI>If you are using dial-up (PPP) connection, you may wish to enable Autodial feature
+<HR>
+See <A HREF="gui:help.htm">Arachne documentation</A> for more info.
+<HR>
+<TABLE>
+<TD><FORM ACTION="gui:setup.htm">
+<INPUT TYPE=SUBMIT VALUE="Setup Arachne">
+<TD><FORM ACTION="arachne:dialer">
+<INPUT TYPE=SUBMIT VALUE="Dial now [Alt+D]">
+</TABLE>
+</BODY>
+</HTML>

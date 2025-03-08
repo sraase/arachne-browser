@@ -1,0 +1,137 @@
+
+This is complete list of 100 unique HTML tags and 21 "aliases" to these tags
+already supported by Arachne WWW browser.
+
+Arachne will attempt to render these tags according to HTML/4.0 specification.
+This listing is synchronized with files html.h (list supported tags) and
+analtag.c (tag detection engine). These files are part of Arachne source code.
+
+-----------------------------------------------------------------------------
+Tag:                Arguments,comment:
+-----------------------------------------------------------------------------
+<P>                 ALIGN
+</P>
+<A>                 HREF,NAME,TARGET
+</A>
+<IMG>               SRC,ALT,HEIGHT,WIDTH,ALIGN,BORDER,ISMAP,USEMAP
+<BR>                CLEAR
+<CENTER>
+</CENTER>
+<NOBR>
+</NOBR>
+<DIV>               ALIGN
+</DIV>
+<H1>                ALIGN
+</H1>
+<H2>                ALIGN
+</H2>
+<H3>                ALIGN
+</H3>
+<H4>                ALIGN
+</H4>
+<H5>                ALIGN
+</H5>
+<H6>                ALIGN
+</H6>
+<TT>
+</TT>
+<PRE>
+</PRE>
+<FONT>              SIZE,COLOR [+arachne extension "3D"]
+</FONT>
+<BASEFONT>          SIZE,COLOR
+</BASEFONT>
+<HR>                SIZE,WIDTH,ALIGN
+<B>
+</B>
+<I>
+</I>
+<TABLE>             WIDTH,ALIGN,BORDER,BGCOLOR,CELLSPACING,CELLPADDING,FRAME
+</TABLE>
+<TD>                COLSPAN,ROWSPAN,BGCOLOR,WIDTH,ALIGN,VALIGN,NOWRAP,BACKGROUND
+</TD>
+<TR>                BGCOLOR
+</TR>
+<TH>                COLSPAN,ROWSPAN,BGCOLOR,WIDTH,ALIGN,NOWRAP
+</TH>
+<LI>
+</LI>
+<DD>
+</DD>
+<UL>
+</UL>
+<OL>
+</OL>
+<INPUT>             NAME,VALUE,TYPE,SRC [+arachne extensions]
+<BUTTON>            NAME,VALUE,TYPE [+arachne extensions]
+</BUTTON>
+<FORM>              ACTION,METHOD,TARGET [+arachne extensions]
+</FORM>
+<HEAD>
+</HEAD>
+<TITLE>
+</TITLE>
+<SCRIPT>            [currently implemented only to ignore script code]
+</SCRIPT>
+<STYLE>             [currently implemented only to ignore stylesheets]
+</STYLE>
+<CAPTION>           COLSPAN,ROWSPAN,BGCOLOR,WIDTH,ALIGN,NOWRAP
+</CAPTION>
+<TEXTAREA>          ROWS,COLS,NAME,WRAP [+arachne extensions]
+</TEXTAREA>
+<BODY>              BGCOLOR,BACKGROUND,COLOR,LINK [+arachne extensions]
+</BODY>
+<BASE>              HREF,TARGET
+</BASE>
+<CODE>
+</CODE>
+<FRAMESET>          ROWS,COLS
+</FRAMESET>
+<FRAME>             SRC,NAME,SCROLLING,MARGINWIDTH,MARGINHEIGTH,BORDER,FRAMEBORDER,FRAMESPACING
+<SELECT>            SIZE,NAME,MULTIPLE
+</SELECT>
+<OPTION>            VALUE,SELECTED
+</OPTION>
+<U>
+</U>
+<NOFRAMES>
+</NOFRAMES>
+<SMALL>
+</SMALL>
+<BIG>
+</BIG>
+<SUB>
+</SUB>
+<SUP>
+</SUP>
+<MAP>               NAME
+</MAP>
+<AREA>              SHAPE,COORDS,HREF,NOHREF
+<META>              HTTP-EQUIV,CONTENT
+<EMBED>             SRC [note: this tag currently works only offline]
+<ARACHNE>           MSG,RAW,NOCACHE,PRINT [tag specific to Arachne]
+
+-----------------------------------------------------------------------------
+Alias:              Recognized as:    Comment:
+-----------------------------------------------------------------------------
+<ADDRESS>           <I>               what else can we do with it ?
+</ADDRESS>          </I>
+<BLOCKQUOTE>        <UL>              like Netscape
+</BLOCKQUOTE>       </UL>
+<CITE>              <I>
+</CITE>             </I>
+<DT>                <LI>
+<DL>                <OL>              in future these tags will be
+</DL>               </OL>             changed rather to <UL>. <OL>
+<DIR>               <OL>              items should be numbered.
+</DIR>              </OL>
+<MENU>              <OL>
+</MENU>             </OL>
+<EM>                <I>               what was wrong with <I> ?
+</EM>               </I>
+<KBD>               <CODE>            rendered as <TT><B>
+</KBD>              </CODE>
+<S>                 <B>               maybe this should read <STRIKE> ?
+</S>                </B>
+<STRONG>            <B>               again, what was wrong with <B> ?
+</STRONG>           </B>

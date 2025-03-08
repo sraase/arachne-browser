@@ -1,0 +1,239 @@
+;This is Advanced Arachne Toolbar definition file....  1999-06-22 xChaos
+;=======================================================================
+;Syntax: V|H+page+id icon_code KEY|URL|TB argument desc_desc_desc hotkey
+;=======================================================================
+;Don't be afraid of the syntax - you are anyway expected to customize
+;only the Vertical Online resources tooolbar ;-) Maybe some more user 
+;friendly customization tool will be added later, but from programmer's
+;point of view, plain text configurations files will always rule ;-)
+;=======================================================================
+;VO PIDIZRUS Vertical, Online resources
+;
+VO1 TBCANCEL TB 0 (Online_resources)
+VO3 TBGOWEB URL http://www.altavista.com/ Altavista
+VO4 TBGOWEB URL http://home.netscape.com/ Netcenter
+VO5 TBGOWEB URL http://www.yahoo.com/ Yahoo
+VO6 TBGOWEB URL http://www.cnn.com/ CNN
+VO7 TBGOWEB URL http://www.mp3.com/ MP3.com
+VO8 TBGOWEB URL http://www.wired.com/news/ Wired_News
+VO9 TBGOWEB URL http://www.gutenberg.org/ Project_Gutenberg
+VO10 TBGOWEB URL http://www.opus.co.tt/dave/index.htm Sotware_for_DOS
+VO11 TBGOWEB URL http://www.freshmeat.net/ Software_for_Linux
+VO12 SMALL5 URL gui:edittb.ah Edit_toolbar.tb
+VO13 TBGOWEB URL http://pes.eunet.cz/ Pes_(.cz)
+VO14 TBGOWEB URL http://www.seznam.cz/ Seznam_(.cz)
+VO15 TBGOWEB URL http://ctk.ceskenoviny.cz/ CTK_(.cz)
+;
+;=======================================================================
+;prefix VD = Vertical toolbar, Dos mode (default page)
+;
+VD1 SMALL1 KEY 27136 Load_page F3
+VD2 SMALL2 KEY 15360 Save/send F2
+VD3 TBFILEOP TB L Local_resources
+VD4 TBMAILOP TB M eMail_toolbar
+VD5 TBPAGEOP TB P Page_toolbar
+VD6 TBSYSOP TB S System_toolbar
+VD7 TBMYPC URL file:/* Your_Computer
+VD8 TBINBOX URL reload:file://inbox.dgi INBOX I
+VD9 TBACF URL gui:profiles.ah Arachne_profiles
+VD10 TBASF URL file:*.asf Arachne_scripts
+VD11 TBDIAL URL arachne:dialer Dial_now Alt+D
+VD12 SMALL10 URL gui:home.ah Desktop F10
+VD13 TBHELP URL about:register.html Licensing
+VD14 TBHELP URL abobut:faq.html FAQ
+VD15 TBHELP KEY 'K' Hotkeys K
+;
+;prefix VI = Vertical toolbar, Internet mode (default page)
+;
+VI1 TBURL KEY 27136 Load/open_URL F3
+VI2 TBSAVFTP KEY 15360 Save/send/FTP F2
+VI3 TBFILEOP TB L Local_resources
+VI4 TBMAILOP TB M eMail_toolbar
+VI5 TBPAGEOP TB P Page_toolbar
+VI6 TBSYSOP TB S System_toolbar
+VI7 TBURLBAR TB O Online_resources
+VI8 TBPOP3 URL pop3: Get_new_mail
+VI9 SMALL8 KEY 20992 Load_images Ins
+VI10 TBGOWEB URL http://radio16.cz/radio16.pls Radio16_stream
+VI11 TBGOWEB URL http://slashdot.org/ Slashdot.org
+VI12 SMALL10 URL gui:home.ah Desktop F10
+VI13 TBGOWEB URL http://www.altavista.com/ Altavista
+VI14 TBGOWEB URL http://home.netscape.com/ Netcenter
+VI15 TBGOWEB URL http://www.cnn.com/ CNN
+;
+;HD ... Horizontal toolbar, Dos mode
+;
+HD1 SMALL10 URL gui:home.ah Desktop F10
+HD2 SMALL1 KEY 27136 Load_page F3
+HD3 TBPAGEOP TB P Page_toolbar
+HD4 TBMAILOP TB M eMail_toolbar
+HD5 SMALL2 KEY 15360 Save_to_disk_or_send_by_e-mail F2
+HD6 TBMYPC URL file:/* Your_Computer
+HD7 TBSYSOP TB S System_toolbar
+HD8 *Inbox URL reload:file://inbox.dgi INBOX I
+HD9 TBACF URL gui:profiles.ah Arachne_profiles
+HD10 TBASF URL file:*.asf Arachne_scripts
+HD11 TBDIAL URL arachne:dialer Dial_now Alt+D
+HD12 *DOS URL file://dosshell.dgi DOS_shell Alt+E
+HD13 *FAQ URL gui:faq.html FAQ
+HD14 *Keys KEY 'K' Hotkeys K
+HD15 **.* URL file:* All_files_(*.*)
+HD16 *htm URL file:*.html Web_pages_(*.htm)
+HD17 *txt URL file:*.txt Text_files_(*.txt)
+HD18 *mp3 URL file:*.mp3 MP3_files_(*.mp3)
+HD19 *log URL file:*.log Log_files_(*.log)
+HD20 *gif URL file:*.gif GIFs_(*.gif)
+HD21 *jpg URL file:*.jpg JPEGs_(*.jpg)
+HD22 *cfg URL file:*.cfg Config_files_(*.cfg)
+HD23 *Dnld. URL file:~/* Home_directory
+HD24 *Apps URL file://oops\*.* Your_Applications
+HD25 TB800600 KEY '-' Switch_to_800x600_mode -
+HD26 TBHELP URL about:register.html Licensing
+;
+;HI Horizantal toolbar, Internet mode
+;
+HI1 SMALL10 URL gui:home.ah Desktop F10
+HI2 SMALL8 KEY 20992 Load_images Ins
+HI3 TBPAGEOP TB P Page_toolbar
+HI4 TBMAILOP TB M eMail_toolbar
+HI5 TBURL KEY 27136 Load/open_URL F3
+HI6 TBSAVFTP KEY 15360 Save/send/FTP F2
+HI7 TBSYSOP TB S System_toolbar
+HI8 TBPOP3 URL pop3: Get_new_mail
+HI9 *wired URL http://www.wired.com/news/ Wired_News
+HI10 */. URL http://slashdot.org/ Slashdot.org
+HI11 *R16 URL http://radio16.cz/radio16.pls Listen_to_Radio_16_-_requires_mpg123
+HI12 *stop URL file://stopaudio.lgi Stop_audio_players
+HI13 *CNN URL http://www.cnn.com/ CNN
+HI14 *Alt. URL http://www.altavista.com/ Altavista
+HI15 *Netc. URL http://home.netscape.com/ Netcenter
+HI16 */. URL http://slashdot.org/ Slashdot.org
+HI17 *zdnet URL http://www.zdnet.com/ ZDNet
+HI18 *cnet URL http://www.cnet.com/ CNET
+HI19 *MP3 URL http://www.mp3.com/ MP3.com
+HI20 *news URL http://www.news.com/ News.com
+HI21 *Sez. URL http://www.seznam.cz/ Seznam_(.cz)
+HI22 *Pes URL http://pes.eunet.cz/ Neviditelny_Pes_(.cz)
+HI23 *root URL http://www.root.cz/ Root_(.cz)
+HI24 *CTK URL http://ctk.ceskenoviny.cz/ CTK_(.cz)
+HI25 SMALL1 URL http://www.opus.co.tt/dave/index.htm Sotware_for_DOS
+HI26 SMALL1 URL http://www.freshmeat.net/ Software_for_Linux
+;
+;=======================================================================
+;
+;VP ... Vertical, Page operations
+;
+VP1 TBCANCEL TB 0 (Page_toolbar)
+VP3 SMALL5 KEY 15872 Local_edit F4
+VP4 SMALL6 KEY 16384 Page_source F6
+VP5 SMALL4 KEY 16640 Search_in_page F7
+VP6 SMALL7 KEY '=' Page_information =
+VP7 SMALL2 KEY 15360 Save/send/FTP F2
+VP8 SMALL3 KEY 'P' Print/export P
+VP9 TBPS KEY 6400 PostScript Alt+P
+VP10 TBVERIFY KEY 'V' Verify_links V
+VP11 TBREQALL KEY 'Q' Request_all_links Q
+VP12 TBMAILOP TB M eMail_toolbar
+VP14 SMALL10 URL gui:home.ah Desktop F10
+VP15 TB800600 KEY '-' 800x600_pixels -
+;
+;VM ... Vertical, Mail operations
+;
+VM1 TBCANCEL TB 0 (eMail_toolbar)
+VM3 TBPOP3 URL pop3: Get_new_mail
+VM4 SMALL5 KEY 'C' Compose C
+VM5 TBINBOX URL reload:file://inbox.dgi INBOX I
+VM6 TBSENDF URL gui:sendfile.ah Send_files
+VM7 TBBFOLDR URL reload:file://readmail.dgi Mail_folders
+VM8 TBRFOLDR URL reload:file://outbox.dgi OUTBOX
+VM9 TBRFOLDR URL reload:file://sentmail.dgi Sent_mail
+VM10 TBSMTP URL smtp: Send_unsent_mail
+VM11 SMALL9 KEY 'M' Insight_eMail M
+VM12 TBPAGEOP TB P Page_toolbar
+VM14 SMALL10 URL gui:home.ah Desktop F10
+VM15 TB800600 KEY '-' 800x600_pixels -
+;
+;VF ... Vertical, File filters
+;
+VL1 TBCANCEL TB 0 (Local_resources)
+VL3 SMALL2 URL file:* All_files_(*.*)
+VL4 SMALL2 URL file:*.html Web_pages_(*.htm)
+VL5 SMALL2 URL file:*.txt Text_files_(*.txt)
+VL6 SMALL2 URL file:*.mp3 MP3_files_(*.mp3)
+VL7 SMALL2 URL file:*.log Log_files_(*.log)
+VL8 SMALL2 URL file:*.gif GIFs_(*.gif)
+VL9 SMALL2 URL file:*.jpg JPEGs_(*.jpg)
+VL10 SMALL2 URL file:*.cfg Config_files_(*.cfg)
+VL11 SMALL2 URL file:~/* Home_directory
+VL12 SMALL2 URL file://oops\*.* Your_Applications
+VL14 SMALL10 URL gui:home.ah Desktop F10
+VL15 TB800600 KEY '-' 800x600_pixels -
+;
+;VS .... Vertical, System
+;
+VS1 TBCANCEL TB 0 (System_toolbar)
+VS3 SMALL5 URL gui:quickpad.ah QuicKpad Alt+Q
+VS4 SMALL8 KEY '~' Toggle_images ~
+VS5 TBKILL KEY 16896 Kill_cache F8
+VS6 TBSETUP KEY 'O' Arachne_Options O
+VS7 TBSETUP KEY 'S' Arachne_Setup S
+VS8 TBSETUP URL file://oops/setup_gr.ook Graphics_Setup
+VS9 TBFULSCR KEY '*' Go_fullscreen! *
+VS10 SMALL5 URL gui:edittb.ah Edit_toolbar.tb
+VS11 TBDIAL KEY 'D' PPP_Dialer D
+VS12 TBUTILPG KEY 'U' Utilities U
+VS13 TBUTILPG URL file://dosshell.dgi DOS_shell Alt+E
+VS14 SMALL10 URL gui:home.ah Desktop F10
+VS15 TB800600 KEY '-' 800x600_pixels -
+;
+;=======================================================================
+;
+;HM ... Horizontal, Mail operations
+;
+HM1 TBCANCEL TB 0 Return_to_main_toolbar
+HM3 TBPOP3 URL pop3: Get_new_mail
+HM4 SMALL5 KEY 'C' Compose C
+HM5 TBINBOX URL reload:file://inbox.dgi INBOX I
+HM6 TBSENDF URL gui:sendfile.ah Send_files
+HM7 TBBFOLDR URL reload:file://readmail.dgi Mail_folders
+HM8 TBRFOLDR URL reload:file://outbox.dgi OUTBOX
+HM9 TBRFOLDR URL reload:file://sentmail.dgi Sent_mail
+HM10 TBSMTP URL smtp: Send_unsent_mail
+HM11 SMALL9 KEY 'M' Insight_eMail M
+HM12 TBPAGEOP TB P Page_toolbar
+HM25 TB800600 KEY '-' 800x600_pixels -
+;
+;HP ... Horizontal, Page operations
+;
+HP1 TBCANCEL TB 0 Return_to_main_toolbar
+HP3 SMALL4 KEY 16640 Search_in_page F7
+HP4 SMALL5 KEY 15872 Local_edit F4
+HP5 SMALL6 KEY 16384 Page_source F6
+HP6 SMALL7 KEY '=' Page_information =
+HP7 SMALL2 KEY 15360 Save/send/FTP F2
+HP8 SMALL3 KEY 'P' Print/export P
+HP9 TBPS KEY 6400 PostScript Alt+P
+HP10 TBVERIFY KEY 'V' Verify_links V
+HP11 TBREQALL KEY 'Q' Request_all_links Q
+HP12 TBMAILOP TB M eMail_toolbar
+HP25 TB800600 KEY '-' 800x600_pixels -
+;
+;HS ... Horizontal, System
+;
+HS1 TBCANCEL TB 0 Return_to_main_toolbar
+HS3 SMALL5 URL gui:quickpad.ah QuicKpad Alt+Q
+HS4 SMALL8 KEY '~' Toggle_images ~
+HS5 TBKILL KEY 16896 Kill_cache F8
+HS6 TBSETUP KEY 'S' Arachne_Setup S
+HS7 TBSETUP KEY 'O' Arachne_Options O
+HS8 TBSETUP URL file://oops\setup_gr.ook Graphics_Setup
+HS9 TBFULSCR KEY '*' Go_fullscreen! *
+HS10 SMALL5 URL gui:edittb.ah Edit_toolbar.tb
+HS11 TBDIAL KEY 'D' PPP_Dialer D
+HS12 TBUTILPG KEY 'U' Utilities U
+HS25 TB800600 KEY '-' 800x600_pixels -
+;
+HO1 TBCANCEL TB 0 Return_to_main_toolbar
+HO25 TB800600 KEY '-' 800x600_pixels -
+HL1 TBCANCEL TB 0 Return_to_main_toolbar
+HL25 TB800600 KEY '-' 800x600_pixels -

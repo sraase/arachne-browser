@@ -1,0 +1,66 @@
+<TITLE>Print or export page (ASCII)</TITLE>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BGCOLOR=BLACK TEXT=BLACK>
+
+<TABLE CELLSPACING=1 BORDER FRAME="void">
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>Print page as plain text</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER ALIGN=RIGHT><FONT COLOR=BLACK>
+
+<TABLE CELLPADDING=0 CELLSPACING=0>
+<TD><FORM ACTION="file://_4prt.txt">
+<INPUT TYPE=SUBMIT VALUE="Preview">
+<TD><FORM ACTION="file://printprn.dgi">
+<INPUT TYPE=SUBMIT VALUE="Use device PRN">
+<TD><FORM ACTION="file://printcom.dgi">
+<INPUT TYPE=SUBMIT VALUE="Use PRINT command">
+<!--
+<TR>
+<TD ALIGN=RIGHT COLSPAN=3 NOWRAP><FORM ACTION="lpr:">
+<INPUT TYPE=TEXT SIZE=25 NAME="PrintServer" ARACHNECFGVALUE="PrintServer">
+<INPUT TYPE=SUBMIT VALUE="Use remote printer">-->
+</TABLE>
+</TABLE>
+
+<BR>
+
+<TABLE CELLSPACING=1 BORDER FRAME="void" ALIGN=CENTER>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>Export as plain text</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER ALIGN=RIGHT NOWRAP><FONT COLOR=BLACK>
+
+<FORM ACTION="file://export.dgi">
+<INPUT TYPE=TEXT NAME="" VALUE="PAGE.TXT" SIZE=40>
+<INPUT TYPE=SUBMIT VALUE="Export">
+</TABLE>
+
+<!--Digest 2 CNM
+<TABLE CELLSPACING=1 BORDER FRAME="void" ALIGN=CENTER>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>Split Digest into individual .CNM files</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER ALIGN=RIGHT NOWRAP><FONT COLOR=BLACK>
+
+<FORM ACTION="file://dgst2cnm.dgi">
+<INPUT TYPE=TEXT NAME="" VALUE="PAGE.TXT" SIZE=40>
+<INPUT TYPE=SUBMIT VALUE="D2C">
+</TABLE>
+end dgst2cnm-->
+
+<BR>
+<TABLE CELLSPACING=1 BORDER FRAME="void" ALIGN=RIGHT WIDTH=280>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP>
+<FONT 3D=1><B>Setup ASCII output module</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER ALIGN=RIGHT NOWRAP><FONT COLOR=BLACK>
+
+<FORM ACTION="arachne:internal-config?arachne:restart">
+ASCII output width
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ASCIIwidth" Name="ASCIIwidth" SIZE=5> characters
+<BR>
+<INPUT TYPE=SUBMIT VALUE="Accept &amp; restart">
+</TABLE>
+
+</HTML>

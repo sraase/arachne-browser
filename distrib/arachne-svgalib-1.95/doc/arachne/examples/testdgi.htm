@@ -1,0 +1,66 @@
+<TITLE>Dos Gateway Interface DEMO</TITLE>
+<BODY>
+<H1>Dos Gateway Interface DEMO</H1>
+First form calls virtual script <B>echo.dgi</B>, which is equivalent
+to online CGI script doing just <I>echo $QUERY_STRING</I> command.
+The form should only demonstrate how simple the user interface can be.
+<P>
+<FORM ACTION=echo.dgi>
+<TABLE WIDTH=70% BORDER=2 CELLSPACING=3>
+<CAPTION ALIGN=RIGHT>Search query - just example</CAPTION>
+<TR>
+<TD>
+Second name
+<TD>
+<INPUT TYPE=TEXT NAME=PRIJMENI SIZE=30>
+<TR>
+<TD>
+First name
+<TD>
+<INPUT TYPE=TEXT NAME=JMENO SIZE=30>
+<TR>
+<TD>
+Case sensitive
+<TD>
+<INPUT TYPE=CHECKBOX NAME=IGNORECASE>
+<TR>
+<TD>
+Search
+<TD>
+<INPUT TYPE=RADIO NAME=WHAT VALUE=PC CHECKED> this computer<BR>
+<INPUT TYPE=RADIO NAME=WHAT VALUE=LAN> local network
+<TR>
+<TD>
+<TD>
+<INPUT TYPE=SUBMIT VALUE="Search now!">
+<INPUT TYPE=RESET VALUE="Reset form">
+</TABLE>
+</FORM>
+
+<P>Power GREP simple DGI query will call DOS utility find
+if it is installed on your PC!) and tell it to search all HTML files
+in current directory and its subdirectories (cache)
+(find string \*.* /S - Open DOS
+implementes /S tag, I don't know if it is also in MSDOS)
+This demonstrates, that
+even unmodified DOS programs can be integrated to your Intranet.
+(Press Enter in the input box to start...)
+<P>
+<FORM ACTION=grep.dgi>
+<TABLE BORDER=2 CELLSPACING=3>
+<CAPTION ALIGN=RIGHT>Power GREP</CAPTION>
+<TD><INPUT TYPE=TEXT SIZE=30 VALUE="easy">
+</TABLE>
+</FORM>
+<I>Note for programers:</I>
+<BR>
+If you want to create your own <A HREF="dgi.txt">DGI scripts</A>
+(to add user friendly interface to your offline programs, or to put them localy online
+on LANs with Novell servers), simply add their definition to file
+<A HREF="mime.cfg">MIME.CFG</A>. If you want to distribute your DGI script,
+you don't even have to write your own setup program, just learn to
+distribute Arachne DGI components using <A HREF="apm.txt">Arachne Package
+Manager</A>!<P>
+Please include also information about
+<A HREF="http://www.naf.cz/arachne/">Arachnne homepage</A>, so anyone can
+get latest version of Arachne.

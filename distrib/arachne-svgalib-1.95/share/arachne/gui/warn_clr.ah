@@ -1,0 +1,38 @@
+<TITLE>Clear Cache</TITLE>
+<BODY TEXT=#000000 BGCOLOR=gray> 
+<br><br><br><br><br><br><br><br><br>
+<TABLE align=center BGCOLOR=silver CELLSPACING=1 FRAME="void" BORDER=0 WIDTH=85%>
+<tr>
+<TD ALIGN=center COLSPAN=2>
+<FONT 3D=1><B>Clear Cache</B></FONT>
+&nbsp;
+<TR>
+<TD WIDTH=32>
+&nbsp;&nbsp;<FONT SIZE=6 3D=1><B>!</B></FONT>
+<TD width=75% align=center>
+<font color=red>
+<b>
+******************* WARNING *************<br>
+You are about to delete all files in the Cache
+</b>
+</font>
+<TABLE>
+<tr>
+<TD>
+<FORM ACTION="file:clearcache.dgi">
+<INPUT TYPE=SUBMIT VALUE="&nbsp;&nbsp;Clear cache&nbsp;&nbsp;&nbsp;">
+<TD>
+<FORM ACTION="arachne:back">
+<!--<INPUT TYPE=SUBMIT VALUE="Cancel">-->
+<INPUT TYPE=SUBMIT VALUE="Cancel or go back after clearing">
+<!--
+<tr>
+<TD>
+<FORM ACTION="arachne:home">
+<INPUT TYPE=SUBMIT VALUE="Go to 'HomePage'">
+<TD>
+<FORM ACTION="arachne:back">
+<INPUT TYPE=SUBMIT VALUE="Go back after hitting 'Clear Cache'">
+-->
+</TABLE>
+</TABLE>

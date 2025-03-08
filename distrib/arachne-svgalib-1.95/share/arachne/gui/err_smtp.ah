@@ -1,0 +1,30 @@
+<HTML>
+<TITLE>Mail Upload Error</TITLE>
+<BODY>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Mail upload aborted</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=6>
+One or more messages were not uploaded to SMTP server. Possible reasons:
+<P>
+<LI> Mail server is not RFC 821 compatible, or it is not SMTP server at all.
+<LI> You *.TBS files in mail directory are not RFC 822 compatible.
+<LI> Error during TCP/IP connection.
+<LI> User break.
+<HR>
+See <A HREF="file://help.htm">Arachne documentation</A> for more info.
+<br>
+View <a href="file://smtp.log">SMTP.LOG</a><br>
+<HR>
+<TABLE>
+<TD>
+<FORM ACTION="file://wizarda.ah">
+<INPUT TYPE=SUBMIT VALUE="eMail Setup Wizard">
+<TD>
+<FORM ACTION="gui:options.ah">
+<INPUT TYPE=SUBMIT VALUE="Arachne Options">
+<TD><FORM ACTION="reload:"><INPUT TYPE=SUBMIT VALUE="Retry NOW !">
+</TABLE>
+</FORM>
+</BODY>
+</HTML>

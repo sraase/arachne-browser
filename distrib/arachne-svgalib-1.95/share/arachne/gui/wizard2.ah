@@ -1,0 +1,35 @@
+<HTML><HEAD><TITLE>Arachne PPP Wizard - communication speed</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK BGCOLOR=BLACK>
+
+<BR><BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" WIDTH=500 ALIGN=CENTER>
+<TD class="topbar" bgcolor="gray" NOWRAP ALIGN=RIGHT><FONT 3D=1><B>Arachne PPP Wizard - communication speed
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE>
+<FORM ACTION="arachne:internal-config?file://system/gui/wizard3.ah">
+Now we must decide how fast can Arachne components MINITERM and DOSPPPD
+talk to your modem. This communication speed is always higher than the
+real modem speed, so if you have 14400 bps (14k4) modem, you should choose
+communication speed at least 19200 bps, for 33600 bps (33k6) modem choose 38400 bps,
+etc. Historical PCs used to have speed of COM1 and COM2 ports limited
+to 9600 bps.
+<TR><TD BGCOLOR=SILVER>
+Please select communication speed:
+
+<TABLE>
+<TD NOWRAP><INPUT NAME=Speed TYPE=RADIO VALUE="9600" CHECKED>
+<FONT COLOR=BLACK>&lt; 9600 bps
+<TD NOWRAP><INPUT NAME=Speed TYPE=RADIO VALUE="19200">
+<FONT COLOR=BLACK>&lt; 19200 bps
+<TD NOWRAP><INPUT NAME=Speed TYPE=RADIO VALUE="38400">
+<FONT COLOR=BLACK>&lt; 38400 bps
+<TD NOWRAP><INPUT NAME=Speed TYPE=RADIO VALUE="115200">
+<FONT COLOR=BLACK>&lt; 115200 bps
+</TABLE>
+<P>
+<TABLE ALIGN=RIGHT CELLPADDING=0 CELLSPACING=0 WIDTH=80><TD><INPUT TYPE=SUBMIT VALUE="Continue >>"></TABLE>
+<TABLE CELLPADDING=0 CELLSPACING=0><TD>&nbsp;<FORM ACTION="arachne:back">
+<TD><INPUT TYPE=SUBMIT VALUE="<< Previous">
+</TABLE>
+</TABLE></BODY></HTML>

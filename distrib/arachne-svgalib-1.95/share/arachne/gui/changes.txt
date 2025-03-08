@@ -1,0 +1,642 @@
+-------------------------------------------------------------------------------
+|             This file written and maintained by glennmcc                    |
+-------------------------------------------------------------------------------
+
+Changes since release 1.71;UE01
+-------------------------------
+
+1.89;GPL,386+ stable for DOS
+----
+Release date: Nov 27, 2005
+
+I must take this time to apologize to Joe da Silva.
+
+v1.87 and now v1.89 include many of his code changes for which I did not even
+mention that the credit must go to him. 
+
+His hard work and dedication are what made v1.87 (and now v1.89), possible.
+
+Without Joe's code, there would have been nothing more than the very
+superficial changes that I made.
+
+My apologies to Joe, to the rest of the members of the Arachne
+development team and to all Arachne users for not saying this sooner.
+
+The following is a list of Joe's changes.
+---------
+
+1.73J2 :
+* Minor XSWAP optimization for low-end CPU's.
+* Comment bug fixes & additions in 'inetstr.c' & 'ie_bin.c'.
+
+1.73J3 :
+* Extensive changes for improved stability & safety
+  (buffer overrun vulnerabilities and the like).
+
+1.73J4 :
+* Full-size cookie support (half size if memory is low),
+  including safety check for old format cookie file.
+(note from glennmcc:
+ IMO, Joe's full-size/half-size cookie code is some of
+ the best work I have ever seen)
+* Optimization of memory usage (saved about 5K, despite
+  the full-size cookie support).
+
+1.77J1 :
+* Fixed Borland's "ctype.h" bugs, with help from MHT,
+  and added a check in 'posix.h' to ensure the updated
+  "ctype.h" was being used.
+(note from glennmcc: posix.h not in v1.87... but is in v1.89)
+
+1.83J1 :
+* Esc key enhancement (final version) which, if you
+  use the "Esc key = previous page" option, allows
+  you to also use the Esc key to stop a web page loading,
+  similar to the "X" button, otherwise it performs the
+  go-back function.
+* Emergency Exit feature (enabled via AltKeys option
+  keyword, which supersedes the AltTab keyword) which
+  allows you to terminate Arachne if stuck in an infinite
+  loop but aren't actually locked-up, using the key
+  sequence Ctrl-Alt-Esc. For safety reasons, the
+  "emergency exit" request is ignored if DOS indicates
+  it is busy, in which case it may be necessary to issue
+  the key sequence again.
+* Provision for adding image/icon web page hyperlinks to
+  the hotlist, not just textural web page hyperlinks.
+  Right-clicking an image will still display this on a
+  page by itself, but if this had an associated hyperlink,
+  "You can add selected link to Hotlist" will be displayed
+  on the status line. If you actually wanted to add the
+  URL of the image to your hotlist instead, just right-
+  -click again, then you can.
+(note: feature only partially implemented in 1.87/1.89)
+* Added persistence feature for the "You can add selected
+  link to Hotlist" status message, so you are reminded when
+  you have a link available to add to the hotlist.
+* Re-enabled "httpstub" feature for operation as Windoze
+  client (ala 1.83 code, but with additional code re-enabled,
+  experimental).
+(note from glennmcc: I have not tested this one as-of-yet)
+* Fixed nasty little PrintScreen interrupt vector bug.
+* Fixed numerous minor bugs in 'arachne.cfg' parsing.
+* An explicit "abnormal" error exit code, to distinguish
+  this from an inadvertent exit (for improved bug tracking).
+* Replaced many literal constants with macro identifiers
+  for improved code clarity, particularly in the GUI code.
+
+1.85J1 :
+* Eight-fold increase of the number of JPG/PNG images
+  that can be displayed on a web page. Arachne is supposed
+  to support web pages with up to 255 images, yet although
+  previous versions took the time and trouble to download
+  them all, they were unable to display but a fraction of
+  this, particularly if the Arachne and Temporary directories
+  had long path names.
+
+_________
+glennmcc changes in this version.......
+
+Nov 18, 2005
+Mime.cfg lines will now retain case sensitivity.
+(previous versions converted to all lowercase)
+
+Nov 22, 2005
+The auto-load the CSS files did not work correctly
+therefore it has been removed.
+My undocumented experiment to auto-clear Xswap memory
+also did not work correctly and has been removed as-well.
+
+Nov 22, 2005
+Modified insight.exe and wwwman.exe to display this message...
+(now being maintained by the Arachne Development team)
+Also a couple of small aesthetic changes to insight.
+_______________________________________________________________________________
+
+1.87;GPL,386+ stable for DOS
+----
+Release date: Oct 30, 2005 (updated on Nov 02 and Nov 11, 2005)
+(8th GPL version released since the release of v1.71;UE01 in Aug of 2002)
+
+Aug 20, 2005
+'Cleaned-up' the download progress indicator
+and made the bytes/sec indicator optional.
+
+Aug 22, 2005
+Fixed some major problems with fontshift
+
+Aug 25, 2005
+Created an actual usable 'Address book'
+
+Aug 28, 2005
+New option added to always download an entire page before beginning to display.
+
+Sep 15, 2005
+Fixed a problem with Insight.exe in which an extra 'null byte' was being
+appended to files attached to emails.
+
+Sep 27, 2005
+Modified Insight.exe so that 'finger', 'gopher', 'https' and 'telnet'
+will now be 'clickable links' in displayed email messages.
+(previous versions only did this for 'http', 'ftp' and email addresses)
+
+Sep 27, 2005
+'Melded' into my code, these advancements made by Joe da Silva
+* Added "ShortestRefresh" option (default = 2 sec)
+* Fixed the useless "Local IP  0.0.0.0" info. display
+
+Sep 29, 2005
+Small mod to the SPAM freeze-up stopper code.
+(old code was causing some undesirable aborted pop3 downloads)
+
+Sep 30, 2005
+Moved 'Up one level' feature to URL instead of the Arachne version number.
+
+Oct 09, 2005
+Added the new hotkey Alt+V to 'validate'
+the current page via http://validator.w3.org/
+
+Oct 16, 2005
+Added the ability to request a return receipt from email clients
+capable of returning them.
+'Return-Receipt-To:' and 'Disposition-Notification-To:' will now be placed
+into the headers of outgoing mail messages for which we choose to do so.
+
+Oct 18, 2005
+Small modification to insight.exe so that it will also recognize
+'User-Agent:' in addition to the "standard" 'X-Mailer:'
+
+Oct 19, 2005
+Arachne will now check disk space on the 'mail drive' instead of the
+'current drive' for sufficient space to save incoming mail messages.
+If available space is too low for a particular message, that fact will
+be written into a .CNM in our inbox.
+--- example ---
+Subject: Skipping message #1, too big for disk space available
+
+ Available disk space on mail drive: 294912
+ Required disk space for this message: 1212994
+----------------
+
+Oct 25, 2005
+Changing video settings via hgcgevga.htm will now leave the screen layout
+the way it was before the change was made instead of resetting to the
+default layout of 2 bars across the top of the screen.
+
+Oct. 25, 2005
+Thanks to Vladimir, one of our newest development team members.
+Insight.exe now has 'multi-lingual' capability.
+Both English and Russian compiles are now available.
+
+Oct 29, 2005
+We can now choose whether or not to display HTML backgrounds
+with this new selection on the 'Preferences & Performance' setup page.
+_ Display HTML background images 
+
+Nov 02, 2005
+Now the stylesheet will automatically load when we have CSS enabled but
+autoload of images disabled.
+No more need for loading all of the images just to get the stylesheet
+we need to get CSS to work correctly.
+
+Nov 11, 2005
+Two bug fixes... re-uploaded package.
+
+_______________________________________________________________________________
+
+1.85;GPL,386+ stable for DOS
+----
+Release date: Jul 27, 2005
+
+Mar 06, 2005
+Fixed a problem with the & symbol contained in URLs
+http://www.cisnet.com/glennmcc/testing_&_symbol/&-amp-bug.htm
+All 7 links now work perfectly.
+
+Mar 06-14, 2005
+Ray and I fixed a few more glitches with CSS link hover
+when used within a framed page.
+
+Mar 23, 2005
+Fixed yet another glitch with CSS link hover.
+
+Apr 08, 2005
+Fixed the problem with 'broken FTP dir listings' at such places
+as ftp://ftp.cdrom.com/.2/simtelnet/
+
+Apr 21, 2005
+Thanks to Joe da Silva and the new build of WATTCPLG.LIB with his
+modifications, a major problem with DNS access has now been fixed. 
+
+May 11, 2005
+Fixed a small problem with anonymous FTP access.
+
+May 21, 2005
+Fixed a problem with POP3 downloads 'freezing-up'
+with a particular format of malformed SPAM messages.
+
+May 24, 2005
+Added this new option on the "Options/Internet settings" setup page.
+X Ignore the "Refresh" tag. 
+
+May 25, 2005
+Added this new option on the "Options/Internet settings" setup page.
+X Lengthen short refresh times to 60sec.
+
+Jul 16, 2005
+Fixed an intermittent problem with posting of forms on some web pages.
+(postings and deletions of messages at mail.yahoo.com now work perfectly)
+
+Jul 20, 2005
+Fixed a problem in Insight.exe
+Multiple files attached to emails with like-named LFNs will now be renamed
+to have unique 8.3 filenames such-as... 'file_n01.txt' and 'file_n02.txt'
+instead of the original LFNs of 'file number 1.txt' and 'file number 2.txt'
+
+Jul 27, 2005 
+Thanks go to 'un-named SRC' for an alternate 'cross cursor'. 
+A very big 'THANK YOU !' also goes-out to UNS for helping me to fix a very 
+bad bug in my code from last Feb. 
+
+_______________________________________________________________________________
+
+1.83;GPL,386+ stable for DOS
+----
+Release date: Mar 06, 2005
+
+Feb 17, 2005
+Crashes due to attempting to use the '+' key to increase resolution to a
+level that is too high for your video card to handle should now be eliminated.
+The initial video setup will now set the variable 'MaxRes' in arachne.cfg
+The fresh compile of core.exe (Feb 17, 2005), will not go higher than 'MaxRes'
+when the '+' key is pressed. 1==640x480, 2==800x600, 3==1024x768
+(crashes will still occur if a "MaxRes" setting is chosen
+ on the setup screen which your card can't handle)
+
+Feb 18, 2005
+Thanks to Glenn Gilbreath (aka Wizzy),
+A bug in the <SELECT> tag has been squashed.
+
+Feb 27, 2005
+The 'Mail2Hist feature' caused more problems than it solved.
+Therefore, all code pertaining to it has been removed.
+
+Mar 02, 2005
+Ray Andrews and I are prodding each other along.
+We refined my Jan 26 fix of the left/right frames
+CSS linkhover bug so that it works even better.
+And we have the top/bottom bug almost fixed.
+(works 90% correctly)
+Mar 05, 2005
+Ray finished fixing this bug. It is now 100% dead. :)
+
+Mar 05, 2005
+Fixed one more small problem in CSS
+Linkhover will no longer default to black. Instead it will now use
+a contrasting color from both inactive link color and page BGcolor.
+
+_______________________________________________________________________________
+
+1.81;GPL,386+ stable for DOS
+----
+Release date: Feb 16, 2005
+
+Dec 29, 2004 - Jan 05, 2005
+Several changes for supporting 'Unicode punctuation'.
+
+Jan 05, 2005
+To prevent the unintentional sending of an incomplete email.
+(when an error occurred during attachment process)
+And to prevent the unintentional downloading of email again.
+"smtp:" and "pop3:" will no longer be written into history.lst
+
+Jan 09, 2005
+'nonfatal.ah' will now be used strictly for memory errors.
+'err_mail.ah' will now be used for errors occurring during email attachments.
+
+Jan 11, 2005
+Recompiled core.exe to use the new version of the graphics library file
+built by Joe da Silva. This new library has better support for an even
+larger variety of video cards.
+
+Jan 12, 2005
+Wwwman.exe will now handle directory listings of 1536 items.
+(old limit was 1024 items)
+Also, it will no-longer lockup or crash when there are more items
+than the limit. When a dir listing is attempted on a dir containing
+more than 1536 items, those first 1536 will be shown.
+
+Jan 13, 2005
+Small change to insight.exe
+selected.dat will no longer be changed when the archive button is used.
+
+Jan 13-16, 2005
+In further keeping with 'cleaning up' of history.lst 
+Several more mail related files will no longer be written into history.
+Jan 29, 2005
+Made it configurable via 'Save reference to mail files into History'
+on the Options/Prefs. & Perf. setup page.
+
+Jan 22, 2005
+Insight.exe will now handle listing over 1500 messages
+
+Jan 24-26, 2005
+Https2Http and IgnoreJS can now be toggled on and off.
+Jan 26, 2005
+The current status of both will now be shown in the Atl+M status box.
+
+Jan 26, 2005
+Fixed a long-standing bug with CSS/Frames
+Links in the right and left frames that use CSS will now work correctly.
+(still working on top/bottom bug)
+
+Feb 02, 2005
+Implemented a combination of my Mail2Hist options
+working along with Ray's goback() alterations.
+
+Feb 03, 2005
+Linking to the Arachne version number at the top of the screen will
+now take us 'Up one level' when we are viewing a remote file.
+(will still go to 'about.htm' if we are currently local)
+
+Feb 06, 2005 
+Fixed another long-standing bug in which all links on a page were 'dead' 
+after doing a Cntrl+Enter 'background download' of one of those links. 
+
+Feb 11, 2005
+Thanks to Andrej Cuckov we now have our option of 3 different cursors.
+The original 'Hand', an 'Arrow' courtesy of Andrej and a 'Cross'
+which I (quite accidentally), stumbled upon in the SRC code.
+
+Feb 15, 2005
+Fixed 'stuck pointer' and pointer colors.
+(thank you Ray)
+
+_______________________________________________________________________________
+
+1.79;GPL,386+ stable for DOS
+----
+Release date: Dec 25, 2004
+
+Oct 17, 2004
+Re-enabled HTTPSTUB which allows Arachne to use the Windows DUN
+instead of a DOS packet driver. This makes it possible to run
+Arachne on machines which have WinModems which simply refuse to
+work with a DOS packet driver.
+Thanks to Glenn Gilbreath (aka Wizzy), for making this suggestion.
+
+Oct. 26, 2004
+Fixed my mistakes from v1.77 in which I had not included all of
+the new cookie code written by Joe da Silva.
+
+Joe,
+Thank you very much for all of the help you gave me in fixing this.
+(and for not biting my head off)<g>
+
+Nov 10/11, 2004
+Changed the numeric file naming convention for received emails
+from decimal format to hexadecimal format beginning at Annnnnnn.CNM
+This will prevent old saved emails from being overwritten by new ones
+with the same filename.
+The DEC format resets to all zeros every 3yrs 2mo.
+HEX format beginning at Annnnnnn.CNM gives us over 50 yrs.
+(many thanks to L.D. Best for suggesting this one and for all the help
+ she gave during its implementation)
+
+Nov 17, 2004
+Added bytes/sec download rate to the progress indicator.
+
+Nov 23, 2004
+Added 'time remaining' to the download progress indicator.
+
+Dec 19, 2004
+Changed the default setting of RightMouseGoesBack to 'Yes'
+(it will now be the same as before but can be disabled with 'No')
+[note: disabling RtMsGB also disables Shft+Enter for going back]
+
+Dec 22, 2004
+_______________________________________________________________________________
+
+1.77;GPL,386+ stable for DOS
+----
+Release date: Oct 01, 2004
+
+May 14, 2004
+All of these files which are the culmination of many many hours
+of pains-taking work by L.D. Best are now in this 'package'
+
+ARACHNE_MAIN\EDITHELP.HTM
+ARACHNE_MAIN\EDRESHLP.HTM
+ARACHNE_MAIN\REPLY.HTP
+ARACHNE_MAIN\RESEND.HTP
+ARACHNE_MAIN\SYSTEM\GUI\COPY.AH
+ARACHNE_MAIN\SYSTEM\GUI\MAKELIST.AH
+ARACHNE_MAIN\SYSTEM\GUI\OPT_MISC.AH
+ARACHNE_MAIN\SYSTEM\GUI\SAVEAS.AH
+ARACHNE_MAIN\SYSTEM\GUI\SENDFILE.AH
+ARACHNE_MAIN\SYSTEM\GUI\SENDMAIL.AH
+ARACHNE_MAIN\SYSTEM\GUI\TEXTEDIT.AH
+
+Thank you L.D. ....... You do GREAT work. :))
+
+May 17, 2004
+To goback or not to goback... _that_ is the question. ;-)
+
+At the suggestion of Greg Mayman.......
+
+We now have the option to either 'goback' or not
+when we 'rightclick' the mouse on the body of a page.
+(when not over a link, a graphic or a frame)
+
+Jun 02, 2004
+Incorporated the completely new cookie handling routines written by Joe da Silva
+(we can now handle cookies 4096 bytes in size)
+
+Jun 02, 2004
+Compiled CORE.EXE for 386+ processors.
+386+ will now be 'the standard' for this and all future releases.
+(286- compile available upon request)
+
+Jun 26, 2004
+Insight.exe v3.85.5 re-compiled to include this fix.....
+
+---- in base64.c ----
+   flushdecoder(fo);
+   fclose(fi);
+//!!glennmcc: begin June 26, 2004
+//credit to L.D. Best and Michal H. Tyc  
+//added to fix the problem of only 12
+//base64 encoded attachments being decoded   
+   fclose(fo);
+//!!glennmcc: end
+______________________
+
+
+July 06, 2004
+toolbar.tb will now be toolbar.cfg
+(all needed changes made in init.c and edittb.ah)
+
+July 24, 2004
+Recompiled Insight.exe to include another 'fix' by Michal H. Tyc
+v3.85.7 no longer 'garbles' the names of attached files with LFNs
+
+July 25, 2004
+Recompiled Insight.exe for 386+ CPUs (other optimizations as-well) 
+Michal, Thank you for that suggestion.
+
+July 25, 2004
+Recompiled wwwman.exe (a few small changes and optimizations)
+
+Sep 06, 2004
+At the suggestion of Sam Ewalt, the default 'homepage' in the distribution
+package will no longer be (the out of date), http://home.arachne.cz/
+It will now be Michael Poláks new page... http://arachne.cz/
+
+Sep 17, 2004
+Made a small change to Authenticated SMTP so that
+it now works with even more servers than before.
+
+Sep 30, 2004
+Built the packages and uploaded them to my site.
+(will announce them tomorrow)
+_______________________________
+
+To-do list........
+
+Same as before............ Too many things to list. ;-)
+_______________________________________________________________________________
+
+1.75;GPL stable for DOS
+----
+Release date: May 08, 2004
+
+Nov 09, 2003
+Added 'Authenticated SMTP'
+(still in 'beta' stage at this time)
+Apr 30, 2004...... no longer 'beta' (see below)
+
+Nov 14, 2003
+Wwwman.exe was updated to work with the new core.exe cacheindex listing.
+(both now have URLSIZE 512 instead of 256)
+
+Nov 17, 2003
+New update to wwwman.exe to include this fix by Michal Tyc
+
+//By the way, I found an error in my old WWWMAN patch (DRVTYPES.CPP):
+//new routine by Michal H. Tyc (eMail message at the end of this file)
+  push bp;                // I didn't test whether MS-DOS 7.10 trashes bp...
+  int 0x25;               // read logical sector
+  pop si;                 // throw away the flags saved by INT
+  pop bp;                 // bp points to the local variables on the stack
+  lea si, [boot + 0x1f0]; // this doesn't modify any flags
+//**BEGIN mht 2003-11-17
+//sub al, al;
+  mov al, 0;
+//**END   mht 2003-11-17
+  jc q;                   // an error occured during int 0x25
+//I missed the fact that 'sub al, al' (left from original code)
+//will modify flags anyway, so an error will never be detected.
+//Shame on me!
+//Please add this to your cleaned WWWMAN code.
+
+
+Mar 17, 2004
+Updated insight.exe to include fix of 
+'delete' button on 'trashed' messages. 
+
+Apr 08, 2004
+Updated insight.exe again to include this 'bug fix'. 
+
+-- clipped from hdrout.c --- 
+//!!glennmcc: begin Apr 08, 2004 -- fix 'bug' where part of the
+// subject line ends-up-as text 'hidden' behind the move button
+// when a < symbol is in the subject line.
+
+Apr 11, 2004
+And one more 'bug fix' in insight.exe
+
+//!!glennmcc: Apr 11, 2004 -- changed the 'testhttp' parameter to 0 
+// this prevents the same type of problem from happening when an 
+// email address is in the subject line 
+// if((*hdr).subj)putformathtmlstr((*hdr).subj,1,1,0); 
+ if((*hdr).subj)putformathtmlstr((*hdr).subj,1,0,0); 
+
+Apr 22, 2004
+Fixed the problem with a space or a dot at the start of a URL
+
+Apr 27, 2004
+Another bug fix for Insight.exe
+-- clipped from insight.c ---
+     if(aq)if(!strncmpi(sp1,"subject:",8))if(strstr(sp1,"?Q?"))........
+//      -->^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^<--
+//!!glennmcc: Apr 27, 2002
+//added to fix the problem of "no subject" when subject line contains ?Q?
+_____________________________
+
+
+Apr 27, 2004
+One more for Insight.exe
+
+There were 6 places where I had to do this..........
+
+-- in hdrout.c --
+    if((*hdr).cc)
+    {
+     puts("&nbsp;<INPUT TYPE=CHECKBOX NAME=\"cc\" CHECKED>CC");
+     puts("&nbsp;<INPUT TYPE=HIDDEN NAME=\"cccheck\" VALUE=\"on\">");
+//!!glennmcc: Apr 27, 2004 -- placed 'hidden' after 'visible'
+// to fix a problem of the checkbox being 'unchecked' not working
+// to actually disable that option
+____________________________________
+
+Insight v3.85.4 is now ready to go. :))
+
+Apr 30, 2004
+Finally decided to finish Authenticated SMTP ;-)
+
+May 06, 2004
+Fixed the 'F4/external editor/autodial' bug
+
+May 07, 2004
+Incorporated Joe da Silva's changes to ADIAL.C and ATCPIP.C
+so that the online timer will work with 'IPaddress BOOTP'
+
+May 07, 2004
+--- clipped from HDRAWBMP.C ---
+ if(type==4)
+ {
+  k=bmp->size_x%8;
+//!!glennmcc: May 07, 2004 -- Michal Tyc pointed out this error
+// in rounding which causes some BMPs to be 'skewed' when displayed
+  linebytes=(bmp->size_x+k)/2;
+//  linebytes=bmp->size_x/2;
+ }
+_______________________________
+
+To-do list........
+
+Too many things to list. ;-)
+_______________________________________________________________________________
+
+1.73;GPL stable for DOS
+----
+
+Release date: Nov 8, 2003
+[changes listed by date along with credit to the person suggesting that change]
+
+Jan 1, 2003
+Credit to: Christof Lange,
+The version number in the upper-right corner of a page created using the
+'P' hotkey is now correctly aligned.
+
+Jan 4, 2003
+Credit to: Clarence Verge,
+Both 'Cookie length' and 'URL length' are now "maxed-out" to the largest
+possible setting. (without doing a complete re-write of the routines)
+[in addition... 3D text on the GUI screen is now raised instead of indented]
+
+Jan 19, 2003 
+Credit to: Bill Weller,
+Since 'EMBED' was already re-enabled in v1.71;UE01....
+'BGSOUND' is now supported as-well.
+_______________________________________________________________________________

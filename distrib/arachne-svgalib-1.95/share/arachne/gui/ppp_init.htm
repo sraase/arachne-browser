@@ -1,0 +1,97 @@
+<HTML>
+<TITLE>Arachne PPP Dialer</TITLE>
+<link rel="stylesheet" href="skin.css">
+<BODY BACKGROUND="PPP_BACK.GIF" TEXT=GRAY BGCOLOR=BLACK link=blue>
+<TABLE CELLSPACING=1 cellpadding=2 BORDER FRAME="void" BGCOLOR=SILVER>
+<td class="topbar" bgcolor="gray" ALIGN=RIGHT COLSPAN=2>
+<FONT 3d=1><B>Arachne PPP Dialer</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=17 WIDTH=17 BORDER=0>
+<TR>
+<TD WIDTH=38>
+&nbsp;<INPUT TYPE=IMAGE SRC="phone.gif">
+<TD>
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<TD ALIGN=RIGHT WIDTH=120><FONT COLOR=BLACK SIZE=2>
+<A HREF="file://system\gui\profiles.ah">Profile</A>
+<TD NOWRAP><FONT COLOR=BLACK SIZE=2>
+<INPUT TYPE=TEXT NAME="$PROFILE" ARACHNECFGVALUE="Profile" SIZE=16>
+<A HREF="file://doc\ppp_how2.htm">PPP howto</A>,
+<A HREF="file://pppframe.htm" TARGET="_top">Tips &amp tricks</A>
+<TR>
+<FORM ACTION="arachne:internal-config?file://ppp_init.htm">
+<TD ALIGN=RIGHT WIDTH=120><FONT COLOR=BLACK SIZE=2>
+Phone number
+<TD NOWRAP><FONT COLOR=BLACK SIZE=2>
+<INPUT TYPE=TEXT NAME="PhoneNumber" ARACHNECFGVALUE="PhoneNumber" Size=16>
+<INPUT TYPE=HIDDEN NAME="UseTerminal" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="UseTerminal" VALUE=Yes ARACHNECHECKED="UseTerminal">
+show terminal
+<TR>
+<TD NOWRAP ALIGN=RIGHT>
+<FONT COLOR=BLACK SIZE=2>
+User name
+<TD NOWRAP>
+<FONT COLOR=BLACK SIZE=2>
+<INPUT TYPE=TEXT NAME="PPPusername" ARACHNECFGVALUE="PPPusername" Size=16>
+<INPUT TYPE=HIDDEN NAME="Autologin" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="Autologin" VALUE=Yes ARACHNECHECKED="Autologin">
+login script
+<TR>
+<TD ALIGN=RIGHT NOWRAP>
+<FONT COLOR=BLACK SIZE=2>
+Password
+<TD NOWRAP>
+<FONT COLOR=BLACK SIZE=2>
+<INPUT TYPE=PASSWORD NAME="PPPpassword" ARACHNECFGVALUE="PPPpassword" Size=16>
+<INPUT TYPE=HIDDEN NAME="SavePasswords" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="SavePasswords" VALUE=Yes ARACHNECHECKED="SavePasswords">save password
+<TR>
+<TD ALIGN=RIGHT WIDTH=120><FONT COLOR=BLACK SIZE=2>
+Nameservers
+<TD NOWRAP>
+<INPUT TYPE=TEXT NAME="NameServer" ARACHNECFGVALUE="NameServer" Size=16>
+<INPUT TYPE=TEXT NAME="AltNameServer" ARACHNECFGVALUE="AltNameServer" Size=16>
+
+<tr><td align=center colspan=2 nowrap>
+<tr><td align=center colspan=2 nowrap><FONT COLOR=BLACK SIZE=2>
+<INPUT TYPE=HIDDEN NAME="ExitOnHangup" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="ExitOnHangup" VALUE=Yes ARACHNECHECKED="ExitOnHangup">
+<FONT COLOR=BLACK SIZE=2>exit to DOS after hangup
+
+<tr><TD class="midbar" bgcolor="gray" align=center colspan=2 NOWRAP>
+<INPUT TYPE=SUBMIT VALUE="Save Changes">
+<tr>
+</TABLE>
+
+<TABLE CELLSPACING=0 CELLPADDING=1>
+<TD>
+<FORM ACTION="arachne:dialer">
+<INPUT TYPE=SUBMIT VALUE="Dial Now [Alt+D]">
+<TD>
+<FORM ACTION="file://*.acf">
+<INPUT TYPE=SUBMIT VALUE="ACF profiles">
+<TD>
+<FORM ACTION="file://*.asf">
+<INPUT TYPE=SUBMIT VALUE="ASF scripts ">
+<TR>
+<TD>
+<FORM ACTION="arachne:hangup">
+<INPUT TYPE=SUBMIT VALUE=" Hangup [Alt+H] ">
+<TR>
+<TD><FORM ACTION="arachne:exit">
+<INPUT TYPE=SUBMIT VALUE="Exit now [Alt+X]">
+<TD><FORM ACTION="arachne:pppsetup">
+<INPUT TYPE=SUBMIT VALUE=" PPP setup  ">
+<TD><FORM ACTION="file://system\gui\wizard1.ah">
+<INPUT TYPE=SUBMIT VALUE=" PPP wizard ">
+</TABLE>
+<TABLE CELLSPACING=0 CELLPADDING=1>
+<tr><td class="topbar" bgcolor="gray" ALIGN=RIGHT COLSPAN=2>
+<font color=black>Switch to<a href="file://pppenhan.htm">'Enhanced'</a> dial page.</font>
+<td class="topbar" bgcolor="gray" ALIGN=RIGHT COLSPAN=2>
+<FORM ACTION="file://help2.htm">
+<input TYPE="SUBMIT" value="NewUser help index">
+</TABLE>
+</TABLE>
+</BODY>
+</HTML>

@@ -1,0 +1,72 @@
+HTMLPIPE.COM REPLACES FIXMEM.EXE                                   01/03/14
+
+The ASM language utility HTMLPIPE.com will function EXACTLY as FIXMEM.exe
+was intended.  Simply rename it to FIXMEM.com.  It also does MORE !!
+
+You will note that HTMLPIPE.com is more that *20* times smaller than
+FIXMEM.exe and yet it does everything FIXMEM does *BETTER*.
+Consider also that HTMLPIPE.com has only 145 bytes of executeable code
+and the rest is ALL pre-formatted text for output. Since FIXMEM also
+has the same text in it, the FIXMEM.EXE executable portion is actually
+about *55* times bigger than HTMLPIPE.com !!
+
+HTMLPIPE is BETTER because:
+1) It does NOT produce a useless button on the screen in the "more" mode.
+2) It filters HTML specific characters like "<>/\&" and converts them to
+   entities.
+3) It actually DOES work as an HTMLPIPE ! If a non "/" switchchar is found
+   on the commandline, it assumes NON fixmem mode, and simply converts the
+   input to pre-formatted html without any header.
+
+Christof Lange of Prague told me that my first FIXMEM didn't handle the
+hi ASCII characters the same as Michael's. I didn't think of it - I just
+deleted them.
+
+This is a newer version which instead replaces the chars above 7Fh with
+spaces to maintain column formatting, as Michael's did.
+
+Also this new version changes the Arachne line "Arachne requires 425kb"
+to "Arachne requires 550kb..." to reflect the truth.
+Arachne v1.70 won't even LOAD with 4*7*5 kb (needs another 5kb to load)
+and 550kb is the minimum if you intend to go online.
+
+*
+
+Operation:
+Copy or rename HTMLPIPE.com to FIXMEM.com.
+
+Standard .DGI line:
+file/mem.dgi         >HTM|mem|$esystem\\dgi\\fixmem>$2
+                           Note: zero or one space ^ allowed here.
+Result:
+Just like FIXMEM.exe except the button is in a better place. <G>
+
+Standard .DGI line:
+file/memc.dgi        >HTM|mem /c|$esystem\\dgi\\fixmem /c>$2
+      Note: Only one space plus the "/" is recognized ^^ the rest is dummy.
+
+Result:
+Just like FIXMEM.exe except there is NO button.
+
+Take a look at the MEM.dgi lines that *I* use. Better if you use QEMM.
+file/mem.dgi         >HTM|mem /C|$esystem\\dgi\\fixmem>$2
+file/memc.dgi        >HTM|LOADHI|$esystem\\dgi\\fixmem /c>$2
+That second one doesn't actually load anything high - it uses the loadhi
+program to display upper memory usage by region.
+
+*
+
+NON Standard .DGI line: *EXAMPLE ONLY*
+file/dir.dgi         >HTM|DIR c:\|$esystem\\dgi\\fixmem dir>$2
+Note: One space + ANY non "/" switches it to PIPE mode. ^
+
+Result ?
+Use the included dirdgi.htm (mostly courtesy Glenn McCorkle) to try it.;-)
+
+Here's another use:
+file/.zip            >HTM|[75]PKUNZIP -v $1|$esystem\\dgi\\fixmem dir>$2
+
+*
+Have FUN ! 8-)
+Clarence.
+

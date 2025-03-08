@@ -1,0 +1,77 @@
+<TITLE>Arachne e-mail client</TITLE>
+<BODY ARACHNE>
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=350>
+<FORM ACTION="arachne:internal-config?file:mail.htm">
+<TD>username
+<TD><INPUT TYPE=TEXT NAME="POP3username" ARACHNECFGVALUE="POP3username" Size=8>
+<TD ALIGN=RIGHT>e-mail
+<TD><INPUT TYPE=TEXT NAME="eMail" ARACHNECFGVALUE="eMail" Size=20>
+<TD ROWSPAN=2 NOWRAP VALIGN=BOTTOM><INPUT TYPE=SUBMIT VALUE="Accept">
+<TR>
+<TD>password
+<TD><INPUT TYPE=PASSWORD NAME="POP3password" ARACHNECFGVALUE="POP3password" Size=8>
+<TD ALIGN=RIGHT>name
+<TD><INPUT TYPE=TEXT NAME="PersonalName" ARACHNECFGVALUE="PersonalName" Size=20>
+</TABLE>
+<FONT 3D SIZE=6>Insight e-mail</FONT>
+<BR CLEAR=ALL>
+<HR SIZE=4>
+<P>
+<TABLE WIDTH=600>
+<TD ALIGN=CENTER WIDTH=25%>
+<FORM ACTION="pop3:">
+<INPUT TYPE=IMAGE SRC="mail01.ikn" BORDER=0><BR>Get new mail
+
+<TD ALIGN=CENTER WIDTH=25%>
+<FORM ACTION="file://inbox.dgi">
+<INPUT TYPE=IMAGE SRC="mail02.ikn" BORDER=0><BR><U>I</U>NBOX
+
+<TD ALIGN=CENTER WIDTH=25%>
+<FORM ACTION="file://readmail.dgi">
+<INPUT TYPE=IMAGE  SRC="mail06.ikn" BORDER=0><BR>Mail folders
+
+<TD ALIGN=CENTER WIDTH=25%>
+<FORM ACTION="file://sentmail.dgi">
+<INPUT TYPE=IMAGE SRC="mail03.ikn" BORDER=0><BR>Sent mail
+
+<TR><TD><P><TR>
+<TD ALIGN=CENTER>
+<FORM ACTION="mailto:">
+<INPUT TYPE=IMAGE SRC="mail04.ikn" BORDER=0><BR><U>C</U>ompose mail
+
+<TD ALIGN=CENTER>
+<FORM ACTION="system\gui\sendfile.ah">
+<INPUT TYPE=IMAGE SRC="sendfile.ikn" BORDER=0><BR>Send files
+
+<TD ALIGN=CENTER>
+<FORM ACTION="file://outbox.dgi">
+<INPUT TYPE=IMAGE SRC="mail03.ikn" BORDER=0><BR>OUTBOX
+
+<TD ALIGN=CENTER>
+<FORM ACTION="smtp:">
+<INPUT TYPE=IMAGE SRC="mail05.ikn" BORDER=0><BR>Send unsent mail
+
+<TR><TD><P><TR>
+<TD ALIGN=CENTER>
+<FORM ACTION="arachne:addressbook">
+<INPUT TYPE=IMAGE SRC="adrsbook.ikn" BORDER=0><BR>Address book
+
+<TD ALIGN=CENTER>
+<FORM ACTION="file://system\gui\makelist.ah">
+<INPUT TYPE=IMAGE SRC="adrsbook.ikn" BORDER=0><BR>Make mailing list
+
+<TD ALIGN=CENTER>
+<FORM ACTION="file://trashfolder.dgi">
+<INPUT TYPE=IMAGE SRC="trash1.ikn" BORDER=0">
+<BR>Trash
+
+<TD ALIGN=CENTER>
+<FORM ACTION="file://emptytrash.dgi">
+<INPUT TYPE=IMAGE SRC="trash2.ikn" BORDER=0">
+<BR>Empty trash
+
+</TABLE>
+<HR>
+<SMALL>
+(c)1999 Arachne Labs. Goto <A HREF="home.htm">Arachne desktop</A>. See also <A HREF="doc\mailhelp.htm">mail documentation</A> or <A HREF="system\gui\wizarda.ah">setup mail.</A>
+</SMALL>

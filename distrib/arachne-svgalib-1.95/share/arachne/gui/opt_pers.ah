@@ -1,0 +1,193 @@
+<HTML>
+<TITLE>Arachne personal settings</TITLE>
+<link rel="stylesheet" href="skin.css">
+<BODY BACKGROUND=NUL TEXT=BLACK BGCOLOR=BLACK noresize>
+
+<TABLE CELLSPACING=2 CELLPADDING=0>
+<TD WIDTH=4>
+<TD>
+<TABLE CELLSPACING=0 BORDER=1 FRAME="void">
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP WIDTH=603>
+<FONT 3D=1><B>Arachne personal settings</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+</TABLE>
+</TABLE>
+
+<TABLE WIDTH=600 CELLSPACING=8 BORDER FRAME="void">
+<FORM ACTION="arachne:internal-config?gui:options.ah">
+
+<TD BGCOLOR=#EEEEEE WIDTH=603>
+<FONT COLOR=BLACK>
+<B>Mail transfer, security and privacy</B><BR>
+
+<INPUT TYPE=HIDDEN NAME="KeepOnServer" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="KeepOnServer" VALUE=Yes ARACHNECHECKED="KeepOnServer">
+Keep your incoming mail on POP3 server after download.
+<BR>
+<INPUT TYPE=HIDDEN NAME="KillSent" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="KillSent" VALUE=Yes ARACHNECHECKED="KillSent">
+Delete your outgoing messages after sending them to SMTP server.
+<BR>
+<INPUT TYPE=HIDDEN NAME="Cookies" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="Cookies" VALUE=Yes ARACHNECHECKED="Cookies">
+Accept cookies and send existing cookies back to server.<br>
+(Servers will be allowed to store small amounts of data on your hard
+disk which will allow them to indentify you during your next visit;
+this can slightly reduce your privacy. This feature is often required to access certain online services).
+<BR>
+<INPUT TYPE=HIDDEN NAME="HTTPreferer" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="HTTPreferer" VALUE=Yes ARACHNECHECKED="HTTPreferer">
+Send information called "Referer" during each HTTP session.<br> 
+(This feature could theoretically be used to trace movements of surfing user on the web;
+this feature is often required to access certain online sevices 
+- while some websites may start to require visiting their official
+homepage before allowing you to use some other services).
+<BR>
+<INPUT TYPE=HIDDEN NAME="SavePasswords" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="SavePasswords" VALUE=Yes ARACHNECHECKED="SavePasswords">
+Write your POP3, PPP and other passwords to ARACHNE.CFG file.
+<BR>
+<I>Note: turning this option off means that Arachne WILL remove the passwords
+from ARACHNE.CFG and you will have to enter passwords manually each time
+you run Arachne.</I>
+
+<TR>
+<TD BGCOLOR=#EEEEEE>
+<TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=600>
+<TD NOWRAP WIDTH=290>
+<FONT COLOR=BLACK>
+<B>Your eMail address</B> (user@domain)<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="eMail" Name="eMail" SIZE=32>
+<BR>
+<B>Your personal name</B><BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="PersonalName" Name="PersonalName" SIZE=32>
+<BR>
+<B>POP3 username</B> &nbsp; &nbsp; (mailbox name)<BR>
+<INPUT NAME=POP3username TYPE=TEXT SIZE=32 ARACHNECFGVALUE="POP3username">
+<BR>
+<B>POP3 password</B><BR>
+<INPUT NAME=POP3password TYPE=PASSWORD SIZE=32 ARACHNECFGVALUE="POP3password">
+
+<TD VALIGN=TOP NOWRAP WIDTH=290>
+<FONT COLOR=BLACK>
+
+<B>Replyto address</B> &nbsp; &nbsp; (user@domain)<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ARt" Name="ARt" SIZE=32>
+<BR>
+<B>Your organization</B><BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="Organization" Name="Organization" SIZE=32>
+<BR>
+<B>Always send BCC to</B> (user@domain)<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ABcc" Name="ABcc" SIZE=32>
+<BR>
+Leave any of the above blank to<br>
+exclude from outgoing messages.
+<br>
+
+<tr><td colspan=2><hr><tr><td>
+<B>Authenticated SMTP username</B><BR>
+(Required even if = login username)<br>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="AuthSMTPusername" Name="AuthSMTPusername" SIZE=32>
+<br>
+<INPUT TYPE=HIDDEN NAME="UseAuthSMTP" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="UseAuthSMTP" VALUE=Yes ARACHNECHECKED="UseAuthSMTP">
+Use Authenticated SMTP<br>
+<td>
+<B>Authenticated SMTP password</B><BR>
+(Required even if = login password)<br>
+<INPUT TYPE=password ARACHNECFGVALUE="AuthSMTPpassword" Name="AuthSMTPpassword" SIZE=32>
+
+</TABLE>
+
+<TR>
+<TD BGCOLOR=#EEEEEE>
+
+<B>Signature</B><BR>
+<INPUT TYPE=HIDDEN NAME=UseSignature VALUE=No>
+<INPUT TYPE=CHECKBOX NAME=UseSignature VALUE=Yes ARACHNECHECKED=UseSignature>
+Append following signature (file SIGN.TXT) to outgoing messages:
+<BR>
+<INPUT TYPE=HIDDEN NAME=SignatureFile VALUE="SIGN.TXT">
+<TEXTAREA ARACHNEEDITOR="SIGN.TXT" COLS=68 ROWS=6></TEXTAREA>
+<P>
+Among most of Internet users it is not considered to be polite
+if the mail signature is longer than 5 or 6 lines. If you are addressing
+people in very low bandwith networks (Fido...) you may be asked to
+use only one line signature.
+<P>
+<I>Note: Unregistered Arachne will append its own promotional
+tagline to this signature. See <A HREF="file://register.htm">registration info</A>.</I>
+<P>
+<B>Special eMail strings</B><P>
+Forwarded message begin<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ForwardString1" Name="ForwardString1" SIZE=70><BR>
+Forwarded message end<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ForwardString2" Name="ForwardString2" SIZE=70><BR>
+Quotation header (1st %s = date, 2nd %s = name)<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ReplyString" Name="ReplyString" SIZE=70>
+
+<TR>
+<TD BGCOLOR=#EEEEEE>
+<FONT COLOR=BLACK>
+<B>Hotlist filename:</B> (extension .HTM is required)<BR>
+<INPUT TYPE=TEXT VALUE="./hotlist.htm" ARACHNECFGVALUE="Hotlist" Name="Hotlist" SIZE=70>
+<P>
+
+<B>Mail path</B> (eg. H:MAIL\)<BR>
+<INPUT TYPE=TEXT VALUE="MAIL\" ARACHNECFGVALUE="MailPath" Name="MailPath" SIZE=70>
+
+<TR>
+<TD BGCOLOR=#EEEEEE>
+<FONT COLOR=BLACK>
+<B>Home&nbsp;Page:</B> (Alt+F1)<BR>
+<INPUT TYPE=TEXT VALUE="http://arachne.cz/" ARACHNECFGVALUE="HomePage" Name="HomePage" SIZE=70>
+<P>
+<B>Search&nbsp;Page:</B> (Alt+F7) <I>Tip: you can enter just <B>find:</B> protocol here!</I><BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="SearchPage" Name="SearchPage" SIZE=70>
+<P>
+<B>Search&nbsp;Engine:</B> (URL for <B>find:</B> protocol)<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="SearchEngine" Name="SearchEngine" SIZE=70>
+<P>
+<B>User defined keyboard shortcuts:</B><BR>
+<TABLE WIDTH=590>
+<TD NOWRAP WIDTH=290>
+Shift+F1
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ShiftF1" Name="ShiftF1" SIZE=25><BR>
+Shift+F2
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ShiftF2" Name="ShiftF2" SIZE=25><BR>
+Shift+F3
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ShiftF3" Name="ShiftF3" SIZE=25><BR>
+Shift+F4
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ShiftF4" Name="ShiftF4" SIZE=25><BR>
+Shift+F5
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ShiftF5" Name="ShiftF5" SIZE=25>
+<TD NOWRAP WIDTH=290 ALIGN=RIGHT>
+Shift+F6
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ShiftF6" Name="ShiftF6" SIZE=25><BR>
+Shift+F7
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ShiftF7" Name="ShiftF7" SIZE=25><BR>
+Shift+F8
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ShiftF8" Name="ShiftF8" SIZE=25><BR>
+Shift+F9
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ShiftF9" Name="ShiftF9" SIZE=25><BR>
+Shift+F10
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ShiftF10" Name="ShiftF10" SIZE=25>
+</TABLE>
+<TR>
+
+<TR><TD class="topbar" bgcolor="gray">
+
+<TABLE WIDTH=606>
+<TD WIDTH=376>
+<BASEFONT SIZE=3 COLOR=#484848><I>Just because you are paranoid it doesn't mean
+<BR>they are not after you.</I></FONT>
+<TD>
+<BUTTON TYPE=SUBMIT><IMG SRC="file://small1.ikn" HEIGHT=18 WIDTH=32>&nbsp;Ok, save</BUTTON>
+<TD>
+<FORM ACTION="arachne:back">
+<BUTTON><IMG SRC="file://pidizrus.ikn" WIDTH=16 HEIGHT=16>&nbsp;Cancel</BUTTON>
+</TABLE>
+
+</TABLE>
+</BODY>
+</HTML>

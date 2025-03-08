@@ -1,0 +1,22 @@
+<HTML><HEAD><TITLE>Arachne Packet Wizard - packet driver detected</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="setup.gif" TEXT=BLACK BGCOLOR=BLACK>
+
+<BR><BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" WIDTH=400 ALIGN=CENTER>
+<TD class="topbar" bgcolor="gray" NOWRAP ALIGN=RIGHT><FONT 3D=1><B>Arachne Packet Wizard - packet driver detected
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE>
+<FORM ACTION="etherwz2.ah">
+Congratulations! There was packet driver detected in your system.
+It sits on software interrupt 0x60. If this packet driver won't work
+for you, you have to modify your <A HREF="file://c:\autoexec.bat">AUTOEXEC.BAT</A>
+and either replace current driver by some other manually or just remove
+the current driver, reboot your system and start this wizard again.
+<TR><TD BGCOLOR=SILVER>
+<TABLE ALIGN=RIGHT CELLPADDING=2 CELLSPACING=0 WIDTH=80>
+<TD><INPUT TYPE=SUBMIT VALUE="Continue >>"></TABLE>
+<TABLE CELLPADDING=2 CELLSPACING=0 WIDTH=80>
+<TD><FORM ACTION="arachne:back"><TD><INPUT TYPE=SUBMIT VALUE="<< Previous"></TABLE>
+
+</TABLE></BODY></HTML>

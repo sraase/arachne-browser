@@ -1,0 +1,7 @@
+# KDE Config File
+[KDE Desktop Entry]
+Name=Arachne/SVGAlib (root only) 
+Comment=Arachne for SVGAlib. Only root can launch SVGAlib applications from X11!
+Exec=/usr/bin/arachne
+Icon=arachne-1.xpm
+Terminal=1

@@ -1,0 +1,24 @@
+<HTML><HEAD><TITLE>Arachne Packet Wizard - install packet driver</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="setup.gif" TEXT=BLACK BGCOLOR=BLACK>
+
+<BR><BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" WIDTH=400 ALIGN=CENTER>
+<TD class="topbar" bgcolor="gray" NOWRAP ALIGN=RIGHT><FONT 3D=1><B>Arachne Packet Wizard - install packet driver
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE>
+<FORM ACTION="arachne:internal-config?file://system\pktdrvrs\pktdrvrs.ah">
+No packet driver was found in your system, or the packet driver is not
+sitting at software interrupt 0x60.
+<P>
+You can do required changes in your <A HREF="file://c:\autoexec.bat">AUTOEXEC.BAT</A>
+on your own, but Arachne is ready to update this file for you automaticaly.
+
+
+<TR><TD BGCOLOR=SILVER>
+<P>
+<TABLE ALIGN=RIGHT CELLPADDING=2 CELLSPACING=0 WIDTH=80><TD><INPUT TYPE=SUBMIT VALUE="Continue >>"></TABLE>
+<TABLE CELLPADDING=2 CELLSPACING=0 WIDTH=80><TD>
+<FORM ACTION="arachne:back"><TD><INPUT TYPE=SUBMIT VALUE="<< Previous">
+
+</TABLE></TABLE></BODY></HTML>

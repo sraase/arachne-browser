@@ -1,0 +1,29 @@
+<HTML><HEAD><TITLE>Arachne Packet Wizard - configuration type</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK BGCOLOR=BLACK>
+<BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" WIDTH=400 ALIGN=CENTER>
+<TD class="topbar" bgcolor="gray" NOWRAP ALIGN=RIGHT><FONT 3D=1><B>Arachne Packet Wizard - configuration type</B></FONT>
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE>
+Please select your local TCP/IP configuration type.
+<P>
+BOOTP and DHCP are automatic configuration protocols. You can use them
+only if there is BOOTP or DHCP server present in your local network.
+<P>
+Manual TCP/IP setup requires you to know basic parameters of
+your local network.
+<TR><TD BGCOLOR=SILVER>
+<TABLE>
+<TD><FORM ACTION="arachne:back">
+<INPUT TYPE=SUBMIT VALUE="<< Previous">
+<TD><FORM ACTION="arachne:internal-config?file://system\gui\wizard9.ah">
+<INPUT TYPE=HIDDEN NAME="Connection" VALUE="READY">
+<INPUT TYPE=HIDDEN NAME="TCPconfig" VALUE="WATTCP.CFG">
+<INPUT TYPE=HIDDEN NAME="IP_Address" VALUE="BOOTP">
+<INPUT TYPE=SUBMIT VALUE="BOOTP or DHCP ...">
+<TD><FORM ACTION="etherwz3.ah" METHOD=HREF>
+<INPUT TYPE=SUBMIT VALUE="Manual setup >>">
+</TABLE>
+</TABLE>
+</BODY></HTML>

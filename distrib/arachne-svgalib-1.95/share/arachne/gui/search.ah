@@ -1,0 +1,23 @@
+<H1>Search Internet</H1>
+<I>Warning: This form works only if your PC is connected to Internet!</I>
+<TABLE BORDER FRAME="void"><TD>
+Frontend for Altavista search engine...
+</TABLE>
+
+<H1>Search your PC</H1>
+<I>Warning: This form works only if your PC is running DR-DOS! It requires
+DR-DOS "xdir" and "find" commands, which are not default part of MS-DOS or
+Windows 9x</I>
+<TABLE BORDER FRAME="void"><TD>
+<FORM ACTION="xdir.dgi">
+Find file (frontend to XDIR) - please enter starting path and file mask... <BR>
+<INPUT TYPE=TEXT SIZE=64 VALUE=".\*.*">
+</FORM>
+</TABLE>
+<BR>
+<TABLE BORDER FRAME="void"><TD>
+Find string (frontend to FIND) - please enter starting path and file mask... <BR>
+<INPUT TYPE=TEXT SIZE=64 VALUE=".\*.htm"><BR>
+Search string:<BR>
+<INPUT TYPE=TEXT SIZE=64 VALUE=""><BR>
+</TABLE>

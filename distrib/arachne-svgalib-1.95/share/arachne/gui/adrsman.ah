@@ -1,0 +1,19 @@
+<FORM ACTION="addmailto.dgi">
+<TABLE border>
+<TD NOWRAP>
+<LI>Name or nickname
+<BR><INPUT TYPE=TEXT NAME="email" SIZE=45> 
+<LI>E-mail address (RFC822) or <I>@distribution_list</I>
+<BR><INPUT TYPE=TEXT NAME="email" SIZE=45> 
+<BR>
+<INPUT TYPE="SUBMIT" VALUE="Add item to hotlist - mailto: section">
+<TD VALIGN=BOTTOM>
+<FONT COLOR=GRAY>
+<I>Tip: Address book in Arachne is just one section of Arachne Hotlist</I>
+<FORM ACTION="edithotlist.dgi">
+<INPUT TYPE=HIDDEN VALUE="hostlist.htm" ARACHNECFGVALUE="Hotlist">
+<INPUT TYPE="SUBMIT" VALUE="Standard hotlist manager">
+</FORM>
+<FORM ACTION="hotlsman.dgi">
+<INPUT TYPE="SUBMIT" VALUE="Create distribution list">
+</TABLE>

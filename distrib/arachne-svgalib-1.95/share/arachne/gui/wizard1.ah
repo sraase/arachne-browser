@@ -1,0 +1,32 @@
+<HTML><HEAD><TITLE>Arachne PPP Wizard - hardware detection phase</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="gui:setup.gif" TEXT=BLACK BGCOLOR=BLACK>
+<BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" WIDTH=500 ALIGN=CENTER>
+<TD class="topbar" bgcolor="gray" NOWRAP ALIGN=RIGHT><FONT 3D=1><B>Arachne PPP Wizard - hardware detection phase</B></FONT>
+&nbsp;<A HREF="gui:setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE>
+<IMG ALIGN=LEFT SRC=xicht.gif>
+<H3>Hi, I am Arachne PPP wizard !</H3>
+I will try to help you to configure Arachne, WWW browser for
+DOS, so you can use <I>her</I> to connect to the Internet, to surf
+the World Wide Web and to handle your personal e-mail.
+<P>
+First of all, we have to learn something about your modem. I can
+try to detect modem on my own, but as it is quite painful operation,
+it can cause your computer to freeze and stop responding. Don't
+worry - pressing Reset button is all you have to do in this case.<BR>
+<I>Note: I suggest you to reboot your system after finishing the setup
+process with autodetection anyway, because
+it can affect other I/O devices connected using serial ports, eg. mouse.</I>
+<TR><TD BGCOLOR=SILVER>
+<TABLE>
+<TD><FORM ACTION="gui:setup.htm">
+<INPUT TYPE=SUBMIT VALUE="<< Exit Wizard">
+<TD><FORM ACTION="file:wizard.dgi">
+<INPUT TYPE=SUBMIT VALUE="Autodetect modem...">
+<TD><FORM ACTION="file:wizardm.dgi" METHOD=HREF>
+<INPUT TYPE=SUBMIT VALUE="Skip detection >>">
+</TABLE>
+</TABLE>
+</BODY></HTML>

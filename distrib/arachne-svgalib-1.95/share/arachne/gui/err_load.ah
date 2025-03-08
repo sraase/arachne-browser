@@ -1,0 +1,22 @@
+<HTML>
+<TITLE>Arachne Load Error</TITLE>
+<BODY>
+<IMG SRC="gui:error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Arachne Load Error</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=4>
+Arachne was unable to load requested URL. Possible reasons:
+<P>
+<LI>error in URL
+<LI>remote host cannot be accessed
+<LI>remote object does not exist
+<LI>local file was not found
+<LI>DGI component is not defined in MIME.CFG
+<LI>DGI component was not able to create output file
+<HR>
+See <A HREF="gui://help.htm">Arachne documentation</A> for more info.
+<HR>
+<FORM ACTION="arachne:back">
+<INPUT TYPE="SUBMIT" VALUE="&lt;&lt; Go back">
+</BODY>
+</HTML>

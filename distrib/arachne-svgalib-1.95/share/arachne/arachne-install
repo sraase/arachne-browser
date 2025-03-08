@@ -1,0 +1,35 @@
+#!/bin/bash
+
+echo "Running $0 ..."
+#Path to share directory is in $1
+
+# un-comment these next 2 sections after GGI version is ready
+#if [ -d ~/Desktop ]
+#then
+#cp $1../applnk/Internet/Arachne-ggi.kdelnk ~/Desktop
+#fi 
+
+#if [ ! -d ~/.gnome-desktop ]
+#then
+#mkdir ~/.gnome-desktop
+#fi
+#cp $1../gnome/apps/Internet/Arachne-ggi.desktop ~/.gnome-desktop
+
+if [ ! -d ~/.arachne ]
+then
+echo Creating ~/.arachne directory ...
+mkdir ~/.arachne
+mkdir ~/.arachne/cache
+
+echo Copying templates ...
+cp $1templates/* ~/.arachne/
+
+echo Updating ~/.arachne/arachne.conf ...
+echo CachePath ~/.arachne/cache/>>~/.arachne/arachne.conf
+echo CacheIndex ~/.arachne/cache.index>>~/.arachne/arachne.conf
+echo DownloadPath ~/>>~/.arachne/arachne.conf
+echo Hotlist ~/.arachne/hotlist.html>>~/.arachne/arachne.conf
+echo History ~/.arachne/history>>~/.arachne/arachne.conf
+echo CookieFile ~/.arachne/cookies>>~/.arachne/arachne.conf
+echo Toolbar ~/.arachne/toolbar.cfg>>~/.arachne/arachne.conf
+fi

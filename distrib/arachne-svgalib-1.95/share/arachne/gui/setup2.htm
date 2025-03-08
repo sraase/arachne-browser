@@ -1,0 +1,67 @@
+<HTML>
+<TITLE>Arachne TCP/IP Setup</TITLE>
+<BODY BACKGROUND="gui:setup.gif" TEXT=#FFFFFF BGCOLOR=BLACK>
+<FONT SIZE=6 3D>Arachne TCP/IP Setup</FONT>
+<P>
+<I>Use mouse or &lt;Tab&gt;/&lt;Shift+Tab&gt;/ &lt;Enter&gt; to select connection type:</I>
+<P>
+<TABLE WIDTH=600>
+<TD ALIGN=CENTER WIDTH=25% VALIGN=TOP>
+<FORM ACTION="gui:wizard1.ah">
+<INPUT TYPE=IMAGE SRC="phone.ikn" BORDER=0 WIDTH=60 HEIGHT=60>
+</FORM>
+PPP Wizard
+<TD ALIGN=CENTER WIDTH=25% VALIGN=TOP>
+<FORM ACTION="gui:etherwz1.ah">
+<INPUT TYPE=IMAGE SRC="ethernet.ikn" BORDER=0 WIDTH=60 HEIGHT=60>
+</FORM>                                                      
+Packet Wizard
+<!--
+<TD ALIGN=CENTER WIDTH=25% VALIGN=TOP>
+<FORM ACTION="gui:stub32.ah">
+<INPUT TYPE=IMAGE SRC="windows.ikn" border=0 WIDTH=60 HEIGHT=60>
+</FORM>
+Win32 TCP/IP
+-->
+<TD ALIGN=CENTER WIDTH=25% VALIGN=TOP> 
+<FORM ACTION="gui:tcpsetup.ah">
+<INPUT TYPE=IMAGE SRC="config.ikn" border=0 WIDTH=60 HEIGHT=60>
+</FORM>
+Manual setup
+<TR>
+<TD VALIGN=TOP><TABLE BGCOLOR=#EEEEEE FRAME="void" BORDER=1><TD><FONT COLOR=BLACK SIZE=1>
+If you have <FONT COLOR=RED><I>modem</I></FONT> and
+PPP account, try to use this <I>Arachne PPP Wizard</I>. 
+It will attempt to autodetect your modem - but you have to know
+phone number, IP address of nameserver (DNS),
+PPP username and PPP password.
+</TABLE>
+
+<TD VALIGN=TOP><TABLE BGCOLOR=#EEEEEE FRAME="void" BORDER=1><TD><FONT COLOR=BLACK SIZE=1>
+If you have <FONT COLOR=GREEN><I>ethernet card</I></FONT>,
+<I>Arachne Packet Wizard</I> can help you either to use existing
+packet driver compatible network,
+or it can try to update your AUTOEXEC.BAT with suitable packet drivers
+for your hardware.
+</TABLE>
+
+<!--
+<TD VALIGN=TOP><TABLE BGCOLOR=#EEEEEE FRAME="void" BORDER=1><TD><FONT COLOR=BLACK SIZE=1>
+If you are running Arachne in
+<FONT COLOR=NAVY><I>Windows 95/98/NT</I></FONT> DOS box (but not 16-bit Windows 3.x DOS window!),
+Arachne can access <I>Winsock</I> TCP/IP stack. You can use any hardware which
+can is configured in your Windows.
+</TABLE>
+-->
+
+<TD VALIGN=TOP><TABLE BGCOLOR=#EEEEEE FRAME="void" BORDER=1><TD><FONT COLOR=BLACK SIZE=1>
+Use this option if you don't like Windows style configuration wizards or
+if your computer is <FONT COLOR=#807000><I>not connected</I></FONT> to Internet.
+This <I>Manual Setup</I> gives you better control over Arachne than the Wizards.
+<BR>
+<BR>
+</TABLE>
+</TABLE>
+
+</BODY>
+</HTML>

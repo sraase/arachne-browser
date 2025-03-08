@@ -1,0 +1,30 @@
+<HTML>
+<TITLE>Mail Download Error</TITLE>
+<BODY>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Mail download aborted</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=6>
+Mail was not downloaded from POP3 server. Possible reasons:
+<P>
+<LI> Mail server is not RFC 1939 (POP3) compatible.
+<LI> Invalid username or password.
+<LI> Error during TCP/IP connection.
+<LI> Some other process is accessing the mailbox (pine in shell session ?)
+<LI> User break.
+<HR>
+See <A HREF="file://help.htm">Arachne documentation</A> for more info.
+<br>
+View <a href="file://pop3.log">POP3.LOG</a>
+<HR>
+<TABLE>
+<TD><FORM ACTION="file://system/gui/wizardb.ah">
+<INPUT TYPE=SUBMIT VALUE="eMail Setup Wizard">
+<TD><FORM ACTION="gui:options.ah">
+<INPUT TYPE=SUBMIT VALUE="Arachne Options">
+<TD><FORM ACTION="reload:">
+<INPUT TYPE=SUBMIT VALUE="Retry NOW !">
+</TABLE>
+</FORM>
+</BODY>
+</HTML>

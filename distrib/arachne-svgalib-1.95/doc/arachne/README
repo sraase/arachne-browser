@@ -1,0 +1,157 @@
+* This software package is called "Arachne WWW Browser".
+
+* Version: 1.66 beta for Linux - SVGAlib/GGI
+
+* Release date: 5th July 2000
+
+* Arachne will crash your computer sooner or later, and you know 
+it may trash your hard disk, if you reboot Linux without unmounting
+file system, ie. without shutting down the system in well behaved way,
+so I think no one should really use this software at all.  YOU WERE WARNED ! 
+Go and buy Micro$oft Windows with Microsoft Installer pre-installed - no 
+one forces you to use Arachne....
+
+* You have to read LICENSE file if you plan to do other things with 
+Arachne than just trashing your filesystem.
+
+* After launching Arachne for 1st time, check ~/.arachne/arachne.conf for:
+GraphicsMode - some cards may
+
+* System requirements:
+
+  - i486 (special build of executable for i386 is available)
+  - libc 2.1 based system
+  - Linux kernel 2.x
+  - SVGAlib (libvga) 1.4 or GGI 2.0 (or both, or later versions, probably) 
+  - libvgagl 1.4 or later
+  - libpthread
+  - 3 MB disk space
+  - min 4 MB RAM
+  - video card capable od dis~playing 800x600xHiColor
+  - /usr/bin/djpeg (djpeg executable in search path, frontend to libjpeg)
+  - /usr/X11R6/bin/convert (from ImageMagick package, png conversion)
+  
+* Recommended:
+
+  - sound support in kernel ;-)
+  - play to play .wav files
+  - ppp or eth interfaces configured and up ;)  
+
+* Installation notes:
+
+  - to install Arachne, log-in as root and run script "./install", located
+    in installation directory. You have to change your working directory
+    to installation directory:
+
+    cd arachne-1.64b
+    ./install
+
+  - installation script is otherwise self-explaining. After finishing
+    installation, any user can log on and start arachne to get personal
+
+  - If you don't like 800x600, you can add line "GraphicsMode Hi16.i"
+    for 640x480 or "GraphicsMode Hi16.k" to "~/.arachne/arachne.conf".
+    You can also change resolution using "+" and "-" keys.
+
+ 
+  - If you don't have HiColor video card, you can't use Arachne for now.
+    When using GGI, your GGI target (eg. X11) must run in 16bpp mode.
+
+  - GGI can be obtained from http://www.ggi-project.org/ - you need two 
+    .tar.gz archives, one for GGI and one for GII (general input interface).
+    When unpacking them, execute just "configure" script, than "make" and
+    "make install" - it will install libraries to /usr/local/lib, where 
+    Arachne startup script and KDE/GNOME launchers will easily find them.
+    If you want "clean" GGI installation, copy GGI libraries from 
+    /usr/local/lib to /usr/lib, or set enviroment variable LD_LIBRARY_PATH
+    to /usr/local/lib, and you will be able to use arachne-ggi binary without
+    any further wrappers and launchers.
+
+  - configuration file for SVGAlib is /etc/vga/libvga.config - maybe you will
+    have to change mouse protocol or so.
+
+  - check ~/.arachne/arachne.conf for folloing variables:
+    GraphicsMode - currently recognized only in SVGAlib, GGI requires 800x600
+    GGI_MaxFrameRate - maximum frame per second rate for asynchronous GGI 
+                       visual. On fast PCs, set this to 24-30 for best
+                       results. On slow PCs. GGI Arachne will be jerky anyway.
+    GGI_FastScrolling - on slow PCs, set this to No.
+    svgalib_MouseScale - you will have to set this to 0 for some mouse types.
+
+  - more information about SVGAlib: man svgalib
+
+  - more information about GGI: man libggi
+
+  - some documentation and HTML files are stilll DOS releated and 
+    therefor almost irrelevant for Linux version :-(
+
+  - screenshots can be generated using PrintScreen hotkey; resulting BMP
+    file can't be opened in GIMP (don't know why - I am just writing what
+    I was told to be BMP ;-), but it is readable for bmp2png or cjpeg 
+    utilities.
+
+  - PostScript output shortcut in Linux is Ctrl+P, not Alt+P, because I 
+    haven't learnt yet how to catch Alt+something in SVGAlib...
+
+  - if you want to see Arachne in full action, you should probably get
+    DOS version anyway. Only cca 55% of functionality has been ported so far.
+
+  - Arachne interactively overwrites "~/.arachne/arachne.conf", but most
+    of changes done by graphical setup screens won't take effect until
+    you manually restart Arachne. "Use new settings button" is not yet
+    functional.
+
+* Known cookie bug when accessing MP3.com:
+
+  - Arachne can launch mp3.com streams in mpg123, but default nag-screen
+    requesting e-mail address unfortunately crashes *their* CGI script,
+    so Arachne can't get requested cookie. But there is another way
+    to get this URL - some sites link to streams at "chooser.mp3.com"
+    instead of "download.mp3.com", and once you get your cookie from
+    chooser, all MP3.com streams will work in Arachne. This is problem
+    of MP3.com's stupid CGI script, which is Arachne incompatible - not
+    Arachne problem !!! 
+
+  - Tip how to overcome MP3.com nag screen: create ./arachne/cookies.list
+    with following line: "MP3_EMAIL=user%40hotmail.com; domain=.mp3.com; path=/;" 
+    This should always work.... in fact, I added this as default cookie to
+    share/arachne/templates/cookies, so every user will be allowed to 
+    listen to MP3.com streams by default ;-)
+
+
+* Missing features and bugs: almost everything..... namely:
+
+  - animated GIFs
+  - virtual screens
+  - cache management - please delete content of ~/.arachne/cache/ and
+    file ~/.arachne/cache.index by manualy hitting F8 time to time...
+  - FTP, SMTP, POP3, GOPHER (;-), FINGER
+  - e-mail client
+  - local file browser (the interactive part of it ;-)
+  - you are welcome to get source code for Arrachne utilities which works
+    in DOS, and whic are all released under GPL, and start porting them to
+    Linux, using mime.cfg file to make them work with Arachne for Linux
+
+* All bug reports and suggestions for new features can be send to author
+(xchaos@arachne.cz), although we don't promise to use all suggestions.
+
+* To get help from experienced Arachne WWW Browser users, subscribe mailing
+list arachne@arachne.cz. To subscribe this list, send mail with text
+SUBSCRIBE ARACHNE to e-mail address listserv@arachne.cz. To submit message
+to the list, send it to address arachne@arachne.cz.
+
+* e-mail contact:
+1. Registration and sale information: sales@arachne.cz
+2. Development: xchaos@arachne.cz
+3. Mailing lists at listserv@arachne.cz ("subscribe <name of the list>")
+   arachne              - for general discussion, new users, etc.
+   arachne-digest       - digest version of previous list
+   arachne-announce     - only anounces of new releases and new plug-ins
+   arachne-development  - mainly about porting Arachne to Linux
+
+* Internet homepage of Arachne WWW browser:
+1. http://arachne.cz/           - maintained only by Arachne Labs
+2. http://arachne.browser.org/  - if there are problems with arachne.cz DNS
+
+* You are strongly recommended to use always the latest version of Arachne.
+

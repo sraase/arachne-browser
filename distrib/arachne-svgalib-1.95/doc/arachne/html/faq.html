@@ -1,0 +1,242 @@
+<TITLE>Arachne FAQ</TITLE>
+<BODY BACKGROUND="paper.gif">
+<H1><FONT 3D>Arachne Frequently Asked Questions</FONT></H1>
+<HR Size=6>
+
+<OL>
+<LI><A HREF="#1">Why did you write Arachne ?</A>
+<LI><A HREF="#2">Is there any Arachne mailing list around ?</A>
+<LI><A HREF="#3">Is Arachne the same program as Caldera Webspyder ?</A>
+<LI><A HREF="#6">Do you plan to support Java and JavaScript in Arachne ?</A>
+<LI><A HREF="#7">Do you plan to support Hercules, joystick, PDP-11, my old notebook, etc. ?</A>
+<LI><A HREF="#8">Why is Arachne so slow on my PC ?</A>
+<LI><A HREF="#9">Why Arachne doesn't dial with my modem ?</A>
+<LI><A HREF="#10">Why I cannot connect to my provider using PPP ?</A>
+<LI><A HREF="#11">Why does Arachne convert JPEGs and PNGs to bitmaps ?</A>
+<LI><A HREF="#12">Where is e-mail addressbook ?</A>
+<LI><A HREF="#13">How do you pronounce Arachne and xChaos ?</A>
+<LI><A HREF="#14">Who or what is NAF and xChaos software ?</A>
+<LI><A HREF="#15">How can I contact author of the browser ?</A>
+
+</OL>
+<HR>
+<OL>
+<A NAME="1">
+
+<LI><B>Why did you write Arachne ?</B>
+<P>
+In 1996, Internet was not well integrated with everyday computing at all,
+and I had many ideas which I considered original; at the same time,
+it looked like Microsoft wants to have total monopoly in all categories of
+software - especially the general purpose software for end users.
+Major web sites suddenly started to attract millions of visitors, while
+web pages of normal internet users had little chance to become popular
+without advertising - it seemed like Internet won't be this wonderful
+free place where people can share ideas and emotions (and it isn't, BTW ;-)
+I was simply student with insufficient funds to upgrade my
+PC - if someone had given me something more powerful than 386 with 5 MB of RAM,
+I would had probably installed Linux and spent rest of my life trying to compile
+Enlightenment windows manager ;-)
+
+<HR>
+<A NAME="2">
+<LI><B>Is there any Arachne mailing list around ?</B>
+<P>
+Yes. Send an e-mail to <A HREF="mailto:listserv@arachne.cz">listserv@arachne.cz</A>,
+saying either "subscribe arachne" or "unsubscribe arachne". Once
+subscribed, you can post messages to <B>arachne@arachne.cz</B> -
+address of the mailing list. If you want to receive only official
+announcements, subscribe to "arachne-announce" (arachne-announce@arachne.cz).
+If you want to join development of Arachne (especially Arachne for Linux),
+subscribe to "development" (development@arachne.cz). There is
+"arachne-digest" available - it is digest form of main Arachne mailing
+list.
+
+<HR>
+<A NAME="3">
+<LI><B>Is Arachne the same program as Caldera Webspyder ?</B>
+<P>
+Yes. xChaos software licensed full source code of Arachne to
+Caldera UK. People from Caldera added their own animated GIFs and Novell 
+dialer, completely changed the designof the browser, implemented their 
+own support for frames, and succeeded
+in compiling all this stuff as 32 bit application, while DOS Arachne is
+16 bit application.
+<P>
+Caldera doesn't have exclusive access
+to Arachne in any way, so you can choose from two DOS browsers.
+
+<HR>
+<A NAME="6">
+
+<LI><B>Do you plan to support Java and JavaScript in Arachne ?</B>
+<P>
+DOS version of Arachne will probably never support binary Java applets
+(&lt;APPLET&gt; tag), but it
+will support JavaScript (&lt;SCRIPT&gt; tag) - we are working on it.
+
+<HR>
+<A NAME="7">
+
+<LI><B>Do you plan to support Hercules, my old notebook, etc. ?</B>
+<P>
+We are planning to add Hercules and full CGA support later, because it is
+essential for compatibility with hand-held devices and Personal
+Digital Assistants, which usually use monochrome graphics.
+<P>
+Arachne partly works on HP-LX series palmtops, and further optimization
+of Arachne for these palmtops is planned.
+<P>
+However, our
+ability to support nonstandard hardware is limited. We suggest you
+to buy (or rather find in trashcan ;-) some second-hand ISA SVGA card
+with 512 or more KB of memory - Arachne would look just terrible on
+monochromatic screen anyway. You can check experimental CGA support
+if you don't believe me.
+
+<HR>
+<A NAME="8">
+
+<LI><B>Why is Arachne so slow on my PC ?</B>
+<P>
+There's a long list of methods how to speed DOS version of Arrachne up
+- that list is part of documentation distributed together with Arachne.
+Because the list is quite long and confusing, let's summarize it:
+You need at least 33 Mhz processor to anything useful with Arachne.
+This usually means 386 or 486 compatible CPU.
+You have to use some kind of disk cache (SMARTDRV, NWCACHE) or run
+Arachne from some kind of virtual disk - "RAM disk".
+This totaly disqualifies PCs with less than 2 MB of memory -
+on such hardware, you can use Arachne to occassionaly view
+short HTML pages with few images, but don't expect anything more.
+If you have only 2 MB, dedicate 512 KB for EMS or XMS, 512 KB for disk
+cache, and pray. If you want rather to read mail than view web pages,
+you should maybe allocate as big RAM disk as you can, point your %TEMP%
+enviroment variable to it and let Arachne "swap to disk" and cache local
+objects to %TEMP% directory. Of course, it is optimal to have all
+three accelerators: lot of free XMS, enabled disk cache and TEMP enviroment
+variable pointing to RAMdisk.
+<P>
+Arachne eMail reader is simply not really usable without at least 4 MB
+of memory used for heavy disk caching (1 MB DOS/1 MB XMS/1 MB disk cache/1 MB
+for %TEMP% on RAMdisk). If you don't have 4 MB,
+you can try to use text mode Pegasus mail for DOS to read and compress
+messages downloaded by Arachne.
+
+<HR>
+<A NAME="9">
+
+<LI><B>Why Arachne doesn't dial with my modem ?</B>
+<P>
+Our dialer setup screen is not able to deal with some extremely non-standard
+modem configurations.
+(for example, with modem on COM4 and with no COM3 device,
+you may have to pretend it is on COM2 and manuly select correct base address
+and irq which belongs to your COM4; you can also try to manualy enter your
+parameters to ARACHNE.CFG)
+<P>
+Arachne Labs are not responsible for any included or recommended
+PPP dialer: we only wrote user friendly HTML setup screens for
+the DOSPPPD. This DOS port o Linux pppd seems to work
+on many typical DOS based PCs. Plug your external modem to COM2
+(mouse on COM1) or internal modem to COM3, irq 4 (mouse on COM2), and
+<I>everything's gone be all right</I>.
+<P>
+Many problems are with Windows-specific internal devices -
+<I>Winmodems</I>.
+They require specific drivers to be used, and if such driver is not
+available for DOS, you are lost. When buying internal modem, always
+make sure that it will be visible for your BIOS/DOS as third serial
+port - otherwise you won't be able to use it with operating systems
+like Linux or DOS.
+
+<HR>
+<A NAME="10">
+
+<LI><B>Why I cannot connect to my provider using PPP ?</B>
+<P>
+Some PPP implementations are more standard, some less standard.
+DOSPPPD dialer included in Arachne package should be able to
+manage both PAP and CHAP password authentication. But there can be
+other problems, eg. dynamical assignment of DNS server. Arachne
+needs to know IP of at least one fixed DNS server to run.
+<P>
+Another problem is, that the fact that MINITERM managed to tell
+your modem to connect with your provider's modem doesn't automaticaly
+mean, that the DOSPPPD will accept the same port settings as MINITERM
+dialer. They are two different programs...
+
+<HR>
+<A NAME="11">
+<LI><B>Why does Arachne convert JPEGs and PNGs to bitmaps ?</B>
+<P>
+JPEGs images are very slow to decompress - well, there are some
+ultrafast JPEG viewers, but usually viewing BMP is much faster than viewing
+JPEG. Imagine that on PCs, which are not able to handle Virtual Screens,
+Arachne would have to decompress all JPEGs each time you scroll the page!
+And even on PCs with Virtual Screens enable, Arachne would have to
+decompress JPEGs each time you return to previous or cached page.
+<P>
+If you prefer images in CACHE to be stored as GIFs, rather than BMPs,
+you can do some changes to your MIME.CFG (you will find some tips how
+to do it in this file). It will occupy less disk space, but it will be
+also much slower. The image quality of GIFs may be better for 16 color
+modes - but you will loose quality if you are using HiColor modes.
+<P>
+With PNG format, the situation is more complicated. PNG format should replace
+GIF in future. But currently, there are only very few PNG images online,
+and adding PNG support directly to CORE.EXE would be inefficient.
+<P>
+Maybe in future, Arachne will convert JPEGs "on fly", while downloading
+them - but they will be always converted to some faster image format.
+
+<HR>
+<A NAME="12">
+<LI><B>Where is e-mail addressbook ?</B>
+<P>
+It is part of Hotlist ! You add any mailto: type URLs to hotlist,
+either when writing e-mail, or manually, or you can right-click the
+mailto: type links before actually clicking "Add to hotlist" icon.
+<P>
+Merging of "bookmarks" and "addressbook" to one simple HTML file is my
+invention; I believe that it may be useful to be able to very easily
+transfer your "Personalized Internet" on floppy or by e-mail in single
+file.
+<P>
+Of course - if you don't want your Hotlist to look too messy, you have
+to use Hotlist manager regularly...
+
+<HR>
+<A NAME="13">
+
+<LI><B>How do you pronounce Arachne and xChaos ?</B>
+<P>
+In Czech, I prounounce Arachne as "ur-uch-nae", where "ch" sounds
+the same ways as in German word "Ich" ("me") and "u"
+sounds the same way as in "under".
+xChaos sounds like "iks-chu-os", with the same "ch" and "u".
+<P>
+But in english, most people usually pronounce Arachne as "A-rak-ne", where
+"a" sounds the same way as in "about" and "e" sounds the same way as in
+"eat". xChaos is usually pronounced like "iks-keios".
+
+<HR>
+<A NAME="14">
+
+<LI><B>Who or what is NAF and xChaos software ?</B>
+<P>
+NAF - Network and Fiction is network company running the web server
+<A HREF="http://www.naf.cz/">www.naf.cz</A>. xChaos software was not
+able to handle growing demand for support and information, so NAF
+became also main distributor of Arachne in 1996-1998. Now Arachne has it's
+own web server, and Arachne was then exclusively distributed by
+xChaos software. In 1999, xChaos software was renamed to
+<A HREF="http://arachne.cz/">Arachne Labs</A>.
+
+<HR>
+<A NAME="15">
+<LI><B>How can I contact author of the browser ?</B>
+<P>
+Write mail to <A HREF="mailto:xchaos@arachne.cz">xchaos@arachne.cz</A>
+
+</OL>

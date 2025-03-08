@@ -1,0 +1,27 @@
+<TITLE>Dir listing</TITLE>
+<BODY BGCOLOR=GRAY TEXT=BLACK>
+
+<!--Dir listing-->
+<TABLE CELLSPACING=1 BORDER FRAME="void" ALIGN=CENTER>
+<TD BGCOLOR=SILVER ALIGN=LEFT>
+<FONT size=2 color=blue><B>Leave input field blank to list the current directory.
+<br>Input a subdir name by itself to list a subdir of current.</FONT>
+<br>e.g.
+<br><B>cache</B> &nbsp; [enter]<!-- or [link to button]-->
+<br>(lists current_drive:\arachne_main\cache_directory)
+<br>or 
+<br>Input a drive letter to list followed by a colon
+<br>(trailing \ not required) &nbsp; [path optional]
+<TABLE width=100%>
+<TD><B>C:</B><TD align center><B>C:\DOS</B><TD align right><B>f:\graphics</B></TABLE>
+<TR><TD BGCOLOR=SILVER ALIGN=RIGHT NOWRAP><FONT COLOR=BLACK>
+
+<FORM ACTION="arachne:internal-config?file://dir.dgi">
+<INPUT TYPE=TEXT arachnecfgvalue="lastdir" name="lastdir" SIZE=48 active>
+<!--<br><INPUT TYPE=SUBMIT VALUE="Show directory listing">-->
+</form>
+</TABLE>
+<!--end dir listing-->
+
+</body>
+</HTML>

@@ -1,0 +1,13 @@
+<HTML>
+<TITLE>Redirect Error</TITLE>
+<BODY>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Received Rediect to 'empty' location.... aborting attempt !!!</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=4>
+Arachne was unable to load the requested URL.<br>
+The server sent an 'empty' redirect location.
+<HR>
+</BODY>
+</HTML>
+

@@ -1,0 +1,62 @@
+<HTML>
+<Head>
+<Title>Using Arachne profiles and scripts</Title>
+</Head>
+<Body BACKGROUND="paper.gif">
+<H1>Using Arachne profiles and scripts</H1>
+<HR Size=4>
+<H3>ACF - Arachne Configuration Files</H3>
+
+ACF files are simply copies of ARACHNE.CFG file. Once you configure 
+and fine-tune Arachne for some Internet provider, you can create two
+copies of ARACHNE.CFG files, each containing different user name,
+e-mail address, POP3 account, signature, mail directory, hotlist, etc.
+Or you can use two profiles for two different providers, but both
+with the same personal information. 
+<P>
+ACF files are maintained using special <A HREF="file://system/gui/profiles.ah">Profile manager</A>,
+accessible for example from Desktop | Options page or from PPP dialer screen.
+
+<H3>ASF - Arachne Script Files</H3>
+
+ASF scripts are just lists of URLs to visit, nothing more. 
+You can create scripts using any text editor...
+For example:
+<TABLE BORDER>
+<CAPTION>MYSCRIPT.ASF</CAPTION>
+<TD>
+<PRE>
+arachne:dialer
+smtp:
+pop3:
+reload:http://home.arachne.cz/
+reload:http://slashdot.org/
+arachne:hangup
+reload:file://inbox.dgi
+file:d:\mp3\wakeup.mp3
+file://inbox.dgi
+</PRE>
+</TABLE>
+
+Special prefix "reload:" tells Arachne to always reload specified URL;
+without this prefix, Arachne would use cached copy of object (if available).
+Launching of MP3 file playback is of course only example: to do that, 
+you have to install some plug-in capable of playing MP3 files (eg.
+QuickView or XTC-player), and of course, the MP3 file included in the
+script must exist.
+<P>
+To start ASF script, open it in Arachne: <A HREF="file://*.asf">*.asf</A>.
+Typical Arachne screen from which you can launch scripts is 
+<A HREF="arachne:dialpage">PPP dialer screen</A>.
+<P>
+Arachne currently doesn't offer any tool for creating ASF scripts (with
+exception of "Request all links" and "Audio playlist" features - but
+they doesn't produce user-editable scripts). 
+You are expected to use some external ASCII text editor. If necessary, you 
+can use <A HREF="file://system\gui\quickpad.ah">QuicKpad</A> to write 
+script file and save it to file with .ASF extension using Ctrl+W hotkey.
+
+<HR>
+Return to <A HREF="arachne:back">previous page</A>.
+</Body>
+</HTML>

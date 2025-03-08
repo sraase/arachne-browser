@@ -1,0 +1,139 @@
+<HTML>
+<!-- This File is LD's version of SAVEAS.AH -->
+<TITLE>Save or send document</TITLE>
+<link rel="stylesheet" href="file://skin.css">
+<BODY BGCOLOR=BLACK TEXT=BLACK>
+<basefont size=2>
+<!--save-->
+<TABLE CELLSPACING=1 BORDER FRAME="void">
+
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>Save current page</B></FONT>
+&nbsp;<A HREF="arachne:again"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER ALIGN=center>
+
+<!-- to stop using savefile.dgi and use the 'classic style' arachne:save -->
+<!-- uncomment the arachne:save section and comment-out savefile.dgi section -->
+
+<!-- begin savefile.dgi section -->
+<!--
+<FORM ACTION="file://savefile.dgi">
+Filename: <INPUT TYPE="TEXT" ARACHNESAVE NAME="" SIZE=26 active>
+-->
+<!-- end savefile.dgi section -->
+
+<!-- begin arachne:save section -->
+<FORM ACTION="arachne:save">
+Filename: <INPUT TYPE="TEXT" ARACHNESAVE NAME="$COPY" SIZE=26 active>
+<!-- end arachne:save section -->
+
+<BR>
+<BUTTON TYPE=SUBMIT><IMG SRC="file://small2.ikn" HEIGHT=18 WIDTH=32>&nbsp;Save</BUTTON>
+
+<!--begin bmp2zbm section-->
+<!--
+<br>
+<FORM ACTION="file://saveaszbm.dgi">
+<INPUT TYPE="hidden" ARACHNESAVE>
+<BUTTON TYPE=SUBMIT><IMG SRC="file://small2.ikn" HEIGHT=18 WIDTH=32>&nbsp;If BMP, Save as ZBM</BUTTON>
+-->
+<!--end bmp2zbm section-->
+
+<!--begin DosLynx interface-->
+<FORM ACTION="file://lynx.dgi">
+<!--<INPUT TYPE=TEXT SIZE=48 URL active>-->
+<INPUT TYPE=HIDDEN URL>
+<br><BUTTON TYPE=SUBMIT>Open last visited page with DosLynx</BUTTON>
+</form>
+<!--end dir listing-->
+
+<!--end DosLynx interface-->
+
+</TABLE>
+
+<!--send-->
+<BR>
+<TABLE CELLSPACING=1 BORDER ALIGN=CENTER FRAME="void">
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>Send URL or page by e-mail</B></FONT>
+&nbsp;<A HREF="arachne:again"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER>
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<TD ALIGN=RIGHT>Encoding:
+<TD><FORM ACTION="arachne:internal-mail">
+<INPUT TYPE=RADIO NAME=MailEncoding VALUE=MIME ARACHNECHECKED=MailEncoding>MIME
+<INPUT TYPE=RADIO NAME=MailEncoding VALUE=UUENCODE ARACHNECHECKED=MailEncoding>UUencode
+<INPUT TYPE=HIDDEN NAME=KillSent VALUE=No>
+<INPUT TYPE=CHECKBOX NAME=KillSent VALUE=Yes ARACHNECHECKED=KillSent>delete sent mail
+<INPUT TYPE=HIDDEN NAME="$MSG">
+<TR>
+<TD ALIGN=RIGHT>To:
+<TD><INPUT TYPE=TEXT SIZE=40 NAME=$TO>
+<TR>
+<TD ALIGN=RIGHT>Subject:
+<TD><INPUT TYPE=TEXT SIZE=40 NAME=$SUBJ URL>
+<TR>
+<TD><TD>
+<INPUT TYPE=CHECKBOX ARACHNEDOC NAME="$ATTACH" CHECKED>
+Attach current page to message
+<TR>
+<TD ALIGN=RIGHT>Comment:
+<TD><TEXTAREA NAME=$BODY COLS=40 ROWS=2></TEXTAREA>
+</TABLE>
+
+<TABLE ALIGN=RIGHT CELLSPACING=2 CELLPADDING=0>
+<TD ALIGN=RIGHT NOWRAP><font size=-1>
+<BUTTON TYPE=SUBMIT NAME="$SMTP"><IMG SRC="file://pidisend.ikn" WIDTH=32 HEIGHT=16>&nbsp;Send NOW</BUTTON>
+</font>
+<TD ALIGN=RIGHT NOWRAP><font size=-1>
+<BUTTON TYPE=SUBMIT NAME="$SAVE"><IMG SRC="file://pidisave.ikn" WIDTH=32 HEIGHT=16>&nbsp;Save to OUTBOX</BUTTON>
+</font>
+</TABLE>
+<!-- Comment out the e-dress list section if the on-screen -->
+<!-- address book isn't wanted. -->
+
+<!-- e-dress list -->
+<TABLE CELLSPACING="2" BORDER FRAME="void">
+<tr>
+<TD BGCOLOR="#C0C0C0">
+<FONT 3D=1><B>E-Dress List</B></FONT><BR>
+<TEXTAREA COLS="50" ROWS="2" NAME="E-DRESS" NOWRAP ARACHNEEDITOR=E-DRESS.TXT>
+</TEXTAREA>
+<BR>
+<FONT SIZE=-1>&nbsp;&nbsp; * Use Clipboard to copy e-dress to desired field *</FONT>
+</TABLE>
+<!-- end e-dress list -->
+
+</TABLE>
+
+<!--ftp-->
+<BR>
+<TABLE CELLSPACING=1 BORDER FRAME="void" ALIGN=RIGHT>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>Upload current file using FTP</B></FONT>
+
+&nbsp;<A HREF="arachne:again"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER>
+
+<FORM ACTION="arachne:internal-config?arachne:ftp-send">
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<TD ALIGN=RIGHT>FTP&nbsp;server:
+<TD COLSPAN=3 ALIGN=RIGHT><INPUT TYPE=TEXT SIZE=40 NAME="FTPserver" ARACHNECFGVALUE="FTPserver">
+<TR>
+<TD ALIGN=RIGHT>Username:
+<TD WIDTH=106 ALIGN=LEFT><INPUT TYPE=TEXT SIZE=12 NAME="FTPusername" ARACHNECFGVALUE="FTPusername">
+<TD ALIGN=RIGHT>Password:
+<TD ALIGN=RIGHT><INPUT TYPE=PASSWORD SIZE=12 NAME="FTPpassword" ARACHNECFGVALUE="FTPpassword">
+<TR>
+<TD ALIGN=RIGHT>Target Path/Filename:
+<TD COLSPAN=3 ALIGN=RIGHT><INPUT TYPE=TEXT SIZE=40 NAME="FTPpath" ARACHNECFGVALUE="FTPpath">
+<TR>
+<TD COLSPAN=4 ALIGN=RIGHT>
+<INPUT TYPE=HIDDEN NAME="UseBinaryFTP" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="UseBinaryFTP" VALUE=Yes ARACHNECHECKED="UseBinaryFTP">use binary mode
+<INPUT TYPE=HIDDEN ARACHNEDOC NAME=$FILENAME>
+<BUTTON TYPE=SUBMIT><IMG SRC="file://tbsavftp.ikn" WIDTH=32 HEIGHT=18>Upload file</BUTTON>
+</TABLE>
+</TABLE>
+</body>
+</html>

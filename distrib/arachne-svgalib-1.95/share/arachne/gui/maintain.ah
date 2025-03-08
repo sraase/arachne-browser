@@ -1,0 +1,35 @@
+<TITLE>Out of disk space</TITLE>
+<link rel="stylesheet" href="skin.css">
+<BODY BACKGROUND=NUL TEXT=#000000 BGCOLOR=BLACK>
+<TABLE class="topbar" bgcolor="gray" CELLSPACING=1 BORDER FRAME="void" WIDTH=522>
+
+<TD ALIGN=RIGHT !WIDTH=522 COLSPAN=2>
+<FONT 3D=1><B>Out of disk space</B></FONT>
+&nbsp;<A HREF="gui:home.htm"><IMG SRC="pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR>
+<TD WIDTH=32 BGCOLOR=MAROON>
+<BR>
+<BR>
+<BR>
+&nbsp;&nbsp;<FONT SIZE=6 3D=1><B>!</B></FONT>
+<TD WIDTH=490>
+<SMALL>
+To save disk space, we recommend that you clean disk cache now.
+It can be useful to delete only cached HTML files, to get the latest versions
+of WWW pages during this session, while using cached copies of images.
+If this won't help, you should either exit Arachne and try to delete
+obsolete files or <A HREF="opt_loc.ah">adjust</A> minimum disk space setting.
+</SMALL>
+<TABLE>
+<TD>
+<FORM ACTION="file:clearcache.dgi">
+<INPUT TYPE=SUBMIT VALUE="Clean cache">
+<TD>
+<FORM ACTION="file:clearhtml.dgi">
+<INPUT TYPE=SUBMIT VALUE="Delete only HTML">
+<TD>
+<FORM ACTION="file:emptytrash.dgi">
+<INPUT TYPE=SUBMIT VALUE="Empty trash folder">
+
+</TABLE>
+</TABLE>

@@ -1,0 +1,91 @@
+
+Official Arachne extensions to HTML
+===================================
+
+These extensions can be useful if implemented in other browsers:
+
+<TEXTAREA .... ACTIVE></TEXTAREA>
+<INPUT TYPE=TEXT ... ACTIVE>
+This is the most useful of Arachne's extensions to HTML; it says, that
+the (last) textarea with ACTIVE attribute will get keyboard focus, when
+page is loaded. This is true only of textarea is visible on screen.
+
+<INPUT TYPE=OUTPUT ...>
+Ouptut field. Look exactly like TYPE=INPUT, but it is not user editable.
+
+<INPUT TYPE=TEXT ... URI>
+Insert Uniform Resource Identifier of current document's URL:
+Example: mailto:someone@somewhere -> someone@somewhere
+         http://xxx.com/yyy.html  -> /yyy.html
+
+<INPUT TYPE=TEXT ... URL>
+Insert Universal Resource Locator (URL) of current document.
+
+<INPUT TYPE=TEXT ... USR>
+Insert username (part of URL).
+
+
+Private Arachne extensions to HTML
+==================================
+
+<ARACHNE [RAW=...] [NOCACHE] [MSG=...] [TARGET=...] [PRINT=YES|NO]>
+ RAW      ...set filename to be used for "Save As", "Page source", etc.
+ NOCACHE  ...this document won't be stored in cache
+ MSG      ...change default status line for current document
+ TARGET   ...define full online filename for FTP upload
+ PRINT    ...toggle printing of this section of document
+
+<BODY [ARACHNE] [NORESIZE]>
+ ARACHNE  ...use configurable Arache destop colors and background
+ NORESIZE ...do not resize tables, nobreaks and images (parse HTML only once)
+
+<FONT 3D> ... </FONT> ...use 3D looking text
+
+Protocol "arachne:"
+-------------------
+
+arachne:exit[?errorlevel]  ...exit to DOS
+arachne:dialer ...execute "Connection" ARACHNE.CFG variable
+arachne:dialpage ...goto URL defined in "DialPage" ARACHNE.CFG variable
+arachne:hangup ...execute "Hangup" ARACHNE.CFG variable
+arachne:internal-config[?newURL] ...update ARACHNE.CFG
+arachne:internal-htmledit ...edit current page
+arachne:internal-editor ...for text editor
+arachne:internal-mail ...for sending mail messages
+arachne:ftp-send ...ftp
+arachne:ftp-upload ...ftp
+arachne:save ...save document
+arachne:back ...goto previous document (same as "Previous document" icon)
+
+Extensions to Forms
+-------------------
+
+<INPUT TYPE=anything ... NAME=variable name ARACHNECFGVALUE=NAME>
+<INPUT TYPE=RADIO|CHECKBOX ... ARACHNECHECKED=NAME>
+<INPUT TYPE=RADIO|CHECKBOX ... ARACHNENOTCHECKED=list of variables>
+<INPUT TYPE=TEXT ... ARACHNECFGHIDE=list of variables>
+<INPUT TYPE=TEXT ... ARACHNESAVE> ...name for saving last document
+<INPUT TYPE=TEXT ... ARACHNEMIME> ...type of last document
+<INPUT TYPE=TEXT ... ARACHNEDOC> ...filename of last document
+<INPUT TYPE=TEXT ... ARACHNEURL> ...URL of last document
+<INPUT TYPE=TEXT ... ARACHNEVER> ...Arachne version
+<TEXTAREA ARACHNEEDITOR></TEXTAREA> ...edit current document
+<TEXTAREA ARACHNEEDITOR=filename></TEXTAREA> ...edit local document
+<TEXTAREA ARACHNEROWS></TEXTAREA> ...if ROWS are adjusted to make this
+                                     TEXTAREA full-screen for 800x600 mode,
+                                     this will resize TEXTAREA to be
+                                     full-screen in any other graphics mode.
+
+For mail composer and service pages
+-----------------------------------
+
+<INPUT NAME=$MSG TYPE=HIDDEN> ...start e-mail message here
+<INPUT NAME=$TO VALUE=...> ...add To: field
+<INPUT NAME=$CC VALUE=...> ...add CC: field (can be multiple)
+<INPUT NAME=$SUBJ VALUE=...> ...add subject
+<INPUT NAME=$ATTACH VALUE=...> ...attach file described in VALUE of input box
+<INPUT NAME=$SAVE ...> ...save mail as .TBS (To Be Sent) file
+<INPUT NAME=$SMTP ...> ...send mail immediately
+<INPUT NAME=$MOVE VALUE=...> ...move last document to VALUE
+<INPUT NAME=$COPY VALUE=...> ...copy last document to VALUE
+<TEXTAREA NAME=$BODY> ...append body of the mail message

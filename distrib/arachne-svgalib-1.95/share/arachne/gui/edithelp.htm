@@ -1,0 +1,193 @@
+<HTML>
+<!-- This Edithelp.Htm is LD's version -->
+<TITLE>Editor HELP</TITLE>
+<link rel="stylesheet" href="file://skin.css">
+<BODY NORESIZE>
+<!--- editor help !!!! --->
+<TABLE>
+<TR>
+<TD WIDTH=308>
+<A HREF="file:system\gui\textedit.ah">Return to Previous</A>
+<TD WIDTH=308 ALIGN=RIGHT><A HREF="file://system\gui\quickpad.ah">Edit an Insert</A>
+</TABLE>
+<BASEFONT SIZE=-1>
+
+<--! ld's code -->
+<table>
+<tr>
+<td width=616>
+            <HR SIZE="1" width="99%" align="left">
+            <center>
+            <H3>Arachne Built-In Editor</H3>
+            </center>
+            </font>
+        </TD>
+    </TR>
+    <TR>
+       <TD colspan="6">
+
+            Input fields and text windows use the built-in Arachne Editor.
+            &nbsp;Within this editor, you can use standard editing keys:
+            &nbsp;cursor keys, &nbsp;&lt;Backspace&gt;, &nbsp;&lt;Delete&gt;,
+            &nbsp;&lt;Home&gt;, &nbsp;&lt;End&gt;, &nbsp;&lt;Page Up&gt;,
+            &nbsp;&lt;Page Down&gt;<b>.</b> &nbsp;&lt;Shift&gt; + cursor keys mark a
+            block, and the following commands are also available:
+
+            </font>
+        </TD>
+    </TR>
+</TABLE>
+<p>
+
+<TABLE BORDER="nul">
+    <TR>
+        <TD width="140" NOWRAP>&lt;Ctrl+X&gt;</TD>
+        <TD width="169" NOWRAP>Cut to clipboard (*)</TD>
+        <TD width="1"></TD>
+        <TD width="140" NOWRAP>&lt;Esc&gt;</TD>
+        <TD width="159" NOWRAP>Exit editor mode</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Ctrl+V&gt;</TD>
+        <TD>Paste from clipboard (*)</TD>
+        <TD width="1"></TD>
+        <TD>Left mouse button</TD>
+        <TD>Move/mark block (*)</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Ctrl+C&gt;</TD>
+        <TD>Copy to clipboard (*)</TD>
+        <TD width="1"></TD>
+        <TD>Middle mouse button</TD>
+        <TD>Paste block</TD>
+    </TR>
+    <TR>
+        <TD NOWRAP>&lt;Ctrl+Page Up&gt;</TD>
+        <TD>Goto top of file (*)</TD>
+        <TD width="1"></TD>
+        <TD>Right mouse button</TD>
+        <TD>Copy to clipboard</TD>
+    </TR>
+    <TR>
+        <TD NOWRAP>&lt;Ctrl+Page Down&gt;</TD>
+        <TD>Goto end of file (*)</TD>
+        <TD width="1"></TD>
+        <TD>&lt;Ctrl+K&gt; B</TD>
+        <TD>Begin block</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Ctrl+Home&gt;</TD>
+        <TD>Page Left</TD>
+        <TD width="1"></TD>
+        <TD>&lt;Ctrl+K&gt; K</TD>
+        <TD>End block</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Ctrl+End&gt;</TD>
+        <TD>Page Right</TD>
+        <TD width="1"></TD>
+        <TD>&lt;Ctrl+K&gt; M (V)</TD>
+        <TD>Move block</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Ctrl+Left&gt;</TD>
+        <TD>Previous word</TD>
+        <TD width="1"></TD>
+        <TD>&lt;Ctrl+K&gt; Y</TD>
+        <TD>Delete block</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Ctrl+Right&gt;</TD>
+        <TD>Next word</TD>
+        <TD width="1"></TD>
+        <TD>&lt;Ctrl+K&gt; C</TD>
+        <TD>Copy block</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Ctrl+T&gt;</TD>
+        <TD>Toggle wordwrap (*)</TD>
+        <TD width="1"></TD>
+        <TD>&lt;Ctrl+K&gt; H</TD>
+        <TD>Hide block</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Insert&gt;</TD>
+        <TD>Toggle insert/overwrite</TD>
+        <TD width="1"></TD>
+        <TD>&lt;F7&gt; (&lt;Ctrl+Q&gt;)</TD>
+        <TD>Search for string</TD>
+    </TR>
+    <TR>
+        <TD>&lt;F2&gt;</td>
+        <TD>Submit form / save file (*)</TD>
+        <TD width="1"></TD>
+        <TD>&lt;Ctrl+L&gt;</TD>
+        <TD>Search next</TD>
+    </TR>
+    <TR>
+        <TD>&lt;F3&gt; (&lt;Ctrl+R&gt;)</TD>
+        <TD>Insert file (block) (*)</TD>
+        <TD width="1"></TD>
+        <TD>&lt;Ctrl+Y&gt;</TD>
+        <TD>Delete line</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Ctrl+W&gt;</TD>
+        <TD>Write to file (*)</TD>
+        <TD width="1"></TD>
+        <TD ROWSPAN=3>Left doubleclick</TD>
+        <TD>Mark line (*)</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Tab&gt;</TD>
+        <TD>Goto next input field</TD>
+        <TD width="1"></TD>
+        <TD>Unmark block (*)</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Shift+Tab&gt;</TD>
+        <TD>Goto previous input field</TD>
+        <TD width="1"></TD>
+        <TD>Submit URL</TD>
+    </TR>
+    <TR>
+        <TD>&lt;Enter&gt;</TD>
+        <TD>Goto next input field (**)</TD>
+        <TD width="1"></TD>
+        <TD >Right doubleclick</TD>
+        <TD>Delete block (*)</TD>
+    </TR>
+
+    <TR>
+    </TR>
+</TABLE>
+<!-- explanation of asterisks -->
+<TABLE width="625" border="0">
+    <TR>
+        <TD colspan="2" NOWRAP>
+            <I>
+            (*) Multi-line windows only<br>
+            </I>
+        </TD>
+    </TR>
+    <TR>
+        <TD width="60%" NOWRAP>
+        <i>
+        (**) Submits form if in last (or only) single-line input field in form
+        </i>
+        </TD>
+        <TD width="40%" align="right" NOWRAP>
+            &NBSP;
+            <P>
+        </TD>
+    </TR>
+    <tr>
+        <td colspan="2">
+            <hr size="2" width="99%">
+        </td>
+    </TR>
+<!-- end my code -->
+</TABLE>
+<A HREF="file:system\gui\textedit.ah">Return to Previous</A>
+</Body>
+</HTML>

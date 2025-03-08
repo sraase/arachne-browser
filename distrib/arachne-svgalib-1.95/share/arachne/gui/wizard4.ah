@@ -1,0 +1,24 @@
+<HTML><HEAD><TITLE>Arachne PPP Wizard - phone number</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK BGCOLOR=BLACK>
+
+<BR><BR><BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" ALIGN=CENTER WIDTH=400>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP><FONT 3D=1><B>Arachne PPP Wizard - phone number
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE WIDTH=400>
+<FORM ACTION="arachne:internal-config?file://system/gui/wizard5.ah">
+This one is really easy ;-)
+<P>
+Please enter your provider's phone number (with all dial prefixes
+required to dial outside your building, outside your town, etc.)
+<TR><TD BGCOLOR=SILVER>
+Phone number: <INPUT TYPE=TEXT SIZE=16 NAME="PhoneNumber">
+<FONT COLOR=RED>Required !</FONT>
+<P>
+
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD><INPUT TYPE=SUBMIT VALUE="Continue >>"></TABLE>
+<TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD>
+<FORM ACTION="arachne:back">&nbsp;<INPUT TYPE=SUBMIT VALUE="<< Previous"><BR CLEAR=ALL>
+</TABLE>
+</TABLE></TABLE></BODY></HTML>

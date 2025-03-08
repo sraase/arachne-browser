@@ -1,0 +1,34 @@
+<HTML><HEAD><TITLE>Arachne eMail setup Wizard - outgoing mail</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK BGCOLOR=BLACK>
+<BR><BR><BR>
+
+<TABLE CELLSPACING=8 BORDER FRAME="void" ALIGN=CENTER WIDTH=400>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP><FONT 3D=1><B>Arachne eMail setup Wizard - outgoing mail
+&nbsp;<A HREF="wizard9.ah"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE WIDTH=400>
+<FORM ACTION="arachne:internal-config?file://system/gui/wizardb.ah">
+Following information is required to send e-mail messages from Arachne.
+<P>
+Mail encoding will be set to 7 bit (standard) and charset to US-ASCII. You can change this
+using <A HREF="gui:options.ah">Arachne Options</A> page (hotkey is <B>O</B>).
+<TR><TD BGCOLOR=SILVER>
+<TABLE>
+<TD NOWRAP ALIGN=RIGHT>
+Your e-Mail adress (user@domain)<BR>
+<TD>
+<INPUT TYPE=TEXT Name="eMail" ARACHNECFGVALUE=eMail SIZE=36>
+<TR><TD NOWRAP ALIGN=RIGHT>
+Your real name
+<TD><INPUT TYPE=TEXT Name="PersonalName" ARACHNECFGVALUE=PersonalName SIZE=36>
+<TR><TD NOWRAP ALIGN=RIGHT>
+SMTP server name
+<TD><INPUT TYPE=TEXT Name="SMTPserver" ARACHNECFGVALUE=SMTPserver SIZE=36>
+</TABLE>
+<INPUT TYPE=HIDDEN NAME="MailBodyEncoding" VALUE="7bit">
+<INPUT TYPE=HIDDEN NAME="MyCharset" VALUE="US-ASCII">
+<P>
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD><INPUT TYPE=SUBMIT VALUE="Configure incoming mail >>"></TABLE>
+<TABLE CELLPADDING=0 CELLSPACING=0><TD>&nbsp;<FORM ACTION="arachne:back">
+<TD><INPUT TYPE=SUBMIT VALUE="<< Previous">
+</TABLE></TABLE></BODY></HTML>

@@ -1,0 +1,33 @@
+<HTML>
+<TITLE>PPP error while running ASF script</TITLE>
+<BODY>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>PPP error while running ASF script</H1>
+<BR CLEAR=ALL>
+<HR SIZE=6>
+No IP address was found in <A HREF="file://ppp.log">PPP dialer log file</A>
+or no packet driver was loaded. ASF script was aborted. Possible reasons:
+<P>
+<LI> Hardware fault (modem, busy or disconnected phone line, etc...).
+<LI> Authentication failed due to invalid username and password.
+<LI> Bad authentication scheme (PAP, CHAP or login script).
+<LI> User break.
+<HR>
+See <A HREF="file://help.htm">Arachne documentation</A> for more info.
+<HR>
+<TABLE>
+<TD>
+<FORM ACTION="file://*.asf">
+<INPUT TYPE=SUBMIT VALUE="ASF scripts">
+</FORM>
+<TD>
+<FORM ACTION="arachne:dialpage">
+<INPUT TYPE=SUBMIT VALUE="PPP dialer">
+</FORM>
+<TD>
+<FORM ACTION="arachne:pppsetup">
+<INPUT TYPE=SUBMIT VALUE="Setup PPP">
+</FORM>
+</TABLE>
+</BODY>
+</HTML>

@@ -1,0 +1,34 @@
+<HTML><HEAD><TITLE>Arachne PPP Wizard - DNS</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK BGCOLOR=BLACK>
+
+<BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" ALIGN=CENTER WIDTH=400>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP><FONT 3D=1><B>Arachne PPP Wizard - DNS
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE WIDTH=500>
+<FORM ACTION="arachne:internal-config?file://system/gui/wizard9.ah">
+Please enter the IP address of your Domain Name Server (DNS). If your
+provider tell you that you don't need to know this value, tell him that
+some your software requires to know it. The first nameserver is required,
+the second optional. The IP address of DNS is <B>never 0.0.0.0 !</B> The
+only case when you don't need DNS is when you are surfing the Web using
+HTTP proxy server, and when this proxy is defined using the <I>numerical</I>
+IP address - not as the proxy server <I>name</I>. (You can specify HTTP proxy
+server later..)
+<TR><TD BGCOLOR=SILVER>
+<TABLE>
+<TD WIDTH=20% NOWRAP ALIGN=RIGHT>1st nameserver
+<TD WIDTH=80% NOWRAP ALIGN=RIGHT><INPUT NAME=NameServer TYPE=TEXT SIZE=16 VALUE="0.0.0.0">
+<FONT COLOR=RED>Required !</FONT>
+<TR>
+<TD NOWRAP>2nd nameserver
+<TD NOWRAP><INPUT NAME=AltNameServer TYPE=TEXT SIZE=16 VALUE="0.0.0.0">
+(optional)
+</TABLE>
+<P>
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD><INPUT TYPE=SUBMIT VALUE="Continue >>"></TABLE>
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=80>
+<FORM ACTION="arachne:back">&nbsp;<INPUT TYPE=SUBMIT VALUE="<< Previous"><BR CLEAR=ALL>
+</TABLE>
+</TABLE></TABLE></BODY></HTML>

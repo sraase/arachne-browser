@@ -1,0 +1,401 @@
+
+Changes since release 1.50
+--------------------------
+
+Complete history can be found at http://browser.arachne.cz/download/history.txt
+
+1.66 stable for DOS, beta for Linux/SVGAlib and Linux/GGI
+----
+
+Release date: 20th July 2000
+   Bug fixes: Serious security hole in both DOS and Linux version was fixed.
+              Detailed description of this hole won't be pubished until all
+              Arachne users upgrade to version 1.66 or later.
+              COM port documentation error on Arachne setup screens.
+              clear-cache.dgi in DOS version was working only in DR-DOS only.
+              Configuration wizard was experiencing serious troubles when 
+              TEMP directory setting was invalid.
+	      PostScript output module was added to Linux version (Ctrl+P)
+        Note: 1.65 beta for Linux was skipped because of known bugs in 1.65
+
+1.65 stable for DOS
+----
+
+Release date: 18th July 2000
+   Bug fixes: Serious crash of DOS version, when <FRAMESET> formated like eg.
+              "800,*" was resulting in frame sizes smaller then zero in
+              modes like 640x480 or 800x600 with sidebar. Totaly fixed, and
+              as a side effect, all zero-sized frames are now made invisble
+              to speed up page loading process.
+              Serious crash of DOS version on pages with GIF images wider
+              than 2048 pixels was fixed (eg. table background on Goto.com)
+              Table layout was improved (pes.eunet.cz, www.freeuk.com, etc.).
+              Unterminated HTML entity hack: "something & something" won't
+              be formated like "something &something" any longer. Now GIF
+              width is limited to 1200 pixels, but Arachne won't crash on
+              wider GIFs.
+              Memory model problems with DOS version were resolved, so
+              images shouldn't disappear when DOS memory is running low.
+     Changes: As requested by long-time Arachne users, modem configuration
+              dialogues and ARACHNE.CFG variables were changed. Accepted values
+              for ARACHNE.CFG variable "Port" are now 0 to 4, where
+              1 to 4 are very standard serial ports (see PPP configuration
+              page for details), while "Port 0" is any non-standard serial
+              device, like "COM 3/IRQ 5" internal modems, etc. Base address
+              must be always specified for those non-standard devices.
+              Arachne now never writes "COMx" to PPPDRC.CFG file used
+              by EPPPD.EXE, but always writes IRQ/Base address co
+              ARACHNE.CFG variables "IRQ" and "Base" are now ignored for
+              ARACHNE.CFG variable "Port" values 1 to 4, and accepted
+              only for ARACHNE.CFG variable "Port 0".
+              Another important incompatibility with older versions of
+              Arachne is change in binary format of arachne.pck and
+              cache.idx (in Linux, these are files stored in ~/.arachne).
+              ASCII codes 128 to 159 are no longer hidden, so users will
+              see whatever is located on these positions in font set (this
+              range is not standard part of ISO-8859-x character sets, IMHO).
+              ISO-8859-1 and ISO-8859-2 fonts of size 1 (all styles) were
+              somewhat "squeezed" to get more Netscape/MSIE-like layout of
+              resizable tables.
+              Process of cleaning cache was now separated from main executable
+              to script file (in DOS version, it is SYSTEM\DGI\CLR.BAT) so it
+              can be customized.
+Improvements: <SELECT> tag (pulldown menu) now can be controled comfortably
+              even without mouse, using arrows, PgUp, PgDn, Enter and Esc.
+              DOS version should be somewhat faster, because dependencies
+              between overlaid modules were reduced - pages with JPEG images
+              should load faster now.
+              Setup of DOS version now should run correctly on any machine
+              with at least 500 KB of DOS memory. Users have to manualy
+              enter individual setup steps, if they don't have at least
+              560 KB of memory available.
+              Linux Arachne is now available in two versions, with graphics
+              output using either SVGAlib or GGI - see GGI installation
+              notes in file doc/arachne/README and on Arachne homepage.
+              Both executables are included in Arachne package because of
+              their small size. Arachne installation script creates
+              special startup command /usr/bin/arachne, which launches
+              SVGAlib version if $TERM=linux (linux console), and GGI version
+              in other cases (like when arachne is started from xterm).
+              Additionaly, users who have KDE installed in "/usr" hierarchy
+              will get two nice Arachne icons (GGI for everyone, and SVGAlib
+              for root, as only root can launch SVGAlib applicaions from X11)
+              in their start menu. GNOME users must open KDE submenu; somehow,
+              I haven' figured out where global GNOME menu configuration is
+              stored - any help would be appreciated !
+
+1.64 stable for DOS, beta for Linux
+----
+
+Release date: 6th July 2000
+   Bug fixes: Numerous memory leaks, buffer overruns, etc. in both DOS and
+              Linux version were fixed.
+              More sizeof(int)!=2 related bugs were fixed in 32bit
+              (currently only Linux) version.
+              Bug fixes and optimizatons contributed by Emmanuel Marty from
+              Suntech, France were merged with Arachne Labs codebase.
+              Arachne now correcty displayes lists embeded in table cells.
+              Linux version of Arachne now correctly displayes transparent
+              GIFs - this problem was related to (char) != (unsigned char)...
+     Changes: Arachne adjusts table sizes if you abort image download, which
+              is important when browsing websites which include temporarily
+              inaccessible images (remote hit counters, etc.)
+              Handling of redirection, cookies and HTTP referer was slightly
+              modified, which should increase Arachne compatibility with
+              various sites which use cookies and with Microsot IIS websites.
+              DOS Arache now won't write COM port number to PPPDRC.CFG file,
+              which should help DOSPPPD to work better (not really tested...)
+              Directory structure of Linux version of Arachne was changed
+              to conform Unix traditions (bin/, share/arachne, doc/arachne).
+              Configuration file for Linux Arachne is now expected to be
+              ~/.arachne/arachne.conf. Arachne creates ~/.arachne/ directory
+              structure when user launches it for the first time.
+              Linux Arachne won't use APM packaging system, because of
+              generally smaller size of entire package, and because there
+              are numerous well-knon utilies available in most distributions
+              Linux. Linux Arachne is distributed with both iso-8859-1 and
+              iso-8859-2; charset can be changed using arachne.conf variable
+              "FontPathSuffix".
+Improvements: Arachne should render and display pages with tables generaly
+              faster and in more usable manner, but also more Netscape-like,
+              ie. tables won't be displayed until they are adjusted. This
+              behaviour is user-cofigurable by hidden ARACHNE.CFG variable
+              "QADT Yes" (Quick And Dirty Tables), which forces old-style
+              approach to page preview.
+              Arachne now correctly displayes ordered lists (<OL> .. </OL>).
+              Linux Arachne can now use three HiColor resulutions using
+              arachne.conf variable "GraphicsMode" - values are currently
+              HI.I, HI.J, and HI.K.
+              Linux Arachne is now distributed with relatively comfortable
+              installation script, which is trying to check for system
+              components which are required to sucessfuly run Arachne.
+
+1.63 alpha
+----
+
+       Notes: Internal alpha-version. Never released to public, because
+              number "3" looks ugly using Arachne 3D fonts ;-)
+
+
+1.62 stable for DOS, alpha for Linux
+----
+
+Release date: 7th June 2000
+   Bug fixes: Link from "Utilities" page to "Quickpad" was fixed.
+              When attaching files, Arachne will return to correct page.
+              Small cosmetical bugs when highlighting small icons.
+              Correct error message is displayed when cache is full
+              or incorrectly specified in ARACHNE.CFG
+              Many serious bugs were found and fixed while working on
+              Linux port, because Linux is much more strick about memory
+              exceptions then even QEMM memory manager for DOS. DOS version
+              now seems to be more stable than before, but maybe it is only
+              my feeling...
+     Changes: 16bit DOS, Linux and other versions of Arachne now share
+              the same code base. Since now, all filenames in Arachne
+              package will be related to as lowercase, with slash-separated
+              directories.
+              More enviroment space is available in Dos Shell (Alt+E)
+              More news from Canadian front: Clarence Verge has designed
+              "seriously looking Arachne Logo". Together with "seriously
+              looking icons", it is now available as 1st alternative "skin
+              APM" on Arachne download page. "Seriously looking icons" are
+              no longer default part of Arachne WWW browser, which reduces
+              size of basic Arachne package.
+              Arachne now recognized charset name even when it is sent in
+              HTTP header, and charset found in HTTP header has higher
+              priority than charset found it <META HTTP-EQUIV...> tag.
+              New miniterm.exe was included,  with modem timeout increased
+              from 1 to 2 minutes - some 56kbps modes are handshaking fore
+              more than minute (!) at least on low quality lines. Timeout
+              should be in fact configurable as arachne.cfg variable called
+              "Timeout", but this was not tested.
+              Sample ACF profiles in package now shouldn't include
+              meaningless sample login scripts.
+Improvements: For the first time, both Linux and DOS builds of Arachne were
+              released ! It requires SVGAlib to run, more details in
+              separate README.Linux file.
+              Arachne has new 88x31 icon (examples/arachne.gif).
+              Arrachne 1.62 requires 9 KB less conventional DOS memory than
+              version 1.61, as a result of quite careful code-optimizing
+              diet; this size reduction should continue in future, as there
+              is always some bloat to be removed...
+     Warning: Linux version is alpha, preview, demo, simply dysfunctional!!!
+              It violates segmentation all the time, it's extremely unstable
+              and unusable. It's not intended to be useful, it's just
+              technology demonstration!
+
+1.61 stable release
+----
+
+Release date: 27th March 2000
+   Bug fixes: Arachne won't crash when illegal <TD BACKGROUND=""> or tag
+              <BODY BACKGROUND=""> (with empty argument) occurs.
+              Arachne now correctly detects missinig local files
+              of unknown type, so error screen is displayed instead of
+              "save as" dialogue.
+              Small bug fix in HTML layout (necessary to correctly display
+              new HTML layout of www.wired.com ;-)
+              APM package manager works again.
+              More than 4 files/e-mails can be now marked for deletion ;)
+     Changes: Source code of UNARJ.EXE was linked with APM.EXE, so modified
+              UNARJ binary is no longer included in main Arachne package.
+              When pressing Enter inside block, block is unmarked.
+              File "about.htm" was corrected: Clarence Verge, author of
+              file "keywords.txt", is from Canada, not from USA ;-)
+              (like Terrance and Philip ;-)
+Improvements: Newer version of ODIPKT.COM was included to Arachne package,
+              together with some documentation - running Arachne on top
+              of Novell networks should be easier now.
+              Little speed improvement thanks to more overlay and cache
+              directory optimization (.htt files with HTTP headers has
+              moved to separate CACHE\HEADERS\ subdirectory, which
+              increased loading of pages from full cache by 25-50% percent).
+              Additional, ARACHNE.CFG variable "KeepHTT No" optionaly disables
+              writing .htt files at all, which can improve performance of
+              Arachne especialy on systems, where internet connection is
+              faster than performance of file systen. (GUI control can
+              be found on "Desktop | Options | Internet")
+
+1.60 STABLE RELEASE
+----
+
+Release date: 17th March 2000
+   Bug fixes: Setup screen VGA.HTM was badly designed so it hasn't worked
+              when line with resolution was located above line with card
+              type... (sorry ;-)
+              mailto: style URLs in clipboard can be added to Hotlist
+              without problems again.
+              Link to hotlist manager works again (MIME.CFG was broken).
+              Ugly block highlighting in single line windows was fixed.
+              Broken pasting of blocks to single-line windows works again.
+Improvements: New ARACHNE.CFG variable "VFAT Yes|No" (also Desktop | Options
+              | Local settings) allows viewing of localy stored websites
+              using Win 9x long filenames, but only in Windows DOS box.
+              File extension .eml (M$ Outlook mail messages) is now treated
+              the same way as .cnm (Pegasus Mail for DOS, Novell, Arachne).
+
+1.60 beta 2
+----
+
+Release date: 16th March 2000
+   Bug fixes: Small bugs and typos in local HTML files and in MIME.CFG
+              Scroll history for all types cached pages works again.
+              Mouse initialization and Tab/Shift+Tab navigation when
+              no mouse driver is loaded.
+              Broken 16-color-VGA/EGA/experimental-CGA support was fixed.
+              AltSysFont (needed eg. for Cyrillic support) works again.
+              Missing background images on certain table or frames based
+              pages were fixed. It was happening when width of table
+              cell of frame was EXACTLY identical to with of background
+              image. Side effect of this bug fix is speed improvemnt.
+              Detection of corrupted GIFs was adjusted to be more tolerant,
+              so certain 16 color GIFs which used to be ignored are now
+              being displayed correctly.
+              Certain problems with multiple <TD ROWSPAN>1> cells were fixed.
+              Some minor problems with mouse initialization were (probably)
+              fixed.
+     Changes: ARACHNE.CFG variable FastJPEGs and pseudo-MIME-type
+              fastimage/jpeg are obsolete. They were replaced by MIME.CFG
+              macro "$j", which expands into optional "-colors 256" string +
+              content of ARACHNE.CFG variable JPEGargs.
+              Thanks to Bernie, Arachne is now shipped with 32bit version
+              of DJPEG by default. Alternative package with 16bit version
+              is available (with no-HiColor version of CORE.EXE)
+              The same stands for fastfile/* and LocalIcons; were replaced
+              by ARACHNE.CFG variable FILEargs and MIME.CFG macro "$f".
+              MIME.CFG should be more readable and logical now.
+              WWWMAN.EXE was changed because of that.
+              Different Cookie handling while redirection - not sure if
+              it will help or not, it is still not compatible with
+              certain sites.
+              Arachne now ignores all spaces at the end of URL, which
+              is what other browser do too. However, it is not documented
+              anywhere and it should be consider to be one of "dirty tricks"..
+              Mouse clicks in text fields are now used to mark and
+              manipulate blocks. See editor help and Arachne Hotkeys page.
+              Now you can select multiple e-mail messages or local files
+              with right mouse buton and then delete them using Del key.
+Improvements: Slightly extended documentation of certain features.
+              Higher quality of JPEG conversion in "FastJPEGs" mode, and
+              higher speed of JPEG conversion even in HiColor modes (DJPEG.EXE
+              is same, but Arachne provides it with better command line
+              arguments). Arachne Packet Driver Wizard was finished - TCP/IP
+              setup was made more easy to understand for newbies.
+              Arachne now recognizes <FRAMESET [FRAME]BORDER="false"|"no"|"0">
+              tag for disabling borders of all frames.
+              Copy & paste in text input fields (<TEXTAREA> tag) was
+              finaly implemented.
+
+1.60 beta 1 - "millenium pre-release"
+----
+
+Release date: 16th January 2000
+       Notes: 1.50 stable release was skipped due to release of new version of
+              WATTCP library.
+   Bug fixes: Installation utility was completely rewritten once again and
+              it should be more stable and usable now.
+              Many types of table rendering bugs were fixed - including
+              nested tables, multicolumn cells and table alignent.
+              (see new examples\tables.htm file).
+              Insight was upgraded to version 3.5, which fixes certain bugs
+              with attaching files and "Cannot create index file" bug.
+              (It was caused by TEMP variable finished by "\", which is
+              illegal. Both INSIGHT.EXE and CORE.EXE can handle this now,
+              but there is still some garbage screen output from ARACHNE.BAT)
+              Some of "infinite cycling" problems should be solved now (two
+              of them - one was "cycling in frames" bug, second was caused
+              by strange behaviour of some mouse drivers after initialization).
+              Table rendering should be faster (after removal of certain
+              unnecsary loops I found in my code) and more stable (after
+              finding that one global variable should be rather strictly
+              local in every function ;-).
+              Target for <META HTTP-EQUIV="Refresh" ...> tag is "_parent",
+              not "_top" (this is not realy bug-fix, but rather "Netscapism" ;)
+              <META HTTP-EQUIV="Refresh" ...> now works even in fullscreen
+              mode, as well as screensaver timer.
+              Another Netscapism: underscore ('_') mustn't be converted
+              to hexa code in CGI query strings (why ???)
+              Mouse shouldn't be jerky any more, even on huge pages with
+              frames and table... at least if download was already finished.
+              There was error when accessing http servers on other port than
+              80 via proxy - it is fixed now.
+              Little bug in INSIGHT.EXE quoted-printable encoding was
+              fixed: ASCII codes <32 are no longer converted to "_".
+              If you leave "Organization" field in Personal Settings
+              empty, it will be completely omitted from outgoing e-mails
+              (no more "Organization: (null)" lines ;-).
+              "NoProxy4all" and "NoFTPProxy4all" ARACHNE.CFG variables
+              (substrings of host names for which proxy shouldn't be used,
+              eg. ".myprovider.com") were finaly enabled.
+              Bug in Tab/Shift+Tab navigation in frames was fixed.
+              Security was improved - Arachne's extensions to <INPUT> tag
+              (see AEXTHTML.TXT) are now allowed only in local documents.
+              Arachne now generates PPPDRC.CFG file for EPPPD.EXE in format
+              which allows spaces in usernames and passwords.
+              Quality of truecolor bitmap (BMP, "Fast JPEGs") rendering
+              in 256 color and 16 color modes (SVGA, VGA, EGA) was improved.
+              Output fields (INPUT TYPE="OUTPUT"> are no longer editable.
+              When HTML page contains "<OPTION>blah blah\n<OPTION>blah2..."
+              bug, the end of line is no longer converted to extra space.
+     Changes: Default target frame for mailto: HREFs is now always "_top".
+              Font for <INPUT TYPE="SUBMIT"|"RESET"|"BUTTON"|"OUTPUT"> was
+              changed to get more Netscape-like look'n'feel. System font
+              (fixed width) is now used only for text input boxes.
+              Some design changes, and quite radical changes in HTML rendering.
+              EMBED tag was restricted to local files (will be reimplemented
+              later).
+              ASCII printing was made more usable - maximum number of
+              characters on one line is now strictly accepted.
+              Extra XSWAP optimization was enabled (see '?' hotkey).
+              Internal editor is now able to load virtualy any HTML file,
+              because long lines are wrapped at position of first space
+              which is found over 2/3 of maximum line length, which is
+              1024 characters. It means that HTML code of edited page
+              should be always compatible, because in HTML, line break is
+              treated the same way as standard space character.
+              Small Hotlist manager modification.
+Improvements: Arachne 1.60 beta is based on WATTCP release "9911" which
+              should be faster, more stable, and it which supports DHCP.
+              <TD VALIGN="TOP"|"MIDDLE" (or "CENTER")|"BOTTOM"> was
+              implemented; default vertical alignment is now "MIDDLE".
+              Better frame implementation - <FRAME SCROLLING="No"> and
+              <FRAME BORDER="false" | FRAMEBORDER="0"> is now valid.
+              Optimization of overlays (improves performance if Arachne
+              is used without any disk caching).
+              F3 key (URL input prompt) can be used even in fullscreen mode.
+              When mail download or upload is invoked when user is offline,
+              simple floppy-mail exchange is possible (small MIME.CFG patch).
+              Form Feed (ASCII 12) character is appended to exported ASCII.
+              Insight 3.5 sorts folders in alphabetical order and it remembers
+              last used folder.
+              Mail message can be displayed either in Desktop page style
+              (often unreadable, because of background image) or as
+              Default HTML page style (readable - usualt black on gray)
+              ARACHNE.CFG variable is "MailIsDesktop Yes|No".
+              New extension to <INPUT TYPE=TEXT> and <TEXATAREA> tags:
+              <TEXTAREA ..ACTIVE> and <INPUT .. ACTIVE> will cause
+              the atom to get keyboard focus when page is loaded (useful
+              for mail composer, internal editor, Quick notepad...)
+              Optional PrintScreen handler is capable of saving screenshot
+              to BMP file. Works only in 256 colors and Hicolor modes.
+              Arachne is also able to print page to BMP (Ctrl+P hotkey)
+              and print-file dialogues were improved.
+              New screensaver-related surprises were added ;-)
+              Local file listings now use variable number of columns
+              (up to 8 columns in 1024*768 - use Reload button to synchronize
+              when you return back to 800x600 or 640x???)
+              New hotkey '?' dumps XSWAP debug information to screen
+              (ugly, but useful when complaining about speed, etc. - see
+              file xswap.txt). This is related to better XSWAP crash
+              diagnostics: please report full text of enhanced XSWAP
+              crash message to me (xchaos@arachne.cz).
+              Speed improvement: button animation is not complete - Arachne
+              doesn't wait for user to release mouse to start operation,
+              eg. submit HTML form.
+              <INPUT TYPE="RESET"> was finaly implemented - the page is
+              reloaded from disk, which resets all forms.
+              Number of HTML tables Arachne can handle is no longer fixed,
+              tables are now allocated dynamicaly and you can have as
+              many tables as you can stack in XSWAP memory manager (up to
+              several hundereds tables).
