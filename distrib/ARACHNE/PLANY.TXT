@@ -1,0 +1,54 @@
+Play Any File through SoundBlaster - version 1.5 Sep 1994
+
+SUMMARY:
+
+	PLANY input_file [-r speed] [-s] [-u] [-i irq] [-p port] [-d chan] [-v]
+
+	input_file: Sound file name. Required
+	-r:    set output rate (samples/sec)
+	-s:    sample is signed
+	-u:    sample is U_LAW
+	-i:    IRQ. default from BLASTER variable, or 7
+	-p:    port. default from BLASTER variable, or 544. (220h)
+	-d:    DMA channel.  default from BLASTER variable, or 1
+	-v:    verbose output
+
+
+DESCRIPTION:
+
+	PLANY will play any sound file through the SoundBlaster.
+	Currently supported sound types:
+
+		SoundBlaster .VOC
+		Sun/NeXT/DEC .AU
+		Windows .WAV
+		Sounder/Soundtools .SND
+		Amiga .8SVX  .IFF
+
+	In addition, PLANY will attempt to detect and play the sound 
+	samples contained in Amiga .MOD files.
+
+	If PLANY is unable to identify the header of the sound file,
+	it will default to 'unsigned' and '11000 samples/sec', unless
+	changed by command line options.
+
+	Press any key during playback to terminate output.
+
+
+SELF PLAYING SOUND FILES:
+
+	To make an 'executable' sound file, append the sound file to
+	the end of PLANY.EXE.  For example:
+
+		COPY/B  PLANY.EXE+SOUND.SND  SOUND.EXE
+
+	will create 'SOUND.EXE' which will play 'SOUND.SND' when executed.
+	Note that the '/B' switch on the COPY command is required.
+
+
+
+
+COMMENTS/SUGGESTIONS:
+	
+	Bill Neisius
+	bill@solaria.hac.com

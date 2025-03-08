@@ -1,0 +1,20 @@
+<TITLE>Example of embedding sound files</TITLE>
+<BODY>
+<EMBED SRC="welcome.wav">
+<H1>Embedded sound file</H1>
+This is an example of a sound file embedded in an HTML page.
+Any audio format defined in MIME.CFG can be embedded using the
+&lt;EMBED&gt; tag. While the sound is being played, the user can't do
+anything else. The situation is better for memory resident MIDI 
+players since calling the player will start playback in the background,
+whereafter Arachne will restart. In this case, there is a problem with
+how to stop the music: one solution is to define a program for unloading
+the MIDI player from memory as a DGI script. This is only recommended for 
+experienced Arachne and DOS users.
+<P>
+<I>Note 1: it's obvious that this example will work only if 
+you have the correct plugin for playing WAV files on your audio device...
+<P>
+Note 2: this feature is currently available only for local web pages
+(file: protocol).
+</I>

@@ -1,0 +1,44 @@
+<HTML><HEAD><TITLE>Arachne PPP Wizard - modem commands</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK bgcolor=#555555>
+
+<BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" ALIGN=CENTER WIDTH=500>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP><FONT 3D=1><B>Arachne PPP Wizard - modem commands
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE WIDTH=600>
+<FORM ACTION="arachne:internal-config?file://system/gui/wizard4.ah">
+I need some information about your modem and your telephone
+line. We have to determine two commands, which MINITERM has to say
+to your modem. First is called <I>Init string</I>, and for most
+modems, it will be simply <B>ATZ</B> or <B>AT&amp;F0</B>. Unfortunately,
+although all modems will respond OK to ATZ, not all of them will work
+correctly after such init string.
+<TR><TD BGCOLOR=SILVER>
+Please enter init string for your modem:
+<INPUT TYPE=TEXT SIZE=30 NAME="InitString" VALUE="ATZ">
+<P>
+The second command used by MINITERM is called <I>Dial command</I>:
+<TABLE CELLSPACING=0 CELLSPACING=0>
+<TD><INPUT NAME=DialString TYPE=RADIO VALUE="ATDT" CHECKED>
+Tone dial, wait for dialtone (ATDT) 
+<TD NOWRAP VALIGN=TOP><INPUT NAME=DialString TYPE=RADIO VALUE="ATDP,">
+Pulse dial, wait for dialtone (ATDP)
+<TR>
+<TD COLSPAN=2><I>Dialtone is usually available in USA and other Western countries.
+</I></TD>
+<TR>
+<TD NOWRAP><INPUT NAME=DialString TYPE=RADIO VALUE="ATX3DT,">
+Tone dial, no dialtone (ATX3DT)
+<TD><INPUT NAME=DialString TYPE=RADIO VALUE="ATX3DP,">
+Pulse dial, no dialtone (ATX3DP) 
+<TR>
+<TD COLSPAN=2><I>"No dialtone" option is often required in Central and Eastern Europe</I></TD>
+</TABLE>
+
+
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD><INPUT TYPE=SUBMIT VALUE="Continue >>"></TABLE>
+<TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD>
+<FORM ACTION="arachne:back">&nbsp;<INPUT TYPE=SUBMIT VALUE="<< Previous">
+
+</TABLE></TABLE></TABLE></BODY></HTML>

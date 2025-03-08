@@ -1,0 +1,24 @@
+
+MIME in Arachne
+---------------
+
+Arachne supports MIME V1.0 and many extensions to it.
+
+Outgoing binary attachments are encoded using the base64 algorithm, for text
+attachments Arachne uses a quoted-printable algorithm. For the eMail body,
+you can choose either 7bit, 8bit or quoted-printable encoding -
+you can configure this from Desktop | Options | Network preferences.
+
+Multiple files attached to a single message will all be extracted to the
+CACHE subdirectory; so if you are sending an HTML page to an Arachne user,
+you can easily use relative links like <A HREF="file1.htm"> or
+<IMG SRC="file2.gif">, if these files are attached to the same message.
+
+However, Microsoft Outlook uses a more complicated way to link multiple
+objects in an eMail message, called "Content-ID". Arachne is currently able
+to generate Content-ID, which has the format "arachne-namespace/filename",
+so it is easy to create links to such objects. In Version 1.41 beta,
+Arachne doesn't support the "cid:" pseudo-protocol which is required to access
+these objects (eg. cid:arachne-namespace/mybackground.gif).
+
+The "cid:" protocol will be implemented at a later time.

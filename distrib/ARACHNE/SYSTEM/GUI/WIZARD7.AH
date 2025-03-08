@@ -1,0 +1,54 @@
+<HTML><HEAD><TITLE>Arachne PPP Wizard - your IP address</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK bgcolor=#555555>
+
+<BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" ALIGN=CENTER WIDTH=400>
+<TD class="topbar" bgcolor="gray" NOWRAP ALIGN=RIGHT><FONT 3D=1><B>Arachne PPP Wizard - your IP address
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE WIDTH=500>
+<FORM ACTION="arachne:internal-config?file://system/gui/wizard8.ah">
+I am almost sure that the default setting
+will work for you, but it's something like tradition to ask
+new Internet users if their provider assign them IP address automatically for
+each online session, or if they use fixed IP address (which is <I>never</I> 0.0.0.0,
+by the way). Some providers may require you to use DHCP, so choose BOOTP/DHCP
+in such case.
+Note, that <I>your</I> IP address is <I>never</I> the same as
+the IP address of your Domain Name Server (DNS).
+<TR><TD BGCOLOR=SILVER>
+So - your IP Address is...
+<BR>
+&nbsp;<INPUT
+ TYPE=RADIO
+ NAME="IP_Address"
+>
+fixed
+<INPUT
+ SIZE=16
+ TYPE=TEXT
+ NAME="IP_Address"
+ VALUE="0.0.0.0"
+>
+<BR>
+&nbsp;<INPUT
+ TYPE=RADIO
+ NAME="IP_Address"
+ VALUE="PPP"
+ CHECKED
+>
+dynamically assigned each time you connect
+<BR>
+&nbsp;<INPUT
+ TYPE=RADIO
+ NAME="IP_Address"
+ VALUE="BOOTP"
+>
+DHCP or BOOTP (not very likely when using PPP)
+<P>
+
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD><INPUT TYPE=SUBMIT VALUE="Continue >>"></TABLE>
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=80>
+<FORM ACTION="arachne:back">&nbsp;<INPUT TYPE=SUBMIT VALUE="<< Previous"><BR CLEAR=ALL>
+</TABLE>
+</TABLE></TABLE></BODY></HTML>

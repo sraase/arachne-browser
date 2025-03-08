@@ -1,0 +1,179 @@
+<HTML>
+<TITLE>Arachne local settings</TITLE>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND=NUL TEXT=BLACK bgcolor=#555555 NORESIZE>
+<BASEFONT SIZE=-1>
+
+<TABLE CELLSPACING=2 CELLPADDING=0>
+<TD WIDTH=4>
+<TD>
+<TABLE CELLSPACING=0 BORDER=1 FRAME="void">
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP WIDTH=602>
+<FONT 3D=1><B>Arachne local settings</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+</TABLE></TABLE>
+
+<TABLE CELLSPACING=8 FRAME=void BORDER WIDTH=610>
+<FORM ACTION="arachne:internal-config?file:options.htm">
+<TD BGCOLOR=#EEEEEE WIDTH=603>
+<FONT COLOR=BLACK>
+
+<B>Win 9x long filenames support</B><BR>
+<INPUT TYPE=HIDDEN NAME="VFAT" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="VFAT" VALUE=Yes ARACHNECHECKED="VFAT">
+enable support for long filenames when running in Windows DOS box (slow)
+<HR>
+<B>Your time zone</B> (for mail composer)<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="TimeZone" Name="TimeZone" SIZE=6>
+(+0000=London, +0100=Central Europe, -0500=New York, etc.)
+
+<HR>
+<B>Width of your printer or text console</B> for ASCII printing or export (hotkey P)<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ASCIIwidth" Name="ASCIIwidth" SIZE=6>
+(length of single line - any integer between 40 and 255, typically 78)
+<P>
+<B>Paper size in millimeters</B> for PostScript <SUP><SMALL>TM</SMALL></SUP> printing or export (Alt+P)<BR>
+Width: <INPUT TYPE=TEXT ARACHNECFGVALUE="PostScriptWidth" Name="PostScriptWidth" SIZE=4>
+Height: <INPUT TYPE=TEXT ARACHNECFGVALUE="PostScriptHeight" Name="PostScriptHeight" SIZE=4>
+(1 inch = 25.4 mm, A4 = 210 x 297 mm)
+<P>
+<B>BMP width in pixels</B> for bitmap export (Cntrl+P)<BR>
+<INPUT TYPE=TEXT ARACHNECFGVALUE="BMPwidth" Name="BMPwidth" SIZE=6>
+(width of exported image - any integer between 640 and 2048, typically 800)
+<HR>
+<B>Your character set</B>
+
+<TABLE WIDTH=590>
+<TD WIDTH=30%>For HTTP requests<BR>(Accept-charset: ...)
+
+<TD NOWRAP WIDTH=70%>
+
+<INPUT TYPE=RADIO NAME="AcceptCharset" ARACHNECFGVALUE="AcceptCharset" ARACHNENOTCHECKED="ISO-8859-1,*|ISO-8859-2,*|iso-8859-1,*|iso-8859-2,*">other
+<INPUT TYPE=TEXT ARACHNECFGVALUE="AcceptCharset" Name="AcceptCharset" ARACHNECFGHIDE="ISO-8859-1,*|ISO-8859-2,*|iso-8859-1,*|iso-8859-2,*" SIZE=40>
+<BR>
+<INPUT TYPE=RADIO NAME="AcceptCharset" VALUE="ISO-8859-1,*" ARACHNECHECKED="AcceptCharset">ISO-Latin-1 ("ISO-8859-1,*" - West Europe &amp; USA)
+<BR>
+<INPUT TYPE=RADIO NAME="AcceptCharset" VALUE="ISO-8859-2,*" ARACHNECHECKED="AcceptCharset">ISO-Latin-2 ("ISO-8859-2,*" - Central Europe)
+
+
+<TR>
+<TD>For outgoing e-mails<BR>(charset=...)
+<TD>
+<INPUT TYPE=RADIO NAME="MyCharset" ARACHNECFGVALUE="MyCharset" ARACHNENOTCHECKED="US-ASCII,ISO-8859-1,ISO-8859-2,iso-8859-1,iso-8859-2">other
+<INPUT TYPE=TEXT ARACHNECFGVALUE="MyCharset" Name="MyCharset" ARACHNECFGHIDE="US-ASCII,ISO-8859-1,ISO-8859-2,iso-8859-1,iso-8859-2" SIZE=40>
+<BR>
+<INPUT TYPE=RADIO NAME="MyCharset" VALUE="US-ASCII" ARACHNECHECKED="MyCharset">US-ASCII (7-bit characters)
+<BR>
+<INPUT TYPE=RADIO NAME="MyCharset" VALUE="ISO-8859-1" ARACHNECHECKED="MyCharset">ISO-8859-1 (ISO-Latin-1 - West Europe)
+<BR>
+<INPUT TYPE=RADIO NAME="MyCharset" VALUE="ISO-8859-2" ARACHNECHECKED="MyCharset">ISO-8859-2 (ISO-Latin-2 - Central Europe)
+
+</TABLE>
+<P>
+<I>Note: these settings won't really change fonts you will see on screen.
+You have to install correct APM package with desired fonts - these
+are only the settings for http protocol and MIME e-mail formatting. If
+you install any font package, settings above will change automatically.</I>
+
+<HR>
+<B>Accented letters keyboard mapping</B><P>
+<SMALL>
+How to define keyboard layout for ISO-8859-1, ISO-8859-2 or other fonts:
+<LI>load your DOS keyboard driver (from DOS prompt) and enable it
+<LI>go to this page
+<LI>press correct key for every accented letter you want to use <I>Note: they won't be displayed correctly</I>
+<LI>press . (dot) for every accented letter which can't be found on your keyboard
+<BR><I>Tip:if you want to redefine keyboard, deactivate keyboard mapping and restart Arachne first</I>
+</SMALL>
+<P>
+<INPUT TYPE=HIDDEN NAME="UseKeyMap" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="UseKeyMap" VALUE=Yes ARACHNECHECKED="UseKeyMap">
+activate following keyboard map:
+<BR>
+<FONT SIZE=1><TT>
+¡¢£¤¥¦§¨©ª«¬­®¯°±²³´µ¶·¸¹º»¼½¾¿ÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐ<BR>
+<INPUT TYPE=TEXT SIZE=50 NAME=Keymap1 ARACHNECFGVALUE=Keymap1><BR>
+ÑÒÓÔÕÖ×ØÙÚÛÜÝÞßàáâãäåæçèéêëìíîïðñòóôõö÷øùúûüýþû<BR>
+<INPUT TYPE=TEXT SIZE=49 NAME=Keymap2 ARACHNECFGVALUE=Keymap2></TT></FONT>
+
+<HR>
+<B>Cache settings</B><P>
+<INPUT TYPE=RADIO NAME="ExpireStatic" VALUE=0 ARACHNECHECKED="ExpireStatic"> never expire statical pages<BR>
+<INPUT TYPE=RADIO NAME="ExpireStatic" VALUE=3600 ARACHNECHECKED="ExpireStatic"> expire statical pages 1 hour old<BR>
+<INPUT TYPE=RADIO NAME="ExpireStatic" VALUE=86400 ARACHNECHECKED="ExpireStatic"> expire statical pages 1 day old<BR>
+<INPUT TYPE=RADIO NAME="ExpireDynamic" VALUE=0 ARACHNECHECKED="ExpireDynamic"> never expire dynamic (eg. generated by CGI/DGI scripts) objects<BR>
+<INPUT TYPE=RADIO NAME="ExpireDynamic" VALUE=600 ARACHNECHECKED="ExpireDynamic"> expire dynamic objects 10 minutes old<BR>
+<INPUT TYPE=RADIO NAME="ExpireDynamic" VALUE=1200 ARACHNECHECKED="ExpireDynamic"> expire dynamic objects 20 minutes old<BR>
+<INPUT TYPE=RADIO NAME="ExpireDynamic" VALUE=3600 ARACHNECHECKED="ExpireDynamic"> expire dynamic objects 1 hour old
+<br>
+<INPUT TYPE=hidden NAME="CacheDirList" VALUE=No ARACHNECHECKED="CacheDirList">
+<INPUT TYPE=checkbox NAME="CacheDirList" VALUE=Yes ARACHNECHECKED="CacheDirList"> Cache directory listings.
+<BR>
+<INPUT TYPE=HIDDEN NAME="Cache2TEMP" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="Cache2TEMP" VALUE=Yes ARACHNECHECKED="Cache2TEMP">
+cache local objects (mail messages, directory listings, etc.) to %TEMP% (or
+%ARACHNETEMP%) directory (see SET TEMP=X:\YYY line in your
+<A HREF="C:\AUTOEXEC.BAT">AUTOEXEC.BAT</A> and see also
+<A HREF="file://doc/tempdir.htm">How to setup temporary directory.</A>)
+<P>
+<I>Note: this can dramatically improve performance of Arachne mail reader,
+if your environment variable TEMP points to your fastest disk (eg. RAM disk).
+You can optionally override TEMP variable by using ARACHNETEMP instead.</I>
+<HR>
+<TABLE WIDTH=590>
+<TD WIDTH=55%>
+<B>Required minimum free disk space</B>
+<TD NOWRAP><INPUT TYPE=TEXT VALUE="128" ARACHNECFGVALUE="MinDiskSpace" Name="MinDiskSpace" SIZE=10>
+KB (on each drive)
+<TR>
+<TD WIDTH=55%>
+<B>Cache path</B> (eg. C:\CACHE\)
+<TD><INPUT TYPE=TEXT VALUE="CACHE\" ARACHNECFGVALUE="CachePath" Name="CachePath" SIZE=30>
+<TR><TD>
+<B>Mail path</B> (eg. H:MAIL\)
+<TD><INPUT TYPE=TEXT VALUE="MAIL\" ARACHNECFGVALUE="MailPath" Name="MailPath" SIZE=30>
+<TR><TD>
+<B>Download path</B> (eg. A:\)
+<TD><INPUT TYPE=TEXT VALUE="CACHE\" ARACHNECFGVALUE="DownloadPath" Name="DownloadPath" SIZE=30>
+<TR><TD COLSPAN=2>
+<B><font color=red>All paths are pre-configured to the 'defaults'.</font><BR>
+Alter as needed if you installed to any other drive:\dirname\ than C:\ARACHNE\</b>
+<I>Note: Paths must end with '\' and must exist. Arachne will not
+create non existing directories. See also <A HREF="file://doc/lan.htm">using Arachne in LAN.</A>.</I>
+</TABLE>
+<HR>
+<TABLE WIDTH=590>
+<TD WIDTH=55%>
+<B>History file</B> (eg. H:\HISTORY.LST)
+<TD><INPUT TYPE=TEXT VALUE=".\HISTORY.LST" ARACHNECFGVALUE="History" Name="History" SIZE=30>
+<TR><TD>
+<B>Cache index</B> (eg. C:\CACHE.IDX)
+<TD><INPUT TYPE=TEXT VALUE=".\CACHE.IDX" ARACHNECFGVALUE="CacheIndex" Name="CacheIndex" SIZE=30>
+<TR><TD>
+<B>Cookie database</B> (eg. H:\COOKIES.LST)
+<TD><INPUT TYPE=TEXT VALUE=".\COOKIES.LST" ARACHNECFGVALUE="CookieFile" Name="CookieFile" SIZE=30>
+</TABLE>
+<!--
+<BR>
+<INPUT TYPE=HIDDEN NAME="IndexSharing" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="IndexSharing" VALUE=Yes ARACHNECHECKED="IndexSharing">
+Index sharing (for multitasking)
+-->
+
+<TR><TD class="topbar" bgcolor="gray">
+
+<TABLE>
+<TD WIDTH=370>
+<BASEFONT SIZE=3 COLOR=#484848>
+<I> DOS never says<br>"Excellent command or filename"...</I>
+<TD>
+<BUTTON TYPE=SUBMIT><IMG SRC="file://small1.ikn" HEIGHT=18 WIDTH=32>&nbsp;Ok, save</BUTTON>
+<TD>
+<FORM ACTION="arachne:back">
+<BUTTON><IMG SRC="file://pidizrus.ikn" WIDTH=16 HEIGHT=16>&nbsp;Cancel</BUTTON>
+</TABLE>
+
+</TABLE>
+
+</BODY>
+</HTML>

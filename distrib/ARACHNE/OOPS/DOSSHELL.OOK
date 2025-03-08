@@ -1,0 +1,8 @@
+@echo off
+echo Type 'EXIT' to return to Arachne...
+if (%COMSPEC%)==() goto nocomspec
+%COMSPEC%
+goto end
+:nocomspec
+COMMAND.COM
+:end

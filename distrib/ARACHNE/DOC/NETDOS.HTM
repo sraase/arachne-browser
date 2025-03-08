@@ -1,0 +1,34 @@
+<HTML>
+<Head>
+<Title>NetDOS</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<H1>NetDOS</H1>
+<HR SIZE=4>
+What is NetDOS ? Nothing more than the normal executable DOS files, i.e., 
+*.COM or *.EXE, which can be downloaded from the internet and executed if 
+the URL is listed in <A HREF="file://security.cfg">SECURITY.CFG</A>.
+<P>
+It may sound silly to try to put DOS executables online, but think
+about it: they are usually very small, very fast, and they can run on a wide variety
+of platforms. Of course there is a problem with security. I tried to overcome
+this by allowing download of NetDOS executables only from trusted URLs. And
+there are specific applications (like for an Intranet), where security is not
+so important and where executables are being downloaded from the
+server all the time. And you should also consider the fact that ALL programs 
+that you download from the Internet, with the exception of Java applets, are 
+executables: if you run them, you have already decided to trust their authors. 
+In any case, executing programs is hazardous only in a single-user system, 
+like plain DOS; if you are running some DOS emulator (like DOSEMU under Linux), 
+it can be configured to be as secure as a Java virtual machine.
+<P>
+I chose the following MIME types for *.EXE and *.COM files:<BR>
+<B>application/x-netdos-exe</B> and <B>application/x-netdos-com</B>.
+<P>
+Suggested file extensions on the server side are <B>.netdos-exe</B> and
+<B>.netdos-com</B>. A simple .exe or .com would be misleading, since normal
+DOS programs are not expected to be executed after download is completed.
+<P>
+You can try the NetDOS scheme by downloading several short (4KB) ASM demos
+from the <A HREF="http://home.arachne.cz/netdos/">NetDOS homepage</A>
+(but only if you are online).

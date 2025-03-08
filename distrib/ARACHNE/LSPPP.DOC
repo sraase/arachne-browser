@@ -1,0 +1,275 @@
+1) general info
+
+  LSppp is a small MSDOS PPP packet driver.  It is compatible with the 
+  needs of WATTCP and trumpet stacks.  The resident size is approximately
+  28K.
+
+  LSppp loads as a class one ethernet driver and handles all 
+  aspects of the connection from dialing onward.  Optionally, an external 
+  dialer may be used to dial an ISP prior to running LSppp; it will 
+  detect the carrier and go immediately into internet communications 
+  setup.
+  
+  LSppp is capable of auto-configuring WATTCP through the bootp mechanism 
+  and will do so automatically.  However, for this to work properly LSppp
+  will have to be supplied with name server information.  LSppp will 
+  attempt to automatically load name server information from the ISP 
+  if none is specified on the command line, however, this is an optional 
+  feature your ISP may not support.  To see if it is supported run LSppp
+  without specifying the name server switch (/N) and see if it places
+  DNS addresses in the IP-UP.bat file
+
+  LSppp does not use configuration files; all parameters are placed on 
+  the command line or optionally in the LSPPP environment variable.  
+  LSPPP will search the environment variable for valid command switches 
+  first, then modify this information with command switches specified on 
+  the command line.  Configuration options include user name and 
+  password, number to dial, nameserver information, and various options 
+  to set up a communications port to use or customize the timeout 
+  mechanisms.
+
+  The current version does not have a lot of backwards compatability for 
+  old versions of the protocols.  If you have problems running it use the
+  undocumented /z switch and send the resulting LSPPP.LOG file to the
+  author for analysis.  Note that to get a log file you MUST use the /z
+  switch; the /l switch is now used for local mode
+
+  Van jacobsen compression and the CHAP protocol have recently been added
+  to LSPPP.  Other less used protocols (including MSCHAP) are not 
+  currently supported.
+
+  Note that the undocumented /l option has been changed to the 
+  undocumented /z option.  Use of the new /l option will in general cause
+  internet connections to not work.
+
+2) Disclaimer and license
+
+     LSPPP - DOS PPP Packet Driver
+     Copyright (C) 1997-2003  David Lindauer
+ 
+     This program is free software; you can redistribute it and/or modify
+     it under the terms of the GNU General Public License as published by
+     the Free Software Foundation; either version 2 of the License, or
+     (at your option) any later version.
+ 
+     This program is distributed in the hope that it will be useful,
+     but WITHOUT ANY WARRANTY; without even the implied warranty of
+     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+     GNU General Public License for more details.
+ 
+     You should have received a copy of the GNU General Public License
+     along with this program; if not, write to the Free Software
+     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+     (for GNU General public license see file COPYING)
+ 
+     you may contact the author at:  mailto::camille@bluegrass.net
+  
+     or by snail mail at:
+ 
+     David Lindauer
+     850 Washburn Ave.  Apt  99
+     Louisville, KY 40222
+
+ 
+3) Configuration
+
+When dialing the modem sends the following configuration string:
+
+ATZ
+
+Also if /dm:# is specified the modem will be told to mute the speaker.
+
+At any time before LSPPP goes resident, you may press 'esc' to end the 
+session and hang up.
+
+Configuration options are as follows:
+
+/a:$	set async map
+	set an asynchronous control map.  Characters in the map will be
+	treated as purely control characters and will be escaped during
+	transmission.  For example if the modem uses XON and XOFF you 
+	would specify a map of 0x000A0000.  
+	The default is a map of zero, meaning no characters are escaped.
+
+/b:$    Comm port
+
+	Set a base i/o port.  For example /b03f8
+	default: /b:03f8
+
+/d[r][m][f][l][e]:* Dial [redial] phone number
+
+	Set the phone number to dial.  The redial option is not 
+	supported yet.  The 'm' option tells lsppp to mute the speaker.
+	The 'f' option forces it to dial even when it thinks it is 
+	already connected (useful with winmodems).  The 'l' option
+	causes lsppp to initially attempt a terminal-mode login before
+	attempting to connect with the PPP protocol.  The 'e' option
+	causes lsppp to dial with 'ATX3D' instead of 'ATD', which 
+	should be useful in Europe where no dial tone exists.
+	 Example:  /d:5551214 
+	 Example:  /d:P5551214 this does pulse dialing 
+	default: LSPPP does not dial
+
+/h or /?
+
+	Displays the help text
+
+/i      Comm IRQ (0-15) 
+
+	Set the interrupt vector to use
+	example : /i:4
+	default:  /i:4
+
+/l	Local mode
+
+        Forces LSPPP to not dial (local mode connection)
+	Also turns off use of modem control signals
+
+/m:#,#  set MRUs
+
+  sets the maximum recieve unit for both sides of the link.
+  The first number is what the number which this client can transmit
+  which will be passed to the TCP stack; the second number is the
+  amount this client can receive.
+
+  default: /m:576,576
+
+/n:#    Comm port
+
+	Set the com port (1-4).  Automatically sets the /b and /i 
+	options based on the setting.
+
+	example: /n:1
+	default: /n:1
+
+/p  ppp driver interface
+
+  set the driver to use the native PPP packet interface.  By default
+  LSPPP will use the non-native class 1 ethernet interface.  Using the
+  native PPP interface has slightly less overhead than using the class 1
+  interface, for those TCP stacks that support it.
+ 
+/u      Unload TSR 
+	unloads the tsr
+
+/x	xon/xoff
+
+	use the xon/xoff protocol instead of modem control signals
+
+/A:#,#    PAP timeout and count
+
+	Set the timeout and count governing password authentication.  
+	The timeout is in seconds and is the time between retries; when 
+	count retries have been done LSPPP will give up.  default: 
+	/A:3,10
+
+/B:#    Baud rate 
+	
+	Set the baud rate
+	example: /B:57600
+	default: /B:19200
+
+/D:#,#,#  Dial timeout & count & delay
+	
+	Set the timeout and retries for dialing.  This is the time 
+	LSPPP will wait for a connection (in seconds) and the number of 
+	retries to make before LSPPP gives up entirely.  The third
+	parameter is optional and is the number of seconds after 
+	dialing before it tries to connect to the ISP.
+
+   default:  /D:45,1,0
+
+/F:#[,#]  UART Fifo buffering
+
+  Set the buffering level of the Uart's receive and possibly transmit 
+  fifo (if present).  Valid values for receive fifo are are 1,4,8, and 14.
+  If the transmit fifo setting is present, valid values are 1-16
+
+  default: no fifo usage
+
+/I:#,#  IPCP timeout & count 
+
+	Set the timeout and count governing IP configuration.  
+	The timeout is in seconds and is the time between retries; when 
+	count retries have been done LSPPP will give up.  
+	default: /I:3,10
+
+
+/L:#,#  LCP timeout & count 
+	
+	Set the timeout and count governing initial link configuration.  
+	The timeout is in seconds and is the time between retries; when 
+	count retries have been done LSPPP will give up.  
+	default: /L:3,10
+
+/M:*    Modem init string
+	
+	Specify a string to use to initialize the modem when dialing.  
+	A typical example is AT&F to initialize defaults.  Note that 
+	the dialer will always send ATZ prior to sending the initialize 
+	string, which resets the modem.  Also the 'm' parameter on the
+	dialer can be used to automatically send ATM0 (mutes the modem)
+	in addition to this initialize string
+
+  default:  no initialization string used
+
+
+/N:@[,@]        DNS address 
+
+	Set the DNS name server address[s].  First address is primary
+	and second address is secondary.  If no name servers are 
+	specified LSPPP will attempt to auto-configure them from the 
+	server.
+	example:  /N:198.77.33.2,198.77.33.1
+	default: /N:0.0.0.0,0.0.0.0 (autoconfigure)
+/P:*    passwd
+
+	Set the login password
+	example: /P:truely
+	default: no login password
+
+/S:@    Suggest address
+
+        Suggest an IP address for the server to assign to LSPPP
+        example: /S:199.62.66.44
+        default: no address suggested
+        
+/U:*    User name
+
+	Set the login user name
+	example: /U:dinosaur
+	default: user name
+
+/V:$    Packet driver vector
+
+	Set the packet driver vector to use
+	example: /V:60
+	default: LSPPP searches for a free vector
+
+
+An example of a valid command line is:
+
+lsppp /dm:5551214 /n:3 /B:57600 /N:101.202.101.4 /U:myname /P:mypass
+
+which uses COM3 to log into an ISP at 57600 BPS with account 'myname' 
+and password 'mypass'.  A nameserver is specified and the speaker will 
+be muted.
+
+If we had performed the following to set the LSPPP environment 
+variable:
+
+set LSPPP=/n:3 /B:57600 /U:myname /P:mypass
+
+Then typing
+
+lsppp /dm:5551214 /N:101.202.101.4
+
+would have the same effect as the first commmand line since LSPPP will 
+read the environment varible before reading the command line.  Of 
+course you can put the number to dial and nameserver in the environment 
+too.
+
+LSPPP will also read from the file LSPPP.CFG which is in the same directory
+as LSPPP.EXE.  Format parameters the same as before on as many lines as
+you want.

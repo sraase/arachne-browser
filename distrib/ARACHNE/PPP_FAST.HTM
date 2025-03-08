@@ -1,0 +1,49 @@
+<HTML>
+<TITLE>Arachne PPP Dialer</TITLE>
+<BODY TEXT=#FFFFFF BGCOLOR=BLACK NORESIZE>
+<FONT SIZE=6 3D>Arachne PPP Dialer &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp
+<INPUT TYPE=TEXT ARACHNECFGVALUE="Profile" SIZE=18></FONT>
+<BASEFONT SIZE=4>
+<FORM ACTION="arachne:internal-config?file://ppp_fast.htm">
+<HR NOSHADE WIDTH=472 ALIGN=LEFT SIZE=3><PRE>phone number: <INPUT TYPE=TEXT NAME="PhoneNumber" ARACHNECFGVALUE="PhoneNumber" Size=20><INPUT TYPE=HIDDEN NAME="UseTerminal" VALUE=No><INPUT TYPE=CHECKBOX NAME="UseTerminal" VALUE=Yes ARACHNECHECKED="UseTerminal">show terminal
+   user name: <INPUT TYPE=TEXT NAME="PPPusername" ARACHNECFGVALUE="PPPusername" Size=20><INPUT TYPE=HIDDEN NAME="Autologin" VALUE=No><INPUT TYPE=CHECKBOX NAME="Autologin" VALUE=Yes ARACHNECHECKED="Autologin">login script
+    password: <INPUT TYPE=PASSWORD NAME="PPPpassword" ARACHNECFGVALUE="PPPpassword" Size=20><INPUT TYPE=HIDDEN NAME="SavePasswords" VALUE=No><INPUT TYPE=CHECKBOX NAME="SavePasswords" VALUE=Yes ARACHNECHECKED="SavePasswords">save password</PRE>
+<HR NOSHADE WIDTH=472 ALIGN=LEFT SIZE=3>
+&nbsp;<INPUT TYPE=SUBMIT VALUE="Save Changes">
+</form>
+<TABLE>
+<TD>
+<FORM ACTION="arachne:dialer">
+<INPUT TYPE=SUBMIT VALUE="Dial now [Alt+D]">
+</FORM>
+<TD>
+<FORM ACTION="arachne:pppsetup">
+<INPUT TYPE=SUBMIT VALUE="Setup">
+</FORM>
+<TD>
+<FORM ACTION="file://doc\ppp_how2.htm">
+<INPUT TYPE=SUBMIT VALUE="Help">
+</FORM>
+<TD>
+<FORM ACTION="file://system\gui\profiles.ah" METHOD=HREF>
+<INPUT TYPE=SUBMIT VALUE="Profiles">
+</FORM>
+<TD>
+<FORM ACTION="file://*.asf">
+<INPUT TYPE=SUBMIT VALUE="Scripts">
+</FORM>
+<TR>
+<TD>
+<FORM ACTION="arachne:hangup">
+<INPUT TYPE=SUBMIT VALUE="Hangup   [Alt+H]">
+<TD COLSPAN=3 NOWRAP>
+<INPUT TYPE=HIDDEN NAME="ExitOnHangup" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="ExitOnHangup" VALUE=Yes ARACHNECHECKED="ExitOnHangup">
+<TT>exit to DOS after hangup</TT>
+</FORM>
+<tr><td>
+<FORM ACTION="file://help2.htm">
+<input TYPE="SUBMIT" value="NewUser help index">
+</TABLE>
+</BODY>
+</HTML>

@@ -1,0 +1,126 @@
+                          How to use wavelan card with Arachne
+             (Orinoco,Lucent,Agere,Avaya and others pcmcia card)
+
+Today more users have a Radiolan for connect notebook with Dsl modem,
+or for connect to Lan.
+Arachne can work with wireless device with some simple change at configuration
+files.
+They are 2 tipical situation using a wavelan pcmcia card:
+
+1) connect the pc with your own Dsl modem or Lan
+2) connect the pc with a "unknow radiolan".
+
+The 2 situation are solved in 2 different way.
+
+1) If you want to connect your pc with your Dsl modem or your lan ,
+   you Due know some parameter to put in arachne.cfg file.
+   Your situation is : static adress with static ip.
+   Open arachne.cfg file and : remove the part regarding the dial setup,
+   choosing Connection ready (meaning : Packet driver loaded before start
+   Arachne).Then , in TCP/IP configuration, choose IP_adress=wattcp
+   (meaning :wattcp stack managing the connection ).Leave others fields in
+   Tcp/ip section UNCOMMENT.At the bottom of this section you can found the
+   field.
+   TCPconfig : fill with wifi.cfg.
+
+
+[profile]
+Profile 386PC.ACF
+Connection READY
+Hangup @termin.com 0x60>NUL
+
+;Connection @cmd    ... command cmd will estabilish connection
+;Connection READY   ... connection is permanent, packet driver in AUTOEXEC...
+;Connection NUL     ... do not start TCP/IP (run "arachne -c" to force this)
+;Port values: 0=non-standard serial (COM) port, 1-4 standard ports
+;Base values: 0x??? (eg. 0x3e8) - Base and Irq are used for "Port 0"
+;Mode values: databits/parity/stopbits (eg. 8N1)
+
+[tcp/ip]
+IP_Address WATTCP
+
+NameServer
+AltNameServer
+Gateway
+AltGateway
+Netmask
+TCPconfig WIFI.CFG
+
+Now, in Arachne directory create a file called wifi.cfg and fill it like in
+this example (the data most be YOUR radiolan data !)
+
+my_ip = 192.168.1.3
+netmask = 225.225.225.0
+gateway = 192.168.1.1
+nameserver = 192.168.1.1
+mss = 1460
+mtu = 1500
+
+If you have some dubt, consult the user manual of your access point / dsl
+wifi modem.Keep mss and mtu like in this example .Change all othes fields
+for setup your connection.Now go to : WAVELAN CARD SETUP
+
+2) you want to connect your pc with a UNKNOW radiolan
+   (like a wifi free spot , or a unknow lan ).
+
+This situation can be solved in 2 way :" Fast" and " Step by step".
+
+FAST -> If you don't have time to spend for test , or you preferred setup
+Arachne the next time to connect, use this method.
+Setting Dial and TCP field in arachne.cfg like for STATIC ADRESS with
+STATIC IP (see over).Then create a file in arachne directory WIFI.CFG
+with ONLY this row:
+
+My_ip=DHCP
+
+This meaning : WATTCP stack try to connect the UNKNOW access point with
+information grabbed with DHCP protocol.NOTE: if you start arachne on this way,
+you due standing about 15 second BEFORE surfing or
+send/receive mail.This is the time for DHCP for collection the required
+information from server.Other problem :this situation retourn every 10-15
+minute.
+
+STEP by STEP -> This is the most accurate methoth.Require more time, but
+it's more secure.Download from internet the file TCPINFO.EXE for DOS
+(make a serch with Google..).Load your radiocard drivers (see above),
+and invoke from command line TCPINFO>info.txt.
+The tcpinfo try to recover to unknow Access point the parameter and save it
+in info.txt file.
+Open the file with editor and copy the data in WIFI.CFG. Now start Arachne,
+and immediatly surf without standing for autoconfiguration.
+NOTE: if you change wlan , you can due repeater the operation.
+
+WAVELAN CARD SETUP
+
+The pcmcia wavelan cards of Orinoco family can be loaded with or without
+CARD SERVICE.If you have card service , load the drivers for pcmcia,
+then load wvlancad.sys without parameters.The parameters are passed to
+wavelan card from Pcmcia card service.The best way it's load the card without
+card service (save memory).I suggest to create a batch file like this:
+
+devload /h /v wvlancad.sys /i=10 /b=1300 /m=a000
+LH  wvlan42.com /L
+
+Devload it's a dinamic load program for load drivers from command line.
+You can found it at www.freedos.org , section download ->software.
+
+The /i=10 /b=1300 /m=a000 can be changed according to your memory configuration.
+Make some test changing /m= parameter for fitting to your pc.
+
+Wvlan42 it's the true packet drivers : his configuartion file it's called
+packet.ini, and you can change it (pay attention..).
+
+HOW FOUND THE DOS DRIVERS FOR PCMCIA, PCI and A.P. for DOS ?
+
+http://ftp4.de.freesbie.org/pub/misc/wavelan/software/LEGACY/CARDS/PCMCIA/v400/DISK/
+http://ftp4.de.freesbie.org/pub/misc/wavelan/software/ORiNOCO/
+http://ftp.lucky.net/pub/radio/software/ORINOCO/
+http://www.szivarvanynet.hu/download/radionet/Drivers
+http://www.buffalotech.co
+http://www.1stwave.de/
+http://www.artem.de/
+http://www.enterasys.com/wireless/
+http://www.glennmcc.org/roberto/
+
+
+Roberto Perotti IW2EVK, 22 october 2008

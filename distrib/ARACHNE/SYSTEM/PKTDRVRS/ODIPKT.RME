@@ -1,0 +1,42 @@
+ODIPKT.ASM - Adapter provides Packet Driver interface over ODI
+
+(c) Copyright Daniel D. Lanciani 1991-1996.  All rights reserved.
+
+This unmodified source file and its executable form may be used and
+redistributed freely.  The source may be modified, and the source or
+executable versions built from the modified source may be used and
+redistributed, provided that this notice and the copyright displayed by
+the exectuable remain intact, and provided that the executable displays
+an additional message indicating that it has been modified, and by whom.
+
+Daniel D. Lanciani releases this software "as is", with no express or
+implied warranty, including, but not limited to, the implied warranties
+of merchantability and fitness for a particular purpose.
+
+Please send bug reports to ddl@danlan.com or
+
+Dan Lanciani
+185 Atlantic Road
+Gloucester, MA 01930
+(978) 283-4974
+
+The current version of odipkt is 3.1.  Source is odipkt.asm and binary
+is odipkt.com.  The previous version of odipkt, 2.4, is provided for
+reference in odipkt24.asm and odipkt24.com; however, there is no known
+reason to run 2.4 in preference to 3.1.
+
+Users requiring certain specific features of odipkt 1.x (native mode
+ARCnet or old PhoneNet (versions before 3.0) support) should use
+odipkt13.asm/odipkt13.com/odipktpn.com.  Version 1.3 was the last 1.x
+release.  Older versions of 1.x are provided for reference.
+
+The major changes in 3.x were chained default stack processing and
+hex/octal parameter parsing.
+
+The major change in 2.x was dynamic buffer allocation.  2.x versions
+prior to 2.4 had problems with ARCnet; please avoid them.
+
+Note that documentation is provided in troff format in the
+file odipkt.8 or in ASCII in odipkt.txt.
+
+All the original files are at http://www.danlan.com

@@ -1,0 +1,59 @@
+To: "Arachne4DOS" <arachne4dos@coollist.com>
+From: "Joerg Dietze" <JDietze@******>
+Reply-To: arachne4dos@coollist.com
+Subject: [a4dos-list] Re:Arachne setup for an Ethernet card
+Precedence: list
+Mailing-List: arachne4dos@coollist.com
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+
+Hi folks,
+
+guess it's time to exit lurking mode :-).
+
+Here is how to run Arachne (and other DOS internet stuff) via DSL:
+
+Get the DSL driver here: http://www.hanewin.de/pepa-e.htm
+
+Set up the ini file for pepa.exe, it should look like this:
+>-w
+>-l0c
+>-m 255.255.255.1
+>0.0.0.0 -p
+>  -nusername,password
+>  -o
+>  -k -z -q -r
+>  -t0
+
+Read the manual for meaning of the parameters
+Just load Your NIC specific packet driver in autoexec.bat at 0x61 and then load
+pepa.exe (it will grab interupt 0x60 by default).
+This driver will implement PPPoE protocol and act as normal packet
+driver. Tell Arachne, that there is a packet driver at 0x60 and set Ip
+address to BOOTP, insert working DNS numbers into arachne.cfg and
+everything should be fine :-).
+
+HTH Jörg
+
+On Thu, 19 May 2005 19:33:37 +0200, Constant Brouerius van Nidek wrote:
+
+> Having had Arachne 1.83 running on a dialup connection I would now change it
+> to my ADSL router/ modem. The ADSL works, the box which also has Basiclinux
+> (BL2) on one partition is rightfully connected to the modem.
+> I started with the Packet wizard, detect packet driver. No packet driver was
+> found or it is not at 0x60. When I continue I get a story about odipkt and a
+> driver for other that ?? and n2000 cards. As my card is a n2000 compatible
+> ethernet card I opted for odipkt.
+> The text I o get then brings me to the conclusion that I do not understand a
+> thing and that I am totaly lost at this point.
+> I have no idea what I should do now.
+> I remember that I have looked once into the JODI business but it was never a
+> success and I had given up on connecting that Drdos box with my Suse linux
+> box. Linux with linux is easier to connect.
+
+> Could somebody give me a step by step info on what to do and how to proceed?
+
+> Constant
+
+

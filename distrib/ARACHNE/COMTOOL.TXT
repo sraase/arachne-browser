@@ -1,0 +1,125 @@
+  Copyright (c) 1994 by K.H. Weiss  All rights reserved. Revision 3/9/94
+
+  Written by:
+      K.H. Weiss           Internet: <khweis1@mvmhp.ciw.uni-karlsruhe.de>
+      Eulenweg 2           Phone   : (49)-721-608-2418
+      76536 Weingarten               (49)-7244-1792  
+      Germany
+
+                           comtool
+                           -------
+This is a new version of my comtool program. This version has 
+hardwarehandshake built in. The local buffer is increased
+to 1kB now. This fixed the problems with lost characters
+when using 57600bps or 115.200bps under windows. I added a
+new command wich allows you to enable/disable the fifo if
+you have a serial port with a 16550 uart (^Fn)
+
+I wrote 'comtool' because I needed a small program for testing and
+commanding my serial ports and my modem. I use it for example to clear
+the uart, set the baudrate and the control-lines of my modem or send some
+'AT'- command sequences with it. You can even use it as a simple terminal
+programm. (hint: install an ANSI-driver, nnansi is a good one).
+
+You may invoke comtool either by defining portadress and hardware interrupt
+or by writing only the number of comport (using a 'standard'-port)
+
+comtool <Port-address> <irq> <Commands> or
+comtool <number_of_ComPort> <Commands>
+
+Each command begins with a 'caret' like this one ^. If there is no caret,
+the following text will be send 'as is'.
+
+Some Commands:
+^fn    Enable/disable Fifo (if you have a 16550 uart). The hexadecimal
+       value n is written to the FCR (baseaddress + 2). 
+       n=0   disable fifo
+       n=1   enable fifo, triggerlevel is 1
+       n=41               triggerlevel is 4
+       n=81               triggerlevel is 8
+       n=c1               triggerlevel is 14
+^tn    wait n/10 seconds
+^cr    send cr-character
+^lf    send lf-character
+^sp    send space-character
+^^     send 'caret'
+^d1    set dtr on
+^d0    set dtr off
+^h     hangup
+^bn    set baudrate, n=0 115200
+                     n=1 57600
+                     n=2 38400
+                     n=3 19200
+                     n=4 9600
+                     n=5 4800
+                     n=6 2400 
+                     n=7 1200
+^kn    send break-character, duration is n/10 seconds
+^CDn   wait n/10 seconds for carrier-detect-signal. Set errorlevel 8 if
+       time over or user breaked, otherwise set errorlevel to 4
+^wn string1 string2 string3
+       wait n/10 seconds for string1 (or 2 or 3), set the errorlevel
+       to 1, 2 or 3 if found or 8 if user breaked or time was over
+^0n    send character with asci-value n. n is a hexadecimal expression < 256
+       
+Special keys:
+Alt-H  Hangup the modem (may not work on all modems)
+Alt-E  Exit comtool (may not work with all keyboards)
+Ctrl-Break (or Ctrl-C) Breaks comtool (if Alt-E does'nt work)
+
+new in comtool:
+Alt-S Stops/Resumes transfer of data. The RTS handshakesignal is toggled.
+       (The modem must be programmed for hardwarehandshake of course)
+
+Don't use the '<' - characters on commandline, because this is
+used for redirection. That means: you can create a comandfile with
+one or more comandlines in it and redirect this to comlog with '< cmdfile'
+on the commandline.
+
+If the last charcter on the commandline is NOT a caret, then you are in the
+terminal-mode. You can type AT-sequences, connect to a site with 'atdt ...'
+or do whatever you want. You leave this mode with Alt-E and if this doesn't
+work (a keyboard-problem, one day I'll fix it ;-), then try Ctrl-C or
+Ctrl-Break. If the last Character was a caret, then the programm returns to
+DOS automatically. You can recall this programm whenever you want:
+All Interrupts and the uart-state are restored carefully. You may shellout
+from an other communication-application, start comlog, do something with it
+and return to your application without any effect on your application.
+It work's even with windows ...
+
+Errorlevel
+----------
+The bit relevant errorlevel delivered by 'COMTOOL', means:
+
+8          comtool breaked (ctrl-c, alt-e...)
+4          carrier detected by the ^CD- command
+1,2 or 3   one of three strings in datastream detected (^W -command)
+
+example for an autodial batch (comport 1 used):
+
+@echo off
+:rep
+COMTOOL 1 ^B2 +++ ^T6 atZ ^CR atdp072441792 ^CR ^W600 CONNECT BUSY NO^
+if errorlevel 8 goto ende
+if errorlevel 3 goto ende
+if errorlevel 2 goto rep
+if errorlevel 1 goto termi
+goto rep
+:termi
+COMTOOL 1
+:ende
+COMTOOL ^H ^
+
+------------------------------------------------------------------------
+
+  **********************************************************************
+  *  This program executable, help file, and related text files may be *
+  *  distributed freely and used without fee by any individual for     *
+  *  non-commercial use. This version of COMTOOL may  NOT be           *
+  *       distributed as part of any commercial package.               *
+  *                                                                    *
+  *           USE THIS SOFTWARE AT YOUR OWN RISK                       *
+  **********************************************************************
+
+Report bugs and comments to             khweis1@mvmhp.ciw.uni-karlsruhe.de
+--------------------------------------------------------------------------

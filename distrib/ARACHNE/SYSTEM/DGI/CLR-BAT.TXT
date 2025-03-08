@@ -1,0 +1,27 @@
+Sat 05 Jun 2004
+--- In ArachneDevelopment@yahoogroups.com, "Michal H. Tyc" <mht@b...> wrote:
+> Sometimes a file with a space in its name goes into the cache.
+> It just happened to me when I received a message with an
+> attachment named "On deadline.rfc" (the name was in fact longer,
+> but I deleted it already and forgot). It was saved as
+> CACHE\ON DEADL.RFC", and it cannot be deleted by the standard
+> chache killer, SYSTEM\DGI\CLR.BAT, which tries to delete the
+> non-existing file CACHE\ON (and "File not found" is output to
+> the screen by COMMAND.COM). The remedy is to put double quotes,
+> like this:
+> 
+> for %%f in (%2*.*) do del "%%f"
+> for %%f in (%2headers\*.*) do del "%%f"
+> for %%f in (%3*.*) do del "%%f"
+> 
+> This works under DR-DOS 7.03+ and should also work under MS-DOS 7+.
+> I am not sure about older DOS versions. I'll try MS-DOS 6.22,
+> PC DOS 3.3, PC DOS 5.0 and DR DOS 6.0, if I find the suitable
+> floppies, but later. Now I think I deserved for a small break.
+> We have a nice sunny afternoon after a rainy morning and I feel
+> I need some fresh air ;-)
+> 
+> Michal
+> 
+> P.S. Haven't we already discussed this or a similar problem?
+

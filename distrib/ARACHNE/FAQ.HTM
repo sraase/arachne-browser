@@ -1,0 +1,315 @@
+<TITLE>Arachne FAQ</TITLE>
+<BODY BACKGROUND="paper.gif">
+<H1><FONT 3D>Arachne Frequently Asked Questions</FONT></H1>
+<HR Size=6>
+
+<OL>
+<LI><A HREF="#1">Why did you write Arachne ?</A>
+<LI><A HREF="#2">Is there an Arachne mailing list ?</A>
+<LI><A HREF="#3">Is Arachne the same program as Caldera Webspyder ?</A>
+<LI><A HREF="#4">Do you plan to support Java and JavaScript in Arachne ?</A>
+<LI><A HREF="#5">Do you plan to support Hercules, joystick, PDP-11, my old notebook, etc. ?</A>
+<LI><A HREF="#6">Why is Arachne so slow on my PC ?</A>
+<LI><A HREF="#7">Why doesn't Arachne dial with my modem ?</A>
+<LI><A HREF="#8">Why can't I connect to my provider using PPP ?</A>
+<LI><A HREF="#9">Why does Arachne convert JPEGs and PNGs to bitmaps ?</A>
+<LI><A HREF="#10">Where is the e-mail addressbook ?</A>
+<LI><A HREF="#10">How do you pronounce Arachne and xChaos ?</A>
+<LI><A HREF="#12">Who or what is NAF and xChaos software ?</A>
+<LI><A HREF="#13">Should I use Arachne with a disk cache or RAM disk ?</A>
+<LI><A HREF="#14">How can I contact the author of the Arachne browser ?</A>
+</OL>
+<HR>
+<OL>
+<A NAME="1">
+
+<LI><B>Why did you write Arachne ?</B>
+<P>
+In 1996, the Internet was not well integrated with everyday computing at all,
+and I had many ideas which I considered original; at the same time,
+it looked like Microsoft wanted and wants to have a total monopoly in all categories of
+software - especially the general purpose software for end users.
+Major web sites suddenly started to attract millions of visitors, while
+web pages of normal internet users had little chance to become popular
+without advertising - it seemed like the Internet wouldn't be this wonderful
+free place where people could share ideas and emotions (and it isn't, BTW ;-)
+I was simply a student with insufficient funds to upgrade my
+PC - if someone had given me something more powerful than a 386 with 5 MB of RAM,
+I would probably have installed Linux and spent the rest of my life trying to compile
+the Enlightenment windows manager ;-)
+
+<HR>
+<A NAME="2">
+<LI><B>Is there an Arachne mailing list ?</B>
+<P>
+Yes. Send an e-mail to <A HREF="mailto:listserv@arachne.cz">listserv@arachne.cz</A>,
+saying either "subscribe arachne" or "unsubscribe arachne". Once
+subscribed, you can post messages to <B>arachne@arachne.cz</B> -
+the address of the mailing list. If you want to receive only official
+announcements, subscribe to "arachne-announce" (arachne-announce@arachne.cz).
+If you want to participate in development of Arachne (especially Arachne for Linux),
+subscribe to "arachne-development" (arachne-development@arachne.cz). 
+There is also an "arachne-digest" available - it is a digest form of the main 
+Arachne mailing list. 
+
+<HR>
+<A NAME="3">
+<LI><B>Is Arachne the same program as Caldera Webspyder ?</B>
+<P>
+Yes. xChaos software licensed the full source code of Arachne to
+Caldera UK. People from Caldera added their own animated GIFs and a Novell 
+dialer, completely changed the design of the browser, implemented their 
+own support for frames, and succeeded in compiling all this stuff as 
+a 32 bit application. DOS Arachne is a 16 bit application.
+<P>
+Caldera doesn't have exclusive access
+to Arachne in any way, so you can choose from two DOS browsers.
+
+<HR>
+<A NAME="4">
+
+<LI><B>Do you plan to support Java and JavaScript in Arachne ?</B>
+<P>
+The DOS version of Arachne will probably never support binary Java applets
+(&lt;APPLET&gt; tag), but it
+will support JavaScript (&lt;SCRIPT&gt; tag) - we are working on it.
+
+<HR>
+<A NAME="5">
+
+<LI><B>Do you plan to support Hercules, my old notebook, etc. ?</B>
+<P>
+We are planning to add Hercules and full CGA support later, because it is
+essential for compatibility with hand-held devices and Personal
+Digital Assistants, which usually use monochrome graphics.
+<P>
+Arachne partly works on HP-LX series palmtops and further optimization
+of Arachne for these palmtops is planned.
+<P>
+However, our ability to support nonstandard hardware is limited. We 
+suggest you buy (or rather find in a trashcan ;-) some secondhand ISA 
+SVGA card with 512 or more KB of memory - Arachne would look just terrible 
+on a monochromatic screen anyway. You can check experimental CGA support
+if you don't believe me.
+
+<HR>
+<A NAME="6">
+
+<LI><B>Why is Arachne so slow on my PC ?</B>
+<P>
+There's a long list of methods to speed up the DOS version of Arachne 
+- that list is part of the documentation distributed together with Arachne.
+Because the list is quite long and confusing, let's summarize it:
+You need at least a 33 Mhz processor to do anything useful with Arachne.
+This usually means a 386- or 486-compatible CPU.
+You have to use some kind of disk cache (SMARTDRV, NWCACHE) or run
+Arachne from some kind of virtual disk - "RAM disk".
+This totally disqualifies PCs with less than 2 MB of memory -
+on such hardware, you can use Arachne to occasionally view
+short HTML pages with few images, but don't expect anything more.
+If you have only 2 MB, dedicate 512 KB for EMS or XMS, 512 KB for disk
+cache, and pray. If you would rather read mail than view web pages,
+you should perhaps allocate as big a RAM disk as you can, point your %TEMP%
+enviroment variable to it and let Arachne "swap to disk" and cache local
+objects to the %TEMP% directory. Of course, it is optimal to have all
+three accelerators: lots of free XMS, enabled disk cache, and the TEMP enviroment
+variable pointing to the RAMdisk.
+<P>
+The Arachne eMail reader is not really usable without at least 4 MB
+of memory used for heavy disk caching (1 MB DOS/1 MB XMS/1 MB disk cache/1 MB
+for %TEMP% on RAMdisk). If you don't have 4 MB,
+you can try to use text mode Pegasus mail for DOS to read and compress
+messages downloaded by Arachne.
+
+<HR>
+<A NAME="7">
+
+<LI><B>Why doesn't Arachne dial with my modem ?</B>
+<P>
+Our dialer setup screen is not able to deal with some extreme, non-standard
+modem configurations.
+(for example, with the modem on COM4 and no COM3 device,
+you may have to pretend it is on COM2 and manually select the
+correct base address and irq for COM4; you can also try to enter your
+parameters to ARACHNE.CFG manually)
+<P>
+Arachne Labs is not responsible for any included or recommended
+PPP dialer: we only wrote user friendly HTML setup screens for
+DOSPPPD. This DOS port of Linux pppd seems to work
+on many typical DOS based PCs. Plug your external modem into COM2
+(mouse on COM1) or internal modem to COM3, irq 4 (mouse on COM2), and
+<I>everything will be all right</I>.
+<P>
+Problems arise with Windows-specific internal devices -
+<I>Winmodems</I>.
+They require specific drivers to be used, and if such driver is not
+available for DOS, you are lost. When buying an internal modem, always
+make sure that it will be visible to your BIOS/DOS as a third serial
+port - otherwise you won't be able to use it with operating systems
+like Linux or DOS.
+
+<HR>
+<A NAME="8">
+
+<LI><B>Why can't I connect to my provider using PPP ?</B>
+<P>
+Some PPP implementations are more standard, some less standard.
+The DOSPPPD dialer included in the Arachne package should be able to
+manage both PAP and CHAP password authentication. But there can be
+other problems, e.g., dynamic assignment by the DNS server. Arachne
+needs to know the IP of at least one fixed DNS server to run.
+<P>
+Another problem is that although MINITERM managed to tell
+your modem to connect with your provider's modem, this doesn't automaticaly
+mean that the DOSPPPD will accept the same port settings as the MINITERM
+dialer. They are two different programs...
+
+<HR>
+<A NAME="9">
+<LI><B>Why does Arachne convert JPEGs and PNGs to bitmaps ?</B>
+<P>
+JPEGs images are very slow to decompress - well, there are some
+ultrafast JPEG viewers, but usually viewing BMP is much faster than viewing
+JPEG. Imagine if, on PCs that are not able to handle virtual screens,
+Arachne had to decompress all JPEGs each time you scrolled the page!
+And even on PCs with virtual screens enabled, Arachne would have to
+decompress JPEGs each time you returned to a previous or cached page.
+<P>
+If you prefer images in CACHE to be stored as GIFs rather than BMPs,
+you can make some changes to your MIME.CFG (you will find some tips on how
+to do it in that file). It will occupy less disk space but it will be
+also much slower. The image quality of GIFs may be better for 16 color
+mode - but you will loose quality if you are using HiColor mode.
+<P>
+With the PNG format, the situation is more complicated. PNG format should 
+replace GIF in the future. But currently there are only a few PNG images online,
+and adding PNG support directly to CORE.EXE would be inefficient.
+<P>
+Maybe in future Arachne will convert JPEGs "on the fly" while downloading
+them - but they will always be converted to some faster image format.
+
+<HR>
+<A NAME="10">
+<LI><B>Where is the e-mail addressbook ?</B>
+<P>
+It is part of the Hotlist ! You add any mailto: type URLs to the hotlist,
+either when writing e-mail, or manually, or you can right-click the
+mailto: type links before actually clicking the "Add to hotlist" icon.
+<P>
+Merging of "bookmarks" and "addressbook" into one simple HTML file is my
+invention; I believe that it may be useful to be able to easily
+transfer your "Personalized Internet" onto a floppy or by e-mail in a 
+single file.
+<P>
+Of course - if you don't want your Hotlist to look too messy, you have
+to use the Hotlist manager regularly...
+
+<HR>
+<A NAME="11">
+
+<LI><B>How do you pronounce Arachne and xChaos ?</B>
+<P>
+In Czech, I prounounce Arachne as "ur-uch-nae", where "ch" sounds
+the same ways as in the German word "Ich" ("me") and "u"
+sounds the same way as in "under".
+xChaos sounds like "iks-chu-os", with the same "ch" and "u".
+<P>
+But in English, most people usually pronounce Arachne as "A-rak-ne", where
+"a" sounds the same way as in "about" and "e" sounds the same way as in
+"eat". xChaos is usually pronounced like "iks-keios".
+
+<HR>
+<A NAME="12">
+
+<LI><B>Who or what is NAF and xChaos Software ?</B>
+<P>
+NAF - Network and Fiction is network company running the web server
+<A HREF="http://www.naf.cz/">www.naf.cz</A>. xChaos Software was not
+able to handle the growing demand for support and information, so NAF
+became the main distributor of Arachne in 1996-1998. Now Arachne has it's
+own web server, and Arachne is now distributed by xChaos Software 
+exclusively. In 1999, xChaos Software was renamed to
+<A HREF="http://arachne.cz/">Arachne Labs</A>.
+
+<HR>
+<A NAME="13">
+<LI><B>Should I use Arachne with a disk cache or RAM disk ?</B>
+<P>
+<PRE><SMALL>
+Cache vs Ramdisk: Frequently Asked Questions             Revised  01/01/10
+
+Q:  What's better, a big HD cache or a Ramdisk ?
+A:  That depends on how much memory you have, how much free HD space,
+    what applications you run, your flexibility requirements, whom you ask.
+
+Q:  I need to run many disk intensive applications throughout the day.
+    Arachne is just one of them. What's best for me - cache or ramdisk ?
+A:  A big HD cache would be useable by all programs - not just one.
+    A ramdisk is the fastest way to go if you swap programs.
+
+Q:  I have more than 16Megs of memory but my HD is full. What's best for
+    me - cache or ramdisk ?
+A:  An 8Mb ramdisk will let you run almost anything fast, and if you load
+    it from zipped sources your HD space requirements will be minimized.
+
+Q:  I only have 8 megs of memory, but all I want to run is Arachne.
+    What's best for me - cache or ramdisk ?
+A:  A 4 to 5 Mb ramdisk would give you instant access to even infrequently
+    used functions if you put all of Arachne on it.  The same size disk
+    cache won't function nearly as well for much Arachne use, but it will
+    give you more available XMS memory.
+
+Q:  I only have 2 megs of ram in my '286, but I want to run Arachne.
+    What's best for me - cache, ramdisk or XMS ?
+A:  With a '286 you can't have XMS. Make a 384k ramdisk. Put command
+    on it. Put \TEMP on it. Use all the rest for HD cache.
+
+Q:  I only have 4 megs of ram in my '386, but I only want to run Arachne.
+    What's best for me - cache, ramdisk or XMS ?
+A:  This is the most difficult one to answer.
+    *   Revised:
+    The simple answer is: Make a 512k ramdisk. Put command.com on it.
+    Put \TEMP on it. Allocate .5 to 1.5meg to an optimized HD cache -
+    (512k-1536k). This will leave 2048k to 1024k for XMS respectively.
+    *   Revised:
+    The complicated answer is: Make a 2.1Mb ramdisk.(2152k) Compress it
+    with Stacker or Doublespace.  Put command.com on it.  Put \TEMP on it.
+    Set COMSPEC=RAMDISK:\COMMAND.COM and Set ARACHNETEMP=RAMDISK:\TEMP.
+    Unzip a trimmed ARACHNE install onto it. No background *.gifs and no
+    WIZ*.* in system\gui or system\dgi, no system\pktdrvrs, system\apm.db.
+    Leave Arachne cache and cacheindex on the HD and set Cache2temp Yes.
+    Also leave the HOTLIST plus Mail and Download directories on the HD.
+    Allocate 340k to the HD cache.  This leaves 576k for XMS.
+    Disable virtual screens. Try it. It seems faster this way.
+
+Q:  Where do I find out how to set up a Ramdisk ?
+A:  See the HOWto: ARAMDISK.txt
+
+Q:  Where do I find out how to set up a Hard Disk Cache ?
+A:  See the HOWto: ARACACHE.txt
+
+Q:  Where do I find out how to optimize my Cache or Ramdisk for speed ?
+A:  Find the utility Speedchk.zip.
+</SMALL></PRE>
+
+<HR>
+<A NAME="14">
+<LI><B>How can I contact the author of the browser ?</B>
+<P>
+Write general feedback to <A HREF="mailto:xchaos@arachne.cz">xchaos@arachne.cz</A>,
+contact <a href="mailto:sales@arachne.cz">sales@arachne.cz</a> if you
+want to register or license Arachne, and please report all bugs to
+<a href="mailto:bugs@arachne.cz">bugs@arachne.cz</a>. The mailbox for
+bug reports is downloaded directly to the development section
+of Arachne, so all forwarded URLs and HTML files are immediately tested
+with Arachne. Warning: technical support is available only for registered
+users !
+</OL>
+<LI>GPL Arachne is maintained by the
+<A HREF="http://groups.yahoo.com/group/ArachneDevelopment/">&nbsp;ArachneDevelopment</a>
+&nbsp;team,
+<li>send bug reports to<a href="mailto:XXXXXXX_Bugs@yahoogroups.com">
+XXXXXXX_Bugs@yahoogroups.com</a><br>
+substitute XXXXXXX with the name of your favourite web browser ;-)
+<br>(note, to reduce potential SPAM, do not publicize this e-mail address).
+<hr>

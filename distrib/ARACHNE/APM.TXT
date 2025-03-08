@@ -1,0 +1,43 @@
+
+How to create Arachne Packages (.APM)
+-------------------------------------
+
+An APM file is simply a normal ARJ archive. It is handled by freeware UNARJ.EXE
+included in Arachne package. It will be unpacked to the Arachne directory. It
+is a good idea to place more complex upgrades to separate directories.
+
+An APM package can contain any Arachne plug-in, DGI script, or patch, for
+example, a multimedia player, different font set, or simply just an APM.ID file
+with a list of changes to the Arachne configuration files.
+
+The only rule is that an APM package must contain a file called APM.ID with
+the following structure:
+
+---cut---
+[arachne-package]
+[APMicon=URL of package icon (eg. file:ZIP.IKN) - must be on first line!]
+Name=name of the package
+License=freeware,shareware, commercial, public domain ... GNU, copyright ..
+Description=some information about this package
+[Description=....more lines]
+[Mime=valid MIME.CFG line (MIME type will be replaced or added)]
+[Mime=...]
+[Icon=valid WWWMAN.CFG line]
+[Icon=...]
+[Config=valid ARACHNE.CFG line]
+[Config=...]
+[Overwrite=name of package which is overwritten/deactivated (without .APM!)
+[Overwrite=...]
+---cut---
+
+You can use HTML tags in the Name, License, and Description variables.
+
+Please send all your public APM packages or information about them to me
+(xchaos@arachne.cz), because the *REQUIRED* starting URL for APM packages
+is "http://home.arachne.cz/apm/". APMs don't necessary have
+to be located there, but this page should be at least a starting point
+for Arachne users to find them.
+
+There is a "Find APM" button in the "Save download file" and "Copy file" dialog
+boxes; this button uses the CGI script "http://home.arachne.cz/cgi-bin/find-apm"
+to locate a suitable APM for a given mime-type file extension.

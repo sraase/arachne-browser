@@ -1,0 +1,30 @@
+<TITLE>Arachne and DOSSHELL</TITLE>
+<Body BACKGROUND="file://paper.gif">
+<H1>Arachne and DOSSHELL</H1>
+<HR SIZE=4>
+DOSSHELL is Microsoft's official GUI for MS-DOS versions cca 6.x and 
+older. Arachne uses enviroment variables extensively, and DOSSHELL had
+problems with that. This is solution of the problem:
+<HR>
+<PRE>From: "Guido" <rds440214@att.net>
+Date: Fri, 26 Nov 1999 13:46:52 -0800
+To: xchaos@arachne.cz
+Subject: ARACHNE
+
+(....)
+
+You can boot ARACHNE within DOSSHELL, if the autoexec.bat file
+contains
+
+SET ARACHNE=vvvvvvvvvvvvvvvv
+SET ARACHNETEMP=vvvvvvvvvvvvvvvvvvvvvvvv
+SET MYIP=vvvvvvvvvvvvvvvvvvvvvvvvvvv
+SET REMIP=vvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+SET NETMASK=vvvvvvvvvvvvvvvvvvvvvvvvvvv
+SET PEERMRU=vvvvvvvvvvvvvvvvvvvvvvvvvv
+
+This allocates environment space before entering DOSSHELL. Then all
+is fine. (But, do not use task swapper!)
+
+(...)</PRE>
+<HR>Return to <A HREF="arachne:back">previous page</A>.

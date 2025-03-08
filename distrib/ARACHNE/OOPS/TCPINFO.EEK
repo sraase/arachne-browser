@@ -1,0 +1,13 @@
+@echo off
+echo *.EEK files are treated in the same way as *.OOK files, but IP address,
+echo nameserver, gateway and netmask are passed as four command line arguments.
+echo This can be useful for calling small DOS TCP/IP utilities, which require
+echo some of these parameters to run.
+echo.
+echo Current TCP/IP settings are:
+echo IP address: %1
+echo Nameserver: %2
+echo    Gateway: %3
+echo    Netmask: %4
+echo.
+pause

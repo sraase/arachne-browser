@@ -1,0 +1,97 @@
+<HTML>
+<Head>
+<Title>Using European character sets</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<H1>Using European character sets</H1>
+<HR Size=4>
+<H3>0. Do you need to read this ?</H3>
+If you are using Arachne only to read web pages in English
+and/or to send and receive e-mails written in English, you are very
+lucky - you don't have to worry about this stuff.
+
+<H3>1. Fonts</H3>
+Basic font sets for Arachne are available as
+<A HREF="apm.htm">Arachne Packages</A>. There are three basic packages
+available: ISO-8859-1 (USA, Western Europe), ISO-8859-2 (Central Europe),
+Windows-1251 or KOI-8-R (Cyrillic), ISO-8859-8 (Hebrew).
+<P>
+You can create your own fonts set from Windows TTF fonts using the TTF2FNT
+utility.
+<H3>2. Keyboard</H3>
+You can use any DOS keyboard driver you wish, but you must tell
+Arachne which ISO-8859-x (or Windows-12xx...) characters should
+be displayed after typing accented letters on your keyboard.
+<P>
+This is very easy - just fill in the translation table on the
+<A HREF="file://system/gui/opt_loc.ah">Options | Local settings</A> screen:
+<BR>1. Turn on your TSR keyboard driver (from DOS command line)
+<BR>2. Install requested font set to Arachne.
+<BR>3. Deactivate any existing keyboard map and restart Arachne.
+<BR>4. Press corresponding key for each accented letter you have on your keyboard.
+<I>Important: you shouldn't see correct characters in the input field! If you
+see them, it means that you don't have to use a keyboard map!</I>
+<BR>5. Press any dummy key (e.g., dot - '.') for each unused accented letter.
+<BR>6. Save and activate new keyboard map and then restart Arachne.
+
+<H3>3. Getting the correct charset</H3>
+A properly configured web server will send you the document in your
+local charset if the browser sends the HTTP keyword "Accept-charset".
+APM packages configure this keyword automaticaly but you can check
+it at <A HREF="file://system/gui/opt_loc.ah">Options | Local settings</A> screen.
+
+<H3>4. Receiving e-mails</H3>
+All "Content-type:" lines in MIME headers are converted to
+&lt;META HTTP-EQIV="Content-type" ...&gt; tags - see paragraph 6 below.
+Of course, for most e-mails you won't need any conversion tables,
+because ISO-Latin-1 and ISO-Latin-2 encodings are standards for
+Internet e-mail exchange and they are (more or less) accepted even
+by Microsoft.
+
+<H3>5. Sending e-mails</H3>
+You have to use either 8bit or quoted-printable encoding
+(see <A HREF="file://system/gui/opt_net.ah">Options | Network settings</A>) for outgoing
+e-mail, and you also have to specify your character set correctly
+(see <A HREF="file://system/gui/opt_loc.ah">Options | Local settings</A>).
+
+
+<H3>6. &lt;META HTTP-EQUIV="Content-type" ...&gt; tag</H3>
+
+You only need a 256byte-long translation table of your current
+character set (these tables are included in APM packages with fonts). 
+And fortunately, Microsoft FrontPage is able to automaticaly insert this tag into 
+HTML pages! Some Apache modules, which convert encoding to encoding-requested-
+by-browser, are even able to automaticaly alter the content of this tag when
+sending a page. Example:<P>
+
+<TT><B>&lt;META HTTP-EQUIV="Content-type" CONTENT="text/html; charset=X-Y"&gt;</B></TT>
+<P>
+<TABLE BORDER>
+<TH>X-Y
+<TD>Arachne will read conversion table from file
+<TR>
+<TH><TT>windows-1250</TT>
+<TH><TT>SYSTEM\CODEPAGE\1250.cp</TT>
+<TR>
+<TH><TT>iso-8859-2</TT>
+<TH><TT>SYSTEM\CODEPAGE\8859-2.cp</TT>
+<TR>
+<TD>etc.
+</TABLE>
+
+<H3>7. Specifying charset in HTTP header</H3>
+Works the same way as &lt;META&gt; - see below. The syntax of the HTTP header is:
+<P>
+<TT><B>Content-type: text/html; charset=X-Y</B></TT>
+
+<H3>8. Printing</H3>
+For ASCII printing, you can configure some additional encoding filter
+in your MIME.CFG file - on lines "file/print.dgi" and "file/printcom.dgi".
+PostScript printing of non-ISO-Latin-1 and  documents is not yet
+implemented, but it appears there is a solution which will
+be used in future.
+
+<HR>
+Return to <A HREF="arachne:back">previous page</A>.
+</Body>
+</HTML>

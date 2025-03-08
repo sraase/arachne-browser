@@ -1,0 +1,22 @@
+<HTML>
+<TITLE>Arachne Load Error</TITLE>
+<BODY>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Can't open connection</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=4>
+Arachne was unable to load requested URL.<p>
+Possible reasons:
+<LI>remote host refused request for connection
+<br><small><b>&nbsp;&nbsp;&nbsp;(this is the most likely cause and simply hitting 'R' to reload
+<br>&nbsp;&nbsp;&nbsp;&nbsp;the page will most likely load it correctly on the 2nd try)<br><br></b></small>
+<small><small><b>&nbsp;&nbsp;&nbsp;&nbsp;Less likely, but still possible causes....</b></small></small><br>
+<LI>remote host doesn't have DNS entry
+<LI>remote host cannot be accessed
+<LI>packet driver is installed, but network is unreachable.
+<br>&nbsp;&nbsp;&nbsp;This may be caused eg.
+<br>&nbsp;&nbsp;&nbsp;by unplugged ethernet cable or lost modem connection.
+<HR>
+See <A HREF="file://help.htm">Arachne documentation</A> for more info.
+</BODY>
+</HTML>

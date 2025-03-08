@@ -1,0 +1,26 @@
+<HTML><TITLE>Arachne QuicKpad</TITLE>
+<BODY NORESIZE>
+<FORM ACTION="arachne:internal-editor">
+<TEXTAREA ROWS=30 ARACHNEROWS COLS=74 ARACHNEEDITOR=QUICKPAD.TXT ACTIVE>
+</TEXTAREA>
+<TABLE CELLSPACING=0>
+<TD colspan=3>
+<INPUT TYPE=SUBMIT VALUE="Save Quickpad.txt &nbsp;&amp; return &nbsp;[F2]">
+<!--- external editor --->
+<tr><td>
+<FORM ACTION="file:qxedit.dgi">
+<INPUT TYPE=SUBMIT VALUE="External Editor">
+</form>
+<td>
+<!--- end external editor section --->
+<TD WIDTH=190 ALIGN=CENTER>
+<FORM ACTION="file://edithelp.htm">
+<INPUT TYPE=SUBMIT VALUE=" Editor Help ">
+<TD WIDTH=95 ALIGN=RIGHT>
+<FORM ACTION="arachne:back">
+<INPUT TYPE=SUBMIT VALUE="  Cancel  ">
+<TR>
+<TD nowrap COLSPAN=3 ALIGN=CENTER>
+<FONT COLOR=#800000><I>
+Paste this anywhere with <B>cntrl+R</B> &nbsp; &nbsp; Shortcut to QuicKpad<SUP><FONT SIZE=-2> (TM)(R)[D] :-)</FONT></SUP> is <B>alt+Q</B>
+</TABLE></HTML>

@@ -1,0 +1,345 @@
+;This version of mime.cfg is strictly for use with 4DOS as command shell
+;--------------------------------------------------------------------------
+;Arachne understands four basic file types: HTM, GIF, BMP, TXT, CSS and ASF.
+;Only GIF and BMP can be inlined using <IMG> tag. If the file has different
+;extension than one those and if in the following conversion table no
+;corresponding action is defined, Arachne offers moving of downloaded file
+;from CACHE directory (or of local file) to DOWNLOAD directory.
+;ASF files are treated as script files (simply lists of URLs).
+;
+;For conversion to supported format is used macro "ext1>ext2|command",
+;for calling external viewer macro "extension|command". See syntax rules
+;(at the end of this file.)
+;--------------------------------------------------------------------------
+
+
+[glennmcc stuff]
+application/rss+xml RSS>HTM|@call rss2htm.bat $1 $2
+application/xml RSS>HTM|@call rss2htm.bat $1 $2
+text/xml RSS>HTM|@call rss2htm.bat $1 $2
+file/lynx.dgi |@call $edoslynx.bat $s
+file/savefile.dgi >txt|if exist $s goto ne\ncopy /b $l $S>$2\ngoto end\n:ne\necho "file exists">$2\necho "try a new name">>$2\n:end
+file/dir.dgi         >htm|dir $klastdir \|$esystem\\dgi\\fixmem.com dir>$2
+file/font8x14.dgi  >HTM|copy /b $esystem\\8x14\\$kfont8x14 $esystem\\8x14.fnt \ncopy /b $ealt-font.htm $2
+file/propfont.dgi  >HTM|copy /b $esystem\\$kpropfont $esystem\\*.fnt \ncore.exe -f \ncopy /b $ealt-font.htm $2
+file/.zbm          >BMP|md $a\\zbm \n unzip -o -j $1 -d $azbm\\ \n copy /b $azbm\\*.bmp $2 \n del $azbm\\*.bmp \n rmdir $azbm
+image/x-zbitmap ZBM>BMP|md $a\\zbm \n unzip -o -j $1 -d $azbm\\ \n copy /b $azbm\\*.bmp $2 \n del $azbm\\*.bmp \n rmdir $azbm
+file/saveaszbm.dgi |zip -9 -j $s $l\n ren $s *.zbm
+file/bmp2zbm.dgi   >TXT|zip -m -j $s _4prt.bmp|del _4prt.bmp \n if exist $s echo file has been converted to $s>$2
+file/export.dgi    >TXT|copy /b _4prt.txt $s>NUL |del _4prt.txt \n if exist $s echo file has been saved to $s>$2
+file/exportps.dgi  >TXT|copy /b _4prt.ps $s>NUL |del _4prt.ps \n if exist $s echo file has been saved to $s>$2
+file/exportbmp.dgi >TXT|copy /b _4prt.bmp $s>NUL |del _4prt.bmp \n if exist $s echo file has been saved to $s>$2
+file/bmp2jpg.dgi   >TXT|cjpeg -q 95 _4prt.bmp|copy _4prt.jpg $s|del _4prt.bmp|del _4prt.jpg \n if exist $s echo file has been converted to $s>$2
+
+image/bmp                   BMP
+image/pjpeg              JPG>BMP|$edjpeg32.exe $j $1 $2
+;audio/mpeg                  MP3|@d:\\audio\\mpxplay1.479\\mpxplay.exe -m $1
+;audio/x-mpeg                MP3|@d:\\audio\\mpxplay1.479\\mpxplay.exe -m $1
+;audio/mpeg3                 MP3|@d:\\audio\\mpxplay1.479\\mpxplay.exe -m $1
+;audio/x-mpeg3               MP3|@d:\\audio\\mpxplay1.479\\mpxplay.exe -m $1
+;audio/mpeg                  MP3|call C:\\1batch\\aramulti.bat $1
+;audio/x-mpeg                MP3|call C:\\1batch\\aramulti.bat $1
+;audio/mpeg3                 MP3|call C:\\1batch\\aramulti.bat $1
+;audio/x-mpeg3               MP3|call C:\\1batch\\aramulti.bat $1
+
+;audio/midi                  MID|d:\\audio\\cndmidi\\cndmidi.exe $1
+;audio/x-midi                MID|d:\\audio\\cndmidi\\cndmidi.exe $1
+;audio/s3m                   S3M|@d:\\audio\\mod\\cp16\\cp.EXE $1
+;audio/x-s3m                 S3M|@d:\\audio\\mod\\cp16\\cp.EXE $1
+;audio/mod                   MOD|@d:\\audio\\mod\\cp16\\cp.EXE $1
+;audio/x-mod                 MOD|@d:\\audio\\mod\\cp16\\cp.EXE $1
+;application/zip         ZIP>TXT|echo Press F2 now to save the ZIP anywhere you like, with any name you like.>$2\necho .>>$2\nunzip -l -v $1>>$2
+;application/x-zip       ZIP>TXT|echo Press F2 now to save the ZIP anywhere you like, with any name you like.>$2\necho .>>$2\nunzip -l -v $1>>$2
+;application/x-zipped    ZIP>TXT|echo Press F2 now to save the ZIP anywhere you like, with any name you like.>$2\necho .>>$2\nunzip -l -v $1>>$2
+;application/x-zip-compressed ZIP>TXT|echo Press F2 now to save the ZIP anywhere you like, with any name you like.>$2\necho .>>$2\nunzip -l -v $1>>$2
+;application/x-arachne-package APM>TXT|UNARJ l $1>$2
+;application/x-arachne-package APM|$eacopy.exe $d e:\\arachne\\apm\\ $1
+;file/printprn.dgi    |TYPE _*.txt>PRN\ntype formfeed>prn
+
+;file/printbmp.dgi    |g:\\graphics\\printgfd\\printgfd.exe _4prt.bmp /x
+;file/printjpg.dgi    |g:\\graphics\\printgfd\\printgfd.exe _4prt.jpg /x
+
+
+;file/.mp3             |@d:\\audio\\DOSAMP\\DOSAMP.EXE $1 -downsample
+;file/.mp3             |@d:\\audio\\mpxplay1.479\\mpxplay.exe -m $1
+;file/.mp3             |call C:\\1batch\\aramulti.bat $1
+;file/.ogg             |call C:\\1batch\\aramulti.bat $1
+;file/.ogg            |@d:\\audio\\mpxplay1.479\\mpxplay.exe -m $1
+;audio/x-vorbis        |call C:\\1batch\\aramulti.bat $1
+;audio/ogg             |call C:\\1batch\\aramulti.bat $1
+;audio/x-vorbis     OGG|@d:\\audio\\mpxplay1.479\\mpxplay.exe -m $1
+;audio/ogg          OGG|@d:\\audio\\mpxplay1.479\\mpxplay.exe -m $1
+;file/.mid          MID|copy $1 $2 \n d:\\audio\\cndmidi\\cndmidi.exe $2
+;file/.s3m             |@d:\\audio\\mod\\cp16\\cp.EXE $1
+;file/.mod             |@d:\\audio\\mod\\cp16\\cp.EXE $1
+;file/.zip             >TXT|unzip -l -v $1>$2
+;file/.arj             >TXT|UNARJ l $1>$2
+
+;file/txedit.dgi   |@call xedit $l
+;file/mxedit.dgi   |@call xedit mail.tmp
+;file/cmpsxedit.dgi |@call xedit textarea.txt
+;file/cxedit.dgi   |@call xedit textarea.tmp
+;file/xxedit.dgi   |@del textarea.tmp
+;file/xedit.dgi    |@call xedit $l|arachne $l
+file/txedit.dgi   |@call xedit.bat $l
+file/mxedit.dgi   |@call xedit.bat textarea.tmp
+file/qxedit.dgi   |@call xedit.bat quickpad.txt
+
+file/exportbmp.dgi      |COPY /b _4prt.bmp $w$s>NUL \n del _4prt.bmp
+file/edithelp.dgi >htm|copy textarea.tmp mail.tmp|copy edithelp.htm $2
+
+
+;file/.pdf       >HTM|@call c:\\pdf2htm\\pdf2htm5\\pdf2htm.bat $1 $2
+
+;file/.pdf            >TXT|@c:\\xpdfdos\\pdftotex.exe -q $1 $2
+;text/enriched            RTF>HTM|@call rtf2htm.bat $1 $2
+;text/richtext            RTF>HTM|@call rtf2htm.bat $1 $2
+;application/rtf          RTF>HTM|@call rtf2htm.bat $1 $2
+application/rar          RAR>TXT|@unrar.exe v $1>$2
+file/.rar                RAR>TXT|@unrar.exe v $1>$2
+
+;video/mpeg         MPG|call C:\\1batch\\aramulti.bat $1
+;video/x-mpeg       MPG|call C:\\1batch\\aramulti.bat $1
+
+;video/x-msvideo    AVI|call C:\\1batch\\aramulti.bat $1
+;video/msvideo      AVI|call C:\\1batch\\aramulti.bat $1
+;video/quicktime    MOV|call C:\\1batch\\aramulti.bat $1
+;file/.mpg             |call C:\\1batch\\aramulti.bat $1
+;file/.mpe             |call C:\\1batch\\aramulti.bat $1
+;file/.avi             |call C:\\1batch\\aramulti.bat $1
+;file/.mov             |call C:\\1batch\\aramulti.bat $1
+
+;file/.doc          >TXT|c:\\antiword\\antiword.exe $1>$2
+;application/msword >TXT|c:\\antiword\\antiword.exe $1>$2
+;image/x-xbitmap    >GIF|g:\\graphics\\nview\\nconvert.exe -out gif $1 $2
+;file/.xbm          >GIF|copy $1 $a\\temp.xbm \n g:\\graphics\\nview\\nconvert.exe -out gif $a\\temp.xbm \n copy $a\\temp.gif $2
+
+[end of glennmcc stuff]
+
+
+[MIME]
+text/html                HTM
+text/plain               TXT
+text/css                 CSS
+image/gif                GIF
+;audio/wav               WAV|call C:\\1batch\\aramulti.bat $1
+;audio/x-wav             WAV|call C:\\1batch\\aramulti.bat $1
+audio/wav                WAV|$eplany.exe $1
+audio/x-wav              WAV|$eplany.exe $1
+audio/basic              AU|$eplany.exe $1
+;Disable (comment out) this, if you want use Arachne on PC XT or PC AT:
+;DPMI memory available only on 386 or better CPU... apply package "16bit.apm"
+image/jpeg          JPG>BMP|$edjpeg32.exe $j $1 $2
+image/jpg           JPG>BMP|$edjpeg32.exe $j $1 $2
+image/png                PNG>BMP|$epng2bmp.exe -s -o $2 $1
+image/x-png              PNG>BMP|$epng2bmp.exe -s -o $2 $1
+;
+;defaultly not distributed APMs - use "Find APM" button in Arachne....
+video/mpeg       MPG
+video/x-msvideo  AVI
+video/quicktime  MOV
+audio/mpeg       MP3
+audio/x-mpeg     MP3
+audio/mpeg       MP3
+audio/x-mpeg     MP3
+application/postscript   PS
+application/mac-binhex40 >HTM|type binhex.htm>$2
+;
+;I will save this with correct extension:
+text/enriched            RTF
+text/richtext            RTF
+image/x-bitmap           BMP
+image/tiff               TIF
+image/x-xbitmap          XBM
+message/rfc822           RFC
+message/rfc822           CNM
+message/rfc822           SNT
+message/rfc822           MES
+message/rfc822           TBS
+message/partial          RFC
+message/news             NWS
+application/rtf          RTF
+application/wordperfect5.1 WPD
+application/pdf          PDF
+application/msword       DOC
+application/zip          ZIP
+application/x-zip        ZIP
+application/x-zipped     ZIP
+application/x-zip-compressed ZIP
+application/octet-stream EXE
+application/octet-stream COM
+;
+;Arachne-specific:
+application/x-arachne-package APM>HTM|$eapm.exe -u $u $1>$2
+application/x-netdos-exe EXE|@$eapm.exe -v $u $1
+application/x-netdos-com COM|@$eapm.exe -v $u $1
+;--------------------------------------------------------------------------
+;Pseudomime types - "Arachne extensions to MIME" :-)
+;--------------------------------------------------------------------------
+[ARACHNE]
+gopher/0   TXT
+gopher/1   GOP>HTM|$esystem\\dgi\\goph2htm.exe $1>$2
+gopher/5   ZIP
+gopher/6   UUE
+gopher/7   GOP>HTM|$esystem\\dgi\\goph2htm.exe -s>$2
+gopher/g   GIF
+finger/out TXT
+news/list  TXT
+ftp/list   FTP>HTM|$ewwwman.exe -f $1>$2
+;--------------------------------------------------------------------------
+;External internet protocols - any new protocol can be declared using this:
+;--------------------------------------------------------------------------
+external/edit   |@$! $d
+external/telnet |@telnet.exe $p
+external/irc    |@$eapm.exe -t http://home.arachne.cz/apm/irc
+;external/pop3   |@echo Insert your mail floppy disk into drive A:\npause\nmove a:\\*.cnm $m
+;external/smtp   |@echo Insert your mail floppy disk into drive A:\npause\nmove $m*.tbs a:\\*.cnm
+;external/ftp    |@ftp.exe
+;external/gopher |@minuet.exe $u
+;--------------------------------------------------------------------------
+;Local files and DGI:
+;--------------------------------------------------------------------------
+;Try to uncomment following, and you will have MSIE 9.0 style desktop ;-)
+;(note: extension .com must preceed .c, etc.)
+;file/.exe |@$1
+;file/.com |@$1
+;file/.bat |@$1
+;
+;Other files and DGI scripts:
+file/*.mht           >HTM|$einsight.exe $1 -cache=$t>$2
+file/*.eml           >HTM|$einsight.exe -i $1 -cache=$t>$2
+file/*.mes           >HTM|$einsight.exe -i $1 -cache=$t>$2
+file/*.cnm           >HTM|$einsight.exe -i $1 -cache=$t>$2
+file/*               >HTM|$ewwwman.exe $f $1 -x=$r>$2
+
+file/.skn >HTM|copy $1 skin.css|copy /v chngdone.htm $2
+
+file/cacheindex.dgi  >HTM|$ewwwman.exe -c $c>$2
+file/history.dgi     >HTM|$ewwwman.exe -h $h>$2
+file/wwwmanset.dgi   >HTM|$ewwwman.exe -s $S>$2
+file/galery.dgi      >HTM|$ewwwman.exe -g $S>$2
+file/playlist.dgi    >ASF|$ewwwman.exe -p $S>$2
+file/.cnm            >HTM|$einsight.exe $1 -cache=$t>$2
+file/.eml            >HTM|$einsight.exe $1 -cache=$t>$2
+file/.rfc            >HTM|$einsight.exe $1 -cache=$t>$2
+file/.mes            >HTM|$einsight.exe $1 -cache=$t>$2
+file/.tbs            >HTM|$einsight.exe $1 -cache=$t>$2
+file/.dft            >HTM|$einsight.exe $1 -cache=$t>$2
+file/.snt            >HTM|$einsight.exe $1 -cache=$t>$2
+file/inbox.dgi       >HTM|$einsight.exe -i $M*.cnm -cache=$t>$2
+file/outbox.dgi      >HTM|$einsight.exe -i $M*.tbs -cache=$t>$2
+file/draftbox.dgi    >HTM|$einsight.exe -i $M*.dft -cache=$t>$2
+file/readmail.dgi    >HTM|$einsight.exe -folders $M*.* -cache=$t>$2
+file/sentmail.dgi    >HTM|$einsight.exe -i $M*.snt -cache=$t>$2
+file/trashfolder.dgi >HTM|$einsight.exe -i $Mtrash\\*.mes -cache=$t>$2
+file/reply.dgi       >HTM|$einsight.exe -r -q=$q -cache=$t>$2
+file/resend.dgi      >HTM|$einsight.exe -e -q=$q -cache=$t>$2
+file/forward.dgi     >HTM|$einsight.exe -f -q=$q -cache=$t>$2
+file/movemail1.dgi   >HTM|$einsight.exe -1 -q=$q -cache=$t>$2
+file/movemail2.dgi   >HTM|$einsight.exe -2 -q=$q -cache=$t>$2
+;
+;Trash mail folder management:
+;people who don't like TRASH folder can copy delmail1.dgi as delmail2.dgi ..
+file/delmail1.dgi     >HTM|$einsight.exe -2 -q=$q -cache=$t>$2
+file/delmail2.dgi     >HTM|$einsight.exe -d -q=$q -cache=$t>$2
+file/emptytrash.dgi >HTM|if exist $Mtrash\\*.mes del $Mtrash\\*.mes\n$einsight.exe -i $Mtrash\\*.mes -cache=$t>$2
+;
+file/test.dgi        >TXT|COPY $q $2>NUL
+file/echo.dgi        >TXT|ECHO $s>$2
+file/mem.dgi         >HTM|mem|$esystem\\dgi\\fixmem.com>$2
+file/memc.dgi        >HTM|mem /C|$esystem\\dgi\\fixmem.com /C>$2 \n type memcore.txt>>$2
+file/memcore.dgi        >HTM|0]mem /C|$esystem\\dgi\\fixmem.com /C>$2
+file/wizard.dgi      >HTM|@$esystem\\dgi\\wizard.exe $2
+file/wizardm.dgi     >HTM|$esystem\\dgi\\wizard.exe -m $2
+file/pktchk.dgi      >HTM|@set PKT=y\n$esystem\\pktdrvrs\\pktchk.com 0x60\nif errorlevel 1 set PKT=n\ntype $esystem\\gui\\etherwz%%PKT%%.ah>$2
+file/reboot.dgi      |@echo Please stand by while restarting the system...\ndel lock\n$esystem\\dgi\\reboot.com
+file/grep.dgi        >TXT|FIND "$s" *.htm /S>$2
+file/pktstat.dgi     >TXT|$esystem\\pktdrvrs\\pktstat.com>$2
+file/dosshell.dgi    |@call $esystem\\dgi\\dosshell.bat $z $e
+file/clearcache.dgi |call $esystem\\dgi\\clr.bat $c $a $t $kDelHistory $h
+;file/clearcache.dgi  |call $esystem\\dgi\\clr.bat $c $a $t
+file/clearhtml.dgi   |if exist $a*.htm del $a*.htm\nif exist $aheaders\\*.htt del $aheaders\\*.htt
+file/printprn.dgi    |type _4prt.txt>PRN
+file/printcom.dgi    |print /d:prn\n print _4prt.txt
+;file/psprintprn.dgi  |type _4prt.ps>PRN
+;file/psprintcom.dgi  |print /d:prn _4prt.ps
+file/exportbmp.dgi   |COPY _4prt.bmp $s>NUL
+file/.acf            |COPY $1 ARACHNE.CFG\nif exist lock del lock\narachne.bat
+file/.bhx            >HTM|type $edoc\\binhex.htm>$2
+file/.fil            >TXT|DIR $l>$2
+file/.apm            >HTM|$eapm.exe -u $u $1>$2
+file/apm.dgi         >HTM|copy $eapm.htp+$esystem\\apm.db\\*.htm $2>NUL
+file/.ook |@COPY $1 $$roura3.bat>NUL\nCALL $$roura3.bat
+File/.eek |@COPY $1 $$roura3.bat>NUL\nCALL $$roura3.bat $i $n $g $x
+file/edithotlist.dgi  >HTM|$esystem\\dgi\\hotlsman.exe $s>$2
+file/makehotlist.dgi  >HTM|$esystem\\dgi\\hotlsman.exe -q $q>$2
+file/hotlistmgr.dgi   >HTM|$esystem\\dgi\\hotlsman.exe $b>$2
+;
+;installation:
+file/autoexecwiz.dgi   >HTM|$esystem\\dgi\\cfgwiz.exe edit $s >$2
+file/saveautoexec.dgi  >HTM|$esystem\\dgi\\cfgwiz.exe ok $q>$2
+file/changeconfig.dgi  >HTM|$esystem\\dgi\\cfgwiz.exe change $s >$2
+file/cfgwiz.dgi        >HTM|$esystem\\dgi\\cfgwiz.exe detect >$2
+file/setup_os.dgi      >HTM|@$esystem\\dgi\\cfgwiz.exe profile >$2
+file/changeprofile.dgi |COPY $s ARACHNE.CFG>NUL\nif exist lock del lock\narachne.bat file://cfgwiz.dgi
+;
+;aliases and standard file types
+file/.htt            HTM
+file/.htp            HTM
+file/.ah             HTM
+file/.ahn             HTM
+file/.gop            TXT
+file/.ftp            TXT
+file/.log            TXT
+file/.cfg            TXT
+file/.com            COM
+;file/.c              TXT
+file/.bat            TXT
+file/file_id.diz     TXT
+;file/.wav            |call C:\\1batch\\aramulti.bat $1
+file/.wav            |$eplany.exe $1
+file/.au             |$eplany.exe $1
+file/files.bbs       TXT
+;disable on PC AT/XT (apply package "16bit.apm")
+file/.jpg        >BMP|$edjpeg32.exe $j $1 $2
+file/.jpe        >BMP|$edjpeg32.exe $j $1 $2
+file/.png        >BMP|$epng2bmp.exe -s -o $2 $1
+file/.url        >HTM|Url2Htm $1>$2
+;not enabled:
+;file/.zip            >TXT|unzip -l -v $1>$2
+;file/.arj            >TXT|ARJ l $1>$2
+;---------------------------------------------------------------------------
+;Syntax of MIME.CFG (please don't beat me, I'll never do it again !! ;-)
+;--------------------------------------------------------------------------
+;* If command starts '@', it will be executed in text mode and with maximum
+;  memory.
+;* If command starts with [nn] string, it will be executed without
+;  temporary leaving of Arachne if there is [nn] kB available for program.
+;* In command arguments you can use following macros. Instead of $1, $2, etc.
+;  like in Unix scripts you can use %1, %2 like in DOS batch files.
+;  $1 ... full input filename
+;  $2 ... full output filename
+;  $a ... patch to cache ("Archive") (typicaly CACHE\)
+;  $b ... full name of Bookmarks (typicaly HOTLIST.HTM)
+;  $c ... full name of Cache index (typicaly CACHE.IDX)
+;  $d ... Document name (ftp://ftp.provider.com/pub/ -> /pub/)
+;  $e ... path to Executable files (CORE.EXE, insight.exe, etc.)
+;  $f ... file browser arguments (icons or file list)
+;  $g ... ip address of 1st Gateway (according to ARACHNE.CFG)
+;  $h ... full name of History file (typicaly HISTORY.LST)
+;  $i ... your Ip address
+;  $j ... DJPEG arguments - ARACHNE.CFG variable DJPEGargs + color depth, etc.
+;  $l ... Last visited document (filename)
+;  $m ... path to Mail directory (typicaly MAIL\)
+;  $n ... ip address of 1st Nameserver (according to ARACHNE.CFG)
+;  $p ... host ("Pocitac") (telnet://cyberspace.org -> cyberspace.org)
+;  $q ... filename of Query string (file created only when using this macro)
+;  $r ... horizontal Resolution of the screen (value is 640, 800 or 1024)
+;  $s ... cgi compatible query String (max. 80 characters)
+;  $t ... path for Temporary files (either CACHE\ or %TEMP% - see Cache2TEMP)
+;  $u ... Url of document
+;  $w ... doWnload path (typicaly DOWNLOAD\)
+;  $x ... netmask (according to ARACHNE.CFG)
+;  \n ... end of line (note: this won't work for "|[nn]xx" style commands!)
+;  %% ... % character
+

@@ -1,0 +1,41 @@
+<Body BACKGROUND="file://paper.gif">
+<TITLE>16-bit Arachne for DOS Memory Map</TITLE>
+<FONT SIZE = +1 >16-bit Arachne for DOS Memory Map</FONT>
+<P>
+<TABLE BORDER = 3 CELLSPACING = 3 WIDTH = 100% >
+<TH WIDTH=21% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Memory type
+<TH WIDTH=10% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Min
+<TH WIDTH=15% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Max
+<TH WIDTH=54% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>How Arachne uses it
+<TR>
+<TD><B>DOS memory
+<TD>425 kB<TD>640 kB
+<TD>Program code and frequently accessed data, xSwap(TM) cache
+<TR>
+<TD><B>xSwap(TM)</B> virtual memory
+<TD>500 kB<TD>cca 3 MB
+<TD>Configuration files ("Arachne registry"), HTML pages. Can be located
+in swap files on current drive, in EMS or in XMS.
+<TR>
+<TD><B>Swap files</B>
+<TD>500 kB<TD>3 MB
+<TD>xSwap(TM) virtual memory and various temporary batch, data and index files.
+Swap files are located on current DOS drive,
+which can be either RAM disk or hard disk. Floppy disks are too slow.
+<TR>
+<TD><B>EMS</B> (optional)
+<TD>500 kB<TD>3 MB
+<TD>xSwap(TM) virtual memory
+<TR>
+<TD><B>XMS</B> (optional)
+<TD>500 kB<TD>up to cca 32 MB 
+<TD>xSwap(TM) virtual memory, virtual screens (up to 6 screens, each 1600x16000 pixels big)
+font caching (up to 50 fonts). Maximum vertical size of virtual screen is usually
+5000 pixels, so typicaly Arachne uses up to 6 MB of XMS.
+<TR>
+<TD><B>DPMI</B>
+<TD>0 kB<TD>not limited
+<TD>required by 32bit version of DJPEG and by 32bit PNG2BMP;
+do not use DR-DOS DMPI driver - CWSDPMI is included in Arachne package.
+</TABLE>
+Return to <A HREF="..\help.htm">main help page</A>.

@@ -1,0 +1,46 @@
+<HTML>
+<Head>
+<Title>How to upgrade Arachne</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<H1>How to upgrade Arachne</H1>
+<HR Size=4>
+There is currently no user friendly way to upgrade the Arachne WWW browser.
+It is strongly recommended that you always install a new release of Arachne 
+to a new directory, keeping your old installation as your back-up copy.
+If you need to save disk space, try to
+<UL>
+<LI> delete all files in the old Arachne's CACHE subdirectory.
+<LI> use some archiving utility (ZIP, ARJ, RAR, etc.) to pack files in
+the old Arachne's directory. After unpacking, your backup copy of Arachne
+should work again.
+</UL>
+<P>
+Generally you can try to copy files with extension <A HREF="file://*.cfg">.cfg</A>
+from your previous installation to the new one, but be careful with
+file <A HREF="..\mime.cfg">mime.cfg</A> since the new one may describe <A HREF="..\dgi.txt">
+DGI applications</A> required by the new installation of Arachne. 
+It is a good idea to reinstall all <A HREF="apm.htm">APM packages</A>
+when upgrading Arachne - they will update the new MIME.CFG automaticaly.
+You will probably also want to use your old bookmarks, i.e., the <A HREF="FILE:..\hotlist.htm">hotlist.htm</A> file.
+Files in the MAIL subdirectory can be simply moved to the new mail directory,
+or you can use a common mail directory for all installations of Arachne on
+your PC (something like c:\mail\)
+<P>
+If you have decided to overwrite your existing application using the Arachne
+self-extracting installer, you will find your old .cfg files and
+the hotlist in a subdirectory of the new Arachne installation directory called 
+<A HREF="file://backup\*.*">backup\</A>.
+<HR>
+<H1>NEW!</H1>
+<B>The format of the mail directory was changed in 1.45 beta: </B>
+Received messages (*.MES files) are now stored in subfolders of your
+mail directory. This means you have to create a new directory (called,
+let's say, OLD\) in you current mail subdirectory, and copy all *.MES
+files to this subdirectory. Keep *.CNM, *.TBS and *.SNT files
+in the main mail directory.
+
+<HR>
+Return to <A HREF="arachne:back">previous page</A>.
+</Body>
+</HTML>

@@ -1,0 +1,108 @@
+<HTML>
+<Head>
+<Title>Using Arachne e-mail</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<H1>Using Insight e-mail</H1>
+<HR Size=4>
+The Arache e-mail client is called "Insight" - because of its main competitor,
+called "Outlook" ;-)
+<P>
+The easiest way to set up Insight is using the <A HREF="file://system/gui/wizarda.ah">e-mail setup wizard</A>.
+<P>
+More advanced users can go
+to the <A HREF="file://options.htm">options page</A>. You should correctly
+set up the SMTP and POP3 server name in the <A HREF="file://system/gui/opt_net.ah">network
+settings section</A>, timezone and mail directory in the
+<A HREF="file://system/gui/opt_loc.ah">local settings section</A>, and fill in your
+personal information and mail transfer preferences in the
+<A HREF="file://system/gui/opt_pers.ah">personal settings section</A>.
+Another option is to edit <A HREF="file://arachne.cfg">ARACHNE.CFG</A>
+- Arachne's plain text configuration file.
+<P>
+Once the e-mail is configured, you can use the
+<A HREF="file://mail.htm">Insight</A> graphical interface to compose, send,
+receive, and read messages and files. You can send mails using a <A HREF="mailto:">
+mailto</A> type of URL. You can e-mail all displayed documents by just
+pressing the &lt;F2&gt; key and send other files by just clicking on their
+icons in directory listings.
+<H3>Address book</H3>
+Many Arachne testers were confused by the absence of an addressbook. 
+Arachne does not have an e-mail-only addressbook: however, the Arachne Hotlist
+can contain any valid URLs, including the <A HREF="mailto:">mailto:</A>
+kind - also known as e-mail addresses. If you select a
+mail address with the right mouse button and click on "Add to hotlist" (or
+press hotkey "A"), you will be asked to edit the hotlist item name -
+which is usually the name of the person you are adding to your hotlist.
+
+<H3>Sending messages</H3>
+You can use multiple e-mail addresses in the To: or CC: fields. You can
+separate them using one of the following characters: <B>, ; + : </B>.
+<P>
+When composing an e-mail message, you don't have to specify the e-mail
+addresses of recipients manually from the keyboard. You can also use  
+<B>@filename</B> in the To: or CC: field which allows you to use a list 
+of e-mail address stored in a local file. No special formating is needed: 
+it should be a plain text file with one valid e-mail address on each line.
+<P>
+You can choose two ways to submit each e-mail: send it immediately
+to the Internet (if you are online), or save it on your disk in
+the OUTBOX folder. In the second case, the message will actually leave 
+your computer after clicking on the <B>Send unsent mail</B> icon in the 
+<A HREF="file://mail.htm">Insight page</A> (of course, you must be online 
+to perform the upload). If you choose to send the mail when you are offline, 
+the message will be saved to OUTBOX.
+
+<H3>Folders</H3>
+Received mail is stored in folders. Folders are simply subdirectories
+of your main mail directory. If you want to create, rename or remove them,
+just create, rename or remove the directory. 
+You can do this using your DOS file manager
+- try <A HREF="file://doc//apm.htm">Arachne Packages</A> VC.APM or DC.APM
+if you don't have any file manager yet.
+Folders are listed in alphabetical order. 
+<P>
+You can easily move received messages from
+one folder to another. New messages (in INBOX), archived ones, and sent
+ones have a "Move" button which allows you to move them to an existing 
+folder or even to create a new folder and immediately move the message there.
+The "Trash" button is a shortcut for moving messages to the TRASH folder, and
+"Archive" is for moving them to the ARCHIVE folder.
+<P>
+<I>Tip: to quicky delete an unwanted message from a folder, select it with
+the right mouse button (or Shift+Enter) and press Delete.</I>
+<P>
+<B>e-mail Messages</B> are stored on your disk as normal text files - 
+the following table explains the extensions:
+<TABLE BORDER>
+<TD>*.CNM<TD>New mail (Compatibility: Pegasus mail for DOS on Novell networks)<TR>
+<TD>*.MES<TD>Received mail - stored in folders (we avoided *.MSG because
+this extension is used for messages in the Fidonet netmail directory, which
+uses proprietary binary headers)<TR>
+<TD>*.TBS<TD>"To Be Sent" - outgoing mail<TR>
+<TD>*.SNT<TD>Sent mail
+</TABLE>
+
+<H3>More tips &amp; tricks</H3>
+While viewing an e-mail message, you can easily rename it and copy it to another
+directory using the &lt;F2&gt; key. You can use any filename you wish, but
+it is recommended to keep the *.CNM extension, so that Arachne or, for example,
+Pegasus mail for DOS can recognize the files later. The &lt;F2&gt; key is 
+another way to forward an e-mail message exactly as it is - most e-mail
+clients will recognize such an attachment.
+<P>
+In case that you don't want your POP3 password to appear in the
+<A HREF="file://ARACHNE.CFG">ARACHNE.CFG</A> file, you have to enter the password
+into the input field in the top left corner of the
+<A HREF="file://mail.htm">Insight page</A> and press the <B>Accept</B> button each time you restart Arachne.
+<P>
+You can also download mail by giving the following URL to Arachne:
+<BR><B>pop3://username:password@server</B>
+<P>
+If you want to transfer e-mail to more mailboxes and/or send and receive
+e-mail at the same time, you can use <A HREF="acf_asf.htm">Arachne script
+files</A>.
+<P>
+Return to <A HREF="arachne:back">previous page</A>.
+</Body>
+</HTML>

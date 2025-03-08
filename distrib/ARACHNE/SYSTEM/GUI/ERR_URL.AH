@@ -1,0 +1,15 @@
+<HTML>
+<TITLE>Arachne Load Error</TITLE>
+<BODY>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Unknown protocol in URL</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=4>
+Arachne was unable to load the requested URL.<br>
+The requested protocol is not yet supported.
+<HR>
+See <A HREF="file://help.htm">Arachne documentation</A> for 
+<A HREF="file://doc/specif.htm">list of supported standards</A>.
+<HR>
+</BODY>
+</HTML>

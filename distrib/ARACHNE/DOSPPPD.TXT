@@ -1,0 +1,1320 @@
+
+Note: I created this file by merging README.TXT and PPPD.MAN from
+DOSPPPD.ZIP archive. Forget CHAT.EXE - Arachne uses it's own dialer,
+called MINITERM.EXE, which reads ARACHNE.CFG and can be used both as
+terminal for manual login or as dialer with autologin.
+
+Arachne also automagicaly creates file PPPDRC.CFG used by PPPD.EXE,
+using values from ARACHNE.CFG configuration file.
+
+Please send any comments to ARACHNE+DOSPPPD solution to xchaos@arachne.cz
+
+--- Begin (original filename: README.TXT) ---
+PPPD for DOS 0.6 beta               Copyright (c) 1997 Antonio Lopez Molero
+
+
+CONTENTS
+
+        INTRODUCTION
+        WHO AM I
+        LICENSING
+        CREDITS
+        ACKNOWLEDGEMENTS
+        FEATURES
+        UNSUPPORTED FEATURES
+        FILES
+        INSTALLATION
+        CONFIGURATION AND USE
+        CONFIGURATION FILES
+        PAP/CHAP AUTHENTICATION
+        VJ HEADER COMPRESSION
+        BOOTP PROTOCOL EMULATION
+        PACKET DRIVER STATISTICS
+        REMOVING THE DRIVER
+        ABOUT THE VARIOUS DRIVER EXECUTABLES
+        DEBUGGING CONNECTION PROBLEMS
+        ABOUT CHAT AND CHAT0
+        UNIQUE DOS CHAT FEATURES
+        CONFIGURING DOS INTERNET APPLICATIONS
+        SITES WITH ADDITIONAL DOS INTERNET STUFF
+
+
+INTRODUCTION
+
+    This is the second release of my DOS PPP packet driver. This work is
+    derived from various sources. The bulk of the PPP code is taken from
+    the ppp2.2.0f PPP daemon version, the serial port handling code is
+    derived from the KA9Q network operating system, and the packet driver
+    interface code is derived from the CRYNWR packet driver collection.
+
+    I did the tedious work of joining all these pieces and making it work
+    as a TSR under our old friend DOS. I learned a lot about DOS TSR
+    programming and the PPP protocol internals.
+
+    I was pushed into developing this driver by the necessity of having
+    something more stable than, and not as memory hungry as, the available
+    DOS PPP packet drivers. I also enjoy free software so I felt that
+    contributing to it in some way would be a nice thing to do.
+
+    DOS still alive and there are a number of applications for this driver.
+    The most obvious is for surfing the NET, as there are a number of good
+    DOS programs for that. I enclose a list of locations where you can find
+    such applications later in document. Another interesting field of
+    application is in embedded PC computers used in industrial systems. For
+    some palmtop computers that can't run the Windows CE version, this
+    driver is a good alternative when used in conjunction with DOS internet
+    programs.
+
+
+WHO AM I
+
+    My name is Antonio Lopez (Toni). I work at the R+D dept. of a Process
+    Automation firm in Spain. You can contact me at the following e-mail
+    addresses:
+
+        tonilop@redestb.es
+        tonilop@ibm.net
+
+    My English is not as good as I would like; I apologize for that.
+
+    This work was done at home, and has nothing to do with my actual job.
+    I'm responsible for the entire project. Don't bother the authors of the
+    original code with bug reports; ask me.
+
+
+LICENSING
+
+    The TERMIN.COM and PKTSTAT.COM programs are copyrighted by Russell
+    Nelson and are released under the GNU public license. I provided it
+    only as a convenience for users. You can download it from many places.
+
+    COMTOOL.COM and COMTOOL.DOC are copyright by K.H. Weiss. They are
+    freely distributable for non commercial use. Again, I provide these
+    files only as a convenience for users.
+
+    The CHAT source code is in the public domain, so CHAT.EXE and CHAT0.EXE
+    are in the public domain too.
+
+    The PPP code on which my work is based holds the following copyright:
+
+    ***********************************************************************
+    * Copyright (c) 1989 Carnegie Mellon University.                      *
+    * All rights reserved.                                                *
+    *                                                                     *
+    * Redistribution and use in source and binary forms are permitted     *
+    * provided that the above copyright notice and this paragraph are     *
+    * duplicated in all such forms and that any documentation,            *
+    * advertising materials, and other materials related to such          *
+    * distribution and use acknowledge that the software was developed    *
+    * by Carnegie Mellon University.  The name of the                     *
+    * University may not be used to endorse or promote products derived   *
+    * from this software without specific prior written permission.       *
+    * THIS SOFTWARE IS PROVIDED ``AS IS'' AND WITHOUT ANY EXPRESS OR      *
+    * IMPLIED WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED      *
+    * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE. *
+    ***********************************************************************
+
+    I release the package under the following conditions:
+
+        All products mentioned in this documentation which are patented,
+        copyrighted or are trademarks are the property of their respective
+        owners.
+
+        The various source modules written from scratch for DOS support,
+        the README.TXT, SAMPLES.TXT, DOSPPPD.FAQ, CHANGELO.TXT and
+        VJCSTAT.EXE files are Copyright (c) 1997 by Antonio Lopez Molero.
+        All applicable rights reserved.
+
+        DOS PPPD can be freely distributed for NON COMMERCIAL use, provided
+        you include this copyright notice in all the copies or derivative
+        works.  You can charge money for the process of
+        copying/transferring the files, but not for the software itself.
+        You can't include DOS PPPD as part of a commercial package without
+        prior writen permission from the author.
+
+        DOS PPPD IS PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, either
+        expressed or implied, including, but not limited to, the implied
+        warranties of merchantability and fitness for a particular purpose.
+        The entire risk as to the quality and performance of the product is
+        with the user. This documentation explicitly states that DOS PPPD
+        will not work properly in some circumstances; the user assumes the
+        cost of all necessary servicing, repair or correction.
+
+        In no event will Antonio Lopez Molero be liable for damages,
+        including any general, special, incidental or consequential damages
+        arising out of the use of, or inability to use, DOS PPPD (including
+        but not limited to loss of data or data being rendered inaccurate
+        or losses sustained by the user or third parties or a failure of
+        the product to operate with any other programs), even if the author
+        has been advised of the possibility of such damages.
+
+        You may use DOS PPPD only if you have read, understood and accepted
+        all of the above conditions.
+
+        Please contact me to report bugs or errors in the document (even
+        minor ones). If you are an application developer or packet driver
+        programmer and have constructive suggestions for improving the
+        performance of DOS PPPD I'd be glad to hear from you.
+
+    Although I have a real job, donations will be greatly appreciated if
+    you feel the need to make them ;-) If you are going to use DOS PPPD in
+    a bussines environment, then a donation is strongly encouraged, if only
+    for ethic purposes. Please contact me for details.
+
+
+CREDITS
+
+    Credit for the PPP code goes to Al Longyear and Mike Callahan, the
+    creators of the ppp2.2.0f package. The original PPP code was created
+    by: Drew Perkins, Brad Clements, Karl Fox, Greg Christy, Brad Parker
+    and Paul Mackerras.
+
+    Credit for the serial port code goes to Phil Kharn, the creator of the
+    excellent KA9Q Network Operating System.
+
+    Credit for the packet driver code goes to Russell Nelson, the creator
+    and maintainer of the superb CRYNWR packet driver collection.
+
+    Credit for the BOOTP code goes to Bruce Campbell, the creator of the
+    BOOTP packet driver add-on.
+
+    I must mention Frank Molzahn, the creator of PPPPKT06. I used his
+    techniques for netmask calculation based in remote/local IP addresses.
+
+
+ACKNOWLEDGEMENTS
+
+    Many people has provided feedback or even contributed to DOS PPPD
+    development, The following is a partial list:
+
+    Jeffrey L. Hayes, he was the first beta tester for 0.5 release and did
+    a fine job making corrections to my poor written documentation. He also
+    provided his site for hosting DOS PPPD before it was submitted to
+    Simtelnet, and developed detailed instructions for use it with his ISP.
+
+    John Lewis from the BOBCAT team, he trusted DOS PPPD enough for
+    including it as part of BOBCAT browser package.
+
+    Frank Molzhan, who provided insight into important DOS & Internet
+    topics, and encouraged me for continuing DOS PPPD development. He
+    recently developed a very efficient SLIP/CSLIP drivers, which are a
+    very good alternative to DOS PPPD for users who still using that
+    connection method.  Look in the links section for a place where to find
+    his drivers.
+
+    Ralph Shnelvar, who provided feedback and bussines oportunities for
+    other DOS TCP/IP tools development.
+
+    Richard White, who trusted DOS PPPD so much, and do use it for serious
+    applications.
+
+    Nigel Gorry, who maintains a WEB page about DOS and Internet, he
+    provided suggestions for a better DOS PPPD, has put links to DOS
+    PPPD archives on his page and provided some brief instructions aswell.
+
+    Alfredo J. Coole, the developer of the enclosed SETUP program. He also
+    encouraged me and provided suggestions for DOS PPPD.
+
+    Jeff Patterson, developer of the only IRC DOS client I can use every
+    day. He provided interesting discussions about DOS PPPD.
+
+    Karl-Heinz Weiss, developer of the UKA_PPP package, he trusted DOS
+    PPPD enough for including it in the UKA_PPP package.
+
+    Jim Casey, Sysop at the Internet Resources Forum on Compuserve, who
+    invited me to a forum discussing the future of DOS in Internet.
+
+    Lots of people, in no particular order:
+    Carlos V. Gutierrez Fragosa, Matthew Grimm, Sam Bushman, Follower of
+    the Clawed Albino ??, Krishnamurti Subramanian, Morten Johansen,
+    Pablo Carboni, Paul Koukos, Kalle Pihlajasaari, Alberto Gonzalez
+    Talavan, Kevin CN Tan, Modhav Gokhale, Chris Blazie, Rian Coutinho,
+    Lars Wigrell, Michael Polak, Fernando Navarro Paez, Morgan Toal,
+    Soichiro Ishizuka, Super Ted, Juan H. Koers, Ki var, Brad Hlista,
+    Sean Doherty, Peter Bel, Jesus Barcelo, Andre LeClaire, Yury Semenov,
+    David Bernal, Agustin Vega, Don Johnson, Keith Weisshar, Ian Smith,
+    Rene Ludwig, Dave Mehler, Giancarlo Guareschi, ...
+
+    I'm probably missing people from the list, but I can't remember every
+    one who contacted me, so I apologize for that.
+
+
+FEATURES
+
+    The code is compiled for an 8088 CPU, so it should run on XT class
+    machines. I have no access to any XT machine, so I was unable to test
+    it on one. However, users of the previous release reported success in
+    using DOS PPPD on XT hardware.
+
+    The 16550AFN UART is supported, allowing reliable communications up to
+    115200 baud speed. The chip is autodetected and the FIFO enabled with
+    an 8 byte receiver threshold. The transmitter is set up for a 16 byte
+    output FIFO.
+
+    The drivers conforms to FTP packet driver specification 1.09, same as
+    the ones in the superb CRYNWR packet driver collection.
+
+    Both class 1 (ethernet) and class 6 (serial line) drivers are included
+    in the package.
+
+    The class 1 drivers emulate a BOOTP server, so automatic configuration
+    of DOS applications through BOOTP is possible.
+
+    A DOS batch file for setting environment variables with the actual
+    TCP/IP data for the connection is created.
+
+    Most of the original PPPD options are supported, including PAP/CHAP
+    authentication and VJ header compression. The next section covers what
+    is not supported.
+
+
+UNSUPPORTED FEATURES
+
+    CCP (compression control protocol, used for negotiating data field
+    compression), IPX style packets, authentication of the peer (we can
+    authenticate ourselves using PAP, however), PPP server mode, PAP/CHAP
+    password encryption, defaultroute option, proxyarp option, noipdefault
+    option.
+
+
+FILES
+
+    DOS PPPD is distributed as a single .ZIP file, containing:
+
+        README.TXT      This file.
+
+        SAMPLES.TXT     Some sample configurations for PPPD use. I use
+                        these to connect to my ISP.
+
+        CHANGELO.TXT    Summary of changes among versions.
+
+        DOSPPPD.FAQ     An atempt to make a recopilation of common problems
+                        with their solutions, based on users feedback.
+
+        PPPD.MAN        A plain ASCII version of the UNIX pppd man page,
+                        adapted for the DOS version.
+
+        CHAT.MAN        A plain ASCII version of the UNIX chat man page,
+                        adapted for the DOS version.
+
+        PPPD.EXE        Class 6 (serial line) PPP driver without debug
+                        capability, no CHAP support, smallest.
+
+        PPPDD.EXE       Class 6 (serial line) PPP driver with debug
+                        capability, no CHAP support.
+
+        EPPPD.EXE       Class 1 (ethernet emulation) PPP driver without
+                        debug capability, no CHAP support. Emulates ARP and
+                        BOOTP replies to help configure DOS applications.
+
+        EPPPDD.EXE      Same as above but with debug capability, no CHAP
+                        support, largest.
+
+        VJCSTAT.EXE     Utility for displaying VJ header compression
+                        statistics.
+
+        PKTSTAT.COM     Utility for displaying packet driver statistics.
+
+        TERMIN.COM      Packet driver terminator.
+
+        CHAT.EXE        Modem connection tool for use with the 'connect'
+                        option from PPPD. It can not be used standalone.
+
+        CHAT0.EXE       Modem connection tool for standalone use.
+
+        COMTOOL.COM     Tiny serial port manipulation utility.
+
+        COMTOOL.DOC     Documentation for COMTOOL.
+
+        SPANISH.ZIP     Archive containing spanish language documentation.
+
+        CHAPSUPP.ZIP    Archive containing driver executables with CHAP
+                        support compiled in.
+
+        SETUP.ZIP       Archive containing Alfredo J. Coole's DOS PPPD
+                        Setup program.
+
+
+INSTALLATION
+
+    Create a directory of your choice, say C:\DOSPPP, and unzip the
+    distribution file in it. If you are (or speak) spanish, unzip the
+    SPANISH.ZIP in the same directory, all the documentation files will be
+    overwritten by spanish language versions. If you do need CHAP support,
+    unzip the CHAPSUPP.ZIP file in the same directory, PPP driver
+    executables will be overwritten by ones with CHAP support compiled in.
+    If you do want to use the helper SETUP application, unzip the SETUP.ZIP
+    file in the same directory.
+
+    After unziping the required files, you must configure DOS PPPD before
+    being able to use it. For configuring DOS PPPD using the helper SETUP
+    application, please read the SETUP.TXT file. If you want to manually
+    configure it, please read the following sections of this document. It
+    is a good idea to read them even if you are going to use SETUP.
+
+
+CONFIGURATION AND USE
+
+    I tried to mimic the original PPPD version as much as possible, so any
+    experience you might have with it may prove useful with this program.
+
+    For a complete reference of PPPD and CHAT options, look at the files
+    PPPD.MAN and CHAT.MAN. These files were adapted from the original man
+    pages. The SAMPLES.TXT file contains detailed configuration examples, I
+    will give an usage overview here.
+
+    The process of establishing a PPP link can be divided into two clearly
+    separate actions, connection of the physical serial line and execution
+    of a PPP process responsible for the actual TCP/IP communications.
+
+    The physical serial line connection would be different for modem links
+    than for cable serial links. The former requires some mechanism for
+    talking to the modem, making it dial and establishing a connection with
+    the modem on the other end. The latter doesn't require that step, as
+    the serial ports are directly attached via a cable.
+
+    For modem links you have two ways of making the connection. One is to
+    use some program prior to PPPD execution that interacts with the modem
+    and leaves the connection open after exiting. You then run PPPD, which
+    takes over the link and begins its negotiations. One such program is
+    KERMIT, a general purpose terminal emulator for the PC. You can also
+    use the enclosed CHAT0.EXE program to connect in that way.
+
+    The second way is to use the 'connect' option from PPPD to specify a
+    program that must be run for modem handling. At the moment you can only
+    use the enclosed CHAT.EXE program for this, as the COM port is
+    internally handled by PPPD, and there is a private interface between
+    the two programs that allows CHAT to use whatever port PPPD is
+    configured to use. That is necessary because you can't do the serial
+    port stuff under DOS the same way you do under *NIX. When running under
+    *NIX OS, CHAT uses stdin/stdout for its I/O. Those file handles are
+    redirected by PPPD to the serial port before invoking the 'connect'
+    script.
+
+    In any case you specify the serial port to use and some other stuff via
+    options to PPPD. Those options can be given on the command line or
+    taken from an options file. CHAT only supports command line options,
+    but the CHAT script can be in a file.
+
+    A tiny sample usage of DOS PPPD with modem follows:
+
+        pppd com1 38400 connect "chat '' AT&F OK ATDP055 CONNECT"
+
+    In this sample we are using the enclosed CHAT.EXE program to talk to
+    the modem using the port settings inherited from DOS PPPD.
+
+    The DOS PPPD program sets up COM1 at 38400 baud speed and then invokes
+    CHAT to establish the serial link. The chat script shown expects
+    nothing, sends AT&F, expects OK, sends ATDP055 and expects CONNECT. If
+    all of these expect/send pairs succeed, CHAT exits with a 0 exit code
+    signaling to PPPD that it can proceed with PPP negotiations. If some
+    error occured during the CHAT phase, the CHAT program returns a nonzero
+    exit code that signals to DOS PPPD that something was wrong with the
+    connection.
+
+    Assuming CHAT succeeds, then DOS PPPD's next job is to negotiate IP
+    link establishment. Only when that link is successfully negotiated will
+    DOS PPPD stay resident in memory as a packet driver. In all other cases
+    the program exits with a nonzero exit code and does not remain
+    resident.
+
+    A message showing the packet driver interrupt used by the driver will
+    be displayed upon successful link establishment. If the driver can't
+    establish a successful PPP link, an error message will be displayed.
+
+    The DOS PPPD exit code may be checked in DOS batch files in order to
+    trigger the appropiate actions based on whether the connection was
+    successful or unsuccessful.
+
+    For directly attached computers, one would simply do:
+
+        pppd com1 38400 local
+
+    The 'local' option forces DOS PPPD to ignore the CARRIER DETECT line,
+    which may not be available for the cable connection.
+
+
+CONFIGURATION FILES
+
+    The DOS PPPD program looks for options in several places besides the
+    command line. The names and search order for the files are as follows:
+
+        PPPD.CFG                in the current directory.
+        PPPD.CFG                in the same directory PPPD.EXE is located.
+        PPPDRC.CFG              in the current directory.
+        command line options
+        pppd 'file' option      full path given.
+        PPPDCOM?.CFG            in the current directory.
+
+    PPPD.CFG can be viewed as a global options file, as it can be located
+    under the same directory PPPD.EXE resides.
+
+    PPPDCOM?.CFG completes its name based on the COM port used, so invoking
+    'pppd com1' will look for a PPPDCOM1.CFG file.
+
+    All the files excluding the one given with the 'file' option are
+    optional and don't need to exist for PPPD to operate. However, the use
+    of configuration files is a practical necessity due to restrictions on
+    the length of the the DOS command line.
+
+    These files can be given hidden/system/read-only DOS attributes, as the
+    PAP/CHAP passwords (if used) must be included in them. I know that that
+    a very poor security implementation, but it is all that can be done
+    under DOS until I implement password encryption.
+
+
+PAP/CHAP AUTHENTICATION
+
+    These methods of authentication are supported by the driver. There is
+    no /etc/pap-secrets nor /etc/chap-secrets file under DOS, so I took the
+    approach of implementing a new PPPD option, 'passwd'. This one, in
+    conjunction with the 'user' option, provides DOS PPPD with the
+    necessary data for authenticating itself with the peer. Note that there
+    is no way to specify a remote name, which original *NIX pppd uses for
+    selecting a secret from one of the authentication files. In CHAP mode
+    the remote adds its hostname to the CHAP challenge, so the local pppd
+    can look in the /etc/chap-secrets file for a secret that matches a
+    particular remote host. DOS PPPD always sends the same user/passwd
+    secret regardless of the remote hostname.
+
+    A typical use would be:
+
+        pppd com1 38400 user self passwd blah connect "chat '' ATDP055 CONNECT"
+
+    These options can be include in a configuration file that has the
+    hidden attribute, for example the file myppp.cfg containing:
+
+        com1
+        38400
+        modem
+        asyncmap 0
+        connect "chat '' AT&F OK ATDP055 CONNECT"
+        user someuser
+        passwd blah2blah
+
+    You can run PPPD with:
+
+        pppd file myppp.cfg
+
+    In fact, the above options could be in any of the automatic
+    configuration files searched by PPPD and then you can forget the 'file'
+    option.
+
+    The 'user' and 'passwd' fields can be surrounded in double quotes in
+    case there are embedded blanks or characters that may be interpreted by
+    PPPD's options parser.
+
+    An alternative source for PAP/CHAP authentication data can be given
+    with the '+ua' option. You give the name of a file that contains the
+    user id and the password, for example assume a file called AUTHEN.DAT:
+
+        pppuser
+        pppuser_password
+
+    Then invoke PPPD as:
+
+        pppd com1 38400 +ua authen.dat
+
+    The file can have the hidden attribute set.
+
+
+VJ HEADER COMPRESSION
+
+    This release supports VJ header compression, and the driver tries to
+    use it by default unless the peer forbid it during IPCP negotiations.
+    VJ compression reduces the length of TCP/IP headers, and theoretically
+    boosts performance over slow lines and interactive connections like
+    TELNET. I said theoretically because VJ compression involves some CPU
+    overhead, that might be noticed on slow CPUs (i.e. 4.77 Mhz 8088).
+    There are options for disabling it (-vj, DOS PPPD will not negotiate
+    nor allow the peer to use it), consult PPPD.MAN for more information.
+
+
+BOOTP PROTOCOL EMULATION
+
+    Some DOS Internet applications support a method for automatic TCP/IP
+    configuration, called the BOOTP protocol. The Ethernet emulation
+    versions of the DOS PPPD driver support this form of configuration,
+    acting as fake BOOTP servers that generate a reply when they see a
+    BOOTP request.
+
+    In order to fully support the BOOTP protocol, I added an option that
+    doesn't exist in the original DOS PPPD code. The option is 'namsrv' and
+    is intended for specifiying up to two nameservers' IP addresses that
+    will be sent to the application doing a BOOTP request. The rest of
+    BOOTP information is generated from the local/remote IPs negotiated by
+    DOS PPPD during the link establishment phase.
+
+    The remote IP will be used for the gateway address and server address;
+    the local IP will be used for 'your_ip' address. The netmask is
+    calculated by the following method:
+
+    First, a value is obtained based just on the class (i.e. class A, B or
+    C) of the local IP, specifically:
+
+    class A ==> 255.0.0.0
+    class B ==> 255.255.0.0
+    class C ==> 255.255.255.0
+
+    If this value is consistent with the gateway's IP number, that is, if:
+
+    ( <netmask> & <gateway> ) = ( <netmask> & <localIP> )
+
+    [where & represents logical AND], then this value is used as the
+    netmask.  (See RFC 950.) Otherwise, a different netmask value is
+    chosen: it is the largest number which (a) is consistent in the above
+    sense, and (b) has a binary form of 1's followed by 0's.
+
+    This method is the same used by Frank Molzahn's PPPPKT06 driver. This
+    calculated value is then binary ORed with any user supplied value
+    through the 'netmask' option.
+
+    This netmask calculation method applies to both the class 6 and class 1
+    versions of the drivers, regardless of the BOOTP support.
+
+
+PACKET DRIVER STATISTICS
+
+    Starting with version 0.6 beta, the drivers support the 'get_stats()'
+    packet driver function call, so it is possible to make use of the
+    CRYNWR PKTSTAT program for displaying number of received packets,
+    number of transmit packets, number of receive errors, etc.
+
+    Another utility specially developed for DOS PPPD is VJCSTAT, which
+    displays statistics about VJ header compression. This one is DOS PPP
+    specific, so it won't work with other packet drivers.
+
+    Both utilities should be run from the command line, and accept an
+    optional parameter for the packet driver vector to look at. If you
+    don't provide a vector number, the first one found in the valid packet
+    driver vector range is reported.
+
+    These utilities are useful for determining the reliability of the PPP
+    connection, and for debug purposes. For example, if PKTSTAT reports a
+    large number of dropped packets, but the received packet error count is
+    0, then it means that some application that uses the packet driver is
+    running out of buffers when packets arrive too fast. It can also mean
+    that you are receiving unsupported PPP frame types, like CCP or some
+    kind of Microsoft PPP protocol extensions.
+
+
+REMOVING THE DRIVER
+
+    To remove the driver, use the enclosed TERMIN.COM program. This is a
+    general purpose packet driver terminator, part of the CRYNWR packet
+    driver collection.
+
+    Call it as:
+
+        TERMIN 0xnn
+
+    Where nn is the hex number of the interrupt vector used by the
+    installed driver, i.e. TERMIN 0x60.
+
+    The PPPD driver will send a Terminate request to the peer before being
+    removed, so the TERMIN return to the command line will be delayed a
+    little. This delay can be of maximum of 10 seconds, depending on how
+    fast the peer responds to the terminate request.
+
+
+ABOUT THE VARIOUS DRIVER EXECUTABLES
+
+    As you noticed, there are four different DOS PPPD executables. The ones
+    called PPPD.EXE and PPPDD.EXE are class 6 packet drivers (serial line),
+    the later including some debug capabilities that can be used for
+    troubleshooting connection problems.
+
+    The ones called EPPPD.EXE and EPPPDD.EXE are class 1 packet drivers
+    (Ethernet). EPPPDD.EXE contains additional code for debugging
+    connection problems. These emulate the behavior of a real Ethernet
+    driver, adding an Ethernet header to incoming packets and removing it
+    from sent packets. The need for emulation comes from the fact that many
+    DOS Internet applications were devised for Ethernet-only packet
+    drivers, and can't handle class 6 packet drivers. The Ethernet
+    emulation versions support BOOTP, a protocol used by TCP/IP networking
+    code to auto-configure workstations via a centralized server.
+
+    As noted in the installation section, a separate archive contains
+    driver executables with CHAP support, but the names are the sames as
+    the above ones. If you require CHAP authentication, simply replace the
+    original (no CHAP support) drivers with the ones in CHAPSUPP.ZIP. I
+    decided to provide it as separate executables for reducing memory
+    requeriments in standar drivers if you do not require CHAP support,
+    which is the most common case.
+
+
+DEBUGGING CONNECTION PROBLEMS
+
+    The executables with debugging capability generate various kinds of
+    messages on DOS standard output, and others on DOS standard error. You
+    can use redirection to log the standard output to a file; standard
+    error can be redirected with the help of some third party utilities.
+
+    The debug level is affected by the 'debug' and 'kdebug' options,
+    supported only by the PPPDD.EXE and EPPPDD.EXE executables. Look in the
+    PPPD.MAN file for a deeper explanation.
+
+    The debugging output stops as soon as the driver goes resident;
+    supporting disk I/O under DOS TSRs is a difficult task that isn't worth
+    the time wasted to implement it.
+
+
+ABOUT CHAT AND CHAT0
+
+    The CHAT program takes a series of strings called the CHAT script and
+    executes an expect/send sequence until it consumes all the script or
+    any of the expectations fails.
+
+    The CHAT script can be given in the command line or through a file. In
+    the DOS world where command line length is restricted, the script file
+    is the recommended way unless your CHAT script is very short.
+
+    As noted elsewhere in this document, two CHAT versions are enclosed in
+    the package. CHAT.EXE is intended to be used with the 'connect' option
+    from PPPD. It accesses the serial port through a private interface in
+    PPPD.EXE, so it doesn't require options for COM port configuration. It
+    uses the port for which DOS PPPD is configured.
+
+    CHAT0.EXE can be used standalone, as it incorporates its own routines
+    for COM access. Having two versions is convenient, because you can use
+    CHAT0.EXE to test your CHAT script before you actually use it with
+    CHAT.EXE and the DOS PPPD 'connect' option. CHAT0.EXE will leave the
+    DTR line high upon successful termination, so the modem connection will
+    be active, and you can run PPPD after that. This behavior is the same
+    as if you were using some other dialing program - KERMIT, for example.
+
+
+UNIQUE DOS CHAT FEATURES
+
+    After porting CHAT code to DOS, I realized that it might be useful to
+    enhance it with additional features not found in the original *NIX
+    version. I added two new functions, interactive terminal mode and
+    string capture.
+
+    Interactive terminal mode is useful when you log into systems which
+    require convoluted prompts or/and menus, or when you don't know the
+    required login sequence beforehand. Interactive mode can be entered at
+    an arbitrary chat script location, so it can be used for completing
+    selected parts of the login process, i.e.  user id and password. The
+    CHAT.MAN and SAMPLES.TXT files contain implementation details and
+    examples of CHAT interactive mode.
+
+    String capture provides a mechanism for "grabbing" selected parts of
+    text sent by the remote system and assign them to DOS environment
+    variables. You can capture IP numbers, decimal numbers or arbitrary
+    strings; a DOS batch file is generated by CHAT, you can execute it for
+    setting the DOS environment variables. This feature is most useful for
+    SLIP dial out, where the local and remote IP are reported by the remote
+    through the serial line as plain text.
+
+    Both CHAT.EXE and CHAT0.EXE support interactive mode and string capture
+    functions, althought these make more sense when using CHAT0.EXE as a
+    standalone dialer for SLIP links, or non standar PPP implementations
+    even.
+
+
+CONFIGURING DOS INTERNET APPLICATIONS
+
+    There a number of different schemes used by DOS applications to
+    configure the required TCP/IP parameters.
+
+    Some of them support the BOOTP protocol, a feature that is supported by
+    the EPPPD.EXE and EPPPDD.EXE drivers. WATTCP based applications will
+    try BOOTP configuration if the WATTCP.CFG file (or equivalent) can't be
+    found, or if you put a line: my_ip=bootp in such file. The POPMAIL and
+    MINUET applications will use BOOTP if you leave the Network
+    configuration dialog boxes blank. Consult the application documentation
+    for more info about how to use BOOTP.
+
+    If your application doesn't support BOOTP, or if you are using the
+    PPPD.EXE or PPPDD.EXE drivers, the configuration must be done by
+    another means. All the four drivers generate a .BAT file called IP-
+    UP.BAT that is meant to be run after successful connection to set some
+    DOS environment variables. Then you can use those variables inside a
+    DOS batch file for generating text configuration files, for example the
+    WATTCP.CFG file required by WATTCP applications.
+
+    The IP-UP.BAT generated by the PPP drivers looks like:
+
+        SET MYIP=xxx.xxx.xxx.xxx
+        SET REMIP=yyy.yyy.yyy.yyy
+        SET NETMASK=zzz.zzz.zzz.zzz
+        SET PEERMRU=nnnn
+
+    Some of the samples in SAMPLES.TXT file will make use of these
+    variables to show how to configure WATTCP applications (DOSLYNX) using
+    this technique.
+
+    For MINUET and POPMAIL, the environment is searched for a variable
+    called MYIP if the corresponding field in the Network configuration
+    dialogs is blank. It the variable can't be found, these applications
+    try the BOOTP method.
+
+    If none of these methods is suitable, you are forced to enter the
+    required configuration data every time you run the application. There
+    are some cases in which command line arguments can be used for the
+    TCP/IP configuration, like the PCGOPHER program (which supports BOOTP
+    also).
+
+    The file SAMPLES.TXT contains some examples derived from my actual DOS
+    application configurations, including DOSLYNX and MINUET.
+
+
+SITES WITH ADDITIONAL DOS INTERNET STUFF
+
+    The following sites hold lots of good DOS Internet stuff, these are the
+    places to go if you are looking for WEB browsers, mailers, etc.
+
+    TVDog's DOS Internet page:
+
+        http://www.agate.net/~tvdog/internet.html
+
+    Frank Molzahn's SLIP/CSLIP packet drivers:
+
+        http://home.cc.umanitoba.ca/~molzahn/cslip.html
+
+    Nigel's DOS PPP applications unfinished list:
+
+        http://www.palms.nq.net/ppp.html
+
+    DOSLYNX home page:
+
+        http://www.fdisk.com/
+
+    KERMIT:
+
+        http://www.columbia.edu/kermit/
+
+    Althought not an Internet application in its own, kermit can be a
+    invaluable terminal emulator and modem dialer. Recent versions
+    incorporates the WATTCP TCP/IP kernel, so they can act as good TELNET
+    clients when used with a packet driver.
+
+    WWW Browsers for DOS:
+
+        http://www.concentric.net/~cruzing/dosinet/dosinet.shtml
+
+    RealmSpace for the DOS:
+
+        http://www.best.com/~darknerd/realmspace/rsdos.htm
+
+    DOS INTERNET FILES, INFORMATION, AND LINKS:
+
+        http://www.westsound.com/ptmudge/dos_inet.htm
+
+    DOS Internet home page:
+
+        http://www.wustl.edu/~hugh/dos-www.html
+
+--- End (original filename: README.TXT) ---
+
+--- Begin (original filename: PPPD.MAN) ---
+PPPD for DOS 0.6 beta
+
+NAME
+       pppd - Point to Point Protocol packet driver
+
+SYNOPSIS
+       pppd [ COMn ] [ speed ] [ options ]
+
+DESCRIPTION
+       The Point-to-Point  Protocol (PPP)  provides a  method for
+       transmitting datagrams  over serial  point-to-point links.
+       PPP is composed of three parts: a method for encapsulating
+       datagrams over  serial links,  an extensible  Link Control
+       Protocol (LCP), and a family of Network Control  Protocols
+       (NCP) for establishing and configuring different  network-
+       layer protocols.
+
+       DOS  pppd  provides the  encapsulation scheme,  basic LCP,
+       authentication support,  and an  NCP for  establishing and
+       configuring  the  Internet  Protocol  (IP) (called  the IP
+       Control Protocol, IPCP).
+
+FREQUENTLY USED OPTIONS
+       <COMn>
+              Specifies  the  COM port  to use  for communicating
+              with the peer.  Port COM1 through COM4 can be used;
+              the  standard  base  address  and  IRQ  are assumed
+              unless you change the  default with  other options.
+              Basic testing (through BIOS) is done to ensure  COM
+              availability. If pppd fails with message:
+
+                  Invalid COM device COM?
+
+              Then probably you  have  a  non  standard  COM port
+              setup. Omit the COM? keyword from configuration and
+              specify  COM  port  values with  the  following two
+              options, base and irq.
+
+       base <port address>
+              Specifies the base address for the COM port, in the
+              event that it is  a non-standard  one.  The  number
+              can be entered in hex, octal or decimal,  following
+              the C language rules for parsing numbers (0xnnn  is
+              hex for example). No attempt is made to verify that
+              a valid COM port exists at the address, so use this
+              option with care.
+
+       irq <IRQ number>
+              Specifies the IRQ number used by the COM  port. The
+              same considerations as above apply.
+
+       pktvec <interrupt number>
+              Specifies the interrupt vector number to  be hooked
+              by the packet driver interface.  The valid range is
+              from 0x60-0x66,  0x68-0x6F and  0x78-0x7E. If  this
+              option is  not used,  the driver  searches for  the
+              first free vector in this range (usually 0x60).
+
+       namsrv <n>
+              Set  IP  addresses to  return in  the DNS  field of
+              BOOTP  replies.  Supported  only  by  the  ethernet
+              emulation versions EPPPD.EXE and EPPPDD.EXE.  Up to
+              two nameservers  can be  specified. This  option is
+              useful  for  configuring DOS  Internet applications
+              through BOOTP.
+
+       <speed>
+              Specifies the speed for serial comunications. Up to
+              115200  baud  can  be  programmed, but  beware that
+              serial ports  that have  the old  8250 UART  cannot
+              handle  speeds  higher  than  9600  reliably.   The
+              number can be entered in hex, octal or  decimal, as
+              in the above options.
+
+       asyncmap <map>
+              Set the  async character  map to  <map>.  This  map
+              describes  which   control  characters   cannot  be
+              successfully received over the  serial line.   pppd
+              will ask the peer to send these characters as a  2-
+              byte escape sequence.  The argument is a 32 bit hex
+              number with  each bit  representing a  character to
+              escape.  Bit 0 (00000001) represents the  character
+              0x00; bit  31 (80000000)  represents the  character
+              0x1f  or  ^  .   If multiple  asyncmap options  are
+              given,  the  values  are  ORed  together.    If  no
+              asyncmap option  is given,  no async  character map
+              will be negotiated for  the receive  direction; the
+              peer should then escape all control characters.
+
+       connect <p>
+              Use  the  command specified  by <p>  to set  up the
+              serial line. The CHAT.EXE program must be used with
+              this option, as the COM port  is controled  by pppd
+              and a  private interface  is used  between the  two
+              programs for granting COM access to CHAT. pppd will
+              look in the current  directory first,  then in  the
+              same directory where pppd resides.
+
+       crtscts
+              Use hardware flow control (i.e. RTS/CTS) to control
+              the flow of data  on the  serial port.   If neither
+              the crtscts nor the -crtscts option  is given,  the
+              hardware flow control setting  for the  serial port
+              is left unchanged.
+
+       escape xx,yy,...
+              Specifies that certain characters should be escaped
+              on  transmission  (regardless of  whether the  peer
+              requests them to be escaped with its async  control
+              character map).  The characters  to be  escaped are
+              specified as  a list  of hex  numbers separated  by
+              commas.   Note  that  almost  any character  can be
+              specified  for  the  escape   option,  unlike   the
+              asyncmap   option   which   only   allows   control
+              characters to be specified.   The characters  which
+              may not be escaped are those with hex values 0x20 -
+              0x3f or 0x5e.
+
+       file <f>
+              Read options from file <f> (the format is described
+              below).
+
+       mru <n>
+              Set the MRU [Maximum Receive Unit] value to <n> for
+              negotiation.   pppd  will  ask  the  peer  to  send
+              packets of no more than <n> bytes.  The minimum MRU
+              value is 128.  The  default MRU  value is  1500.  A
+              value  of  296 is  recommended for  slow links  (40
+              bytes for TCP/IP header + 256 bytes of data).
+
+       mtu <n>
+              Set the MTU [Maximum Transmit Unit]  value to  <n>.
+              Unless the peer requests  a smaller  value via  MRU
+              negotiation,  pppd  will  request  that the  kernel
+              networking code send data packets of no more than n
+              bytes through the PPP network interface.
+
+       netmask <n>
+              Set the interface netmask to <n>, a 32  bit netmask
+              in "decimal dot" notation (e.g. 255.255.255.0).  If
+              this option is given, the value  specified is  ORed
+              with the default netmask.   The default  netmask is
+              chosen based on the  negotiated remote  IP address;
+              it is the appropriate network mask for the class of
+              the  local  IP  address  and  that   satisfies  the
+              following condition:
+
+              (<netmask> & <remoteIP>) = (<netmask> & <localIP>)
+
+              The  default  netmask is right shifted if necessary
+              until the above condition is reached.
+
+OPTIONS
+       <local IP address>:<remote IP address>
+              Set the local and/or remote interface IP addresses.
+              Either one may be omitted. The IP addresses must be
+              given in decimal dot notation (e.g. 150.234.56.78).
+              IP addresses will be obtained from the peer  if not
+              specified in  any option.   Thus, in  simple cases,
+              this option  is not  required.  If  a local  and/or
+              remote IP  address is  specified with  this option,
+              pppd will  not accept  a different  value from  the
+              peer  in  the  IPCP  negotiation, unless  the ipcp-
+              accept-local and/or ipcp-accept-remote options are
+              given, respectively.
+
+       -ac    Disable  Address/Control   compression  negotiation
+              (use   default,    i.e.    address/control    field
+              compression disabled).
+
+       -all   Don't  request  or allow negotiation of any options
+              for LCP and IPCP (use default values).
+
+       -am    Disable  asyncmap  negotiation  (use  the   default
+              asyncmap, i.e. escape all control characters).
+
+       -as <n>
+              Same as asyncmap <n>
+
+       -chap  Don't agree to authenticate using CHAP.
+
+       chap-restart <n>
+              Set the CHAP restart interval (retransmission time-
+              out for challenges) to <n> seconds (default 3).
+
+       -crtscts
+              Disable hardware flow control (i.e. RTS/CTS) on the
+              serial  port.   If  neither  the  crtscts  nor  the
+              -crtscts option is given, the hardware flow control
+              setting for the serial port is left unchanged.
+
+       -d     Increase   debugging   level  (same  as  the  debug
+              option).
+
+       debug  Increase  debugging  level (same  as -d).   If this
+              option is given, pppd will log the contents  of all
+              control  packets  sent  or  received in  a readable
+              form.  The packets are logged through DOS  standard
+              output, which can be  redirected to  a file.   Some
+              debug  output is sent to DOS  standard error.  This
+              options is supported by PPPDD.EXE & EPPPDD.EXE.
+
+       -ip
+              Disable IP address negotiation.  If this  option is
+              used, the remote IP address must be specified  with
+              an  option  on the  command line  or in  an options
+              file.
+
+       ipcp-accept-local
+              With this option, pppd will accept the peer's  idea
+              of  our  local  IP  address, even  if the  local IP
+              address was specified in an option.
+
+       ipcp-accept-remote
+              With this option, pppd will accept the peer's  idea
+              of its (remote) IP address, even  if the  remote IP
+              address was specified in an option.
+
+       ipcp-max-configure <n>
+              Set  the  maximum  number of IPCP configure-request
+              transmissions to <n> (default 10).
+
+       ipcp-max-failure <n>
+              Set  the  maximum  number  of  IPCP  configure-NAKs
+              returned before starting to  send configure-Rejects
+              instead to <n> (default 10).
+
+       ipcp-max-terminate <n>
+              Set the maximum number  of  IPCP  terminate-request
+              transmissions to <n> (default 3).
+
+       ipcp-restart <n>
+              Set  the  IPCP  restart   interval  (retransmission
+              timeout) to <n> seconds (default 3).
+
+       kdebug n
+              Enable debugging code in the low-level  PPP driver.
+              The argument n is a number which is the sum  of the
+              following  values:  1  to   enable  general   debug
+              messages,  2  to  request  that  the   contents  of
+              received packets be printed, and 4 to request  that
+              the  contents  of transmitted packets  be  printed.
+              This option is supported by PPPDD.EXE & EPPPDD.EXE.
+
+       lcp-echo-failure <n>
+              If this option is given, pppd will presume the peer
+              to be dead if n LCP echo-requests are  sent without
+              receiving a valid LCP echo-reply.  If this happens,
+              pppd will  terminate the  connection.  Use  of this
+              option requires a non-zero value for  the lcp-echo-
+              interval  parameter.   This option  can be  used to
+              enable  pppd  to  terminate   after  the   physical
+              connection  has  been broken  (e.g., the  modem has
+              hung  up)  in  situations  where no  hardware modem
+              control lines are available.
+
+       lcp-echo-interval <n>
+              If  this  option is  given, pppd  will send  an LCP
+              echo-request  frame  to the  peer every  n seconds.
+              Under  Linux,  the  echo-request  is  sent  when no
+              packets  have  been received  from the  peer for  n
+              seconds. Normally  the peer  should respond  to the
+              echo-request by sending an echo-reply.  This option
+              can  be  used with  the lcp-echo-failure  option to
+              detect that the peer is no longer connected.
+
+       lcp-max-configure <n>
+              Set the maximum  number  of  LCP  configure-request
+              transmissions to <n> (default 10).
+
+       lcp-max-failure <n>
+              Set  the  maximum  number  of  LCP   configure-NAKs
+              returned before starting to  send configure-Rejects
+              instead to <n> (default 10).
+
+       lcp-max-terminate <n>
+              Set  the  maximum  number  of LCP terminate-request
+              transmissions to <n> (default 3).
+
+       lcp-restart <n>
+              Set  the   LCP  restart   interval  (retransmission
+              timeout) to <n> seconds (default 3).
+
+       local  Don't  use  the  modem  control  lines.   With this
+              option,  pppd  will  ignore  the  state  of the  CD
+              (Carrier Detect) signal from the modem and will not
+              change the state of the DTR  (Data Terminal  Ready)
+              signal.
+
+       modem  Use the modem control  lines.  This  option is  the
+              default.  With this option, pppd will wait for  the
+              CD (Carrier  Detect) signal  from the  modem to  be
+              asserted when opening the  serial device  (unless a
+              connect script is specified), and it will drop  the
+              DTR (Data Terminal Ready)  signal briefly  when the
+              connection is terminated and  before executing  the
+              connect script.
+
+       -mn    Disable   magic   number  negotiation.   With  this
+              option, pppd cannot detect a looped-back line.
+
+       -mru   Disable  MRU  [Maximum  Receive  Unit] negotiation.
+              With this  option, pppd  will use  the default  MRU
+              value of 1500 bytes.
+
+       -pap   Don't agree to authenticate using PAP.
+
+       pap-max-authreq <n>
+              Set the maximum number of  PAP authenticate-request
+              transmissions to <n> (default 10).
+
+       pap-restart <n>
+              Set  the   PAP  restart   interval  (retransmission
+              timeout) to <n> seconds (default 3).
+
+       passwd <p>
+              Set  the  user password to use  for  authenticating
+              this machine with the peer using PAP/CHAP to <p>.
+
+       -pc    Disable protocol field compression negotiation (use
+              default, i.e. protocol field compression disabled).
+
+       +ua <p>
+              Agree to  authenticate using PAP/CHAP  if requested
+              by the  peer,  and  use  the data  in file  <p> for
+              the user and password to send to the peer. The file
+              contains  the  remote  user  name,  followed  by  a
+              newline, followed by the remote password,  followed
+              by a newline.
+
+       user <u>
+              Set  the  user  name to use for authenticating this
+              machine with the peer using PAP/CHAP to <u>.
+
+       -vj    Disable negotiation of Van  Jacobson  style  TCP/IP
+              header  compression  (use default, i.e. no compres-
+              sion).
+
+       -vjccomp
+              Disable the connection-ID compression option in Van
+              Jacobson  style  TCP/IP  header  compression.  With
+              this option, pppd will not omit  the  connection-ID
+              byte  from  Van Jacobson compressed TCP/IP headers,
+              nor ask the peer to do so.
+
+       vj-max-slots n
+              Sets the number of connection slots to be  used  by
+              the  Van  Jacobson  TCP/IP  header  compression and
+              decompression code to n, which must  be  between  2
+              and 16 (inclusive).
+
+       xonxoff
+              Use software  flow   control  (i.e.   XON/XOFF)  to
+              control the flow of data on the serial port.
+
+OPTIONS FILES
+       Options can be taken  from files  as well  as the  command
+       line. pppd reads options from the  files .\pppd.cfg  (also
+       in the directory where  the pppd  program is  located) and
+       .\pppdrc.cfg  before  looking at the command  line.  After
+       parsing command line options, a file  named .\pppdcom?.cfg
+       is tried, the ?   will be  replaced with  the current  COM
+       number.
+
+       An options file is parsed into a series of words delimited
+       by whitespace.  Whitespace can  be included  in a  word by
+       enclosing the word in quotes (").  A backslash  (\) quotes
+       the following  character.  A  hash (#)  starts a  comment,
+       which continues until the end of the line.
+
+       If you need to put DOS path separators  in  options files,
+       you must use the escape sequence \\, for example:
+
+           +ua c:\\secrets\\paplogin
+
+       This is needed because the \  character is  interpreted as
+       the beginning of an escape control code.
+
+AUTHENTICATION
+       PAP/CHAP authentication with the peer is supported by this
+       release.  It  doesn't support  authenticating the  peer to
+       ourselves,  so it is not well suited for  acting as  a PPP
+       server.
+
+       You are required to supply two items for authentication, a
+       user  name  and  a  password.  Options  are available  for
+       setting these two items. An authentication  file can  also
+       be used with the +ua filename option.
+
+EXAMPLES
+       In  the simplest case, you can connect the serial ports of
+       two machines and issue a command like
+
+              pppd com1 9600 passive
+
+       If  the  other machine  is running  UNIX and  has a  getty
+       process attached to the serial port  we want  to use,  the
+       process of logging in  to the  other machine  and starting
+       pppd can be automated by using the connect  option to  run
+       chat, for example:
+
+              pppd com1 38400 connect "chat '' '' 'login:'
+              'username' 'Password:' 'password' '% '
+              'exec pppd passive'"
+
+       (Note however that running chat like this will  leave  the
+       password  visible in the parameter list of pppd and chat.)
+
+       If your serial connection is any  more complicated  than a
+       piece of wire, you may need  to arrange  for some  control
+       characters  to  be escaped.   In particular,  it is  often
+       useful to escape XON  (^Q) and  XOFF (^S),  using asyncmap
+       a0000.  If the path includes a telnet, you probably should
+       escape  ^]  as  well  (asyncmap  200a0000).   If the  path
+       includes an rlogin, you  will need  to use  the escape  ff
+       option  on  the end  which is  running the  rlogin client,
+       since  many  rlogin implementations  are not  transparent;
+       they will  remove the  sequence [0xff,  0xff, 0x73,  0x73,
+       followed by any 8 bytes] from the stream.
+
+DIAGNOSTICS
+       The debug  versions PPPDD.EXE  and EPPPDD.EXE  incorporate
+       additional code for diagnostic purposes. The  log  will be
+       sent to DOS standard output and error/informative messages
+       will go to DOS standard error.
+
+       Logging will cease after the driver goes resident,  so its
+       usefulness is limited to debugging the link  establishment
+       phase.
+
+       The  debug  option  causes  the  contents  of all  control
+       packets sent or received to be logged, that  is, all  LCP,
+       PAP, CHAP or IPCP packets.  This can be useful if  the PPP
+       negotiation does not succeed.  If debugging is enabled  at
+       compile time, the debug option also causes other debugging
+       messages to be logged.
+
+FILES
+
+       .\ip-up.bat
+              A DOS batch file  generated by  pppd that  will set
+              environment  variables  with the  current PPP  link
+              parameters, such local IP, remote IP, etc. The file
+              contains the following statements:
+
+                  SET MYIP=xxx.xxx.xxx.xxx
+                  SET REMIP=yyy.yyy.yyy.yyy
+                  SET NETMASK=zzz.zzz.zzz.zzz
+                  SET PEERMRU=nnnn
+
+              This file can be called from  inside another  batch
+              file and then use the environment variables for DOS
+              Internet applications configuration.
+
+       full_path_to_pppd\pppd.cfg
+       .\pppd.cfg
+              System default options for pppd, read  before  user
+              default options or command-line options.
+
+       .\pppdrc.cfg
+              User  default  options,  read  before  command-line
+              options.
+
+       .\pppdcom?.cfg
+              System default options for the  serial  port  being
+              used, read after command-line options.
+
+SEE ALSO
+       RFC1144
+              Jacobson,  V.   Compressing TCP/IP headers for low-
+              speed serial links.  1990 February.
+
+       RFC1321
+              Rivest, R.  The MD5 Message-Digest Algorithm.  1992
+              April.
+
+       RFC1332
+              McGregor,   G.    PPP  Internet   Protocol  Control
+              Protocol (IPCP).  1992 May.
+
+       RFC1334
+              Lloyd,  B.;   Simpson,  W.A.    PPP  authentication
+              protocols.  1992 October.
+
+       RFC1548
+              Simpson,  W.A.   The Point-to-Point Protocol (PPP).
+              1993 December.
+
+       RFC1549
+              Simpson, W.A.  PPP in HDLC Framing.  1993 December.
+
+NOTES
+       You can use CTRL+BREAK to abort the driver before it  goes
+       resident.  You must  use CTRL+BREAK,  CTRL+C doesn't  work
+       To  close  the PPP link and deinstall the driver you  must
+       use   a   standard  packet  driver  terminator,   such  as
+       TERMIN.COM from Russell Nelson (CRYNWR). Call it with:
+
+           TERMIN 0xnn
+
+       Where nn is the hex number of the interrupt vector used by
+       the installed driver, i.e. TERMIN 0x60.
+
+AUTHORS
+       DOS port by Antonio Lopez Molero, <tonilop@redestb.es>.
+       Drew  Perkins, Brad Clements, Karl Fox, Greg Christy, Brad
+       Parker, Paul Mackerras (paulus@cs.anu.edu.au).
+
+--- End (original filename: PPPD.MAN) ---

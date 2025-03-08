@@ -1,0 +1,42 @@
+<TITLE>Lock file detected</TITLE>
+<BODY BACKGROUND="file://ppp_back.gif" TEXT=#000000 bgcolor=#555555> 
+
+<TABLE BGCOLOR=SILVER CELLSPACING=1 FRAME="void" BORDER WIDTH=510>
+
+<TD ALIGN=RIGHT COLSPAN=2>
+<FONT 3D=2><B>Lock file detected</B></FONT>
+&nbsp;<A HREF="file://home.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR>
+<TD WIDTH=32>
+&nbsp;&nbsp;<FONT SIZE=6 3D=2><B>!</B></FONT>
+<TD WIDTH=506>
+<SMALL>
+Current directory is locked for Arachne. There are two possible reasons:
+<LI>last time you were using Arachne
+the program wasn't terminated correctly - either because of crash or because
+you rebooted your PC without exiting Arachne. This probably means, that
+the cache index is not synchronized with cache. In this case, it would be
+better to clean the cache. With some modems and Internet providers it is
+also posible to re-establish PPP connection after rebooting...
+<LI>Some other user/other process in your system is using this copy of
+Arachne (eg. you are running Arachne from network drive). It is possible
+to run Arachne more than once, but not from the same working directory.
+If you think it may be this case, the best thing you can do is to exit this
+copy of Arachne.
+</SMALL>
+<TABLE>
+<TD WIDTH=40>
+<TD>
+<FORM ACTION="file://clearlok.asf">
+<INPUT TYPE=SUBMIT VALUE="Clear cache">
+<TD>
+<FORM ACTION="arachne:dialer">
+<INPUT TYPE=SUBMIT VALUE="PPP reconnect">
+<TD>
+<FORM ACTION="arachne:restart">
+<INPUT TYPE=SUBMIT VALUE="Ignore">
+<TD>
+<FORM ACTION="arachne:exit">
+<INPUT TYPE=SUBMIT VALUE="Exit to DOS">
+</TABLE>
+</TABLE>

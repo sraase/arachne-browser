@@ -1,0 +1,193 @@
+153 Arachne Keywords, Allowed Values and Ranges: with some explanation.
+                                                        Last updated 02/07/12
+General Information:
+            The HEADINGS in Arachne.cfg are IGNORED by Arachne.
+            Unrecognized or bogus keywords are also IGNORED.
+            The CASE of both the keyword and value is IGNORED.
+            Keywords may appear or be placed under any heading
+            that helps in the visual or mental organization.
+            The ORDER of keywords is irrelevant except where the
+            same keyword appears more than once. Then it is the
+            first occurrence that takes precedence.
+            Where the value assigned to the keyword can be a list,
+            it is safe to separate items by a comma.
+            Default value for undefined keywords is NUL or 0.
+
+Portability:
+            Some of the values are recognized only by Linux version of
+            Arachne, some are valid only for DOS version.
+
+Convention: Range of allowed argument is shown literally, or as
+            alternatives separated by "|" or as "[]" which must
+            be replaced by the text or numbers described by the
+            contents of [] and any explanation following in ().
+
+
+"ASCIIwidth"       40-255 (Printer width in characters)
+"AcceptCharset"    [List of official ISO names and/or *] (See note #1)
+"AfterPOP3"        [Action or URL] (Arachne:[cmd] or http:[],file:[],smtp:)
+"AfterSMTP"        [Action or URL] (Arachne:[cmd] or http:[],file:[],pop3:)
+"AltGateway"       [n.n.n.n] (Alternate fixed gateway for LAN)
+"AltNameServer"    [DNS#] (Domain NameServer) (Alternate DNS from your ISP)
+"AltSysFont"       0-3 (For textarea, plaintext, HTMLsource view: 0=disable)
+"AltTab"           Yes|No (Optional Hotkey to repaint ENTIRE screen)
+"AutoF3key"        Yes|No (Yes overrides F3 key definition)
+"Autodial"         Yes|No
+"Autologin"        Yes|No
+"Background"       [Your favorite.bmp/.gif/.jpg]|NUL (Desktop Background)
+"Base"             0x[HHH] (HHH=Hex COM port address, used when Port = 0)
+"BCC"              [Email address to regularly send Blind Carbon Copies to]
+"BgColor"          #[RRGGBB] (RRed,GGreen,BBlue = Hex background Intensity)
+"BigFont"          Yes|No
+"Cache2TEMP"       Yes|No (Use \TEMP on ramdisk for some cache items)
+"CacheFonts"       Yes|No
+"CacheIndex"       [Path+Filename] (to Cache Index)
+"CachePath"        [Path+Name] (to your "cache" directory)
+"Colors"           [0-15] [0-15] (Text entry areas: Text,Background)
+"Connection"       READY|@[PPP Program name and any operations]|NUL
+"CookieFile"       [Path+Filename] (to your cookies)
+"Cookies"          Yes|No
+"CSS"              Yes|No (Use Cascaded Style Sheets)
+"DialPage"         [URL for dialing operations] (Such as file:[]|pop3:|smtp:)
+"DialString"       ATDT|ATDP|ATX3DT|ATX3DP (Plus any valid modem commands)
+"Dialer"           [Dial Program name and any operations] (Mime.cfg format)
+"DownloadPath"     [Path+Name] (to your "download" directory)
+"eMail"            [Your email address]
+"ESC"              Exit|Back|Ignore
+"EditHotlistEntry" Yes|No
+"ExitOnHangup"     Yes|No
+"ExpireDynamic"    0-??? (Seconds of life for CGI scripts etc., 0=never)
+"ExpireStatic"     0-??? (Seconds of life for unvisited HTMLpages in cache)
+"F3key"            [Filename+extension] (or any URL or part of a URL)
+"FILEargs"         -d|-l (Icons in directory listings on|off, for WWWMAN)
+"FTPpassword"      [Your File Transfer Protocol Password]
+"FTPpath"          [Full filename to last upload document on server]
+"FTPproxy"         [Your Proxy Servername for FTP]
+"FTPserver"        [Your FTP server] (From your ISP)
+"FTPusername"      [Your FTP User Name]
+"FakeFTPeMail"     [Dummyuser@domain] (For anonymous FTP)
+"FontPathSuffix"   iso-8859-1|iso-8859-2 (Linux only - selects fond codepage)
+"FontShift"        -1..0..+1 (Font size steps for ALL text on HTML pages)
+"ForwardString1"   [Text to precede forwarded messages]
+"ForwardString2"   [Text to follow forwarded messages]
+"Frames"           Yes|No
+"Gateway"          [n.n.n.n] (Fixed gateway for LAN)
+"GraphicsMode"     HI.I|HI.J|HI.K (Linux only - name of graphics mode)
+"HTMLbgColor"      #[RRGGBB] (RRed,GGreen,BBlue = Hex intensity)
+"HTMLlink"         #[RRGGBB] (RRed,GGreen,BBlue = Hex intensity)
+"HTMLtext"         #[RRGGBB] (RRed,GGreen,BBlue = Hex intensity)
+"HTTPKeepAlive"    Yes|No (Allows disable of KeepAlive for HTTP/1.0 proxies)
+"HTTPproxy"        [Your Proxy Servername for HTTP]
+"HTTPreferer"      Yes|No (Send "REFERER" information during HTTP sessions)
+"HTTPretry"        [Number of times to re-try download before giving up]
+"HTTPS2HTTP"       Yes|No (Try to find HTTP equivalents to HTTPS URLs)
+"Hangup"           @[PPP Shutdown Program name + operations]
+"History"          [Path+Filename] (to History List)
+"HomePage"         [URL] (Your first location online - could be a file)
+"Hotlist"          [Path+Filename] (to your Addresses/Bookmarks/Favorites)
+"IgnoreJS"         Yes|No (Ignore all between <script></script>)
+"IP_Address"       [Fixed n.n.n.n]|PPP|BOOTP|%MYIP%|WATTCP (See Note #2)
+"IP_Grab"          [Text expected preceeding IP address in PPP.log]
+"Index"            [Dir. template] (*.[ext]|[name].*  eg: *.htm,*.txt,*.*)
+"InitString"       AT[modeminitstring]
+"Irq"              3-13 (non-standard COM port Irq #, used when Port = 0)
+"JPEGargs"         -bmp|-bmp -fast (used by MIME.CFG macro $j)
+"KeepOnServer"     Yes|No (Leave downloaded mail on server if permitted)
+"KeepHTT"          Yes|No (Controls caching of HTTP headers)
+"Keymap1"          [1st 64 mapped characters above ASCII 127]
+"Keymap2"          [2nd 64 mapped characters above ASCII 127]
+"Kill468x60"       Yes|No (Ignore some advertising banners)
+"KillSent"         Yes|No (Delete sent mail messages)
+"Link"             #[RRGGBB] (RRed,GGreen,BBlue = Hex Intensity for link)
+"LoadImages"       Yes|No
+"Logo"             0-????? (12000|2000|0 = Logo Animation slow|fast|disabled)
+"MailBodyEncoding" 7bit|8bit|Quoted-printable
+"MailEncoding"     Mime|Uuencode
+"MailIdxTemplate"  [Path+Filename] (Mail inbox format: default=idxhead.htp)
+"MailIsDesktop"    Yes|No (mail will use Desktop colors instead of HTML page)
+"MailPath"         [Path+Name] (to your "mail" directory)
+"MailSortOrder"    DateRcv|DateSnt|Address|Subject
+"MinDiskSpace"     [0-nnn] (kb: Minimum space for no "DiskFull" warning)
+"Mode"             [DPS] (#Databits $Paritybits #Stopbits)
+"MouseColors"      [0-15] [0-15] (Selected/activated Text,Background)
+"Multitasking"     Yes|No|Safe
+"MyCharset"        [US-ASCII|ISO-Latin-2|Windows-CE] (Out mail characterset)
+"NameServer"       [DNS#] (Domain NameServer) (From your ISP)
+"Netmask"          [n.n.n.n] (Typically 0.0.0.0, never 255,255,255,255)
+"NoFTPproxy"       [fullnameNoFTPproxy1,fullnameNoFTPproxy2,etc.]
+"NoFTPproxy4All"   [substring of nameNoFTPproxy1,of nameNoFTPproxy2,etc.]
+"NoProxy"          [fullnameNoproxy1,fullnameNoproxy2,etc.]
+"NoProxy4All"      [substring of nameNoproxy1,substring of nameNoproxy2,etc.]
+"Organization"     [Any text you want]
+"POP3log"          Yes|No
+"POP3password"     [Your email Password]
+"POP3server"       [Your incoming mailserver] (From your ISP)
+"POP3username"     [Your email User Name]
+"PPPpassword"      [Your PPP Password]
+"PPPusername"      [Your PPP User Name]
+"PersonalName"     [Your Real Name]
+"PhoneNumber"      [ISP Phone Number]
+"Port"             0|1-4 (COM port #, 0 stands for non-standard Irq/Base)
+"PostScriptHeight" 0-??? (Printer output height mm.)
+"PostScriptWidth"  0-??? (Printer output width mm.)
+"PrintURL"         [Action or URL for instant printing]
+"Profile"          [Name.acf of your current Arachne.cfg]
+"ProxyPassword"    [Your proxy Password]
+"ProxyUsername"    [Your proxy Username]
+"QADT"             Yes|No (Quick and Dirty table preview)
+"RefreshDelay"     0-??? (Seconds between screen refreshes while downloading)
+"ReplyString"      [Text preceeding quote for e-mail reply] (See Note #3)
+"ReplyTo"          [An email address you wish replies directed to]
+"Response1 - 6"    [Login response text] (Lines 1-6)
+"SMTPlog"          Yes|No
+"SMTPserver"       [Your outgoing mailserver] (From your ISP)
+"SavePasswords"    Yes|No
+"ScreenMode"       Auto|Smart|Nice
+"ScreenSaver"      0-32768 (Minutes. 0=disable)
+"ScreenSaverColors"[0|1] (Two color schemes)
+"ScreenSaverMess   0-20 (Number of objects)
+"ScreenSaverStyle" L|R|C (Lines|Rectangles|Circles)
+"ScrollBarSize"    0-20 (Width Pixels)
+"ScrollBarStyle"   NextStep|Windows|Arachne|X|Clarence(none)
+"ScrollStep"       0-1000 (Scan lines/vertical pixels for smooth scrolling)
+"SearchPage"       [URL] (Your favorite Search Engine)
+"SendHELO"         Yes|No (Send SMTP "HELO" protocol for your mail server)
+"ShiftF1 - F10"    [Any user defined Action/URL] (See AfterPOP3, SearchPage)
+"SignatureFile"    [Filename containing email signature line(s)]
+"SmoothScroll"     Yes|No (Requires virtual screens)
+"Speed"            [DTE Rate] (Bits/Sec: 2-4x Modem baudrate: Max=115200)
+"TCPconfig"        [Filename of WatTcp configuration]
+"TerminalWindow"   [Terminal Program name + any operations] (Mime.cfg format)
+"Text"             #[RRGGBB] (RRed,GGreen,BBlue = Hex Intensity for text)
+"TimeZone"         +1200 to -1200 (Hours relative to GMT)
+"Toolbar"          [Path+Filename] to your toolbar.cfg
+"UseBinaryFTP"     Yes|No (Override automatic setting of FTP upload type)
+"UseCDescr"        Yes|No (Add extra content description to mail attachments)
+"UseCID"           Yes|No (Add extra content identifier to mail attachments)
+"UseFTPproxy"      Yes|No
+"UseKeyMap"        Yes|No
+"UseProxy"         Yes|No
+"UseReplyTo"       Yes|No
+"UseSignature"     Yes|No
+"UseTerminal"      Yes|No
+"VirtualScreen"    0-???? (Size in scanlines or vertical pixels. 0=disable)
+"VFAT"             Yes|No (support links to long filenames in Win 9x DOS box)
+"WaitFor1 - 6"     [Text expected requesting a login response] (Lines 1-6)
+"XMS4allgifs"      0-???? (kilobytes of XMS for animated GIFs. 0=disable)
+"XMS4onegif"       0-????? (max. bytes for one animated GIF)
+
+****************************************************************************
+
+Note #1: iso-8859-1,iso-8859-2,cp-1251,cp-895,koi8-r,windows-1250,
+         windows-1251,iso-8859-8,* (any) (lower case is preferred)
+Note #2: Sources for IP address:
+         IP_Address n.n.n.n  ... fixed IP address
+         IP_Address PPP      ... get address from PPP.LOG
+         IP_Address BOOTP    ... WatTcp attempts to use BOOTP protocol
+         IP_Address %enviro% ... enviroment variable, like %MYIP%
+         IP_Address WATTCP   ... use values from TCPconfig (variable "my_ip")
+         IP_Grab string      ... text in PPP.LOG ("IP address set to")
+Note #3: [text]%s, %s[text] e.g. On (fills in date), (fills in name) wrote:
+
+****************************************************************************
+

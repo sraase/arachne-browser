@@ -1,0 +1,62 @@
+<Body BACKGROUND = "file://paper.gif">
+<TITLE>16-bit Arachne for DOS system requirements</TITLE>
+<FONT SIZE = +1>16-bit Arachne for DOS required and recommended system configuration</FONT>
+<P>
+<TABLE BORDER = 3 CELLSPACING = 3 WIDTH = 100% >
+<TH WIDTH=27% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>System component
+<TH WIDTH=25% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Required
+<TH WIDTH=48% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Recommended
+<TR>
+<TD>Operating system
+<TD><B>MS-DOS 3.3</B>
+<TD>MS-DOS 6+, DR(Open)DOS 7+
+<TR>
+<TD>CPU
+<TD><B>80x86 compatible</B>
+<TD>80386+ or any Virtual DOS Machine
+<TR>
+<TD>Low DOS Memory
+<TD><B>500 KB</B><BR>560 KB if using built-in PPP
+<TD>
+640 KB (with QEMM or EMM386)
+<TR>
+<TD>XMS/EMS Memory
+<TD>0 MB,<BR><B>1 MB</B> in real life
+<TD>8+ MB of XMS (EMS is not used for smooth scrolling and font caching)
+<TR>
+<TD>Video card
+<TD>VGA 256 KB,EGA<BR><B>SVGA</B> in real life
+<TD>Direct support for some SVGA cards,
+VESA driver for other cards.
+<TR>
+<TD>SVGA memory
+<TD><B>512 KB</B>
+<TD>1 - 2 MB
+<TR>
+<TD>SVGA resolution
+<TD><B>640x400x256</B>
+<TD>800x600xHiColor, 1024x768xHiColor
+<TR>
+<TD>Hard disk space
+<TD><B>5 MB</B>
+<TD>10 MB with caching (SmartDrive), TEMP directory on RAM disk.
+<TR>
+<TD>Mouse
+<TD>-
+<TD>standard mouse driver (int. 0x33)
+<TR>
+<TD>TCP/IP
+<TD>-
+<TD>standard packet driver (int. 0x60)
+<TR>
+<TD>Dial-up Internet
+<TD>-
+<TD>PPP (with PAP,CHAP or login script authentication), SLIP, CSLIP
+<TR>
+<TD>Modem
+<TD>-
+<TD>Serial modem 28800+ bps
+</TABLE>
+Return to <A HREF="file://help.htm">main help page</A>, see also
+<A HREF="file://doc\memmap.htm">memory map</A> or <A HREF="reload:file://mem.dgi">
+check memory information</A>

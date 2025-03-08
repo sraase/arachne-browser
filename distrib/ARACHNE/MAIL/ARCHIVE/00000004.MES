@@ -1,0 +1,22 @@
+From: "Michael Polak" <xchaos@arachne.cz>
+Date: Sun, 24 Jan 1999 07:56:11 +0100
+To: Arachne User
+Subject: Information about mail folders
+
+These four pre-installed folders (ARCHIVE, LINKS, URGENT and JOKES) are
+of course only examples - you can rename or remove them if you wish.
+You can have only one folder for all saved messages or can create
+hundreds of folders - just do what you like.
+
+Moving messages from folder INBOX to archive folders, moving them
+between arachive folders and creating new archive folders is very easy
+- just try new "Move" button which can be found on every received eMail
+message.
+
+Mail folders are simply subdirectories of your mail directory -
+removing, renaming and creating new folders is as simple as doing
+these operations with directories. You can use either DOS commands
+mkdir and rmdir, or some DOS file manager.
+
+I wish you lot of good news in your INBOX!
+                                                      Michael

@@ -1,0 +1,33 @@
+<HTML>
+<BODY NORESIZE>
+<FORM ACTION="arachne:internal-htmledit">
+<TEXTAREA COLS=74 ROWS=32 ARACHNEEDITOR ARACHNEROWS ACTIVE>
+</TEXTAREA>
+<TABLE>
+<TD>
+<input type=submit value="Save & view [F2]">
+</form>
+<TD>
+<FORM ACTION="arachne:again">
+<input type=submit value="Cancel">
+</form>
+<TD>
+
+<!--- external editor --->
+<FORM ACTION="file://txedit.dgi">
+<INPUT TYPE=SUBMIT VALUE="External Editor">
+</form>
+<td>
+<!--- end external editor section --->
+
+<form action="file://edithelp.htm">
+<input type=submit value="Edit Help">
+</form>
+<tr>
+<td>
+<FONT COLOR=#777777 SIZE=-1><I>
+<INPUT TYPE=OUTPUT ARACHNEDOC SIZE=25>
+</TABLE>
+
+</Body>
+</HTML>

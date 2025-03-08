@@ -1,0 +1,12 @@
+This version of the Arachne distribution package requires at least a 
+80386-compatible CPU to run, but CORE.EXE, the main Arachne component, is 
+compiled as a 16 bit DOS executable. To run in 16bit DOS (either real 
+machine or virtual x86), you need to apply the package "16bit.apm", or:
+
+1) get 16bit DJPEG.EXE (e.g., from old Arachne packages)
+2) in MIME.CFG, change all calls to DJPEG32.EXE to DJPEG.EXE
+3) remove all calls to PNG2BMP.EXE from MIME.CFG
+
+Arachne won't be able to view PNG images in 16bit mode any time soon.
+If you know of a compact PNG library available for 16bit DOS, please
+let us know about it.

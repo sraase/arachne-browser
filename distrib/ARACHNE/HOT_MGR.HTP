@@ -1,0 +1,11 @@
+<TITLE>Arachne Hotlist</TITLE>
+<BODY NORESIZE>
+<TABLE WIDTH=100%%>
+<TD WIDTH=75%%>
+<H1>Arachne <I><FONT COLOR="#FF0000">Hotlist</FONT></I></H1>
+<TD WIDTH=25%%>
+<FORM ACTION="edithotlist.dgi">
+<INPUT TYPE=HIDDEN VALUE="%s">
+<INPUT TYPE=SUBMIT VALUE="Hotlist Manager">
+</TABLE>
+<HR SIZE=6>

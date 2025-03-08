@@ -1,0 +1,173 @@
+<HTML>
+<HEAD>
+<TITLE>How to speed up WWW surfing with Arachne</TITLE>
+<ARACHNE MSG="Do think Arachne is too slow for you ?">
+</HEAD>
+<Body BACKGROUND="file://paper.gif">
+<TABLE WIDTH=100% CELLPADDING=4 CELLSPACING=0>
+<TD WIDTH=20% BGCOLOR=BLACK ALIGN=RIGHT>
+<FONT SIZE=+3 COLOR=RED>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=RED>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=RED>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=YELLOW>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=YELLOW>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=YELLOW>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=LIME>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=LIME>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=LIME>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=BLUE>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=BLUE>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=BLUE>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=RED>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=RED>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=RED>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=YELLOW>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=YELLOW>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=YELLOW>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=LIME>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=LIME>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=LIME>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=BLUE>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=BLUE>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=BLUE>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=RED>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=RED>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=RED>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=YELLOW>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=YELLOW>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=YELLOW>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=LIME>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=LIME>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=LIME>
+FASTER!</FONT><BR>
+<FONT SIZE=+3 COLOR=BLUE>
+FASTER!</FONT><BR>
+<FONT SIZE=+2 COLOR=BLUE>
+FASTER!</FONT><BR>
+<FONT SIZE=+1 COLOR=BLUE>
+FASTER!</FONT><BR>
+<TD WIDTH=80%>
+<H3>Quick tips</H3>
+<OL>
+<LI> Arachne needs at least a 386 CPU with 4 MB of RAM to do anything useful.
+<LI> Enable at least 1 MB of standard XMS memory or at least 512 KB of EMS.
+<LI> Both read and write disk caching is REQUIRED
+<LI> Let your <A HREF="tempdir.htm">TEMP environment variable</A> point to 
+your RAM disk and <A HREF="..\system\gui\opt_loc.ah">use it for local 
+caching</A>.
+<LI> Disable all obsolete visual effects using 
+<A HREF="..\system\gui\opt_misc.ah">Preferences screen</A>.
+</OL>
+
+<H3>More details</H3>
+<OL>
+<LI>Make sure your %TEMP% environment variable points to an existing directory
+on your fastest disk drive - cf. also
+<A HREF="tempdir.htm"> notes on configuring the TEMP directory</A>.
+This is extremely important if you chose swapping to disk. 
+The minimum size of such a RAM disk is 512 KB.
+<LI>If you are using HIMEM.SYS, make sure that the "numhandles=xx" argument
+is present on the HIMEM.SYS line in your <A HREF="file:c:\config.sys">config.sys</A>
+file. "xx" should be some suitable number, let's say 64 (?). When using the
+QEMM memory manager (recommended), you won't have this problem but when
+Arachne crashes and restarts without deallocating XMS, the perfomance
+may suffer. It is better to reboot your PC in such case.
+<LI>Try to keep the number of files in the Arachne working directory 
+fewer than 128
+<LI>Disable smooth scrolling, smooth Page Up/Page Down,
+and virtual screen, or try to select values appropriate for adequate computer
+performance (you can use <A HREF="file:..\system\gui\opt_misc.ah">Preferences screen</A>
+to do this).
+<LI>Disable frames
+<LI>Disable logo animation
+<LI>Use SMARTDRV (NWCACHE in OpenDOS).
+Make sure that you are also using disk-write caching,
+not merely something like "SMARTDRV /X" (default setting in AUTOEXEC.BAT on
+many systems), but rather "SMARTDRV C+"
+<LI>There are reports that Arachne is "ultrafast" on most systems if 
+you run it from a 2-3 MB RAM disk (a RAM disk can be configured in the 
+DOS CONFIG.SYS file).
+A <A HREF="file://aramdisk.txt">Detailed explanation</A> on how to fit Arachne 
+even onto a small RAM disk was written by Clarence Verge, a longtime Arachne 
+user. If your RAM disk is not big enough for Arachne, try at least to
+point your %TEMP% environment variable to it - Arachne uses it for some
+temporary files. It can be more efficient than using the memory as XMS/EMS.
+<LI>In a multitasking environment (like Windows 95) try to run Arachne in
+single-task ("MS-DOS") mode.
+<LI>If it is possible, select your SVGA card directly and do not use the VESA
+driver. VESA calls are approximately two times slower than direct access
+to some older SVGA cards (like Trident or TSENG). Another solution is
+to use UNIVBE VESA driver, available at
+<A HREF="http://www.scitechsoft.com/">http://www.scitechsoft.com/</A>
+BTW: some VESA implementations slow down Arachne so much, that it runs 
+slower on the Pentium at the school lab than on my 386 at home.
+<LI>Turn off local icons and turn on fast JPEG preview in "More options"
+Local surfing and JPEG conversion is also faster if there is
+enough DOS memory available to spawn the external utilities without leaving
+Arachne.
+<LI>Switch off image loading.
+You can load individual images by clicking on them with the right mouse button.
+If you really need real-time response, you can use the ~ (tilde) key to 
+temporarily turn off all graphics.
+Or, if you still want to see images, set the image refresh time to 60 seconds 
+(both in "More options").
+<LI>Delete files like <A HREF="..\PPP_BACK.GIF">PPP_BACK.GIF</A> or
+<A HREF="..\PAPER.GIF">PAPER.GIF</A>, especially in EGA mode.
+<LI>Use a lower resolution to see fewer images at a time. It will speed up
+palette mixing. It appears that VESA mode 640x400x256 colors is
+extremely fast. 
+<LI>Using HiColor modes slows down the graphics output but no palette
+mixing is required.
+<LI>Try background surfing (hold Ctrl while clicking on link). You can
+comfortably read the current document until a new one is downloaded. When 
+the download is finished, click the link again and the document will appear 
+immediately.
+<LI>Surf quickly (without reading) to disk cache, then disconnect the modem 
+(Alt+H) and browse documents from <A HREF="..\UTILS.HTM">Utilities</A> (U) -&gt;
+<A HREF="file://cacheindex.dgi">Cache Index</A>.
+In some countries, like the Czech Republic, this can also help you to reduce
+your phone bill.
+<LI>Try to delete disk cache (with the F8 key) when the computer seems to be 
+too slow. Searching cache for missing images and writing the cache index to disk
+both take a lot of time.
+<LI>Ask your Internet provider or LAN administrator if there is a proxy
+server available. Proxy caches frequently accessed WWW pages (like Netscape
+homepage, Altavista or Yahoo queries, etc.).
+<LI>Buy a faster modem or computer or select a faster Internet provider...
+<OL>
+</TABLE>
+<HR>Return to <A HREF="arachne:back">previous page</A>.
+</BODY>
+</HTML>

@@ -1,0 +1,10 @@
+rem change to drive C:
+C:
+rem CD to the DosLynx dir
+cd \lynx2851
+rem run DosLynx with needed options
+lynx.exe -cfg c:\lynx2851\lynx.cfg file:///c:/html/mypages/hotlist0.htm
+rem CD to 'root' of C:
+cd \
+rem change back to drive L:
+L:

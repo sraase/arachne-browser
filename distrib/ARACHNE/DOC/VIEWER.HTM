@@ -1,0 +1,84 @@
+<HTML>
+<Head>
+<Title>How to use Arachne as an offline HTML viewer</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<H1>Arachne as offline HTML viewer</H1>
+<HR SIZE=4>
+If you are using a DOS file manager (like Norton Commander, Volkov
+commander, Dos Navigator, etc.) you would probably like to view local
+.HTM files the same way as you view .GIF, .JPG, .TXT or .DOC files -
+just by clicking on the name of the file with a mouse.
+<P>
+It is better to start Arachne in its home directory and you MUST run
+ARACHNE.BAT - not only CORE.EXE.
+You can use <A HREF="file://doc/lan.htm">multiple configuration files</A>,
+in different directories, for example on a LAN. See the description of Arachne
+<A HREF="file://doc/dir.htm">configuration and system files</A> to understand Arachne's
+configuration files - it's generally possible to add the Arachne directory to
+the DOS PATH and run ARACHNE.BAT from any directory, but the file
+<A HREF="file://arachne.cfg">ARACHNE.CFG</A> must <A HREF="file://options.htm">
+be set up</A> to contain full path names in some variables, and even with
+this, there can be problems with plug-ins, with runtime configuration
+files, and temporary files in various locations on the disk, etc.
+So it is much better to change the directory before running Arachne.
+You can also use some kind of PUSHDIR and POPDIR command (it can even be a
+batch file)
+<P>
+The following example is for Arachne installed in the C:\ARACHNE\ directory:
+<UL>
+<LI>In <B>Norton commander</B> and it's clones, like Volkov commander, etc.,
+choose "Extension file edit". Add the following line:
+<P>
+<CODE>HTM: C:\ARACHNE\VIEWER.BAT !\!.!</CODE>
+<P>
+All you have to do now is to copy ARACHNE.BAT to a file called VIEWER.BAT, and
+add the following two lines at the begining of VIEWER.BAT:
+<P>
+<CODE>c:<BR>
+cd \arachne
+</CODE>
+<BR>
+<LI>In a powerful Russian file manager called <B>Dos Navigator</B>,
+<B>&lt;COMMERCIAL&gt;</B>
+DN is becoming quite popular among DOS users all around the world.
+It allows you to view, copy, move and delete files in
+ARJ, ZIP, RAR and other archives as if they were located in normal
+directories; and it allows you to play Tetris just using the &lt;Alt+F9&gt;
+hotkey! This is my small apology to the authors of Dos Navigator that
+I haven't registered it yet ;-) <B>&lt;/COMMERCIAL&gt;</B>
+select "Options","Extension file edit" and simply add the following lines:
+<P>
+<CODE>
+htm{<BR>
+ pushdir </CODE>(optional, see source for PUSHDIR.BAT below)<CODE><BR>
+ c:<BR>
+ cd \arachne<BR>
+ arachne.bat !\!.!<BR>
+ popdir </CODE>(optional)<CODE><BR>
+}
+</CODE>
+<P>
+You don't have to create any special batch file when using Dos Navigator.
+<BR>
+<I>Note: the '{' character must be placed on the same line as the extension
+'htm'.</I>
+</UL>
+<P>
+Here is an example of PUSHDIR.BAT, which can be used to store current
+the DOS directory. In the example, we assume directory C:\TOOLS exists and
+that it is included in an enviroment variable PATH. File C:\TOOLS\CD.0 must
+contain string "cd ", it means exactly three characters: c, d and space
+(0x20). No end of line (0x0D, 0x0A).
+<P>
+PUSHDIR.BAT creates command POPDIR.BAT, which can be used to restore
+the current working directory.
+<P>
+<CODE>
+@cd>c:\tools\cd.1<BR>
+@copy c:\tools\cd.0+c:\tools\cd.1 c:\tools\popdir.bat>NUL
+</CODE>
+<HR>
+Return to <A HREF="arachne:back">previous page</A>.
+</Body>
+</HTML>

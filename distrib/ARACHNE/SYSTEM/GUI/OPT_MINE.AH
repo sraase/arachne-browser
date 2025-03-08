@@ -1,0 +1,48 @@
+<HTML>
+<TITLE>Arachne toggle some variable settings</TITLE>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND=NUL TEXT=BLACK bgcolor=#555555 NORESIZE>
+
+<TABLE CELLSPACING=2 CELLPADDING=0>
+<TD WIDTH=4>
+<TD>
+<TABLE CELLSPACING=0 BORDER=1 FRAME="void">
+<TD class="topbar" bgcolor="gray" ALIGN=Left NOWRAP WIDTH=602>
+<FONT 3D=1><B>Arachne toggle some variables</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=17 WIDTH=17 BORDER=0>
+</TABLE></TABLE>
+
+<TABLE WIDTH=600 CELLSPACING=8 FRAME="void" BORDER=1><BASEFONT SIZE=-1>
+<FORM ACTION="arachne:internal-config?file:options.htm">
+<TD WIDTH=602 BGCOLOR=#EEEEEE>
+<BASEFONT COLOR=BLACK>
+<TABLE>
+<TD width=100%>
+<INPUT TYPE=HIDDEN NAME="KeepHTT" VALUE=Yes>
+<INPUT TYPE=CHECKBOX NAME="KeepHTT" VALUE=No ARACHNECHECKED="KeepHTT">
+Disable caching of HTTP headers (faster)
+<TR>
+<TD width=100%>
+<INPUT TYPE=HIDDEN NAME="HTTPKeepAlive" VALUE=Yes>
+<INPUT TYPE=CHECKBOX NAME="HTTPKeepAlive" VALUE=No ARACHNECHECKED="HTTPKeepAlive">
+Disable KeepAlive (for old HTTP/1.0 proxies)
+<TR>
+<TD width=100%>
+<INPUT TYPE=HIDDEN NAME="CSS" VALUE=No>
+<INPUT TYPE=CHECKBOX NAME="CSS" VALUE=Yes ARACHNECHECKED="CSS">
+Enable stylesheets (CSS/1.0)
+</TABLE>
+
+<TR><TD class="topbar" bgcolor="gray">
+<TABLE>
+<TD WIDTH=360>
+<BASEFONT SIZE=3 COLOR=#484848><I>"make install", not war !</I></FONT>
+<TD>
+<BUTTON TYPE=SUBMIT><IMG SRC="file://small1.ikn" HEIGHT=18 WIDTH=32>
+ &nbsp;Ok, save</BUTTON>
+<TD>
+<FORM ACTION="arachne:back">
+<BUTTON><IMG SRC="file://pidizrus.ikn" WIDTH=16 HEIGHT=16>&nbsp;Cancel</BUTTON>
+</TABLE></TABLE>
+</BODY></HTML>
+

@@ -1,0 +1,127 @@
+Arachne COLOR rendition Howto                                00/07/31
+Written by Clarence Verge
+
+Part 1 - The Technobabble:
+
+Arachne is pre-programmed to respond accurately to ONLY the original
+M$ set of standard HTML color names. These colors are a holdover from
+the limitations imposed by digital (on/off) video signal levels.
+
+The three colors Red, Green and Blue can only be combined eight ways
+in an on/off fashion. If you add one more digital signal representing
+intensity, this doubles the possibilities to 16.
+
+If 0 represents off and 1 represents on, we can get the following IRGB
+combinations:
+
+     Intensity Red Green Blue   Visual result
+           0    0    0    0     Black
+           0    0    0    1     Dark Blue    (Navy)
+           0    0    1    0     Dark Green   (Green)
+           0    0    1    1     Dark Cyan    (Teal)
+           0    1    0    0     Dark Red     (Maroon)
+           0    1    0    1     Dark Magenta (Purple)
+           0    1    1    0     Dark Yellow  (Brown/Olive)
+           0    1    1    1     Dark White   (Gray)
+           1    0    0    0     Bright Black (Gray)
+           1    0    0    1     Blue
+           1    0    1    0     Green        (Lime)
+           1    0    1    1     Cyan         (Aqua)
+           1    1    0    0     Red
+           1    1    0    1     Magenta      (Fuchsia)
+           1    1    1    0     Yellow
+           1    1    1    1     White
+
+It can be seen that there is a duplicate definition for Gray leaving
+a spare combination available when these values are translated to
+levels for analog video (VGA) use.
+
+These are the 16 widely known color names with their Hex RGB intensity
+values. A Hexadecimal value of 00 is off or dark, FF is on maximum or
+bright, and 80 is on at half intensity. Mostly equivalent to the above:
+
+    Black  = #000000    Green  = #008000
+    Silver = #C0C0C0    Lime   = #00FF00
+    Gray   = #808080    Olive  = #808000
+    White  = #FFFFFF    Yellow = #FFFF00
+    Maroon = #800000    Navy   = #000080
+    Red    = #FF0000    Blue   = #0000FF
+    Purple = #800080    Teal   = #008080
+    Fuchsia= #FF00FF    Aqua   = #00FFFF
+
+Here we see that the extra GRAY condition has been raised to SILVER,
+an intensity a little higher than 1/2 way between gray and white.
+This would be impossible without the fine variations possible due to
+the use of an analog video signal.
+
+To use this capability further requires the use of SVGA or HiColor.
+The 4bit combinations can define only 16 colors, 8bit combinations
+can define 256 colors, and 24 bit combinations as show above where
+a full eight bits is used for each of R G B, can produce 16.7 million
+colors. This is called TrueColor.  HiColor is a 16 bit mode.
+
+It is important to note that except for Hicolor, the second character
+in each Hex pair has no effect.  Taking only the 16 levels specified
+by the most significant hex digit of each color, a total range of 4096
+colors can be specified. (16x16x16)  In fact, if you skip every second
+Hex character in the first digit, it is still possible to specify 512
+colors, or twice as many as the 8bit (256 color) video modes support.
+
+So, the above Hex HTML color specification must be reduced severely by
+software to fit the limitations of the video mode.
+You can pretty much ignore the low nibble character.
+
+
+
+Part 2 - The Suggestions:
+
+Arachne (and the other browsers) respond to color names other than the
+above standard 16, but not in an easily predictable manner. Some of the
+big browsers support names like cadetblue or chocolate or even cyan but
+Arachne renders cyan the way the big boys would render "roadkill".
+
+After checking for the "#" character first and the 16 known names next,
+Arachne takes the first six characters of the color spec. and treats it
+as hexadecimal whether it is or not. So the word cyan, containing only
+four characters, will convert to a color without any blue in it.
+In fact, as pointed out above, the second character has no real effect
+either on the result, so only the letters "c" and "a" are used.  These
+happen, by chance, to be legal hex characters. Arachne displays yellow
+for cyan which is almost exactly the opposite to what is intended.
+
+The safe approach for both local Arachne use and pages online, is to
+use only the standard 16 agreed upon color names as far as possible,
+and for any other required color specification use Hex RGB values.
+
+Remember that others may not be viewing anything even close to what
+YOU might be seeing if you use 24 bit RGB specs, and they CERTAINLY
+won't see what you intend if you put your Xmas message up in red and
+green and they view it in monochrome. :(
+
+Arachne has a page review capability unparalled by the other browsers.
+View ARACOLOR.htm to see the effect of video mode on Arachne pallette.
+Use Video Setup, found on the Aracolor or Options pages to change your
+video mode and check out your pages. Remember to try a grayscale mode.
+
+The top 16 color bars are the 16 standard named colors. On the left in
+the bottom half you can see the effect of stepping by 2 in intensity
+for grayscale. You will also probably notice that in *16* color modes
+purple and fuchsia look the same, and at the bottom there is a gray
+bar that is brighter than silver (C0C0C0).  I don't know yet if this
+is a bonus color provided by my video boards or an Arachne special.
+The code I have examined to date shows Arachne translating FUCHSIA
+to #FF00FF, not #800080 and NO word is coded to be = #E0E0E0.
+
+If three colors each having possible intensities of off, on and bright
+are available, 27 combinations are possible.  The bottom right side of
+ARACOLOR.htm shows most of the 11 combinations that are not used in the
+standard 16.  Take care to note that most of these combinations become
+indistinguishable from SILVER when a 16 color video mode is used !!
+Try Arachne in 16 color mode and toggle monochrome with the "!" key.
+
+Arachne does not require the color name to be in uppercase and she does
+not require quotes around color names. She does require the leading "#".
+
+Video setup is also useful to see how wide your page looks in 640x480.
+
+Press your back button to return to Arachne. 8-)

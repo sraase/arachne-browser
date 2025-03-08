@@ -1,0 +1,26 @@
+<TITLE>Arachne and PCI modem</TITLE>
+<Body BACKGROUND="file://paper.gif">
+<H1>Arachne and PCI modem</H1>
+<HR SIZE=4>
+<PRE>Date: Tue, 11 Jul 2000 11:05:16 -0400 (EDT)
+From: Gregor J Jones <gjones@bu.edu>
+To: Michael Polak <xchaos@arachne.cz>
+
+...
+BTW, Michael, my PCI modem works fine with Miniterm/Arachne 1.64. This
+modem is set on IOPORT D800, IRQ 10 by the BIOS, and all I have to do is
+insert these numbers in PPP setup. I have PNP Operating system set to "No"
+in the BIOS.
+...
+Gregor Jones
+Boston MA
+</PRE>
+This e-mail indicates that it is possible to use PCI (=non ISA) internal modems
+with Arachne if they are not Winmodems. You (probably ?) have to disable
+Plug'n'Play for the requested IRQ in BIOS, and you have to set up Arachne to use
+"non-standard serial device" and manually enter the parameters of your PCI modem
+(in this case it is Irq 10, Base 0xd800, but of course it will be different
+for other modems). However, I haven't tested any PCI modem with DOS Arachne
+myself.
+<HR>
+Return to <A HREF="arachne:back">previous page</A>.

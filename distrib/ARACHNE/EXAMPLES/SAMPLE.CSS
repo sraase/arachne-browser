@@ -1,0 +1,59 @@
+
+body
+{
+ background-color:white;
+ color:navy;
+ font-style: italic;
+ font-size: 16px;
+}
+
+a:hover
+{
+ color: red;
+ text-decoration: underline;
+}
+
+a:link
+{
+ color: black;
+}
+
+.emph:link
+{
+ font-weight: bold;
+ font-size: 20px;
+ color: green;
+}
+
+.menu
+{
+ background-color: silver;
+ font-size: 20px;
+}
+
+.black td
+{
+ background-color: black;
+ color: white;
+ font-size: 10px;
+}
+
+.white td
+{
+ background-color: white;
+ color: black;
+ font-size: 24px;
+}
+
+.style2 p
+{
+ color:black;
+ font-weight: bold;
+ font-size: 10px;
+ font-style: none;
+}
+
+.weird
+{
+ background: lime;
+}

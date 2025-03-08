@@ -1,0 +1,12 @@
+
+.topbar
+{
+ background-color:gray;
+}
+
+.midbar
+{
+ background-color:gray;
+}
+
+

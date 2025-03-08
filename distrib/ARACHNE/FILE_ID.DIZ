@@ -1,0 +1,23 @@
+Arachne 1.99;GPL, internet package for DOS
+**** FREE FOR NON-COMMERCIAL USE! ****
+Fullscreen graphical WWW browser, HTML
+viewer, HTML editor, e-mail client
+with multiple folders, file browser.
+Supports subset of HTML/4.0 (Netscape
+extensions - frames, fonts, tables),
+MSIE extensions (CSS 1.0 stylesheets),
+anim. GIF, JPEG, PNG, BMP, WAV, HTTP
+(version 1.0 + keep-alive, cookies,
+authentication, proxies), GOPHER, FTP,
+POP3, SMTP, FINGER, PPP, PAP, CHAP,
+BOOTP, DHCP, CGI, MIME 1.0, BASE64,
+UUENCODE. Runs on DOS, x386, XMS,
+EMS, VESA, SVGA, VGA, EGA, CGA, mouse,
+wheel mouse, packet driver, modem.
+Prints/exports to ASCII or PostScript.
+Optional packages: TELNET, SSH, IRC,
+ICQ, BINHEX, PDF, QV (shareware MPEG,
+AVI, MOV (QuickTime)and MPEG3 player).
+Browser core (this version only)
+is now GPL v2 (compiled for 386+)
+(also requires 387 or 487 math chip)

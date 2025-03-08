@@ -1,0 +1,35 @@
+<HTML><HEAD><TITLE>Arachne Setup Wizard - ready to connect</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK bgcolor=#555555>
+
+<BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" ALIGN=CENTER WIDTH=400>
+<TD class="topbar" bgcolor="gray" NOWRAP ALIGN=RIGHT><FONT 3D=1><B>Arachne Setup Wizard - ready to connect
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE WIDTH=400>
+<IMG ALIGN=LEFT SRC=xicht.gif>
+<H3>Congratulatons!</H3>
+Arachne currently knows all the information required to
+connect to the Internet.
+<P>
+<!--I strongly recommend you to c-->Configure Arachne e-mail now - at least
+the outgoing mail (SMTP), so you will be able to send messages
+from e-mail links on web pages.
+<P>
+Before connecting, it might be necessary to change some
+advanced network settings (some providers or networks
+require you to access Internet using HTTP and FTP proxy server,
+for example). You can fine tune these Arachne settings from
+<A HREF="file://options.htm">Arachne Options</A> page (hotkey is <B>O</B>).
+<TR><TD BGCOLOR=SILVER>
+<TABLE>
+<TD><FORM ACTION="arachne:back">
+<INPUT TYPE=SUBMIT VALUE="<< Previous">
+<!--
+<TD><FORM ACTION="arachne:restart">
+<INPUT TYPE=SUBMIT VALUE="Finish setup...">
+-->
+<TD><FORM ACTION="file://system/gui/wizarda.ah">
+<INPUT TYPE=SUBMIT VALUE="eMail setup Wizard >>">
+</TABLE>
+</TABLE></TABLE></BODY></HTML>

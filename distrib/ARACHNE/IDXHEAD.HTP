@@ -1,0 +1,65 @@
+#head
+<TITLE>$boxname$</TITLE>
+<ARACHNE MSG="Fast delete: right-click subject of the message and press <Delete> key...">
+<BODY ARACHNE NORESIZE>
+<arachne nocache>
+<TABLE WIDTH=100%>
+<TD WIDTH=20% NOWRAP>
+<FONT SIZE=6 3D>$boxname$</FONT>
+<TD WIDTH=80% ALIGN=left>
+<b>Index of</b> $filespec$<br>$msgtotcnt$ messages listed ($msgtotsize:03$ kB)
+</TABLE>
+<HR>
+<FORM ACTION="arachne:internal-config?reload:">
+Sort by:
+&nbsp;&nbsp;<INPUT TYPE=RADIO NAME="MailSortOrder" VALUE="DateSnt" ARACHNECHECKED="MailSortOrder">Sent-date
+&nbsp;&nbsp;<INPUT TYPE=RADIO NAME="MailSortOrder" VALUE="DateRcv" ARACHNECHECKED="MailSortOrder">Delivery-date
+&nbsp;&nbsp;<INPUT TYPE=RADIO NAME="MailSortOrder" VALUE="Subject" ARACHNECHECKED="MailSortOrder">Subject
+&nbsp;&nbsp;<INPUT TYPE=RADIO NAME="MailSortOrder" VALUE="Address" ARACHNECHECKED="MailSortOrder">Address
+&nbsp;&nbsp;<INPUT TYPE=SUBMIT VALUE="Accept">
+</FORM>
+<HR SIZE=4>
+<BASEFONT SIZE=-2>
+
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<TD WIDTH=24>
+<TD WIDTH=333>
+<TD WIDTH=152>
+<TD WIDTH=70>
+<TD>
+
+#idxrow
+<TR><TD>$msgcnt:03$.
+<TD><B>$fromto$:</B> $msgfromto$
+<TD><B>Date:</B> $msgdate$
+<TD ALIGN=RIGHT>$msgsize$ kB<BR>
+<TR>
+<TD>
+<A HREF="reload:file:$filename$" REMOVABLE><IMG SRC=pidimail.ikn ALIGN=LEFT HEIGHT=13 WIDTH=21 BORDER=0></A><TD COLSPAN=4>
+<A HREF="reload:file:$filename$" REMOVABLE>$msgsubj$</A>
+<P>
+
+#empty
+<TR><TD COLSPAN=5>
+<BIG>Folder "$boxname$" is empty.</BIG>
+#tail
+</TABLE>
+
+<HR>
+<TABLE CELLSPACING=8 WIDTH=600>
+<TD WIDTH=25% ALIGN=CENTER><FONT SIZE=3><FORM ACTION="file://mail.htm">
+<INPUT TYPE=IMAGE SRC="mail02.ikn" BORDER=0">
+<BR>Your eMail
+<TD WIDTH=25% ALIGN=CENTER><FONT SIZE=3><FORM ACTION="file://readmail.dgi">
+<INPUT TYPE=IMAGE SRC="mail06.ikn" BORDER=0">
+<BR>Mail Folders
+<TD WIDTH=25% ALIGN=CENTER><FONT SIZE=3><FORM ACTION="emptytrash.dgi">
+<INPUT TYPE=IMAGE SRC="trash2.ikn" BORDER=0">
+<BR>Empty trash
+<TD WIDTH=25% ALIGN=CENTER><FONT SIZE=3><FORM ACTION="smtp:">
+<INPUT TYPE=IMAGE SRC="mail05.ikn" BORDER=0">
+<BR>Send unsent mail
+</TABLE>
+<HR>
+<I>Arachne Insight $version$ GNUpyright (G)1997,2000 Arachne Labs<br>
+ (now being maintained by the Arachne Development team)</I>

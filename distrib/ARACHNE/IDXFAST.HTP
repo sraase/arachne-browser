@@ -1,0 +1,49 @@
+#head
+<TITLE>$boxname$</TITLE>
+<ARACHNE MSG="Fast delete: right-click subject of the message and press <Delete> key...">
+<BODY ARACHNE NORESIZE>
+<arachne nocache>
+<TABLE WIDTH=100%>
+<TD WIDTH=20% NOWRAP>
+<FONT SIZE=6 3D>$boxname$</FONT>
+<TD WIDTH=80% ALIGN=left VALIGN=BOTTOM>
+<b>Index of</b> $filespec$<br>$msgtotcnt$ messages listed ($msgtotsize:03$ kB)
+</TABLE>
+<HR>
+<FORM ACTION="arachne:internal-config?reload:">
+Sort by:
+&nbsp;&nbsp;<INPUT TYPE=RADIO NAME="MailSortOrder" VALUE="DateSnt" ARACHNECHECKED="MailSortOrder">Sent-date
+&nbsp;&nbsp;<INPUT TYPE=RADIO NAME="MailSortOrder" VALUE="DateRcv" ARACHNECHECKED="MailSortOrder">Delivery-date
+&nbsp;&nbsp;<INPUT TYPE=RADIO NAME="MailSortOrder" VALUE="Subject" ARACHNECHECKED="MailSortOrder">Subject
+&nbsp;&nbsp;<INPUT TYPE=RADIO NAME="MailSortOrder" VALUE="Address" ARACHNECHECKED="MailSortOrder">Address
+&nbsp;&nbsp;<INPUT TYPE=SUBMIT VALUE="Accept">
+</FORM>
+<HR SIZE=4>
+<BASEFONT SIZE=-2>
+
+#idxrow
+$msgcnt:03$. $fromto$: $msgfromto$ Date: $msgdate$ $msgsize$ kB<BR>
+Subject: <A HREF="reload:file:$filename$" REMOVABLE>$msgsubj$</A>
+<HR>
+#empty
+<BIG>Folder "$boxname$" is empty.</BIG>
+<HR>
+#tail
+
+<TABLE CELLSPACING=8 WIDTH=600>
+<TD WIDTH=25% ALIGN=CENTER><FONT SIZE=3><FORM ACTION="file://mail.htm">
+<INPUT TYPE=IMAGE SRC="mail02.ikn" BORDER=0">
+<BR>Your eMail
+<TD WIDTH=25% ALIGN=CENTER><FONT SIZE=3><FORM ACTION="file://readmail.dgi">
+<INPUT TYPE=IMAGE SRC="mail06.ikn" BORDER=0">
+<BR>Mail Folders
+<TD WIDTH=25% ALIGN=CENTER><FONT SIZE=3><FORM ACTION="emptytrash.dgi">
+<INPUT TYPE=IMAGE SRC="trash2.ikn" BORDER=0">
+<BR>Empty Trash
+<TD WIDTH=25% ALIGN=CENTER><FONT SIZE=3><FORM ACTION="smtp:">
+<INPUT TYPE=IMAGE SRC="mail05.ikn" BORDER=0">
+<BR>Send unsent mail
+</TABLE>
+<HR>
+<I>Arachne Insight $version$ GNUpyright (G)1997,2000 Arachne Labs<br>
+ (now being maintained by the Arachne Development team)</I>

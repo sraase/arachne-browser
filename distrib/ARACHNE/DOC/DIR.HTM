@@ -1,0 +1,282 @@
+<HTML>
+<Head>
+<Title>List of Arachne related files</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<BASEFONT SIZE=-1>
+<H1>List of Arachne system files</H1>
+<TABLE BGCOLOR=RED CELLPADDING=4>
+<TD><TABLE BGCOLOR=WHITE>
+<TD><BIG><I>
+Warning: This document has no value for users who want to
+set up the software with just a mouse.
+</I></BIG>
+</TABLE>
+</TABLE>
+
+<HR SIZE=4>
+<H3>Main configuraton file ARACHNE.CFG</H3>
+<H6>Expected in: .\ARACHNE.CFG<BR>
+When not found there: [arachne directory]\ARACHNE.CFG<BR>
+Always written to: [already existing file]</H6>
+The configuration file can be changed using user friendly <A HREF="file:setup.htm">
+setup pages</A>. It is a plain text, human readable file, so advanced
+users can <A HREF="file:arachne.cfg">modify it</A>.
+See <A HREF="file:acfg.htm">list of ARACHNE.CFG keywords</A>.
+<BR>
+<I>Warning: ARACHNE.CFG cannot be modified from inside Arachne,
+because this configuration file is overwritten before exiting...
+</I>
+<HR>
+<H3>ARACHNE.BAT, CORE.EXE</H3>
+<H6>Expected in: .\<BR>
+When not found there: [system path]\<BR>
+<B>CORE.EXE</B> is Arachne's main executable file. It cannot be run standalone,
+it must be run from inside of <B>ARACHNE.BAT</B>. Command line arguments
+of <B>ARACHNE.BAT</B> will be passed to <B>CORE.EXE</B>.
+<TABLE BORDER>
+<CAPTION>Command line arguments:</CAPTION>
+<TD WIDTH=80><B>URL</B><TD>Start with desired document (default protocol is <B>file:</B>)
+<TR><TD><B>-o</B> <TD>Start in online mode (e.g., with <B>Connection @PPP.EXE ...</B>)
+<TR><TD><B>-x [URL]</B><TD>Start in offline fullscreen mode and display desired URL
+<TR><TD><B>-i [URL]</B><TD>Start in online fullscreen mode and display desired URL
+<TR><TD><B>-s</B> <TD>Set up video adapter and memory type, then exit (<B>core.exe</B> only)
+<TR><TD><B>-c</B> <TD>Continue offline browsing (if you use <B>Connection READY</B>, it will force offline mode)
+<TR><TD><B>-cg</B><TD>Continue offline browsing without resetting graphics mode (only for internal use of Arachne !)
+<TR><TD><B>-r</B> <TD>Continue online browsing (eg. with <B>Connection @PPP.EXE ...</B>)
+<TR><TD><B>-rg</B><TD>Continue online browsing without resetting graphics mode (only for internal use of Arachne !)
+<TR><TD><B>-d</B> <TD>Detect and set up video adapter and exit (<B>core.exe</B> only)
+<TR><TD><B>-f</B> <TD>Create new font information (<B>fontinfo.bin</B>)
+<TR><TD><B>-u</B> <TD>Unload packet driver  (<B>core.exe</B> only)
+</TABLE>
+
+<H3>Plug-in configuration file MIME.CFG</H3>
+<H6>Expected in: .\MIME.CFG<BR>
+When not found there: [arachne directory]\MIME.CFG<BR>
+This file can be modified (but not rewritten) by
+<A HREF="apm.htm">Arachne Package Manager</A></H6>
+<A HREF="mime.cfg">MIME.CFG</A> must be updated each time when you
+want to add a plug-in to ARACHNE (for example Java interpreter, VRML
+browser, or the like ;-). If you want to write your own
+<A HREF="dgi.txt">DGI application</A>, MIME.CFG must be updated.
+Using <A HREF="apm.htm">Arachne Packages</A> can make this task really
+very easy.
+
+<HR>
+<H3>Icon configuration file WWWMAN.CFG</H3>
+<H6>Expected in: .\WWWMAN.CFG</H6>
+<A HREF="wwwman.cfg">WWWMAN.CFG</A> assigns icons to certain filename fragments (like extensions).
+Icons can be any images viewable by Arachne, but for performance reasons,
+format .IKN is the recommended one. A filename fragment can be something
+like ".GIF", ".HTM" or "FILES.BBS".
+The syntax is:
+<PRE>
+filename_fragmet icon_filename
+filename_fragmet icon_filename
+...
+</PRE>
+
+<HR>
+<H3>The other *.CFG files</H3>
+<H6>Usually in: [arachne directory]\*.CFG</H6>
+These are the other configuration files. Their usage usually depends
+on <A HREF="ARACHNE.CFG">ARACHNE.CFG</A>. Don't change them if you don't know 
+what you are doing.
+
+<HR>
+<H3>*.OOK files</H3>
+<H6>Usually in: [arachne directory]\OOPS\*.OOK</H6>
+Files with <B>*.OOK</B> extensions are simply batch files - shortcuts
+to DOS applications. Why "OOK" files ?
+Launch <A HREF="file://oops\readme.ook">this OOK</A> to understand more...
+
+<HR>
+<H3>Arachne Packages</H3>
+<H6>Can be found in diffent places</H6>
+Files with <B>*.APM</B> extensions are <A HREF="file:apm.htm">Arachne Packages</A>.
+They are not included in the main distribution package, they must be downloaded
+from the Internet.
+
+<HR>
+<H3>Cache index file</H3>
+<H6> User definable filename and location, usually: [arachne directory]\CACHE.IDX</H6>
+Cache Index is a binary file with following structure:
+<PRE>
+BinaryRecord
+BinaryRecord
+BinaryRecord
+...
+BinaryRecord
+</PRE>
+BinaryRecord has following structure:
+<PRE>
+int itemlength;//in this file, always 0x01A8
+struct HTTPrecord cacheitem;
+</PRE>
+And this is a prototype of HTTPrecord:
+<PRE>
+#define URLSIZE 256
+#define STRINGSIZE 40
+
+struct HTTPrecord
+{
+ char URL[URLSIZE];    // Uniform Resource Locator
+ int x;                // coordinates where the document was last displayed
+ long y;               //
+ long size;            // size in bytes
+ char knowsize;        // logical - size is valid
+ char mime[STRINGSIZE];// mime type
+ char locname[80];     // full filename (after conversion to TXT,HTM,GIF,BMP)
+ char rawname[80];     // full filename (before conversion)
+ int handle;           // file handle
+ long lastseen;        // last seen time
+ char postflag;        // it is result of &lt;FORM METHOD=POST&gt;...
+};
+</PRE>
+
+<HR>
+<H3>History file</H3>
+<H6>User definable filename and location, usually: [arachne directory]\HISTORY.LST</H6>
+Plain text file - each line contains one URL. First line must be (for some
+reason unknown even to the author) empty. The index of the current URL is located
+in the <B>ARACHNE.PCK</B> file.
+
+<HR>
+<H3>Cookie database</H3>
+<H6>User definable filename and location, usually: [arachne directory]\COOKIES.LST</H6>
+Plain text file - each line contains one cookie in a format as they appear
+in HTTP headers of WWW pages. You can delete unwanted cookies from this
+file manually, or delete it if you want to protect your privacy.
+
+<HR>
+<H3>Runtime configuration file ARACHNE.PCK</H3>
+<H6>Expected in: .\ARACHNE.PCK<BR>
+When not found there: [arachne directory]\ARACHNE.PCK<BR>
+Always written to: .\ARACHNE.PCK</H6>
+Run <B>SETUP.BAT</B> if you want to ignore this file and reset Arachne.
+This file contains hardware-dependent information about your video card !
+<PRE>
+#define MAXBACKTRACE 64
+#define MAXTITLELEN 100
+
+#define SWAP_DISK 0
+#define SWAP_XMS  1
+#define SWAP_EMS  2
+
+struct ArachnePick
+{
+ char graphics[16];//last video mode
+ char GUIstyle;    //0-menu on the right side,
+                   //1-menu like normal browser
+                   //2-almost fullscreen
+                   // & 4 ...fullscreen (3rd bit set)
+ char xSwap;       //see SWAP_DISK, SWAP_XMS, SWAP_EMS
+ int mousex,mousey,framescount; //mouse x and y, number of frames
+ char target;      //current target inside frameset
+ char newframe;    //new frame to be loaded
+ long cachesize;   //size of HTTP cache - not yet implemented
+ int history;      //current pointer to history file TADYJSEM.BYL
+ int backtrace;                       //pointer to backtrace_target
+ char backtrace_target[MAXBACKTRACE]; //trace targets of clicks
+ char title[MAXTITLELEN];             //main title of the entire frameset
+};
+
+//there are 16 frames allocated. Each frame has the following structure:
+#define STRINGSIZE 40
+
+struct HTMLframe
+{
+ //general information:
+ char framename[STRINGSIZE]; /target=....
+ struct HTTPrecord cacheitem;//see cache index for "HTTPrecord" declaration
+ struct ScrollBar scroll;    //frame size is declared in scrollbar structure
+
+ //this is required for Netscape & MSIE compatibility..
+ char allowscrolling;
+ char marginwidth,marginheight;
+
+ //real position in frame, in pixels
+ int posX;
+ long posY;
+
+ //document status: LOCAL/REMOTE/VIRTUAL/MAIL , 0...3
+ unsigned status;
+
+ //hidden frames are 1) parent frames 2) overwritten child frames
+ //if parent is overwritten, this frame should be hidden:
+ char hidden,parent,next;
+
+};
+
+//end of frames
+
+</PRE>
+Definition of scrollbar structure (of course, it is not part of ARACHNE.PCK,
+but it is required to correctly load information from ARACHNE.PCK ;-)
+<PRE>
+struct ScrollBar
+{
+ int max_xscrsz,max_yscrsz,xscr,yscr,xscrsz,yscrsz;
+ int xsize,ysize,ymax,xtop,ytop;
+ int total_x;
+ long total_y;
+ char xvisible;
+ int x_decrease_gap; //for scrollbuttons
+ int x_increase_gap;
+ int y_decrease_gap;
+ int y_increase_gap;
+ int gap;
+ char onscrollx,onscrolly;
+ char scrollbarstyle;
+};
+</PRE>
+
+<HR>
+<H3>Icon files</H3>
+<H6>Expected in: [arachne directory]\SYSTEM\</H6>
+Files with extension <B>*.IKN</B> are Arachne icons.
+On the Arachne online homepage, there is available a package <B>MORE_IKN</B>.
+It is a collection of various *.IKN files that
+can be useful for different file extensions on your hard disk.
+This format was originally used in the user interface of the IBASE image database.
+It's advantage versus Windows' *.ICO format is that it contains a color
+palette. All 60x60 *.IKN files were created by me sometime between
+1991 and 1996 for IBASE "Command Center". I included some of them in
+Arachne because I had no other idea how to use them ;-)
+I don't recommend publishing them on the WWW. It's a proprietary file format,
+usable only in a PC enviroment.
+However, IKN files can be used in your intranet *.HTML files,
+if you decide to use Arachne as your intranet client.
+<P>
+The <B>GIFIKN</B> utility will allow you to customize the Arachne toolbar.
+It is available to owners of a commercial multilicense
+(see file <A HREF="register.htm">REGISTER.HTM</A>).
+
+<HR>
+<H3>Font files</H3>
+<H6>Expected in: [arachne directory]\SYSTEM\</H6>
+<B>FONTINFO.BIN</B> and <B>*.FNT</B> files
+are files used by the X_LOPIF graphics library. They are hard-linked
+to the SYSTEM subdirectory and cannot be stored elsewhere (mainly because
+the fonts are initialized before loading the main configuration file).
+A free utility <B>TFONTY</B> is currently available to convert *.TTF
+fonts to *.FNT format (for Windows) and <B>FEDIT</B> is to edit
+*.FNT files (for DOS).
+After modifying Arachne FNT files, you have to run <B>arachne -f</B>
+to create a new font information file (FONTINFO.BIN).
+<P>
+Cf. also details about the <A HREF="X_LOPIF.HTM">X_LOPIF
+graphics library for the C language</A>.
+<HR>
+
+<H3>Other files</H3>
+<H6>Can be found in different places (including the %TEMP%\ directory)</H6>
+Files like <B>*._$B</B>, <B>*.TMP</B> or <B>$roura$.BAT</B> are temporary
+and can be deleted when they accidentally remain on your hard disk (it can happen when
+Arachne crashes). <B>TEXTAREA.TMP</B> stores the last unsubmitted &lt;TEXTAREA&gt;
+tag. Extension <B>*.IDX</B> belongs to index files - if you delete them,
+Arachne and/or plug-ins will create them again.
+<HR>
+Return to <A HREF="help.htm">main help page</A>.
+</Body>
+</HTML>

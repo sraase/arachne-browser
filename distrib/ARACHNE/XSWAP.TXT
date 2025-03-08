@@ -1,0 +1,74 @@
+
+1) "XSWAP contexts" are my new "invention" for Arachne 1.60. They allow
+instant garbage collection, and I feel this may be new memory allocation
+strategy, although it has probably been invented a thousand times before.
+In case it is really my invention, I am publishing the idea (not the
+code) under the GNU public license (www.gnu.org) so no one else will have the
+right to patent it ;-). So, just in the case I havn't reinvented the wheel...
+Anyway, I don't want the story of the LZW algorithm in GIF files to be
+repeated.
+
+"Open patent": Memory allocation contexts
+-----------------------------------------
+
+Traditional memory allocation strategy is to let programmers call
+"malloc(...)" style functions, which allocate memory pages without telling
+the memory allocation system any details about future usage and deallocation
+of the memory. This means that ANY memory swapping strategy can only produce
+random results, not the best possible garbage collection algorithm, since it
+is invoked by the "free(...)" function, needs extra CPU time to make the memory
+re-usable again, and merges blocks of randomly de-allocated memory.
+
+The XSWAP memory allocation strategy lets programmers specify the context
+when allocating memory; at a later time, all memory chunks belonging to a 
+certain context can be de-allocated at once at very little CPU time cost 
+(it depends only on number of used memory pages, not on the number of items 
+being de-allocated). Additionaly, different contexts can be given different 
+priority when storing pages of memory using media with different access speeds 
+(e.g., RAM vs. disk vs. networked memory).
+
+I declare this algorithm to be publicly known, so no one is allowed
+to protect this algorithm by patent laws of any country worldwide.
+If you use this algorithm, you are welcome to mention that it is a
+re-implementation of XSWAP memory allocation strategy used in the Arachne 
+WWW browser. Please contact xchaos@arachne.cz if you are interested.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+2) When running Arachne, the '?' key dumps XSWAP debugging info.
+This feature is a kind of Xmas present for Clarence Verge and other
+"advanced Arachnologists", who like to compare page load times, etc. ;-)
+
+The debugging information has the following format:
+
+*[s=???, n=???, c=???] (repeated many times) r=???, w=???
+
+where:
+
+* (if present) is the number of the area (1 or 2) where buffer is currently stored
+s is the size of buffer in bytes
+n is the number of items located in this buffer (tables, lines of text, etc.)
+r is the number of buffers reads (from XMS, EMS or disk)
+w is the number of written buffers (both r and w will overlow after some time)
+c is the context; -1 is an undefined value, other values follow:
+
+#define CONTEXT_HTML   0
+#define CONTEXT_SYSTEM 1
+#define CONTEXT_TABLES 2
+#define CONTEXT_ICONS  3
+#define CONTEXT_TMP    4
+
+The XSWAP debugging info can help to analyze some types of problems, e.g.,
+very slow Arachne operation, etc. You should never actually see "CONTEXT_TMP"
+in this listing, and the number of items (n) in buffers with CONTEXT_TABLES
+should be equal to the number of tables in the document (for 0 tables, this context
+shouldn't be present at all). Number of HTML atoms Arachne reports
+when Alt+M is pressed is NOT identical to the number of items in CONTEXT_HTML.
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+3) If Arachne crashes with an "Illegal xSwap operation" message, please
+send the details (module name and line number) to xchaos@arachne.cz, but
+ONLY IF IT IS A 100% REPRODUCIBLE CRASH !!! - i.e., you are able to
+install a clean Arachne, configure it, go online with empty an cache if crash
+was caused by an online page, and then reproduce the crash exactly at any time.

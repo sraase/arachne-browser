@@ -1,0 +1,21 @@
+<TITLE>How to set up a temporary directory for Arachne</TITLE>
+<Body BACKGROUND="file://paper.gif">
+<H1>How to set up a temporary directory for Arachne</H1>
+<HR SIZE=4>
+1. the prefered location for a temporary directory is the RAM disk (or at least
+any drive with enabled disk caching)
+<BR>2. do not use the root directory of any drive
+<BR>3. make sure the directory is created by your AUTOEXEC.BAT
+<BR>4. define an environment variable called TEMP (most DOS compatible systems
+define this variable for you)
+<BR>5. do not use an additional backslash ("\") at the end of the pathname
+<BR>6. if necessary, you can define an ARACHNETEMP environment variable
+which overrides the TEMP setting for Arachne
+<BR>7. for best performance, enable caching of local objects to the TEMP
+directory in <A HREF="file://system\gui\opt_loc.ah">Options | Local settings</A>
+<BR>8. the amount of free disk space on the drive where the TEMP directory is located 
+should be at least 512 KB, but the recommended size is at least several MB.
+<H3>Example of lines which should be present in your AUTOEXEC.BAT:</H3>
+<PRE>SET TEMP=G:\TEMP
+MKDIR %TEMP%</PRE>
+<HR>Return to <A HREF="arachne:back">previous page</A>.

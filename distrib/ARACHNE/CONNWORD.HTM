@@ -1,0 +1,79 @@
+<HTML>
+<HEAD>
+  <TITLE>
+List of keywords in arachne.cfg used for dial-up
+connections (Christof Lange)
+  </TITLE>
+</HEAD>
+<BODY BACKGROUND="file://paper.gif">
+<FONT SIZE = +2 >
+List of keywords in arachne.cfg used for dial-up connections
+</FONT>
+<P>
+In order to support all possible and impossible conditions
+of dial-up connections to the internet, Arachne comes with
+two different external dialers (lsppp and miniterm).<br>
+Lsppp.exe is a dialer/packet driver all-in-one.<br>
+Miniterm is a dialer only, and then requires a packet driver.
+The packet driver Epppd.exe is included to then be used after
+miniterm.exe has dialed.<br>
+They are commonly configured with the help of Arachne's
+setup-wizards or the option pages. For experienced users who
+like to edit the Arachne configuration file arachne.cfg
+manually, it might be useful to document which keyword in
+arachne.cfg is used by which dial program.
+<P>
+Here is an example:
+<P>
+
+<TABLE BORDER = 3 CELLSPACING = 3 CELLPADDING = 1 WIDTH = 100% >
+<TH WIDTH=55% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>keyword
+<TH WIDTH=45% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>used by
+<TR>
+<TD><TT>Port 1</TT>
+<TD>miniterm, epppd and lsppp
+<TR>
+<TD><TT>Irq 4</TT>
+<TD>miniterm, epppd and lsppp
+<TR>
+<TD><TT>Base 0x3e8</TT>
+<TD>miniterm, epppd and lsppp
+<TR>
+<TD><TT>Mode 8N1</TT>
+<TD>miniterm only
+<TR>
+<TD><TT>Speed 115200</TT>
+<TD>miniterm, epppd and lsppp
+<TR>
+<TD><TT>InitString AT&amp;fs7=90s11=50</TT>
+<TD>miniterm and lsppp
+<TR>
+<TD><TT>DialString ATDT</TT>
+<TD>miniterm only
+<TR>
+<TD><TT>PhoneNumber 330-984-4005</TT>
+<TD>miniterm and lsppp
+<TR>
+<TD><TT>Autologin Yes<br>
+WaitFor1 ogin<br>
+Response1 /U<br>
+WaitFor2 sword<br>
+Response2 /P<br>
+WaitFor3<br>
+Response3</TT>
+<TD valign=top>core.exe to run the script
+in these waitfor/response lines
+when using miniterm to dial/login
+<br>(each of the waitfor/response lines
+are therefore used by miniterm only)
+<TR>
+<TD><TT>PPPusername glennmcc</TT>
+<TD>miniterm, epppd and lsppp
+<TR>
+<TD><TT>PPPpassword *****</TT>
+<TD>miniterm, epppd and lsppp
+</TABLE>
+<p>
+Return to <A HREF="file://help.htm">main help page</A>.
+</BODY>
+</HTML>

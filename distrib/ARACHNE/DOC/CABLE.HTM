@@ -1,0 +1,93 @@
+<HTML>
+<Head>
+<Title>How to use Arachne on a CABLE MODEM</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<H1>Arachne and Cable Modem</H1>
+<HR SIZE=4>
+The following lines were kindly provided by L.D.Best, a long time Arachne user.
+Basically, this document says that using Arachne with a cable modem is 
+identical to using it on any <a href="lan.htm">Ethernet based LAN</a>,
+but this doesn't mean the document is not worth reading.
+<hr>
+<h3>How Is A Cable Modem Different?</h3>
+A cable modem is unique, in that it uses a combination of an ethernet
+card to allow your computer to communicate with the modem, while the
+cable modem accesses something similar to a WAN [Wide Area Network] to
+communicate via cable with the ISP. &nbsp; You have some control over
+the ethernet card via the driver you install, but all you'll need to
+do with the cable modem is hook it up, plug in the DC adapter, and
+turn it on.<p>
+
+<h3>I have a Cable Modem on my system. &nbsp;How do I install Arachne?</h3>
+To install Arachne on a system with cable modem in place, follow the
+instructions for installation of Arachne, and select "Ethernet."
+&nbsp; Allow the installation to search for the NIC and there should
+be no problems getting Arachne running.<p>
+
+<h3>I use Arachne now. &nbsp; I'm being offerred Cable Modem access. &nbsp; What do I need?</h3>
+First, you will need to have a 10T ethernet NIC [Network Interface
+Card] already installed, or have a free EISA or PCI slot available on
+your system mainboard.<p>
+
+Normally a communication package will be offerred with the service.
+&nbsp; This should include 
+<OL><LI>cable modem 
+<LI> cable which goes between modem and NIC
+<LI> NIC.
+</UL>
+
+Do not expect any cable tech to be able to install the ethernet card
+on a DOS-only computer. &nbsp; But don't worry, it should be little
+problem to install if they use a decent brand of NIC. <p>
+
+If the package comes with a brand of NIC which does not include DOS
+installation, or if no NIC at all is included, then you need to
+obtain one. &nbsp; 3COM has both EISA and PCI 10T NICs. &nbsp; 3COM has DOS
+drivers, and the CD which comes with their hardware includes drivers
+and DOS installation. &nbsp; <p>
+
+<i><b>BEFORE YOU START:</b> &nbsp; If you are going to use a 3COM NIC
+[and possibly other brands, also] you <b>must</b> be using MS-DOS
+EMM386.EXE from MS-DOS version 6.2 or higher. &nbsp; If you are using
+an older version of DOS, you can utilize SETVER and replace your
+EMM386 with the newer version. &nbsp; I'm sorry, but 3COM does not
+recognize QEMM386.</i><p>
+
+<h3>I have everything I need. &nbsp; Now what?</h3>
+The instructions which come with the NIC should be simple and clear.
+&nbsp; It's a matter of plugging in the card, and running the
+'Install' program provided with it. &nbsp; This can include the option
+of automatically adding the correct driver to AUTOEXEC.BAT.  &nbsp;
+[Later you may want to set up autoexec by hand, or place the driver in
+the batch file you use for Arachne.] &nbsp; Part of the installation
+should include switches for that driver according to instructions
+given.  &nbsp; One switch should be to indicate memory location for
+the driver. &nbsp; <i>Note -- &nbsp;If you use 0x60 that would place
+the driver in the same memory location as is used by Arachne for
+dial-up, and you'll know it's right.</i><p>
+
+<i>If you wish to learn more about network adapters, please read the Help
+section</i> "<b>How to use Arachne on LAN</b>." <p>
+
+<h3>Do I have to install Arachne again from scratch?</h3>
+No -- it's much easier than that!
+<OL>
+<LI> Copy your working
+ARACHNE.CFG file to DIALUP.ACF
+<LI> Load
+ARACHNE.CFG into an editor and make the following changes:<br>
+&nbsp;&nbsp;&nbsp;&nbsp; Profile CABLE.ACF<br>
+&nbsp;&nbsp;&nbsp;&nbsp; Connection READY<br>
+&nbsp;&nbsp;&nbsp;&nbsp; delete everything between Hangup NUL and [tcp/ip]<br>
+&nbsp;&nbsp;&nbsp;&nbsp; Under [tcp/ip] -- IP_Address BOOTP<br>
+<I>Note: When you connect, Arachne will receive
+and use all necessary NameServer, AltNameServer, Gateway, AltGateway,
+and Netmask information dynamically.  You don't need to change
+anything else under [tcp/ip]. &nbsp; Save your new Arachne.cfg and
+make a copy called CABLE.ACF, and you're ready to go.</I>
+</ol>
+<hr>
+Return to <A HREF="arachne:back">previous page</A>.
+</Body>
+</HTML>

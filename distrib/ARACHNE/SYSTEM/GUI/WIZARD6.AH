@@ -1,0 +1,27 @@
+<HTML><HEAD><TITLE>Arachne PPP Wizard - authentication</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK bgcolor=#555555>
+
+<BR><BR><BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" ALIGN=CENTER WIDTH=400>
+<TD class="topbar" bgcolor="gray" NOWRAP ALIGN=RIGHT><FONT 3D=1><B>Arachne PPP Wizard - authentication
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE WIDTH=400>
+<FORM ACTION="arachne:internal-config?file://system/gui/wizard7.ah">
+One more easy question:
+<P>
+I need to know your PPP username and password
+(for PAP or CHAP authentication):
+<TR><TD BGCOLOR=SILVER>
+<TABLE>
+<TD>Username:<TD><INPUT TYPE=TEXT SIZE=20 NAME="PPPusername">
+<TR>
+<TD>Password:<TD><INPUT TYPE=PASSWORD SIZE=20 NAME="PPPpassword">
+</TABLE>
+<INPUT TYPE=HIDDEN NAME="SavePasswords" VALUE=Yes>
+<P>
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD><INPUT TYPE=SUBMIT VALUE="Continue >>"></TABLE>
+<TABLE CELLSPACING=0 CELLPADDING=0 WIDTH=80><TD>
+<FORM ACTION="arachne:back">&nbsp;<INPUT TYPE=SUBMIT VALUE="<< Previous"><BR CLEAR=ALL>
+</TABLE>
+</TABLE></TABLE></BODY></HTML>

@@ -1,0 +1,19 @@
+<HTML>
+<TITLE>Arachne Network Error</TITLE>
+<BODY>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Unable to initialize TCP/IP</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=6>
+There is no connection to Internet avaliable. Possible reasons:
+<P>
+<LI> Packet driver not loaded.
+<LI> Error in TCP/IP configuration.<p>
+<HR>
+See <A HREF="file://help.htm">Arachne documentation</A> for more info.
+<HR>
+<FORM ACTION="file://setup.htm">
+<INPUT TYPE=SUBMIT VALUE="Setup Arachne">
+</FORM>
+</BODY>
+</HTML>

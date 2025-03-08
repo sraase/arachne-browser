@@ -1,0 +1,36 @@
+<HTML>
+<TITLE>Arachne Dial Error</TITLE>
+<META HTTP-EQUIV="Refresh" CONTENT="10; URL=arachne:dialer">
+<BODY>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Unable to initialize PPP</H1>
+<BR CLEAR=ALL>
+<HR SIZE=6>
+No IP address was found in <A HREF="file://ppp.log">PPP dialer log file</A>
+or no packet driver was loaded. Possible reasons:
+<LI> Hardware fault (modem, busy or disconnected phone line, etc...).
+<LI> Authentication failed due to invalid username and password.
+<LI> Bad authentication scheme (PAP, CHAP or login script).
+<LI> User break.
+<H3>There is no connection to Internet just now.<BR>
+Arachne will try to redial in 10 seconds - &lt;Esc&gt; aborts.</H3>
+(auto-redial will not occur if you have "IgnoreRefresh" enabled)
+<HR>
+See <A HREF="file://help.htm">Arachne documentation</A> for more info.
+<HR>
+<TABLE>
+<TD>
+<FORM ACTION="arachne:dialer">
+<INPUT TYPE=SUBMIT VALUE="Retry NOW !">
+</FORM>
+<TD>
+<FORM ACTION="arachne:dialpage">
+<INPUT TYPE=SUBMIT VALUE="PPP dialer">
+</FORM>
+<TD>
+<FORM ACTION="arachne:pppsetup">
+<INPUT TYPE=SUBMIT VALUE="Setup PPP">
+</FORM>
+</TABLE>
+</BODY>
+</HTML>

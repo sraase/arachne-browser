@@ -1,0 +1,43 @@
+<HTML>
+ <HEAD>
+  <TITLE>Arachne Packet Wizard - select your network adapter</TITLE>
+ </HEAD>
+<BODY BACKGROUND="file://system\gui\setup.gif" TEXT=BLACK BGCOLOR=BLACK>
+<BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" WIDTH=500 ALIGN=CENTER>
+<TD BGCOLOR=SILVER NOWRAP ALIGN=RIGHT><FONT 3D=2><B>Arachne Packet Wizard - select your network adapter</B></FONT>
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE>
+<IMG ALIGN=LEFT SRC="file:ethernet.ikn" BORDER=5>
+<I>Note: Packet drivers present in Arachne package came from
+<A HREF="http://www.crynwr.com/">Crynwr</A> Packet Driver Collection by Russell Nelson.
+They are distriburted as <A HREF="http://opensource.org/">Open Source</A>
+software.</I>
+<P>
+You can try to use <A HREF="odipkt.txt">ODIPKT</A> driver if there is Novell Netware client for
+DOS present in your system. Get <A HREF="http://home.arachne.cz/apm/pktdrvrs.apm">pktdrvrs.apm</A>
+if you have other ethernet card than 3c509 or ne2000.
+More informaton about using ethernet cards and packet
+drivers can be found in file <A HREF="file://doc/lan.htm">lan.htm</B></A>.
+
+</P>
+<TR><TD BGCOLOR=SILVER>
+
+
+<TABLE>
+<TD><FORM ACTION="arachne:back">
+<INPUT TYPE=SUBMIT VALUE="<< Previous">
+
+<TD VALIGN=MIDDLE ALIGN=RIGHT><FORM ACTION="reload:file://autoexecwiz.dgi">
+<SELECT NAME="driver">
+ <OPTION VALUE="3c509">3Com 3c509 compatible (ISA)</OPTION>
+ <OPTION VALUE="ne2000">Novell ne2000 compatible (ISA)</OPTION>
+ <OPTION VALUE="pcipkt">Novell ne2000 compatible (PCI)</OPTION>
+ <OPTION VALUE="odipkt">ODIPKT (for Novell Netware)</OPTION>
+</SELECT>
+
+<TD>
+<INPUT TYPE=SUBMIT VALUE="Update AUTOEXEC.BAT >>">
+</TABLE>
+</TABLE>
+</BODY></HTML>

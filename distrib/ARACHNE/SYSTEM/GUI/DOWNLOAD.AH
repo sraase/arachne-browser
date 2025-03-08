@@ -1,0 +1,32 @@
+<TITLE>Save or view downloaded file...</TITLE>
+<link rel="stylesheet" href="file://skin.css">
+<BODY bgcolor=#555555 TEXT=BLACK>
+
+<TABLE CELLSPACING=1 BORDER FRAME="void">
+
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>Save or view downloaded file</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=17 WIDTH=17 BORDER=0>
+<TR>
+<TD BGCOLOR=SILVER><FONT COLOR=BLACK>
+Arachne doesn't know how to handle following MIME type:<BR>
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<TD>
+<INPUT TYPE=OUTPUT ARACHNEMIME SIZE=25>
+<TD>
+<FORM ACTION="http://home.arachne.cz/cgi-bin/find-apm" METHOD=GET>
+<INPUT TYPE=HIDDEN NAME="OS" VALUE="dos">
+<INPUT TYPE=HIDDEN NAME="MIME" ARACHNEMIME>
+<INPUT TYPE="SUBMIT" VALUE="Find APM">
+<TD>
+<FORM ACTION="arachne:view">
+<INPUT TYPE="SUBMIT" VALUE="View as text">
+<TR><TD COLSPAN=3>
+<FORM ACTION="arachne:copy">
+If you want to save the file, please enter local filename:
+<TR><TD ALIGN=RIGHT COLSPAN=3>
+<INPUT TYPE="TEXT" ARACHNESAVE NAME="$MOVE" SIZE=54 ACTIVE>
+<TR><TD ALIGN=RIGHT COLSPAN=3>
+<BUTTON TYPE=SUBMIT><IMG SRC="file://small2.ikn" HEIGHT=18 WIDTH=32>&nbsp;Save</BUTTON>
+</TABLE>
+</TABLE>

@@ -1,0 +1,48 @@
+<TITLE>Arachne setup tools</TITLE>
+<Body BACKGROUND="file://paper.gif">
+<H1>Arachne setup tools</H1>
+<HR SIZE=4>
+Arachne offers various setup tools and wizards that modify 
+<B>arachne.pck</B> and <A HREF="file://arachne.cfg">arachne.cfg</A> for you.
+This is a list of what actually happens during various phases of the setup process.
+<H3>Standard installation process</H3>
+<LI>The self-extracting distribution archive launches <A HREF="file://setup.bat">setup.bat</A>
+<LI>If <A HREF="file://setup.bat">setup.bat</A> doesn't find any <A HREF="file://arachne.cfg">arachne.cfg</A> file in the current directory,
+<LI><A HREF="file://setup.bat">setup.bat</A> launches CORE.EXE in basic memory and video setup mode
+<LI><A HREF="file://setup.bat">setup.bat</A> launches
+<A HREF="file://arachne.bat">arachne.bat</A>
+and calls <A HREF="file://setup_os.dgi">setup_os.dgi</A>,
+which detects the computer speed and suggests a new initial profile and changes to AUTOEXEC.BAT/CONFIG.SYS
+<LI>The user is pointed to the <A HREF="file://setup.htm">TCP/IP setup screen</A>.
+
+<H3>Subsequent re-running of <A HREF="file://setup.bat">setup.bat</A> </H3>
+<LI><A HREF="file://setup.bat">setup.bat</A> finds <A HREF="file://arachne.cfg">arachne.cfg</A> file
+<LI><A HREF="file://setup.bat">setup.bat</A> launches CORE.EXE in basic memory and video setup mode
+<LI>The user is pointed to the <A HREF="file://setup.htm">TCP/IP setup screen</A>.
+<LI>If necessary, <A HREF="file://setup_os.dgi">setup_os.dgi</A> can
+be launched manually from Desktop | Your Applications.
+<P>
+<I>Note: this also happens if you delete <B>arachne.pck</B> and then run
+<A HREF="file://arachne.bat">arachne.bat</A>.</I>
+
+<H3>Launching <A HREF="file://oops\setup_gr.ook">Desktop | Your Applications | setup_gr.ook</A></H3>
+<LI><A HREF="file://oops\setup_gr.ook">setup_gr.ook</A> launches CORE.EXE in basic video setup mode and
+<LI>Arachne restarts and returns to the previous page
+
+<H3>Launching <A HREF="file://oops\setup_os.dgi">Desktop | Your Applications | setup_os.dgi</A></H3>
+<LI><A HREF="file://setup_os.dgi">setup_os.dgi</A>
+detects the computer speed and suggests a new initial profile and changes to AUTOEXEC.BAT/CONFIG.SYS
+<LI>The user is pointed to the <A HREF="file://setup.htm">TCP/IP setup screen</A>.
+<P>
+<I>Note: <A HREF="file://arachne.cfg">arachne.cfg</A> is overwritten in this
+case - use <A HREF="acf_asf.htm">ACF profiles</A>.</I>
+
+<H3>Hitting the 'S' key</H3>
+<LI>The user is pointed to the <A HREF="file://setup.htm">TCP/IP setup screen</A>.
+
+<H3>Hitting the 'O' key or going to Desktop | Options</H3>
+<LI>The user is pointed to the <A HREF="file://options.htm">Arachne Options screen</A>.
+<LI>The <A HREF="file://setup.htm">TCP/IP setup screen</A> can also be accessed 
+from this screen.
+
+<HR>Return to <A HREF="arachne:back">previous page</A>.

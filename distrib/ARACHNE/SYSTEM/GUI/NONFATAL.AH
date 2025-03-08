@@ -1,0 +1,42 @@
+<HTML>
+<TITLE>Arachne Non-fatal Error</TITLE>
+<style>
+A:link  { text-decoration: none; color: #00f}
+A:hover { text-decoration: none; color: #f00}
+</style>
+<body text=black bgcolor=gray>
+<table bgcolor=red>
+<table border=1 bgcolor=white>
+<table border=1 bgcolor=silver>
+<tr><td>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<br>
+<hr noshade>
+<h4>Arachne did not have enough memory for the last operation</h4>
+<hr noshade>
+<BR CLEAR=RIGHT>
+<!--<hr noshade>-->
+<UL>
+<LI>Try to reconfigure your system to offer more conventional DOS memory.
+<br>Please take this link to check your<A HREF="reload:file://memc.dgi"> memory stats</A>
+<br>In these statisics, look for: "Largest executable program size". 
+<br>If the number shown is less than about 500,000 bytes, you need to
+free up more conventional memory.
+<br><br><LI>Alternatively, you can type the "mem" command from the DOS prompt. 
+<br>In this case, the "Largest executable program size" must be at 
+least 500,000 bytes. (Since Arachne herself is not yet loaded).
+<br>Normally, the best way to free up more memory is to either load 
+fewer device drivers in CONFIG.SYS, and/or to use "loadhigh" or "lh" in 
+front of the lines that load your drivers.
+<br>Remember that the more memory Arachne has, the better she will run.
+<br><br><li>See your DOS documentation for more details.
+<br><br><LI>With your system configuration as it is, you should probably use Arachne less
+extensively - only to view simple HTML pages.
+</UL>
+<HR noshade>
+See <A HREF="file://help.htm">Arachne documentation</A> for more info.
+</table>
+</table>
+</table>
+</BODY>
+</HTML>

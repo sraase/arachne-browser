@@ -1,0 +1,105 @@
+<HTML>
+<Head>
+<Title>How to use Arachne on a LAN</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<H1>Arachne and LAN (Local Area Network)</H1>
+<HR SIZE=4>
+<H3>Introduction to network adapters</H3>
+Arachne uses something called a <B>packet driver interface</B> to get
+TCP/IP connectivity. In DOS, there are various standards to communicate
+with a network adapter (e.g., an Ethernet card). For most common network
+adapters (e.g., 3COM) there are available drivers providing
+the "packet driver interface" directly; these drivers are usually very small
+programs and they require much less memory than utilities like Novell
+Netware client, etc. - typicaly less than 10 KB. The largest packet
+driver collection is available at 
+<A HREF="http://www.crynwr.com">www.crynwr.com</A> - the homepage of Crynwr
+Software, the company which designed the packet driver concept for DOS.
+<P>
+If your card is shipped with an ODI driver (required by a DOS client for
+Novell Netware) you can use a freeware utility called 
+<A HREF="file://system\pktdrvrs\odipkt.txt">ODIPKT.COM</A>.
+Arachne should be able to <A HREF="file://system/pktdrvrs/pktdrvrs.ah">auto-install</A>
+an ODIPKT layer, but you must be careful with your NET.CFG (see 
+<A HREF="file://system\pktdrvrs\net.cfg">sample NET.CFG</A> for the 3c509 ODI driver).
+and STARTNET.BAT files and about ODIPKT command line arguments
+(usually something like "ODIPKT 0 0x60"). Generally speaking, if you have to 
+use an ODI driver, you should first ask some Novell Netware wizard to help you.
+<P>
+If you are using an NDIS interface, try to find some utility to convert
+the NDIS interface to a packet driver interface. For example, in Windows 9x DOS, 
+if you are able to assign a second IP address to your PC, 
+try the <B>NDIS3PKT</B> driver available at 
+<A HREF="http://www.danlan.com">www.danlan.com</A> or <B>DIS_PKT9</B>
+available on SIMTEL.
+
+
+<H3>NCSA Telnet compatibility (packet driver+BOOTP)</H3>
+Arachne will work on every computer in a LAN where NCSA (or Clarkson
+University - CUTE) Telnet works. These DOS telnets were often - not
+always - configured to get their IP addresses to use the  BOOTP protocol.<P>
+<I>This doesn't mean, that you need Telnet to run Arachne, as one user assumed! 
+Imagine I am telling you that Arachne will work on every computer where game Simcity
+2000 works... (which is true, by the way)</I>
+
+<A HREF="file://system/gui/conf_lan.ah">Set up Arachne</A> to use resident packet driver
+and configure via BOOTP. If you don't want to use the graphical setup, the
+syntax for commands in <A HREF="file://arachne.cfg">ARACHNE.CFG</A> is 
+<P>
+<B>Connection READY<BR>
+IP_Address BOOTP<BR>
+TCP_Config LANTCP.CFG<BR></B>
+<P>
+<I>Note: There is an Arachne Package (TELNET.APM) containing a copy 
+of Clarkson University's TELNET and FTP and a sample CONFIG.TEL 
+configuration file for them.
+If you are already using these programs on your LAN, or if you
+don't want to use a Telnet client at all, you don't need the TELNET.APM package.
+</I>
+
+<H3>DOSLYNX/WatTcp compatibility</H3>
+If you are already running DOSLYNX (or other WatTcp applications)
+and have a working DOSLYNX.CFG, try to update your
+<A HREF="file://arachne.cfg">ARACHNE.CFG</A> with something like this:
+<P>
+<B>Connection READY<BR>
+IP_Address WATTCP<BR>
+TCP_Config C:\DOSLYNX\DOSLYNX.CFG</B> (or e.g., C:\WATTCP\WATTCP.CFG)<P>
+
+<H3>Server installation</H3>
+If you want to install Arachne on a server (e.g., drive S:), caching is
+strongly recommended (e.g., NWCACHE S+). You will need a directory
+dedicated to each running copy of Arachne. If workstations
+have local disk space available (e.g., drive C:) and each user has
+his/her own home directory (e.g., H:), try to set up <A HREF="file://system/gui/opt_loc.ah">
+Arachne local settings</A> like this:<P>
+<TABLE WIDTH=400 BORDER>
+<TD WIDTH=200>Cache path <TD>C:\CACHE\<TR>
+<TD>Mail path <TD> H:<TR>
+<TD>Download path <TD> A:\<TR>
+<TD>Cache index <TD> C:\CACHE\cache.idx<TR>
+<TD>History file <TD> H:history.lst
+</TABLE>
+In this case, don't forget to create a C:\CACHE directory! You can put
+commands such as MKDIR C:\CACHE and the command for loading the packet driver
+into AUTOEXEC.BAT or into some login script. It's not a good idea
+to put it into ARACHNE.BAT since it is a recursive batch file (it calls
+itself when returning from external programs).
+<P>
+If the workstations use different SVGA cards, always run Arachne from
+the local directory (e.g., C:\ARACHNE) because
+Arachne always saves video card information (ARACHNE.PCK)
+in the current directory. But make sure that each ARACHNE.PCK uses the
+same history file (e.g., C:\ARACHNE\history.lst). On workstations without a
+hard disk, configure drive C: as a ram disk and use it as the Arachne 
+working directory (executable files are stored on the server - just update the
+PATH variable in AUTOEXEC.BAT...)
+<P>
+<I>Note: Arachne can understand *.CNM files from Pegasus Mail for DOS
+(typical on Novell networks) in the mail directory, but the replies must
+go through an SMTP server.</I>
+<HR>
+Return to <A HREF="arachne:back">previous page</A>.
+</Body>
+</HTML>

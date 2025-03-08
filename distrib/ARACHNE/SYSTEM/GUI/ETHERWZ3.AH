@@ -1,0 +1,63 @@
+<HTML><HEAD><TITLE>Arachne Packet Wizard - manual TCP/IP setup</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="SETUP.GIF" TEXT=BLACK bgcolor=#555555>
+
+<BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" ALIGN=CENTER WIDTH=500>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT NOWRAP><FONT 3D=1><B>Arachne Packet Wizard - manual TCP/IP setup
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE WIDTH=500>
+<FORM ACTION="arachne:internal-config?file://system/gui/wizard9.ah">
+Please enter 4-6 "magic numbers" specific to your local network.
+Ask your system administrator or TCP/IP guru if you are not sure, do
+not use default values!
+<P>
+<I>Tip: if you are configuring private network or IP-masquerading based
+network you should use address space 10.x.x.x to avoid conflict with real world IP addresses.
+<P>
+Note: 2nd nameserver and 2nd gateware are optional.
+</I>
+<TR><TD BGCOLOR=SILVER>
+<TABLE>
+<TD WIDTH=132>
+IP Address
+<TD>
+<INPUT SIZE=16
+ TYPE=TEXT
+ NAME="IP_Address"
+ ARACHNECFGVALUE="IP_Address">
+<!-- ARACHNECFGHIDE="BOOTP,PPP,WATTCP" -->
+
+<TD WIDTH=132>
+Netmask
+<TD>
+<INPUT NAME=Netmask TYPE=TEXT SIZE=16 VALUE="0.0.0.0" ARACHNECFGVALUE="Netmask">
+<TR>
+<TD>
+1st nameserver
+<TD>
+<INPUT NAME=NameServer TYPE=TEXT SIZE=16 ARACHNECFGVALUE="NameServer">
+<TD>
+1st gateway
+<TD>
+<INPUT NAME=Gateway TYPE=TEXT SIZE=16 ARACHNECFGVALUE="Gateway">
+
+<TR>
+<TD>
+<I>2nd nameserver</I>
+<TD>
+<INPUT NAME=AltNameServer TYPE=TEXT SIZE=16 ARACHNECFGVALUE="AltNameServer">
+<TD>
+<I>2nd gateway</I>
+<TD>
+<INPUT NAME=AltGateway TYPE=TEXT SIZE=16 ARACHNECFGVALUE="AltGateway">
+</TABLE>
+<INPUT TYPE=HIDDEN NAME="Connection" VALUE="READY">
+<INPUT TYPE=HIDDEN NAME="TCPconfig" VALUE="WATTCP.CFG">
+
+<P>
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELPADDING=0 WIDTH=80><TD><INPUT TYPE=SUBMIT VALUE="Continue >>"></TABLE>
+<TABLE ALIGN=RIGHT CELLSPACING=0 CELPADDING=0 WIDTH=80>
+<FORM ACTION="arachne:back">&nbsp;<INPUT TYPE=SUBMIT VALUE="<< Previous"><BR CLEAR=ALL>
+</TABLE>
+</TABLE></TABLE></BODY></HTML>

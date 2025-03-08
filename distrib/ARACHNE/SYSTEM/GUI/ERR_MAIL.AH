@@ -1,0 +1,27 @@
+<HTML>
+<TITLE>Arachne Non-fatal Email Error</TITLE>
+<style>
+A:link  { text-decoration: none; color: #00f}
+A:hover { text-decoration: none; color: #f00}
+</style>
+<body text=black bgcolor=silver>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<br>
+<hr noshade>
+<H1>Non-fatal Email Error</H1>
+<HR noshade>
+<BR CLEAR=RIGHT>
+We apologize for inconvenience,
+<br>Arachne was not able to complete
+requested operation due to invalid input data.
+<br><br>Suggestions:
+<UL>
+<LI>If you were trying to send e-mail with attached files, one or
+more files couldn't be attached to outgoing e-mail.
+<br>You may wish to look to
+<A HREF="reload:file://outbox.dgi">OUTBOX</A> to either edit or delete the incomplete message.
+</UL>
+<HR>
+See <A HREF="file://help.htm">Arachne documentation</A> for more info.
+</BODY>
+</HTML>

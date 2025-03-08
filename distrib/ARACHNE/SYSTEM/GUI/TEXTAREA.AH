@@ -1,0 +1,30 @@
+<HTML><TITLE>Arachne Textarea recovery</TITLE>
+<BODY NORESIZE>
+<FORM ACTION="arachne:internal-editor">Textarea.tmp<br>
+<TEXTAREA ROWS=8 ARACHNEROWS COLS=74 ARACHNEEDITOR=TEXTAREA.TMP ACTIVE>
+</TEXTAREA><br><br>Quickpad.txt<br>
+<TEXTAREA ROWS=8 ARACHNEROWS COLS=74 ARACHNEEDITOR=QUICKPAD.TXT>
+</TEXTAREA><br><br>Clip.tmp<br>
+<TEXTAREA ROWS=8 ARACHNEROWS COLS=74 ARACHNEEDITOR=CLIP.TMP>
+</TEXTAREA>
+<TABLE CELLSPACING=0>
+<TD colspan=3>
+<INPUT TYPE=SUBMIT VALUE="Save changes &nbsp;&amp; return &nbsp;[F2]">
+<!--- external editor --->
+<tr><td>
+<FORM ACTION="file:mxedit.dgi">
+<INPUT TYPE=SUBMIT VALUE="External Editor">
+</form>
+<td>
+<!--- end external editor section --->
+<TD WIDTH=190 ALIGN=CENTER>
+<FORM ACTION="file://edithelp.htm">
+<INPUT TYPE=SUBMIT VALUE=" Editor Help ">
+<TD WIDTH=95 ALIGN=RIGHT>
+<FORM ACTION="arachne:back">
+<INPUT TYPE=SUBMIT VALUE="  Cancel  ">
+<TR>
+<TD nowrap COLSPAN=3 ALIGN=CENTER>
+<FONT COLOR=#800000><I>
+Shortcut to Textarea recovery is <B>alt+T</B>
+</TABLE></HTML>

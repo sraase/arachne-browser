@@ -1,0 +1,19 @@
+<TITLE>FTP authorization</TITLE>
+<link rel="stylesheet" href="file://skin.css">
+<BODY bgcolor=#555555 TEXT=BLACK>
+
+<TABLE CELLSPACING=1 FRAME="void" BORDER>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>FTP authorization</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=17 WIDTH=17 BORDER=0>
+<TR>
+<TD BGCOLOR=SILVER>
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<FORM ACTION="arachne:ftp-login">
+<TD ALIGN=RIGHT>Username:
+<TD ALIGN=RIGHT><INPUT TYPE="TEXT" USR NAME="$HTUSER" SIZE=16 ACTIVE><TR>
+<TD ALIGN=RIGHT>Password:
+<TD ALIGN=RIGHT><INPUT TYPE="PASSWORD" NAME="$HTPASS" SIZE=16><TR>
+<TD COLSPAN=2 ALIGN=RIGHT><INPUT TYPE="SUBMIT" VALUE="Log In">
+</TABLE>
+</TABLE>

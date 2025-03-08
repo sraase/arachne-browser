@@ -1,0 +1,17 @@
+<HTML>
+<TITLE>Arachne Network Error</TITLE>
+<BODY>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Undefined IP address</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=6>
+No IP address was defined in ARACHNE.CFG<p>
+There is no connection to Internet just now.
+<HR>
+See <A HREF="HELP.HTM">Arachne documentation</A> for more info.
+<HR>
+<FORM ACTION="file://setup.htm">
+<INPUT TYPE=SUBMIT VALUE="Setup Archne">
+</FORM>
+</BODY>
+</HTML>

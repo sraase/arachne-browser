@@ -1,0 +1,131 @@
+<HTML>
+<Head>
+<Title>How to use Arachne with PPP or SLIP (Dial-up Internet)</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<H1>How to use Arachne with PPP or SLIP</H1>
+<HR SIZE=4>
+The easiest way to use Arachne with a PPP connection is to configure
+Arachne using the <A HREF="file://system/gui/wizard1.ah">Arachne PPP Wizard</A>.
+<HR>
+Arachne uses a DOS packet driver interface to enable TCP/IP connectivity.
+This technology is not very simple to understand, but it's the only standard
+DOS presently offers.
+The packet driver is a resident program (TSR) similar to utilities
+like a mouse driver or a VESA driver. TCP/IP applications access the packet
+driver using a software interrupt - usually it is 0x60 (60H). The packet driver
+for an ethernet card (LAN) is a small freeware program (with a name like ODIPKT.COM, 
+or similar).
+If you are using a dial-up connection, you need a TSR program to "emulate"
+the ethernet card packet driver.
+<P>
+The following ways to connect to the Internet via serial line (modem) from 
+DOS are known:
+<UL>
+<LI><A HREF="#dospppd">DOSPPPD</A> - a port of the Unix PPP daemon to DOS enviroment.
+Best choice, <B>included in distribution package</B>
+<LI><A HREF="#klos">Klos PPP</A> - a shareware PPP dialer from Klos Technologies.
+Arachne can auto-configure itself to support it, but due to it's license,
+it cannot be distributed with Arachne.
+<LI><A HREF="#ether">EtherPPP</A> - This was the original freeware packet driver
+distributed with Arachne, but it is no longer directly supported or included
+in the distribution package.
+<LI><A HREF="#slip">UMSLIP</A> - the SLIP driver from Univesity of Minnesota.
+Reported to work with Arachne. Not included in distribution package.
+<LI><A HREF="#slip">SLIPPER, CSLIPPER</A> - SLIP
+(=Single Line Internet Protocol) and CSLIP
+(=compressed SLIP) programs.
+CSLIPPER.EXE is <B>included in distribution package</B>.
+
+</UL>
+
+<HR>
+<A NAME="dospppd">
+
+<H3>DOSPPPD</H3>
+DOSPPPD is a single program - <B>EPPPD.EXE</B>. Arachne will load
+DOSPPPD if the <A HREF="file://ARACHNE.CFG">ARACHNE.CFG</A> file contains 
+the following line:
+<B>Connection @EPPPD.EXE</B>.
+<P>
+DOSPPPD is a port of the Unix PPP daemon to the DOS enviroment.
+It's probably the best PPP solution available in DOS.
+It consumes less memory than EtherPPP or KlosPPP.
+The author of this DOS port, Toni Lopez, permitted me to include this 
+dialer in the Arachne package.
+<P>
+If you don't want to use the Arachne built-in configurator, you can study the
+<A HREF="file://dospppd.txt">DOSPPPD documentation</A>, which was created by
+merging files README.TXT and PPPD.MAN from the DOSPPPD package.
+You don't need to worry about how to connect because Arachne uses its
+own dialer - <B>MINITERM.EXE</B>, configured in
+<A HREF="file://arachne.cfg">ARACHNE.CFG</A>.
+The IP address is passed by option <B>IP_Address PPP</B>.
+<P>
+If you are not an advanced DOS user, I suggest using the
+<A HREF="file://system/gui/wizard1.ah">Arachne PPP wizard</A> previously
+mentioned. More details (eg. automatic login script) can be entered using 
+the <A HREF="file://system/gui/conf_ppp.ah">manual PPP setup screen</A>. 
+Just fill in the correct values, click <B>Ok, save</B> and then restart Arachne. 
+Arachne will automatically create a configuration file <B>PPPDRC.CFG</B> for DOSPPPD.
+<P>
+If you prefer to set up text-mode configuration files rather than using
+the setup screen, please read 
+<A HREF="file://keywords.txt">List of all keywords</A> used in the
+<A HREF="file://arachne.cfg">ARACHNE.CFG</A> configuration file.
+<HR>
+<A NAME="ether">
+<H3>EtherPPP</H3>
+EtherPPP is a single program - <B>PPP.EXE</B>. Arachne will load
+EtherPPP if the <A HREF="file://ARACHNE.CFG">ARACHNE.CFG</A> file contains 
+<B>Connection @PPP.EXE parameters>PPP.LOG</B>.
+<P>
+You have to study the EtherPPP documentation and manually create a
+CONFIG.PPP file needed by EtherPPP. You don't have to worry about DIAL.PPP,
+as you can use the MINITERM dialer shipped with Arachne.
+<P>
+<HR>
+<A NAME="klos">
+<H3>Klos PPP</H3>
+Klos PPP is a shareware PPP dialer distributed by Klos technologies.
+<P>
+You must get an uncrippled self-extracting archive <B>pppshare.exe</B>, available at
+<A HREF="http://www.klos.com/">http://www.klos.com</A>. The license agreement
+doesn't allow us to include this archive directly in the Arachne package.
+Place <B>pppshare.exe</B> into Arachne directory and execute it.
+<P>
+Klos PPP consists of more than one driver file - I suggest you
+read the documentation and add these drivers to your <A HREF="C:\AUTOEXEC.BAT">AUTOEXEC.BAT</A>.
+Klos PPP drivers can be loaded into high memory.
+<P>
+Klos PPP provides the PPPMENU.EXE program as an interface to the PPP dialer. 
+After connecting with PPPMENU.EXE, you must select the "Exit PPP connect" menu 
+option to exit to DOS (or to Arachne). There is also one more executable you must
+run to update WATTCP.CFG. After doing that, your
+<A HREF="file://ARACHNE.CFG">ARACHNE.CFG</A> might look as follows:
+<P><B>
+Connection READY<BR>
+IP_Address WATTCP<BR>
+TCP_Config WATTCP.CFG</B>
+<P>
+Probably the easiest way to use Klos PPP is to configure it as a
+<A HREF="file://system/gui/conf_lan.ah">resident packet driver</A> (and run
+PPPMENU manualy from the command line).
+
+<HR>
+<A NAME="slip">
+<H3>UMSLIP, SLIPPER.EXE, CSLIPPER.EXE:</H3>
+SLIP is an older dial-up protocol which was replaced by PPP.
+<P>
+You can call any of these packet drivers
+as an <A HREF="file://system/gui/conf_ext.ah">external dialer</A> or you can establish 
+a connection and make them resident first and then use Arachne exactly the same way as on
+<A HREF="lan.htm">Local Network</A>. Freeware SLIP programs can be found
+on many anonymous FTP sites. CSLIPPER.EXE is included in the Arachne distribution
+package.
+<P>
+I have been told that UMSLIP correctly emulates BOOTP.
+<HR>
+Return to <A HREF="arachne:back">previous page</A>.
+</Body>
+</HTML>

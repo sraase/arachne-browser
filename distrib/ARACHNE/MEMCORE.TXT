@@ -1,0 +1,2 @@
+<br><FORM ACTION="memcore.dgi">
+<INPUT TYPE=SUBMIT VALUE="Even More details...">

@@ -1,0 +1,75 @@
+<HTML>
+<TITLE>Manual TCP/IP Setup</TITLE>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="setup.gif" TEXT=#FFFFFF bgcolor=#555555 NORESIZE>
+<FONT SIZE=6 3D>Manual TCP/IP Setup</FONT>
+<P>
+<TABLE>
+<TD WIDTH=240>
+<FORM ACTION="file:conf_ppp.ah">
+<INPUT TYPE=SUBMIT VALUE=" Internal PPP support  ">
+</FORM>
+<TD><TABLE BGCOLOR=#EEEEEE BORDER=1 FRAME="void"><TD WIDTH=362><FONT SIZE=1 COLOR=BLACK>
+If you have <FONT COLOR=BLUE>MODEM &amp; PPP</FONT> account,
+try to use built-in DOSPPPD driver and MINITERM dialer.
+Requires at least 550 KB of DOS memory before running Arachne.
+</TABLE>
+<TR>
+<TD>
+<FORM ACTION="file:conf_lan.ah">
+<INPUT TYPE=SUBMIT VALUE="Resident packet driver ">
+</FORM>
+<TD><TABLE BGCOLOR=#EEEEEE BORDER=1 FRAME="void"><TD WIDTH=362><FONT SIZE=1 COLOR=BLACK>
+Use this option if there is packet driver installed on your PC.
+Typical for <FONT COLOR=GREEN>LAN &amp; ETHERNET</FONT> cards.
+WINSOCK.DLL (Windows TCP/IP API) cannot be used.
+</TABLE>
+<TR>
+<TD>
+<FORM ACTION="file:conf_ext.ah">
+<INPUT TYPE=SUBMIT VALUE="External dial-up driver">
+</FORM>
+<TD><TABLE BGCOLOR=#EEEEEE BORDER=1 FRAME="void"><TD WIDTH=362><FONT SIZE=1 COLOR=BLACK>
+Arachne will work with <FONT COLOR=#706000>EXISTING DIAL-UP
+DRIVER</FONT> for DOS (SLIP or PPP) you are already using,
+if it provides packet driver compatible interface.
+</TABLE>
+<TR>
+<TD>
+<FORM ACTION="arachne:internal-config">
+<INPUT TYPE=HIDDEN NAME="Connection" VALUE=NUL>
+<INPUT TYPE=HIDDEN NAME="HomePage" VALUE="file://home.htm">
+<INPUT TYPE=SUBMIT VALUE="No TCP/IP available :-(">
+</FORM>
+<TD><TABLE BGCOLOR=#EEEEEE BORDER=1 FRAME="void"><TD WIDTH=362><FONT SIZE=1 COLOR=BLACK>
+Arachne can be used with
+<FONT COLOR=RED>NO CONNECTION</FONT> to Internet - on standalone PC as HTML, text and picture viewer
+and as Intranet client on network filesystems mapped to DOS.
+</TABLE>
+<TR><TD><P>
+<TR>
+<TD COLSPAN=2>
+
+<TABLE FRAME="void" BORDER=1><TD class="topbar" bgcolor="gray" WIDTH=604>
+<TABLE>
+<TD>
+<FORM ACTION="file://setup.htm">
+<INPUT TYPE=SUBMIT VALUE="<< [S]etup Wizards">
+<TD>
+<FORM ACTION="file:profiles.ah" METHOD=HREF>
+<INPUT TYPE=SUBMIT VALUE="ACF profiles">
+<TD>
+<FORM ACTION="file://help.htm">
+<INPUT TYPE=SUBMIT VALUE="Help [F1]">
+<TD>
+<FORM ACTION="file://options.htm">
+<INPUT TYPE=SUBMIT VALUE="More [O]ptions >>">
+<TD><A HREF="file://home.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+</TABLE>
+<FONT SIZE=1 COLOR=BLACK>
+Copyright (c)2002 Arachne Labs. Please read
+<A HREF="file://license.txt">license.txt</A> file before using Arachne.
+</TABLE>
+</TABLE>
+</BODY>
+</HTML>

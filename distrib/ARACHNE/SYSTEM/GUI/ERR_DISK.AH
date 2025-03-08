@@ -1,0 +1,26 @@
+<HTML>
+<TITLE>Disk error</TITLE>
+<BODY>
+<IMG SRC="file://system\gui\error.gif" ALT="ERROR" ALIGN=RIGHT>
+<H1>Disk error</H1>
+<BR CLEAR=RIGHT>
+<HR SIZE=6>
+Arachne cannot write temporary files.Possible reasons:
+<P>
+<LI>Too little disk space available to store the file that was being downloaded.
+<LI>Hard disk is full - Arachne requires at least 0.5 MB of free disk space to run.
+<LI>Cache path is invalid.
+<LI>Other hard disk, file system or operating system related error.
+<HR>
+See <A HREF="file://help.htm">Arachne documentation</A> for more info.
+<HR>
+<TABLE>
+<TD><FORM ACTION="file:options.htm">
+<INPUT TYPE=SUBMIT VALUE="Arachne options">
+</FORM>
+<TD><FORM ACTION="file:clearcache.dgi">
+<INPUT TYPE=SUBMIT VALUE="Kill cache">
+</FORM>
+</TABLE>
+</BODY>
+</HTML>

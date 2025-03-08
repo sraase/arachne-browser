@@ -1,0 +1,36 @@
+This is preliminary version of extended codepage conversion tables
+for Arachne. To enable viewing of HTML documents encoded in different
+codepage than one corresponding to Arachne fonts (and different than
+those for which suitable *.CP files are included in Arachne font APMs),
+please do the following:
+
+(1) If you are using default Western Arachne fonts (ISO88591.APM),
+    please copy all files from ISO88591 directory in this archive to
+    SYSTEM\CODEPAGE subdirectory in your Arachne directory (typically,
+    C:\ARACHNE).
+
+(2) If you are using East European fonts (i.e., have installed
+    ISO88592.APM), please copy the files from ISO88592 directory
+    instead.
+
+(3) If you are using Cyrillic fonts in Windows encoding (i.e., have
+    installed 1251.APM), please copy the files from 1251 directory.
+
+(4) If you are using Cyrillic fonts in KOI8-R encoding (i.e., have
+    installed KOI8-R.APM), please copy the files from KOI8-R directory.
+
+Note: Currently only Latin and Cyrillic (partially) alphabets are
+supported. Conversion from Cyrillic to Latin is done by simple
+transliteration, very similar to KOI8-R 8-bit -> 7-bit conversion,
+except that there is no upper/lowercase flip. Some Cyrillic letters
+must be mapped into special characters. This simple mapping is imposed
+by limitations of current Arachne core (only one set of 256 characters
+displayed at a time, and only 1 character to 1 character conversion).
+
+To do (volunteers needed):
+
+(1) Integration into existing APMs.
+
+(2) More alphabets and codepages.
+
+(3) Corrections.

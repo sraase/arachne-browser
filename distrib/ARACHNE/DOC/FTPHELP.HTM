@@ -1,0 +1,47 @@
+<HTML>
+<Head>
+<Title>Using Arachne FTP</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<H1>Using Arachne FTP</H1>
+<HR Size=4>
+Arachne can access both anonymous and password protected FTP sites.
+It can download files, get directory listings
+or upload files. The last option is very important because FTP upload
+is the easiest way for publishing your web pages on the internet.
+<P>
+To open an anonyous FTP session, just enter the URL formated as:
+<BR><BIG>ftp://server.name/</BIG>.
+<BR>The root directory of the server will be displayed. You can control
+the eMail address sent during login by an ARACHNE.CFG variable called
+<B>FakeFTPeMail</B> - by default, your real eMail is sent.
+<P>
+To open an authorized FTP session, you have to enter the following URL:<BR>
+<BIG>ftp://username@server.name/home/directory/</BIG><BR>
+You will be asked to enter your password. On most servers, the 
+"/home/directory/" pathname is not identical to the pathname used in the HTTP 
+protocol (e.g., on Unix servers, document <I>http://server/~username/</I> is usually
+also accessible as <I>ftp://username@server/home/username/public_html/index.html</I>).
+<P>
+An alternative way to access ftp is to use URLs like:<BR>
+<BIG>ftp://username:password@server.name/home/directory/</BIG><BR>
+The problem is that the passwords will be stored as part of the URL in
+history, cache, etc.
+
+<HR>
+Uploading of HTML pages and files to your FTP server is as easy as can
+be: just press F2 on any displayed HTML page or image, or click on the
+icon of the file you want to upload in the local directory listing. That's all.
+A page with "Save as...", "Send by eMail" and "FTP upload" dialogue boxes
+will appear. Just fill in four required fields in the "FTP upload" dialogue
+box (the field called "Target" specifies a full filename on server, for example
+"/home/yourusername/index.html") and click the "Upload" button.
+<P>
+<I>Note: FTP directory services (creating and removing directories, removing
+files) are not yet implemented; you have to use an external FTP client to do
+this.</I>
+<P>
+<HR>
+Return to <A HREF="arachne:back">previous page</A>.
+</Body>
+</HTML>

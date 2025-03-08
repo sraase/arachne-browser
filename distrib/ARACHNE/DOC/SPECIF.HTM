@@ -1,0 +1,164 @@
+<Body BACKGROUND = "file://paper.gif">
+<TITLE>List of standards supported by 16-bit Arachne for DOS</TITLE>
+<FONT SIZE = +1 >List of standards supported by 16-bit Arachne for DOS</FONT>
+<P>
+<TABLE BORDER = 3 CELLSPACING = 3 CELLPADDING = 1 WIDTH = 100% >
+<TH WIDTH=16% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Standard
+<TH WIDTH=13% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Status
+<TH WIDTH=71% BGCOLOR=#0000AA><FONT COLOR=#FFFFFF>Comment
+<TR>
+<TD>http:
+<TD>built-in
+<TD><LI><TT>http://[user:pass@]servername[:port][/doc]</TT>
+<LI>version 1.0 - supports GET, POST, Basic WWW authentication and Cookies 1.0
+<TR>
+<TD>mailto:
+<TD>built-in
+<TD><LI><TT>mailto:email@address</TT>
+<TR>
+<TD>pop3:
+<TD>built-in
+<TD><LI><TT>pop3:[//[user[:password]@]servername[:port]]</TT>
+<TR>
+<TD>smtp:
+<TD>built-in
+<TD><LI><TT>smtp:[//[HELO@]servername[:port]][/loc_file]</TT>
+<TR>
+<TD>finger:
+<TD>built-in
+<TD><LI><TT>finger://[user@]servername[:port][/user]</TT>
+<TR>
+<TD>gopher:
+<TD>built-in
+<TD><LI><TT>gopher://servername[:port][/selector]</TT>
+<LI>this archaic protocol is implemented only partly
+<TR>
+<TD>ftp:
+<TD>built-in
+<TD><LI><TT>ftp://[user[:pass.]@]servername[:port][/path]</TT>
+<LI>upload, download, ascii/binary, anonymous/authenticated, graphical browsing of directories
+<TR>
+<TD>telnet:
+<TD><A HREF="http://home.arachne.cz/apm/telnet.apm">APM</A>
+<TD><LI><TT>telnet:[//servername]</TT>
+<LI>starts program asociated with "external/telnet"
+<TR>
+<TD>irc:
+<TD><A HREF="http://home.arachne.cz/apm/irc.apm">APM</A>
+<TD><LI><TT>irc:</TT>
+<LI>starts program asociated with "external/irc"
+<TR>
+<TD>file:
+<TD>built-in
+<TD><LI><TT>file:[//][/dos_disk|]local_filename</TT>
+<TR>
+<TD>find:
+<TD>built-in
+<TD><LI><TT>find:keywords</TT>
+<LI>automaticaly generates http based Altavista query
+<TR>
+<TD>text/html<BR>*.HTM
+<TD>built-in
+<TD><LI>can view up to cca 48000 tags or lines in files of maximum size cca 1 MB
+<LI>supports <A HREF="file://ahtml40.txt">subset of HTML 4.0</A> including
+forms,
+<A HREF="file://examples/tables.htm">tables</A>,
+both <A HREF="file://examples/csim.htm">client side</A>
+and server side image maps,
+<A HREF="../examples/frames.htm">frames</A>,
+<A HREF="../examples/fonts.htm">font sizes</A>,
+<A HREF="../examples/nested.htm">nested font attributes</A>,
+<A HREF="../examples/resize.htm">resized images</A>,
+<A HREF="../examples/nobreak.htm">non breaking sections</A>,
+<A HREF="../examples/entity.htm">ISO-Latin-1 entities</A>,
+<A HREF="../examples/embed.htm">&lt;EMBED&gt; tag</A>,
+<A HREF="../examples/redir.htm">delayed redirection</A>, etc.
+<A HREF="../examples/button.htm">&lt;BUTTON&gt; tag</A>, etc.
+<TR>
+<TD>text/plain<BR>*.TXT
+<TD>built-in
+<TD><LI>can view up to cca 48000 lines in files of maximum size cca 3 MB
+<TR>
+<TD>text/css<BR>*.CSS
+<TD>built-in
+<TD>
+<LI>subset of Cascading Style Sheets 1.0 specification
+<LI>both <A HREF="../examples/css.htm">inline and externaly linked</A> stylesheets
+<TR>
+<TD>image/gif<BR>*.GIF
+<TD>built-in
+<TD>
+<LI>interlaced GIFs
+<LI>transparent GIFs (GIF89a)
+<LI><A HREF="file://strobo.gif">animated GIFs (GIF 89a)</A>
+<TR>
+<TD>*.BMP
+<TD>partly
+<TD><LI>only truecolor BMP fast preview
+<TR>
+<TD>image/jpeg<BR>*.JPG
+<TD>external convertor
+<TD><LI>DJPEG.EXE -
+<LI><A HREF="file://examples/bio.jpg">high quality conversion</A> to BMP (or GIF)
+<LI>JPNG2BMP.EXE - conversion to truecolor BMP
+<TR>
+<TD>image/png<BR>*.PNG
+<TD>external convertor
+<TD><LI>JPNG2BMP.EXE - conversion to BMP
+<TR>
+<TD>video/mpeg<BR>*.MPG
+<TD><A HREF="http://home.arachne.cz/apm/mpeg.apm">APM</A>
+<TD><LI>VMPEG (32 bit DOS application, 386+ CPU required)
+<LI>works on any VGA card, author supplies lot of drivers for SVGA cards
+<TR>
+<TD>video/<BR>x-msvideo<BR>*.AVI
+<TD><A HREF="http://www.multimediaware.com/qv/qv.apm">APM</A>
+<TD><LI>QV.EXE by Multimediaware
+<LI>DOS shareware player of AVI animations (!), for 80386 or better.
+<TR>
+<TD>audio/x-wav<BR>*.WAV
+<TD>external viewer
+<TD><LI>PLANY.EXE (or <A HREF="http://home.arachne.cz/apm/spkrwav.apm">SPKRWAV.APM</A> for PC speaker)
+<LI><A HREF="file://plany.txt">read documentation</A>
+<TR>
+<TD>audio/x-mpeg<BR>*.MP3
+<TD><A HREF="http://www.multimediaware.com/qv/qv.apm">APM</A>
+<TD><LI>QV.EXE by Multimediaware
+<LI>DOS shareware player of AVI, MOV and MP3 (!), for 80386 or better.
+<TR>
+<TD>multipart/*
+<BR>MIME V1.0
+<TD>built-in DGI
+<TD><LI>MAILMAN.EXE - conversion of messages to HTML
+<LI>Multipart e-mail messages, supported transfer encodings: base64,
+quoted-printable, 7bit, 8bit
+<TR>
+<TD>UUencode
+<TD>external utilities
+<TD><LI>Automatic detection of UUencoded attachments in mail messages
+<TR>
+<TR>
+<TD>BINHEX
+<TD><A HREF="http://home.arachne.cz/apm/binhex.apm">APM</A>
+<TD><LI>Mail attachment format used on Macintosh systems
+<TR>
+<TD>any other mime type
+<TD>optional
+<TD><LI>add your viewer of any mime type to MIME.CFG
+<TR>
+<TD>DGI<BR>*.APM<BR>*.OOK<BR>*.AH<BR>*.HTP<BR>*.ASF<BR>*.ACF<BR>etc...
+<TD>optional
+<TD><LI>Dos Gateway Interface - new <A HREF="file://dgi.txt">standard by xChaos</A>
+<LI>add CGI scripts to your offline hypertext applications - <A HREF="file://examples\testdgi.htm">see demo</A>.
+(on CD-ROMs, etc.)
+<LI>DGI description must be added to MIME.CFG file, as they are only
+"virtual files", not regular files saved on your hard disk.
+<LI><A HREF="file://doc\apm.htm">Arachne Packages</A> (*.APM, MIME type application/x-arachne-package) are powerful way to upgrade Arachne WWW browser
+<LI><A HREF="file://doc\netdos.htm">Netdos</A> (MIME type application/x-netdos-exe) is scheme for secure launching of DOS executables downloaded from Internet/Intranet
+<LI><A HREF="file://oops\readme.ook">OOKs</A> are secure shortcuts to DOS applications
+<LI>AH files means Arachne ehnanced HTML, not functional in other browsers.
+<LI>HTP files are hypertext templates, designed to separate application code from user interface.
+<LI>ACF files are <A HREF="file://doc/acf_asf.htm">Arachne Profiles</A>.
+<LI>ASF files are <A HREF="file://doc/acf_asf.htm">Arachne Script files</A>.
+</TABLE>
+Return to <A HREF="file://help.htm">main help page</A>.

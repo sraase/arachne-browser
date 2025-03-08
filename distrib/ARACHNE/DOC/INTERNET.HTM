@@ -1,0 +1,207 @@
+<HTML>
+<Head>
+<Title>Introduction to the Internet</Title>
+</Head>
+<Body BACKGROUND="file://paper.gif">
+<H1>Introduction to the Internet</H1>
+<HR SIZE=4>
+If you are (or want to be) a new Internet user, and Arachne is your first
+encounter with the technical terms describing Internet protocols and
+applications and their configuration, configuring Arachne will not be an
+easy task for you. This page contains short explanations of the most
+frequently used words in the Arachne documentation.
+
+<HR>
+<A NAME="internet">
+<H3>The Internet</H3>
+
+The Internet is a worldwide network of computers based on the TCP/IP protcol. It
+allows you to use many different services based on various Internet
+protocols. The Internet is also known as the "Information highway".
+
+<P>The most popular services are WWW and eMail, based on protcols
+called HTTP, SMTP and POP3. Other well known services include FTP, Usenet
+(news - protocol NNTP), Telnet and IRC. If you don't understand
+what words like "service" or "protocol" mean, just picture all this
+stuff as alternatives or enhancments to well known electronic
+communication services like televison, voice phone or fax.
+
+<P>There are also other
+experimental services, like Internet Phone, See-You-See-Me, PointCast
+network, ICQ or Internet Radio, which are not generaly understood as Internet
+standards. Some of the Internet protocols, like Gopher or Finger are remnants
+from an earlier chapter in the history of the Internet. It is very interesting 
+and if you are interested in it, try to get a book about the Internet.
+
+<HR>
+<A NAME="tcpip">
+<H3>TCP/IP</H3>
+
+A family of communication protocols used on the Internet. Something like
+the engine in a car: users don't have to know how it works, they only
+have to know which kind of fuel they need, and where to go if something
+goes wrong.
+<P>
+Most important among TCP/IP protocols
+are TCP (transmission control protocol), IP (internet protocol) and UDP
+(user datagram protocol). Pieces of data transported by TCP/IP are called packets.
+<P>
+Advanced operating systems (like Unix) implement TCP/IP as a basic system
+service (on the same level as other I/O operations); in small systems like
+DOS, TCP/IP must be integrated into the application. This is why configuring
+Arachne is so confusing: you are configuring both TCP/IP and the browser (and
+if you are using a modem, then a PPP dialer also) all in one program!
+With Arachne, you are provided with a complete network solution, which 
+together with the operating system fits onto one floppy and can be booted from it.
+<P>
+TCP/IP was designed for permanently connected computers; if you want to
+connect using a phone line and modem, you will need to establish a SLIP or PPP
+protocol between your Internet provider and your computer to transfer
+TCP/IP packets to your computer.
+
+<HR>
+<A NAME="www">
+<H3>WWW</H3>
+
+WWW stands for World Wide Web. It is a system of online hypertext pages, located
+on many servers all around world. Pages are written in the HTML language
+and linked to each other. Pages can also contain links to objects
+of different types, like soundtracks, movies, live audio and video
+broadcasting, etc.
+<P>
+Arachne is a WWW client - a program which can
+request, download and view HTML pages. The WWW uses a protocol called HTTP.
+<P>
+The only mass communication technology that is as easy to use as the WWW
+is probably television. Users of the World Wide Web are expected only to
+be able to read and to know how to use a mouse to select hypertext
+links, nothing more.
+
+<HR>
+<A NAME="email">
+<H3>eMail</H3>
+
+eMail, E-mail, or email are various shortened versions of "electronic mail".
+<P>
+Electronic mail is simply an exchange of text messages (which can contain
+attached encoded files) between Internet users. Arachne can currently
+send and receive simple eMail messages, using protocols called SMTP (sending
+eMails) and POP3 (downloading eMail from mailbox). Every user
+of Internet mail is assigned a unique address of format
+<B>username@domain</B>. Your username does not have to be identical
+to your login name. The domain is usually (but not always) the name
+of your provider's mail server.
+<P>
+Having a personal eMail address is probably as common today as having
+a personal telephone number.
+
+<HR>
+<A NAME="ppp">
+<H3>PPP</H3>
+
+Point to Point Protocol. A protocol which transfers TCP/IP packets through
+your modem and connects your computer to the Internet. There are three
+ways to authenticate a PPP connection: the first option is to ask for manual
+login (like if you are calling a BBS system) whereafter the PPP protocol
+starts without further verification (you will see a bunch of characters like
+ ~,#,!, etc. in the terminal window). Arachne can do an automatic login
+to an internet service provider, if you configure it correctly.
+The second option is called Password Authentication Protocol (PAP)
+and the third one is Challenge Authentication Protocol (CHAP).
+The PPP dialer shipped with Arachne currently supports PAP, but CHAP is already
+supported by the latest release of DOSPPPD.
+
+<HR>
+<A NAME="url">
+<H3>URL</H3>
+
+Universal Resource Locator. You have probably seen announcments like
+"Visit internet homepage of Some Company at
+<B>http://www.somecompany.com/</B>. This is a typical URL.
+It is an identifier for resources that are accessible by WWW browser, most often
+an HTML page accessible using the HTTP protocol. In Arachne, you must
+first connect to the Internet. Once you are connected, just press the F3 key,
+enter the URL you want and press Enter.
+<P>
+The URL syntax is
+<B>protocol://[username[:password]@]hostname[:port][/URI]</B>
+<P> URI
+is a shortcut for Uniform Resource Identifier, and it is in fact very
+often just a filename of a document or program located on the WWW server.
+
+<HR>
+<A NAME="opendos">
+<H3>OpenDOS</H3>
+
+We described Arachne as a "DOS application". This means that in principle, 
+Arachne can run under various types of operating systems that are compatible 
+with MS-DOS 3.3: MS-DOS up to 6.22, Windows 95, OS/2, DR-DOS, NovellDOS, DOSEMU under Linux,
+SoftPC under NextStep (all these options were tested). However, we recommend
+that you use Caldera OpenDOS, a clone of DOS, which is free for non-commercial
+use. Even inexperienced users can easily configure OpenDOS using its built-in 
+setup utility. And you can easily download latest patches and upgrades of OpenDOS
+from the Caldera Website.
+<P>
+OpenDOS is the latest member of Digital Research's CP/M development line: 
+CP/M ... DR-DOS ... Novell DOS ... Caldera (DR)OpenDOS.
+
+<HR>
+<A NAME="mem">
+<H3>DOS memory</H3>
+
+
+When you are using MS-DOS, your computer with an Intel compatible processor
+starts in "real mode": this means that even if you have a Pentium,
+your computer generally behaves like a PC XT when you boot DOS, i.e.,
+only 1 MB of RAM can be used directly by your programs, and the largest
+executable program size can be up to 640 kB (but is usually less, since  
+various device drivers must also be present in memory). More memory than
+1 MB can be accessed only as storage space for data. It is called XMS or EMS 
+memory.
+<P>
+But you are likely to have a 386 or better processor which can be switched to
+"protected mode" (also called "32bit" mode) to access all the memory. From
+DOS, you can do this, for example, by using a DPMI driver. You are probably
+asking why Arachne is a real mode application, running only in the first 640
+kB of your PC's memory. The reason is that the golden era of DOS ocurred on 
+real mode computers, and most development tools, libraries, and helper applications
+feel best in real or "V8086" (also called "Virtual") mode.
+Developing applications for protected mode DOS is a much more complex task.
+
+<P>
+Arachne, as a real mode application, is a very small program and fits onto a
+single floppy: compare this to protected mode applications, written in object-oriented
+languages. They are ten times larger and take forever to download from
+the Internet. Arachne was developed mainly for PCs with a 80286-,
+80386-, or 80486-compatible CPU and with only several MB of RAM, where
+real mode DOS applications perform much better than Windows applications.
+On Pentium P5/P6 (trademark of Intel), AMD K5/K6 or various 80586 and 80686
+machines with more than 8 MB of memory, real mode applications
+are not able to use the full potential of the system. However, you can
+use an extended memory manager like EMM386 or QEMM to optimize a "virtual
+DOS machine" on your 386 or better computer. This is very efficient and
+actually much faster than the operating systems which are expected to run on
+these machines. Using DOS on Pentium class computers probably can give you
+more "real-time" feel then using any other OS.
+
+<HR>
+<A NAME="ramdisk">
+<H3>RAM disk</H3>
+
+DOS is able to use the extra memory of your system as a virtual file system,
+called a RAM disk. If your PC has more than 8 MB of memory, you should
+definitely think about configuring such a RAM disk to increase the speed of your
+DOS applications, including Arachne. This will probably give you the fastest
+operating system ever available: while 32bit operating systems use your
+hard disk as virtual memory, with 16bit DOS you can use your memory as a very
+fast hard disk. This can increase, for example, the speed of JPEG decompression
+in Arachne, etc. The problem is that the content of a RAM disk is lost when
+you turn off your computer. Configuring Arachne to run from a RAM disk (by
+copying its home directory to the RAM disk) but using directories for mail 
+and downloaded files on the hard disk can be a good solution.
+<P>
+Check your system manual or configuration utility for information on how
+to configure a RAM disk on your PC.
+
+<HR>
+<I>This list will be more extensive in future releases of Arachne</I>

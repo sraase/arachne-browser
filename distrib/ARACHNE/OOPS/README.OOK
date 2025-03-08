@@ -1,0 +1,21 @@
+@echo off
+echo What is this ?
+echo --------------
+echo *.OOKs are simply DOS batch files. I added this feature to Arachne,
+echo because I wanted to allow easy and secure launching of DOS applications.
+echo I was afraid to simply allow launching of *.BAT,*.COM and *.EXE files from
+echo Arachne: in web browser, you ussualy want to send or upload files, instead
+echo of running any executable file. And what would be worse: picture someone
+echo launching ARACHNE.BAT or AUTOEXEC.BAT while running Arachne...
+echo So I decided to use special extension for normal *.BAT files. It's easy,
+echo it allows easy installation from Arachne Packages (*.APM), and icon can
+echo be easily changed by modifying WWWMAN.CFG. Just write batch files to
+echo launch you favourite DOS apps and place them into OOPS\ subdirectory.
+echo.
+echo Why "ook" ?
+echo -----------
+echo Answer can be found in Terry Pratchett's books about Discworld.
+echo.
+echo Thank you for your patience. Please send comments to xchaos@arachne.cz!
+echo.
+pause

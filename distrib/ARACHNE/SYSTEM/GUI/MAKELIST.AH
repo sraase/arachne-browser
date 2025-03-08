@@ -1,0 +1,50 @@
+<HTML>
+<TITLE>Make A @mailing List</TITLE>
+<link rel="stylesheet" href="file://skin.css">
+<BODY NORESIZE>
+<TABLE cellspacing=0 cellpadding=0>
+<FORM ACTION="arachne:internal-config?file://mail.htm">
+<TR><TD width="600"><font size=-1>
+
+<li>Write single e-mail address on each line. &nbsp;This can include the
+person's name <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>i.e.</i>  Dave Smith &#60;dsmith@anispsomewhere.net&#62;
+<BR>
+
+<li>When you have the list completed, Press Ctrl+W to save mailing list to
+file -- replace default file name QUICKPAD.TXT with desired list name,
+<i>eg.</i> "everyone"  or "family" or "students"  (<i>NO</i> extension on the
+file name; simply STUDENTS -- <I>not</i> STUDENTS.TXT)<br>
+
+<li>To send e-mail to a list, type @listname in the <i>To:</i> field.
+&nbsp;Single-recipient lists can be used as nicknames.<br>
+
+<li><I><b>Tip:</b></i>&nbsp; Because of problems with SPAM e-mail, many ISPs have
+their servers set to limit the maximum number of names a message will be
+sent to; the server counts the actual recipients, and will stop sending
+when the limit is reached. You probably will not know if this happens, so
+before creating long lists, check with your internet provider to find out
+any limits.<br>
+
+<li>You can also add <A HREF="mailto:@everyone">mailto:@everyone</A> style
+URLs to your Hotlist.
+<BR>
+<TEXTAREA ROWS=20 ACTIVE ARACHNEROWS COLS=74 ARACHNEEDITOR="maillist.tmp">
+</TEXTAREA> <BR>
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<TR>
+<TD><font size=-2>
+<form action="submit">
+<Button>Return to e-mail client</button>
+<TD><font size=-2>
+<FORM ACTION="arachne:back">
+<BUTTON><IMG SRC="file://pidizrus.ikn" WIDTH="16" HEIGHT="16"><b>&nbsp;&nbsp;Cancel&nbsp;&nbsp;</b></BUTTON>
+<TD><font size=-2>
+<form action="file://edithelp.htm">
+<button><img src="file://tbhelp.ikn" width="16" height="16">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Edit Help&nbsp;</button>
+<TD><font size=-2>
+<FORM ACTION="file:mxedit.dgi">
+<button><img src="file://small5.ikn" width="16" height="16">&nbsp;&nbsp;&nbsp;&nbsp;e<b>X</b>ternal editor</button>
+</tr></table>
+</form>
+</table>
+</body>

@@ -1,0 +1,19 @@
+<TITLE>Toolbar Editor - advanced.cfg</TITLE>
+<BODY NORESIZE>
+<FORM ACTION="arachne:internal-config?arachne:restart">
+<INPUT TYPE=HIDDEN NAME="Toolbar" ARACHNECHECKED="Toolbar" VALUE="toolbar.cfg">
+<!--Use
+<INPUT TYPE=RADIO NAME="Toolbar" ARACHNECHECKED="Toolbar" VALUE="toolbar.cfg">
+this toolbar definition file <B>toolbar.cfg</B>
+<INPUT TYPE=RADIO NAME="Toolbar" ARACHNECHECKED="Toolbar" VALUE="oldstyle.cfg">
+traditional toolbar <B>oldstyle.cfg</B>
+<BR>
+-->
+<TEXTAREA ROWS=35 ACTIVE ARACHNEROWS COLS=74 ARACHNEEDITOR="toolbar.cfg"></TEXTAREA>
+<TABLE>
+<TD>
+<INPUT TYPE=SUBMIT VALUE="Save toolbar &amp; restart Arachne [F2]">
+<TD>
+<FORM ACTION="arachne:back">
+<INPUT TYPE=SUBMIT VALUE="Cancel">
+</TABLE>

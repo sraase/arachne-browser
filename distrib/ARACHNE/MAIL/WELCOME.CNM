@@ -1,0 +1,69 @@
+From: Arachne Development team
+Date: Mon, 23 Dec 2021 21:00:00 -0500
+X-Mailer: Arachne V1.99;GPL
+To: Arachne User
+Subject: Welcome to Arachne 1.99;GPL ...
+X-Encoding: MIME
+MIME-Version: 1.0
+X-Attachment-Processor: Insight 4.7;ML
+Content-Type: multipart/mixed; boundary=MIME-multipart-message-boundary-1034469158
+
+* This message is in MIME format.
+
+--MIME-multipart-message-boundary-1034469158
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+
+
+Please link to the icon below to view the file "welcome.htm" ...
+
+
+
+--MIME-multipart-message-boundary-1034469158
+Content-Type: text/html ;name=welcome.htm
+Content-Description: File "welcome.htm" (type text/html, size 1 KB)
+Content-Transfer-Encoding: quoted-printable
+
+<HTML>
+<HEAD>
+
+<TITLE>Welcome to Arachne 1.99;GPL ...</TITLE>
+
+</HEAD>
+<BODY BGCOLOR=3DNAVY TEXT=3DWHITE>
+
+<IMG SRC=3D"file://xch.gif" ALIGN=3DRIGHT>
+<P>
+<FONT SIZE=3D6>
+Welcome to Arachne 1.99;GPL ...
+</FONT>
+<BR>
+<FONT SIZE=3D4>
+My newest "General Public License Version" :)
+<P>
+Arachne is the ultimate Internet client, which is easy to configure and use.
+It integrates Web browser, FTP client, e-mail reader and e-mail composer
+with full-featured graphical desktop for your DOS worsktation.
+<BR CLEARALL>
+<HR NOSHADE>
+Now you can convieniently send, receive or print documents with single mouse
+clicks - no doubleclicks are required. You can exit to DOS immediately
+(without losing connection) by just hitting &lt;Esc&gt; (or Alt+E),
+and then return back exactly where you were by typing 'exit' at the
+DOS command prompt.<br>
+You can easily access all Arachne components and all other resources of your
+system from the Arachne desktop. Arachne is extremely easy to extend - you
+can install new Arachne Packages (APMs) by just clicking on them.
+<P>
+Arachne allows you to view complex HTML/4.0 pages with frames, GIF, JPEG
+or PNG images and links to audio or video files, which can be located
+on the Internet, embeded in mail messages (like this one) or stored on
+floppy disks, CD-ROMs or on your hard disk. You no longer have to leave
+your fast and simple DOS and boot some other operating system to do this.
+<P>
+If you have any comments, feel free to reply to this e-mail.
+</FONT>
+<HR NOSHADE>
+</BODY>
+</HTML>
+

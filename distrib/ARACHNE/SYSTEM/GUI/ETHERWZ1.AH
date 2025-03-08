@@ -1,0 +1,35 @@
+<HTML><HEAD><TITLE>Arachne Packet Wizard</TITLE></HEAD>
+<link rel="stylesheet" href="..\..\skin.css">
+<BODY BACKGROUND="setup.gif" TEXT=BLACK bgcolor=#555555>
+<BR>
+<TABLE CELLSPACING=8 BORDER FRAME="void" WIDTH=540 ALIGN=CENTER>
+<TD  class="topbar" bgcolor="gray" NOWRAP ALIGN=RIGHT><FONT 3D=1><B>Arachne Packet Wizard</B></FONT>
+&nbsp;<A HREF="file://setup.htm"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=WHITE>
+<IMG ALIGN=LEFT SRC=xicht.gif>
+<H3>Hi, I am Arachne Packet Wizard !</H3>
+I will try to help you to configure Arachne, WWW browser for
+DOS, so you can use <I>her</I> to connect to the Internet, to surf
+the World Wide Web and to handle your personal e-mail.
+<P>
+Ethernet network card is piece of hardware, which allows you much more
+effective access to Internet than modem. DOS Internet applications
+access Ethernet cards using <I>packet driver interface</I>. There are
+also other hardware devices which can be accessed via packet driver,
+eg. ISDN cards.
+<P>
+Let's determine if there is packet driver already installed in your system:
+the autodetection is quite safe, but you can skip it if you are 
+sure that there is some packet driver already installed or if you want
+to install it later.
+<TR><TD BGCOLOR=SILVER>
+<TABLE>
+<TD><FORM ACTION="file://setup.htm">
+<INPUT TYPE=SUBMIT VALUE="<< Exit Wizard">
+<TD><FORM ACTION="file:pktchk.dgi">
+<INPUT TYPE=SUBMIT VALUE="Detect packet driver...">
+<TD><FORM ACTION="etherwz2.ah" METHOD=HREF>
+<INPUT TYPE=SUBMIT VALUE="Configure TCP/IP >>">
+</TABLE>
+</TABLE>
+</BODY></HTML>

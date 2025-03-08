@@ -1,0 +1,128 @@
+<TITLE>Export BMP image</TITLE>
+<link rel="stylesheet" href="file://skin.css">
+<BODY bgcolor=#555555 TEXT=BLACK>
+
+<TABLE CELLSPACING=1 BORDER FRAME="void">
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>Send BMP by e-mail</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER><FONT COLOR=BLACK>
+<I>Note: BMP files exported by Arachne can be huge.<BR>This feature makes sense only for local networks</I>.
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<TD ALIGN=RIGHT>Encoding:
+<TD><FORM ACTION="arachne:internal-mail">
+<INPUT TYPE=RADIO NAME=MailEncoding VALUE=MIME ARACHNECHECKED=MailEncoding>MIME
+<INPUT TYPE=RADIO NAME=MailEncoding VALUE=UUENCODE ARACHNECHECKED=MailEncoding>UUencode
+
+<INPUT TYPE=HIDDEN NAME=KillSent VALUE=No>
+<INPUT TYPE=CHECKBOX NAME=KillSent VALUE=Yes ARACHNECHECKED=KillSent>delete sent mail
+<INPUT TYPE=HIDDEN NAME="$MSG">
+<TR>
+<TD ALIGN=RIGHT>To:
+<TD><INPUT TYPE=TEXT SIZE=40 NAME=$TO>
+<TR>
+<TD ALIGN=RIGHT>Subject:
+<TD><INPUT TYPE=TEXT SIZE=40 NAME=$SUBJ VALUE="BMP from Arachne">
+<TR>
+<TD ALIGN=RIGHT>Comment:
+<TD>
+<INPUT TYPE=HIDDEN VALUE="_4prt.bmp" NAME="$ATTACH">
+<TEXTAREA NAME=$BODY COLS=40 ROWS=2></TEXTAREA>
+</TABLE>
+<TABLE ALIGN=RIGHT CELLSPACING=2 CELLPADDING=0>
+<TD ALIGN=RIGHT><BUTTON TYPE=SUBMIT NAME="$SMTP"><IMG SRC="file://pidisend.ikn" WIDTH=32 HEIGHT=16>&nbsp;Send file</BUTTON>
+<TD ALIGN=RIGHT><BUTTON TYPE=SUBMIT NAME="$SAVE"><IMG SRC="file://pidisave.ikn" WIDTH=32 HEIGHT=16>&nbsp;Save to OUTBOX</BUTTON>
+</TABLE>
+</TABLE>
+
+
+<!--
+<TABLE CELLSPACING=1 BORDER FRAME="void">
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>Preview BMP image</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER ALIGN=RIGHT><FONT COLOR=BLACK>
+
+<TABLE CELLSPACING=0 CELLPADDING=0>
+<TD COLSPAN=2 NOWRAP>
+<FORM ACTION="lpr:"><INPUT TYPE=TEXT SIZE=30 NAME="PrintServer" ARACHNECFGVALUE="PrintServer">
+<TR>
+<TD><INPUT TYPE=SUBMIT VALUE="Use remote printer">
+<TD>
+<FORM ACTION="file://_4prt.bmp"><INPUT TYPE=SUBMIT VALUE="Preview">
+</TABLE>
+</TABLE>
+-->
+
+<BR>
+
+<TABLE CELLSPACING=1 BORDER FRAME="void" ALIGN=RIGHT>
+<TD class="topbar" bgcolor="gray" ALIGN=RIGHT>
+<FONT 3D=1><B>Export as BMP or Convert to JPG</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER ALIGN=RIGHT NOWRAP><FONT COLOR=BLACK>
+
+<TABLE CELLSPACING=0 CELLPADDING=0 border=0>
+<TD>Directories chosen<td>must already exist.<td><tr><td>
+<hr><tr><td>
+<FORM ACTION="file://exportbmp.dgi">
+<INPUT TYPE=TEXT NAME="" VALUE="PAGE.BMP" SIZE=17>
+<TD>(alter path:\filename as needed)
+<TD>
+<TR>
+<TD>
+<INPUT TYPE=SUBMIT VALUE="Export as BMP  ">
+<TD>
+<FORM ACTION="file://_4prt.bmp">
+&nbsp;&nbsp;&nbsp;<INPUT TYPE=SUBMIT VALUE="Preview BMP">
+<TD>
+
+<!-- uncomment this section to try these features -->
+<!--
+<FORM ACTION="file://printbmp.dgi">
+<INPUT TYPE=SUBMIT VALUE="Print BMP ">
+<TD>
+-->
+<TR><TD>
+<FORM ACTION="file://bmp2jpg.dgi">
+<br><hr><tr><td>
+<INPUT TYPE=TEXT NAME="" VALUE="PAGE.JPG" SIZE=17>
+<TD>(alter path:\filename as needed)
+<TR>
+<TD>
+<INPUT TYPE=SUBMIT VALUE="Convert to JPEG">
+<TD>Uses 'Cjpeg.exe'<TD>
+
+
+<TR><TD>
+<FORM ACTION="file://bmp2zbm.dgi">
+<hr><tr><td>
+<INPUT TYPE=TEXT NAME="" VALUE="PAGE.ZBM" SIZE=17>
+<TD>(alter path:\filename as needed)
+<TR>
+<TD>
+<INPUT TYPE=SUBMIT VALUE="Convert to ZBM ">
+<TD>Uses 'Zip.exe'<TD>
+<!--end of comment--> 
+
+</TABLE>
+</TABLE>
+</center>
+<!--
+<BR>
+
+<TABLE CELLSPACING=1 BORDER FRAME="void" ALIGN=RIGHT WIDTH=280>
+<TD BGCOLOR=SILVER ALIGN=RIGHT NOWRAP>
+<FONT 3D=1><B>Setup BMP output module</B></FONT>
+&nbsp;<A HREF="arachne:back"><IMG SRC="file://pidizrus.ikn" HEIGHT=16 WIDTH=16 BORDER=0>
+<TR><TD BGCOLOR=SILVER ALIGN=RIGHT NOWRAP><FONT COLOR=BLACK>
+
+<FORM ACTION="arachne:internal-config?arachne:back">
+Maximum BMP output width
+<INPUT TYPE=TEXT ARACHNECFGVALUE="ASCIIwidth" Name="ASCIIwidth" SIZE=5> pixels
+<BR>
+<INPUT TYPE=SUBMIT VALUE="Accept">
+</TABLE>
+-->
+
+</HTML>
