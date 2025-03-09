@@ -9,6 +9,7 @@
 
 #ifdef SVGALIB
 #include <vga.h>
+#include <vgamouse.h>
 #include <vgagl.h>
 #include <termios.h>
 #include <pthread.h>
@@ -1074,7 +1075,7 @@ void ImouseWait(void)
 #ifdef SVGALIB
 
 
-void WaitForMouse_thread(void)
+void *WaitForMouse_thread(void *)
 {
  mouse_waitforupdate();
  MouseWasUpdatedInThread=1;
