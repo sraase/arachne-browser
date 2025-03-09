@@ -8,6 +8,8 @@
 #include "arachne.h"
 #include "html.h"
 
+int kbhit(void);
+
 //. Mix only the paletes on screen (visible)
 void MixVisiblePaletes(char writepal)
 {

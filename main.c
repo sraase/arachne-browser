@@ -31,9 +31,13 @@ ARACHNE WWW BROWSER (TM) is a trademark of Michael Polak, Arachne Labs (TM)
 #include "xanimgif.h"
 #include "gui.h"
 
+void sockmsg(int status,int snum);
+
 #ifdef SVGALIB
 #include <vga.h>
 #endif
+
+int kbhit(void);
 
 // ========================================================================
 // Arachne WWW browser main() function:

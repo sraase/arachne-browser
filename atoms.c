@@ -8,6 +8,8 @@
 #include "html.h"
 #include "gui.h"
 
+int bioskey(int cmd);
+
 //Goto next/previous atom when Tab/Shift+tab is pressend
 char gotonextlink( int *x, int *y , char back, char asc)
 {
@@ -597,7 +599,7 @@ int ProcessLinks(char generateASF)
    else
    {
     AnalyseURL(href,&url,frameID);
-    if(SearchInCache(&url,&HTTPdoc,&dummy,&dummy) && file_exists(HTTPdoc.locname))
+    if(SearchInCache(&url,&HTTPdoc,(short unsigned int *) &dummy,&dummy) && file_exists(HTTPdoc.locname))
      hidethis=currentHTMLatom;
     else
     {

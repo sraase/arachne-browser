@@ -10,6 +10,12 @@
 #include "posix.h"
 #include "x_lopif.h"    // For xg_chrmod
 
+#include <sys/param.h>
+#define min MIN
+#define max MAX
+
+void v_putimg(int xz,int yz, char *bitmap);
+
 #ifdef VIRT_SCR
 int xv_chr_mem(char *fnt_chr,       // Beginning of characters in font (binar)
                 int  kx,                // Shift in X direction

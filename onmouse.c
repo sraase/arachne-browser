@@ -12,6 +12,8 @@
 #include "html.h"
 #include "gui.h"
 
+int kbhit(void);
+
 char *onmouse(int click)
 {
  int linkonmouse;

@@ -8,6 +8,8 @@
 #include "html.h"
 #include "xanimgif.h"
 
+int kbhit(void);
+
 // "multitasking" ;-)
 
 #ifndef POSIX

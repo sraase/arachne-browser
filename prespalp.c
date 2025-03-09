@@ -79,6 +79,10 @@ Poznamka: "Vystupni" paleta muze byt i kratsi nez vstupni hodnota *npalout,
 
 #include "posix.h"
 
+#include <sys/param.h>
+#define min MIN
+#define max MAX
+
 // ===== prototypy ======================================
 int TagSort(unsigned long *ival,int *itag,int ip,int ik);
 //p:void palpal (char *palin, int npalin, char  *palout, int npalout,

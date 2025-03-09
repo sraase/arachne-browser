@@ -8,6 +8,10 @@
 #include "xanimgif.h"
 #include "v_putimg.h"
 
+#include <sys/param.h>
+#define min MIN
+#define max MAX
+
 //originaly (c) Ibase group
 //changes and BMP implementation (c)1996,1997 xChaos
 struct GIFGLB  {  unsigned char sigGIF[6];    /* Globani hlavicka */

@@ -26,6 +26,10 @@ tr.: Parameters:
 
 #include "posix.h"
 
+#include <sys/param.h>
+#define min MIN
+#define max MAX
+
 // ===== prototypes ======================================
 void Ipalpal (char *palin, int npalin, char  *palout, int npalout,
 	       int *mapio )

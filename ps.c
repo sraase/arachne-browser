@@ -14,6 +14,8 @@
 #define PIX2PT(pix) ((pix)/2)
 #define MM2PT(mm) (float)((mm)*2.8)
 
+int kbhit(void);
+
 void generateps(void)
 {
  float page_pt=MM2PT(user_interface.postscript_y);

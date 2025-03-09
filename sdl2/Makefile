@@ -24,7 +24,8 @@ LIBS    = -lSDL2 -lpthread
 
 arachne:	$(OFILES)
 	$(CC) -o arachne-sdl2 $(OFILES) $(LIBS)
-	#$(STRIP) arachne-sdl2
+# $(STRIP) arachne-sdl2
+
 
 clean:
 	@rm -f *.o arachne-sdl2

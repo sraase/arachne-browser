@@ -12,6 +12,10 @@
 #include "v_putimg.h"
 #include "putikons.h"
 
+#include <sys/param.h>
+#define min MIN
+#define max MAX
+
 void memerr(void);
 int  PresspalO (int multip, char *Palin[], int *Npalin, char  *palout,
 	       int *npalout, int *mapio, int *Mmapio[],
@@ -258,7 +262,7 @@ int PrepareIconDraw(XSWAP hSwap, unsigned int Off, char **bo, int *TrCol)
 //!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
 //"Page too long !" message will then be displayed
 //and the incomplete page can be viewed.
-return NULL;
+return 0;
 //      MALLOCERR();
 //!!glennmcc: end
 

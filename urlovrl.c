@@ -109,7 +109,7 @@ XSWAP Write2Cache(struct Url *absURL,struct HTTPrecord *cacheitem, char ovr,char
   cacheptr=(struct HTTPrecord *)ie_getswap(HTTPcache.lineadr[HTTPcache.cur]);
   if(!cacheptr)
 //!!glennmcc: Mar 03, 2007 -- return instead of crashing
-return NULL;
+return 0;
 //    MALLOCERR();
 //!!glennmcc: end
 
@@ -155,7 +155,7 @@ return NULL;
    cacheptr=(struct HTTPrecord *)ie_getswap(HTTPcache.lineadr[HTTPcache.cur]);
    if(!cacheptr)
 //!!glennmcc: Mar 03, 2007 -- return instead of crashing
-return NULL;
+return 0;
 //    MALLOCERR();
 //!!glennmcc: end
 
@@ -340,7 +340,7 @@ char NeedImage(char reload, XSWAP *from)
 //!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
 //"Page too long !" message will then be displayed
 //and the incomplete page can be viewed.
-return NULL;
+return 0;
 //    MALLOCERR();
 //!!glennmcc: end
   }
@@ -373,7 +373,7 @@ return NULL;
 //!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
 //"Page too long !" message will then be displayed
 //and the incomplete page can be viewed.
-return NULL;
+return 0;
 //     MALLOCERR();
 //!!glennmcc: end
    }
@@ -386,7 +386,7 @@ return NULL;
 //!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
 //"Page too long !" message will then be displayed
 //and the incomplete page can be viewed.
-return NULL;
+return 0;
 //     MALLOCERR();
 //!!glennmcc: end
    }
@@ -487,7 +487,7 @@ if(type==EMBED && !strncmpi(&URLptr[strlen(URLptr)-4],".SWF",4)) found=1; else
   memerr();
 //JdS }
 
-#ifdef LINUX //JdS (was POSIX)
+#ifdef POSIX //rafael2k - back to POSIX. Was: JdS (was POSIX) changed to LINUX
  cmdbuf[0] = '\0';
 #else
  strcpy(cmdbuf,"@echo off\n");
@@ -511,7 +511,7 @@ if(type==EMBED && !strncmpi(&URLptr[strlen(URLptr)-4],".SWF",4)) found=1; else
 //!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
 //"Page too long !" message will then be displayed
 //and the incomplete page can be viewed.
-return NULL;
+return 0;
 //    MALLOCERR();
 //!!glennmcc: end
 
@@ -590,7 +590,7 @@ return NULL;
 //!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
 //"Page too long !" message will then be displayed
 //and the incomplete page can be viewed.
-return NULL;
+return 0;
 //    MALLOCERR();
 //!!glennmcc: end
 
