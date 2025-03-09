@@ -1,6 +1,8 @@
 #  Instructions for DOS version
 
 Start by downloading and installing the "Arachne v1.99;GPL" DOS package from https://www.glennmcc.org/arachne/, the file is a199gpl.zip. Installation is straight-forward, just follow the instructions.
+The content of the installed arachne is also present in "distrib/ARACHNE" directory.
+
 
 To compile the DOS version, find yourself a copy of Borland C++ 3.1 and install it. Cross compilation is not supported, but DOSBox can be used.
 
@@ -12,7 +14,7 @@ The DOS version is stable.
 
 To compile the SDL2 version, simply go to the "sdl2" folder and run "make". The SVGALIB version (in the "svgalib" folder) should also compile - please file a bug if it doesn't. If possible, create a 32-bit binary (add "-m32" to CFLAGS or use "CC=i686-linux-gnu-gcc" in sdl2/makefile). All Linux builds are quite unstable, but 64-bit builds are particularly bad.
 
-I have not created a package for the support files (fonts, icons, user interface, help and configuration files) yet, so you need to install them manually. Start by downloading the "Arachne GPL v1.95;GPL" Linux package from https://www.glennmcc.org/aralinux/, the file is arachne-svgalib-1.95.tgz (link is at the top of the page). Glenn has maintained Arachne for the last 20-odd years. Thank him.
+I have not created a package for the support files (fonts, icons, user interface, help and configuration files) yet, so you need to install them manually. Start by downloading the "Arachne GPL v1.95;GPL" Linux package from https://www.glennmcc.org/aralinux/, the file is arachne-svgalib-1.95.tgz (link is at the top of the page). The content is also present in "distrib/arachne-svgalib-1.95" directory. 
 
 Do not run the install script from the archive. Do not run the arachne-install script either.
 
@@ -52,4 +54,8 @@ HomePage http://www.frogfind.com
 Multitasking No
 HTTPKeepAlive No
 ```
+
+# Acknowledgments
+
+Glenn has maintained Arachne for the last 20-odd years. Thank him!
 
