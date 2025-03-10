@@ -1511,7 +1511,7 @@ if(orderedlist[listdepth])
       font=htmldata->basefontsize;
      }
 //!!glennmcc: Mar 07, 2008 -- allow use of <sup> within <pre>
-if(pre) alignrow(x,y,NULL);
+if(pre) alignrow(x,y,0);
 //!!glennmcc: end
      break;
 
@@ -1531,7 +1531,7 @@ if(pre) alignrow(x,y,NULL);
       font=htmldata->basefontsize;
      }
 //!!glennmcc: Mar 07, 2008 -- allow use of <sub> within <pre>
-if(pre) alignrow(x,y,NULL);
+if(pre) alignrow(x,y,0);
 //!!glennmcc: end
      break;
 
