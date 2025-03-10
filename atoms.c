@@ -549,7 +549,8 @@ int ProcessLinks(char generateASF)
  char frameID;
  XSWAP currentHTMLatom=p->firstHTMLatom,nextHTMLatom;
  XSWAP hidethis=IE_NULL;
- unsigned dummy;
+ XSWAP dummy1;
+ unsigned dummy2;
  int count=0,asf;
  struct HTMLrecord *atomptr;
  struct HTTPrecord HTTPdoc;
@@ -597,7 +598,7 @@ int ProcessLinks(char generateASF)
    else
    {
     AnalyseURL(href,&url,frameID);
-    if(SearchInCache(&url,&HTTPdoc,&dummy,&dummy) && file_exists(HTTPdoc.locname))
+    if(SearchInCache(&url,&HTTPdoc,&dummy1,&dummy2) && file_exists(HTTPdoc.locname))
      hidethis=currentHTMLatom;
     else
     {
