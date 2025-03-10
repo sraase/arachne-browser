@@ -71,6 +71,11 @@ char *itoa(int val, char *s, int base); /* in str.c */
 char *ltoa(long val, char *s, long base); /* in str.c */
 int filelength (int handle);  /* in linglue.c */
 
+int bioskey(int cmd); /* in linglue.c */
+void bioskey_init(void); /* in linglue.c */
+void bioskey_close(void); /* in linglue.c */
+int kbhit(void); /* in linglue.c */
+
 #define strncmpi strncasecmp
 #define strcmpi strcasecmp
 #define farmalloc malloc
