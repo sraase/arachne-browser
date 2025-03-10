@@ -3,7 +3,7 @@
 CC=gcc
 STRIP=strip
 
-CFLAGS  = -O2 -fomit-frame-pointer -g -Wall
+CFLAGS  = -O2 -fomit-frame-pointer -Wall -std=gnu99
 CFLAGS += -D LINUX -D POSIX -D OVRL -D HICOLOR -D SDL2
 OFILES  = linglue.o iekernel.o ie_fce.o ie_key.o str.o
 OFILES += ie_bin.o fexists.o config.o version.o errors.o outs.o html.o
