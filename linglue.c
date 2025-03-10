@@ -9,6 +9,7 @@
 
 #ifdef SVGALIB
 #include <vga.h>
+#include <vgamouse.h>
 #include <vgagl.h>
 #include <termios.h>
 #include <pthread.h>
@@ -64,7 +65,7 @@ struct termios old_termios;
 //int WaitForKey_pipeline[2];
 //int CancelWaitForKey_pipeline[2];
 int WaitForMouse_pipeline[2];
-int MouseWasUpdatedInThread=0;
+volatile int MouseWasUpdatedInThread=0;
 
 #endif
 
@@ -1058,11 +1059,12 @@ void ImouseWait(void)
 #ifdef SVGALIB
 
 
-void WaitForMouse_thread(void)
+void *WaitForMouse_thread(void *arg)
 {
  mouse_waitforupdate();
  MouseWasUpdatedInThread=1;
  write(WaitForMouse_pipeline[1],"!",1);
+ return NULL;
 }
 
 /* This worked, but it was stupid!!!
