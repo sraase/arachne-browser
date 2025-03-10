@@ -76,6 +76,8 @@ void bioskey_init(void); /* in linglue.c */
 void bioskey_close(void); /* in linglue.c */
 int kbhit(void); /* in linglue.c */
 
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+#define max(a,b) (((a) > (b)) ? (a) : (b))
 #define strncmpi strncasecmp
 #define strcmpi strcasecmp
 #define farmalloc malloc

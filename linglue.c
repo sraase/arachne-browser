@@ -492,22 +492,6 @@ int kbhit(void)
  return 0;
 }
 
-int min (int a,int b)
-{
- if(a<=b)
-  return a;
- else
-  return b;
-}
-
-int max (int a,int b)
-{
- if(a>=b)
-  return a;
- else
-  return b;
-}
-
 void tempinit(char *path)
 {
 	// put temporary files in userpath (defaults to ~/.arachne/)
