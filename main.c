@@ -1535,10 +1535,12 @@ userend:
  goto end;
 
 #ifndef NOTCPIP
+#ifndef POSIX
  sock_err:
  sockmsg(status,closesock);
  defaultmsg();
  goto ReadScriptLine;
+#endif
 #endif
 
 end:
