@@ -8,6 +8,7 @@
 // buffer subobr has always beginning [0,0] i.e. Y is always 0
 
 #include "posix.h"
+#include "v_putimg.h"
 #include "x_lopif.h"    // For xg_chrmod
 
 #ifdef VIRT_SCR

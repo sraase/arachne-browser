@@ -9,6 +9,7 @@
 /*---------------------------------------------------*/
 
 #include "posix.h"
+#include "v_putimg.h"
 #include "x_lopif.h"
 
 int xv_chr_mem(char *fnt_chr,           // Zacatek znaku ve fontu
