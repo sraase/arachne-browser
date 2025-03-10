@@ -258,7 +258,7 @@ int PrepareIconDraw(XSWAP hSwap, unsigned int Off, char **bo, int *TrCol)
 //!!glennmcc: Mar 03, 2007 -- too many atoms, return instead of crashing
 //"Page too long !" message will then be displayed
 //and the incomplete page can be viewed.
-return NULL;
+return 0;
 //      MALLOCERR();
 //!!glennmcc: end
 
