@@ -430,8 +430,8 @@ if(ie_initswap()!=1)            //initialization of swapping system ie_swap
 init_bin();                     //initialization of memory, conf. files, etc.
 setuserpaths();                 //font, cache, gui, ... pathes
 
-// temporary, force 800x600 HiColor by default
-strcpy(arachne.graphics, config_get_str("GraphicsMode", "Hi16.J"));
+// get graphics mode from configuration
+strcpy(arachne.graphics, config_get_str("GraphicsMode", ""));
 
 graphicsinit(arachne.graphics); //XLOPIF SVGA GRAPHICS
 

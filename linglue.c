@@ -1229,37 +1229,27 @@ const unsigned short cur[32] =
 #ifdef SVGALIB
  strupr(svgamode);
 // printf("Console switched to graphics mode.\n");
- if(strstr(svgamode,".I"))
- {
+ if(strstr(svgamode,".I")) {
   vga_setmode(G640x480x64K);
   gl_setcontextvga(G640x480x64K);
   SVGAx=639;
   SVGAy=479;
- }
- else
- if(strstr(svgamode,".K"))
- {
+ } else if(strstr(svgamode,".K")) {
   vga_setmode(G1024x768x64K);
   gl_setcontextvga(G1024x768x64K);
   SVGAx=1023;
   SVGAy=767;
- }
- else
- if(strstr(svgamode,".L"))
- {
+ } else if(strstr(svgamode,".L")) {
   vga_setmode(G1280x1024x64K);
   gl_setcontextvga(G1280x1024x64K);
   SVGAx=1279;
   SVGAy=1023;
- }
- if(strstr(svgamode,".M"))
- {
+ } else if(strstr(svgamode,".M")) {
   vga_setmode(G1600x1200x64K);
   gl_setcontextvga(G1600x1200x64K);
   SVGAx=1599;
   SVGAy=1199;
- }
- {
+ } else {
   vga_setmode(G800x600x64K);
   gl_setcontextvga(G800x600x64K);
   SVGAx=799;
@@ -1274,15 +1264,17 @@ const unsigned short cur[32] =
  gl_enableclipping();
 #endif
 #ifdef SDL2
-    // get window size from mode string (e.g. "800x600")
     char *ptr;
+
+    // parse mode string (e.g. "800x600") to window size
     if (svgamode && (ptr = strchr(svgamode, 'x'))) {
         SVGAx = atoi(svgamode) - 1;
         SVGAy = atoi(ptr + 1)  - 1;
-        if (SVGAx <= 0 || SVGAy <= 0) {
-            SVGAx = 799;
-            SVGAy = 599;
-        }
+    }
+    if (SVGAx < 319 || SVGAy < 199) {
+        // invalid or too small
+        SVGAx = 799;
+        SVGAy = 599;
     }
 
     // initialize SDL2 and open window
