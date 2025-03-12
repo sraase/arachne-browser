@@ -757,7 +757,7 @@ void init_bin(void)
  /* load cookies.lst and check its size */
  ptr = config_get_str("CookieFile", NULL);
  if (ptr) {
-  sprintf(cookies.filename, ptr);
+  sprintf(cookies.filename, "%s", ptr);
  } else {
   sprintf(cookies.filename, "%s%s", userpath, "cookies.lst");
  }
