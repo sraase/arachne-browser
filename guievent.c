@@ -41,7 +41,7 @@ int gotohistory(void)
 
 int gotodialpage(void)
 {
- sprintf(GLOBAL.location, config_get_str("DialPage", "file:ppp_init.htm"));
+ strcpy(GLOBAL.location, config_get_str("DialPage", "file:ppp_init.htm"));
  arachne.target=0;
  return gotoloc();
 }
@@ -1680,7 +1680,7 @@ submit:
       }
       else if(method=='U')
       {
-       sprintf(GLOBAL.location,methodarg);
+       strcpy(GLOBAL.location, methodarg);
        arachne.target=0;
        return gotoloc();
       }
