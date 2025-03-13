@@ -61,11 +61,6 @@ int authenticated_http(struct Url *url,struct HTTPrecord *cache)
  char portstr[10]="";
  int port,i;
  char ftp=0,alive=0;
-#ifdef POSIX
- struct sockaddr_in sin;
- fd_set rfds,  efds;
- struct timeval tv;
-#endif
  char willkeepalive=0;
  char *keepalive="\0";
 
@@ -606,30 +601,14 @@ if(!outgoing[0])
    }
 
 #ifdef POSIX
-   tv.tv_sec = 0;
-   tv.tv_usec = 500;
-
-   FD_ZERO (&rfds);
-   FD_ZERO (&efds);
-   FD_SET (socknum, &rfds);
-   FD_SET (socknum, &efds);
-   select (socknum+1, &rfds, NULL, &efds, &tv);
-
-
-   if (FD_ISSET (socknum, &efds) && errno!=EINTR)
-   {
-     outs(MSG_CLOSED);
-     return 0;
-   }
-
-   count=read(socknum, &(p->buf[p->httplen]),BUF-p->httplen);
-   if(count<0)
-   {
-    if (errno != EAGAIN) {
-	   outs(MSG_CLOSED);
-       return 0;
-    }
-    else count = 0;
+   if (atcp_has_data(&socknum)) {
+      count = atcp_recv(&socknum, &(p->buf[p->httplen]), BUF - p->httplen);
+      if (count <= 0) {
+         outs(MSG_CLOSED);
+         return 0;
+      }
+   } else {
+      count = 0;
    }
 
    p->httplen+=count;

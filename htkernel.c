@@ -25,10 +25,6 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
  int count = 0;
  char closed=0;
  int iddle=0;
-#ifdef POSIX
- fd_set rfds, efds;
- struct timeval tv;
-#endif
 
  if(p->httplen) //flush rest of header...
  {
@@ -68,19 +64,14 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
    }
 
 #ifdef POSIX
-  tv.tv_sec = 0;
-  tv.tv_usec = 500; //increased to one milisecond for best results...
-
-  FD_ZERO (&rfds);
-  FD_ZERO (&efds);
-  FD_SET (sockfd, &rfds);
-  FD_SET (sockfd, &efds);
-  select (sockfd+1, &rfds, NULL, &efds, &tv);
-
-  if (FD_ISSET (sockfd, &efds) && errno!=EINTR) closed = 1;
-
-  count=read(sockfd, buf, BUF);
-  if (!count) closed = 1;
+  if (atcp_has_data(&sockfd)) {
+    count = atcp_recv(&sockfd, buf, BUF);
+    if (count <= 0) {
+      closed = 1;
+    }
+  } else {
+    count = 0;
+  }
 #else
   if (sock_dataready( socket ))
   {
