@@ -199,6 +199,39 @@ int atcp_recv(void *handle, char *buf, size_t len)
 #endif
 }
 
+/* check if data available
+     return 0  if no data available
+     return >0 if data available OR error */
+int atcp_has_data(void *handle)
+{
+#ifdef POSIX
+	int ret, sockfd = *(int *)handle;
+	struct timeval tv;
+	fd_set efds, rfds;
+
+	while (1) {
+		tv.tv_sec = 0;  tv.tv_usec = 500;
+		FD_ZERO(&rfds); FD_SET(sockfd, &rfds);
+		FD_ZERO(&efds); FD_SET(sockfd, &efds);
+		ret = select(sockfd + 1, &rfds, NULL, &efds, &tv);
+		if (ret < 0) {
+			if (errno == EINTR)
+				continue;
+			return 1; // error
+		}
+
+		if (FD_ISSET(sockfd, &rfds) || FD_ISSET(sockfd, &efds))
+			return 1; // data available or closed
+
+		return 0;
+	}
+#else
+	tcp_Socket *socket = (tcp_Socket *)handle;
+	int ret = sock_dataready(socket);
+	return (ret == 0) ? 0 : 1;
+#endif
+}
+
 #ifdef POSIX
 static volatile int      atcp_resolve_valid;
 static volatile uint32_t atcp_resolve_result;
