@@ -43,7 +43,7 @@ struct GLOBAL_FLAG
  char backgroundimages;
  long back_size;            // size in bytes
  char back_knowsize;        // logical - size is valid
- char back_socknum;
+ int back_socknum;
  int back_handle;
  int back_status;
  int back_iddle;
