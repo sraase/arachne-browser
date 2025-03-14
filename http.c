@@ -616,7 +616,7 @@ if(!outgoing[0])
    if(strstr(p->buf,"\r\n\r\n") || strstr(p->buf,"\r\r") || strstr(p->buf,"\n\n") || p->httplen>=p->buf)
     header_done=1;
 #else
-   if (sock_dataready(socket ))
+   if (atcp_has_data(socket))
    {
     if(p->httplen+256<BUF)
     {
@@ -1294,7 +1294,7 @@ if(!cache->knowsize
   strcpy(dl,MSG_DOWNLD);
 
 #ifndef POSIX
-  if (!sock_dataready(socket ) || rd==0)
+  if (!atcp_has_data(socket) || rd==0)
   {
 #endif
    if (cache->knowsize && cache->size>100)

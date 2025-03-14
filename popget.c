@@ -486,7 +486,7 @@ else
        sock_mode( socket, TCP_MODE_ASCII );
 
        //skip empty lines ?
-       while(sock_dataready(socket))
+       while(atcp_has_data(socket))
        {
 	len=atcp_recv(socket, buffer, sizeof(buffer));
 	buffer[len]='\0';

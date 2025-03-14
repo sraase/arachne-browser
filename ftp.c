@@ -486,7 +486,7 @@ if(isdir || strstr(str,"RETR"))
     if(GLOBAL.gotolocation || GLOBAL.abort)
      goto dataquit;
 
-   if (sock_dataready( &datasocket ))
+   if (atcp_has_data(&datasocket))
    {
     len = atcp_recv(&datasocket, buffer, BUFLEN);
     write(cache->handle,buffer,len);

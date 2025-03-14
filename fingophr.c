@@ -94,7 +94,7 @@ int xfinger(struct Url *url, struct HTTPrecord *cache,char *selector)
   if(GUITICK())
    if(GLOBAL.gotolocation || GLOBAL.abort)
     goto abort;
-  if (sock_dataready( socket ))
+  if (atcp_has_data(socket))
   {
    len = atcp_recv(socket, smallbuf, 512);
    if(cache->handle>=0)

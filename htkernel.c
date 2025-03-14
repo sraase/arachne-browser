@@ -73,7 +73,7 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
     count = 0;
   }
 #else
-  if (sock_dataready( socket ))
+  if (atcp_has_data(socket))
   {
    count=atcp_recv(socket, buf, BUF);
 #endif
@@ -145,7 +145,7 @@ void Backgroundhttp(void)
 
   count=read(GLOBAL.back_socknum, buffer,BACKBUF);
 #else
-  if (sock_dataready( sock[GLOBAL.back_socknum] ))
+  if (atcp_has_data(sock[GLOBAL.back_socknum]))
   {
    count=atcp_recv(sock[GLOBAL.back_socknum], buffer, BACKBUF);
 #endif
