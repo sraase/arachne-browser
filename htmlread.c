@@ -59,7 +59,7 @@ int readHTML(struct HTTPrecord *cache,char source)
 #ifndef NOTCPIP
  if(source==HTTP_HTML && arachne.target==p->currentframe)
 #ifdef POSIX
-  return tickhttp(cache,p->buf,socknum);
+  return tickhttp(cache,p->buf,&socknum);
 #else
   return tickhttp(cache,p->buf,socket);
 #endif

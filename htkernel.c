@@ -16,11 +16,7 @@
 
 
 //return value: number of bytes or 0...connection closed
-#ifdef POSIX
-int tickhttp(struct HTTPrecord *cache, char *buf, int sockfd)
-#else
 int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
-#endif
 {
  int count = 0;
  char closed=0;
@@ -64,8 +60,8 @@ int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket)
    }
 
 #ifdef POSIX
-  if (atcp_has_data(&sockfd)) {
-    count = atcp_recv(&sockfd, buf, BUF);
+  if (atcp_has_data(socket)) {
+    count = atcp_recv(socket, buf, BUF);
     if (count <= 0) {
       closed = 1;
     }

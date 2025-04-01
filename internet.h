@@ -19,11 +19,7 @@ void Download(struct HTTPrecord *cache);
 void Backgroundhttp(void);
 char GoBackground(struct HTTPrecord *cache);
 void FinishBackground(char mode);
-#ifdef POSIX
-int tickhttp(struct HTTPrecord *cache, char *buf, int sockfd);
-#else
-int tickhttp(struct HTTPrecord *cache, char *buf,tcp_Socket *socket);
-#endif
+int tickhttp(struct HTTPrecord *cache, char *buf, tcp_Socket *socket);
 void DNSerr(char *host);
 
 #ifdef WATTCP

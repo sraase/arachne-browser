@@ -1266,7 +1266,7 @@ long starttime=(int)(time(NULL)), elapsedtime=0, lastsec=0, bytesec=0;
  while(rd>0)
  {
 #ifdef POSIX
-  rd=tickhttp(cache,p->buf,socknum);
+  rd=tickhttp(cache,p->buf,&socknum);
 #else
   rd=tickhttp(cache,p->buf,socket);
 #endif
