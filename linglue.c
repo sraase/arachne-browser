@@ -754,10 +754,16 @@ void x_putimg(int xz,int yz, char *bitmap, int op)
 #endif
 }
 
+/* return highest color */
 int x_getmaxcol(void)
 {
- //return max. number of colors
- return 256;
+    if (xg_256 == MM_256)
+        return 255;
+    if (xg_256 == MM_16)
+        return 15;
+    if (xg_256 == MM_2)
+        return 1;
+    return 0;
 }
 
 void x_palett(int len, char *paleta)
