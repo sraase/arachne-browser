@@ -584,10 +584,17 @@ void x_video_XMS(int vidXMS, int bincol)
 void x_setcolor(int color)
 {
 #ifndef TXTDEBUG
- //set foreground color
- xg_color=color;
+    //set foreground color
+    xg_color=color;
 #ifdef SVGALIB
- vga_setrgbcolor(xg_hipal[3*xg_color]<<2,xg_hipal[3*xg_color+1]<<2,xg_hipal[3*xg_color+2]<<2);
+    if (xg_256 == MM_Hic) {
+        int r = xg_hipal[3*xg_color]   << 2;
+        int g = xg_hipal[3*xg_color+1] << 2;
+        int b = xg_hipal[3*xg_color+2] << 2;
+        vga_setrgbcolor(r, g, b);
+    } else {
+        vga_setcolor(xg_color);
+    }
 #endif
 #ifdef SDL2
     sdlcolor = get_color(xg_color);
