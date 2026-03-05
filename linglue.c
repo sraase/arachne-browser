@@ -766,21 +766,32 @@ int x_getmaxcol(void)
     return 0;
 }
 
+/* set color palette */
 void x_palett(int len, char *paleta)
 {
- //set palette to array or (3 R-G-B bytes)*len
-  if(xg_256 == MM_Hic)		 // only a copy into xg_hipal
-  {
-   int i;
+    int i, r, g, b;
 
-     memcpy(xg_hipal, paleta, 3*len);
-     for(i=0; i<len; i++)
-       { xg_hival[i] = xh_RgbHiPal(xg_hipal[3*i], xg_hipal[3*i+1],
-				   xg_hipal[3*i+2]);
-       }
-  }
-  //else real palette mapping.... later....
+    if (xg_256 == MM_Hic) {
+        /* software palette */
+        memcpy(xg_hipal, paleta, 3 * len);
 
+        for (i = 0; i < len; i++) {
+            r = paleta[3 * i];
+            g = paleta[3 * i + 1];
+            b = paleta[3 * i + 2];
+            xg_hival[i] = xh_RgbHiPal(r, g, b);
+        }
+    } else {
+#ifdef SVGALIB
+        /* hardware palette */
+        for (i = 0; i < len; i++) {
+            r = paleta[3 * i];
+            g = paleta[3 * i + 1];
+            b = paleta[3 * i + 2];
+            vga_setpalette(i, r, g, b);
+        }
+#endif
+    }
 }
 
 /*
@@ -809,11 +820,28 @@ int x_detect(char *svga, int *kby)
  return 0;
 }
 
+/* set single entry in color palette */
 void x_pal_1(int n_pal, char *pal_1)
 {
- //set one color in palette
- memcpy(&xg_hipal[3*n_pal],pal_1,3);
- xg_hival[n_pal] = xh_RgbHiPal(xg_hipal[3*n_pal], xg_hipal[3*n_pal+1], xg_hipal[3*n_pal+2]);
+    int r, g, b;
+
+    if (xg_256 == MM_Hic) {
+        /* software palette */
+        memcpy(&xg_hipal[3 * n_pal], pal_1, 3);
+
+        r = pal_1[0];
+        g = pal_1[1];
+        b = pal_1[2];
+        xg_hival[n_pal] = xh_RgbHiPal(r, g, b);
+    } else {
+#ifdef SVGALIB
+        /* hardware palette */
+        r = pal_1[0];
+        g = pal_1[1];
+        b = pal_1[2];
+        vga_setpalette(n_pal, r, g, b);
+#endif
+    }
 }
 
 int x_rea_svga(char *path, char *g_jmeno, int *mod)
