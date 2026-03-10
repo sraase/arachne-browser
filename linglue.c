@@ -67,6 +67,50 @@ struct termios old_termios;
 int WaitForMouse_pipeline[2];
 volatile int MouseWasUpdatedInThread=0;
 
+struct svgamode {
+    char *name;
+    int mode;
+    int width;
+    int height;
+    int xg_256;
+    int xg_hi16;
+};
+
+static const struct svgamode modes[] = {
+    /* 16 bit */
+    { "HI16.I", G640x480x64K,    640,  480, MM_Hic, 1 },
+    { "HI16.J", G800x600x64K,    800,  600, MM_Hic, 1 },
+    { "HI16.K", G1024x768x64K,  1024,  768, MM_Hic, 1 },
+    { "HI16.L", G1280x1024x64K, 1280, 1024, MM_Hic, 1 },
+    { "HI16.M", G1600x1200x64K, 1600, 1200, MM_Hic, 1 },
+    /* 15 bit */
+    { "HI15.I", G640x480x32K,    640,  480, MM_Hic, 0 },
+    { "HI15.J", G800x600x32K,    800,  600, MM_Hic, 0 },
+    { "HI15.K", G1024x768x32K,  1024,  768, MM_Hic, 0 },
+    { "HI15.L", G1280x1024x32K, 1280, 1024, MM_Hic, 0 },
+    { "HI15.M", G1600x1200x32K, 1600, 1200, MM_Hic, 0 },
+    /* 8 bit */
+    { "VGA2",   G320x200x256,    320,  200, MM_256, 0 },
+    { "B",      G640x480x256,    640,  480, MM_256, 0 },
+    { "C",      G800x600x256,    800,  600, MM_256, 0 },
+    { "E",      G1024x768x256,  1024,  768, MM_256, 0 },
+    /* 4 bit */
+    { "VGA",    G640x480x16,     640,  480, MM_16,  0 },
+    { "A",      G800x600x16,     800,  600, MM_16,  0 },
+    { "D",      G1024x768x16,   1024,  768, MM_16,  0 },
+};
+
+static const struct svgamode *get_mode(char *name)
+{
+    const struct svgamode *end = modes + sizeof(modes) / sizeof(modes[0]);
+    const struct svgamode *ptr;
+
+    for (ptr = modes; ptr < end; ++ptr) {
+        if (!strcmp(name, ptr->name))
+            return ptr;
+    }
+    return &modes[0];
+}
 #endif
 
 #ifdef SDL2
@@ -1263,42 +1307,26 @@ const unsigned short cur[32] =
   x_settextjusty(0,2);	// always write text from upper left corner
 
 #ifdef SVGALIB
- strupr(svgamode);
-// printf("Console switched to graphics mode.\n");
- if(strstr(svgamode,".I")) {
-  vga_setmode(G640x480x64K);
-  gl_setcontextvga(G640x480x64K);
-  SVGAx=639;
-  SVGAy=479;
- } else if(strstr(svgamode,".K")) {
-  vga_setmode(G1024x768x64K);
-  gl_setcontextvga(G1024x768x64K);
-  SVGAx=1023;
-  SVGAy=767;
- } else if(strstr(svgamode,".L")) {
-  vga_setmode(G1280x1024x64K);
-  gl_setcontextvga(G1280x1024x64K);
-  SVGAx=1279;
-  SVGAy=1023;
- } else if(strstr(svgamode,".M")) {
-  vga_setmode(G1600x1200x64K);
-  gl_setcontextvga(G1600x1200x64K);
-  SVGAx=1599;
-  SVGAy=1199;
- } else {
-  vga_setmode(G800x600x64K);
-  gl_setcontextvga(G800x600x64K);
-  SVGAx=799;
-  SVGAy=599;
- }
- vga_runinbackground(1);
- vga_oktowrite();
- gl_setwritemode(FONT_COMPRESSED|WRITEMODE_MASKED);
- gl_setfontcolors(0,vga_white());
- //gl_setfont(8,8,gl_font8x8);
- gl_setrgbpalette();
- gl_enableclipping();
+    strupr(svgamode);
+    if (1) {
+        const struct svgamode *mode = get_mode(svgamode);
+        vga_setmode(mode->mode);
+        gl_setcontextvga(mode->mode);
+        SVGAx = mode->width - 1;
+        SVGAy = mode->height - 1;
+        xg_256 = mode->xg_256;
+        xg_hi16 = mode->xg_hi16;
+    }
+
+    vga_runinbackground(1);
+    vga_oktowrite();
+    gl_setwritemode(FONT_COMPRESSED|WRITEMODE_MASKED);
+    gl_setfontcolors(0,vga_white());
+    //gl_setfont(8,8,gl_font8x8);
+    gl_setrgbpalette();
+    gl_enableclipping();
 #endif
+
 #ifdef SDL2
     char *ptr;
 
