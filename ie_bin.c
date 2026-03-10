@@ -148,10 +148,13 @@ void ie_clearbin(struct bin_file *fajl) //kdyz je nemazat NULL, tak nic
 
  ie_resetbin(fajl);
 
-#ifndef MYMEMORY
- if(fajl->lineadr!=NULL)farfree(fajl->lineadr);fajl->lineadr=NULL;
- if(fajl->linesize!=NULL)farfree(fajl->linesize);fajl->linesize=NULL;
-#endif
+ if(fajl->lineadr!=NULL) {
+  farfree(fajl->lineadr);
+  fajl->lineadr=NULL;
+ }
 
-
+ if(fajl->linesize!=NULL) {
+  farfree(fajl->linesize);
+  fajl->linesize=NULL;
+ }
 }//end sub
