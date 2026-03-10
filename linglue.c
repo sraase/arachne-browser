@@ -505,7 +505,7 @@ void tempinit(char *path)
 
 // this variable indicates graphics mode, is used to select between
 // HiColor vs. 256 color modes
-int xg_256;
+int xg_256=MM_Hic;
 int xg_video_XMS=0; //real screen
 unsigned short xg_hival[256]; //hicolor values for palette
 int xg_hi16=1;	  // mode : 16bit=1,15bit=0
@@ -549,10 +549,6 @@ int   xg_31yn=0;      //ASCII 1 ... ASCII 31 interpreted as 1..31 pixel space
 
 int x_grf_mod(int xmod)
 {
- //set text mode here...
- //we will emulate hicolor for now....
- xg_256=MM_Hic;
-
 #ifdef SDL2
  if (xmod == 3) {
   // mode 03h = 80x25 text, called before exit
@@ -1263,7 +1259,6 @@ const unsigned short cur[32] =
 	   0x07EC, 0x07EE, 0x001E, 0x03EE, 0x03EE, 0x001E, 0x00EC, 0x0002 };
 
 
-  xg_256=MM_Hic; //set Hicolor flag...
   initpalette();
   x_settextjusty(0,2);	// always write text from upper left corner
 
